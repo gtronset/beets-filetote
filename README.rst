@@ -1,8 +1,12 @@
+This is a fork of copyartifacts, which was created in its entirety by Sami
+Barakat. It includes Python 3 fixes and has been published to PyPI as
+beets-copyartifacts3.
+
 copyartifacts plugin for beets
 ==============================
 
-.. image:: https://travis-ci.org/sbarakat/beets-copyartifacts.svg?branch=master
-    :target: https://travis-ci.org/sbarakat/beets-copyartifacts
+.. image:: https://travis-ci.org/adammillerio/beets-copyartifacts.svg?branch=master
+    :target: https://travis-ci.org/adammmillerio/beets-copyartifacts
 
 A plugin that moves non-music files during the import process.
 
@@ -19,7 +23,7 @@ The stable version of the plugin is available from PyPI. Installation can be don
 
 ::
 
-    pip install beets-copyartifacts
+    pip install beets-copyartifacts3
 
 If you get permission errors try running it with ``sudo``
 
@@ -30,7 +34,7 @@ The development version can be installed from GitHub by using these commands:
 
 ::
 
-    git clone https://github.com/sbarakat/beets-copyartifacts.git
+    git clone https://github.com/adammillerio/beets-copyartifacts.git
     cd beets-copyartifacts
     python setup.py install
 
@@ -70,11 +74,11 @@ Renaming files
 ~~~~~~~~~~~~~~
 
 Renaming works in much the same way as beets `Path
-Formats <http://beets.readthedocs.org/en/v1.3.3/reference/pathformat.html>`__
+Formats <http://beets.readthedocs.org/en/stable/reference/pathformat.html>`__
 with the following limitations: - The fields available are ``$artist``,
 ``$albumartist``, ``$album`` and ``$albumpath``. - The full set of
 `built in
-functions <http://beets.readthedocs.org/en/v1.3.3/reference/pathformat.html#functions>`__
+functions <http://beets.readthedocs.org/en/stable/reference/pathformat.html#functions>`__
 are also supported, with the exception of ``%aunique`` - which will
 return an empty string.
 
@@ -111,11 +115,14 @@ Example config
 Thanks
 ------
 
+copyartifacts was built in its entirety by Sami Barakat. This fork
+is simply a Python 3 compatible version published to PyPI.
+
 copyartifacts was built on top of the hard work already done by Adrian
 Sampson and the larger community on
 `beets <http://beets.radbox.org/>`__. We have also benefited from the
 work of our
-`contributors <https://github.com/sbarakat/beets-copyartifacts/graphs/contributors>`__.
+`contributors <https://github.com/adammillerio/beets-copyartifacts/graphs/contributors>`__.
 
 This plugin was built out of necessity and to scratch an itch. It has
 gained a bit of attention, so I intend to maintain it where I can,
@@ -126,6 +133,7 @@ License
 -------
 
 Copyright (c) 2015-2017 Sami Barakat
+Copyright (c) 2020 Adam Miller
 
 Licensed under the `MIT
-license <https://github.com/sbarakat/beets-copyartifacts/blob/master/LICENSE>`__.
+license <https://github.com/adammillerio/beets-copyartifacts/blob/master/LICENSE>`__.
