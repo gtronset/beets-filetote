@@ -4,14 +4,14 @@ with open('README.rst') as f:
     readme = f.read()
 
 setup(
-    name="beets-copyartifacts",
-    version="0.1.2",
+    name="beets-copyartifacts3",
+    version="0.1.3",
     description="beets plugin to copy non-music files to import path",
     long_description=readme,
-    author='Sami Barakat',
-    author_email='sami@sbarakat.co.uk',
-    url='https://github.com/sbarakat/beets-copyartifacts',
-    download_url='https://github.com/sbarakat/beets-copyartifacts.git',
+    author='Adam Miller',
+    author_email='adam@adammiller.io',
+    url='https://github.com/adammillerio/beets-copyartifacts',
+    download_url='https://github.com/adammillerio/beets-copyartifacts.git',
     license='MIT',
     platforms='ALL',
 
@@ -27,5 +27,10 @@ setup(
         'Environment :: Web Environment',
         'Programming Language :: Python :: 2',
         'Programming Language :: Python :: 2.7',
+        'Programming Language :: Python :: 3',
+        'Programming Language :: Python :: 3.5',
+        'Programming Language :: Python :: 3.6',
+        'Programming Language :: Python :: 3.7',
+        'Programming Language :: Python :: 3.8',
     ]
 )

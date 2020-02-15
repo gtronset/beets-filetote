@@ -2,4 +2,4 @@
 nose==1.3.7
 mock==2.0.0
 # for FetchArt plugin
-requests==2.12.4
+requests==2.22.0
