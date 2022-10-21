@@ -1,16 +1,14 @@
+import filecmp
 import os
 import sys
-import filecmp
 
 import beets.util
 from beets import config
-from beets.ui import get_path_formats
-from mediafile import TYPES
-from beets.plugins import BeetsPlugin
 from beets.library import DefaultTemplateFunctions
+from beets.plugins import BeetsPlugin
+from beets.ui import get_path_formats
 from beets.util.functemplate import Template
-
-__version__ = "0.1.0"
+from mediafile import TYPES
 
 
 class CopyFileArtifactsPlugin(BeetsPlugin):
@@ -61,7 +59,9 @@ class CopyFileArtifactsPlugin(BeetsPlugin):
 
         # Get template funcs and evaluate against mapping
         funcs = DefaultTemplateFunctions().functions()
-        file_path = subpath_tmpl.substitute(mapping, funcs) + file_ext.decode("utf8")
+        file_path = subpath_tmpl.substitute(mapping, funcs) + file_ext.decode(
+            "utf8"
+        )
 
         # Sanitize filename
         filename = beets.util.sanitize_path(os.path.basename(file_path))
@@ -160,7 +160,9 @@ class CopyFileArtifactsPlugin(BeetsPlugin):
                 continue
 
             # Skip file if it already exists in dest
-            if os.path.exists(dest_file) and filecmp.cmp(source_file, dest_file):
+            if os.path.exists(dest_file) and filecmp.cmp(
+                source_file, dest_file
+            ):
                 ignored_files.append(source_file)
                 continue
 
@@ -189,7 +191,9 @@ class CopyFileArtifactsPlugin(BeetsPlugin):
 
     def _copy_artifact(self, source_file, dest_file):
         self._log.info(
-            "Copying artifact: {0}".format(os.path.basename(dest_file.decode("utf8")))
+            "Copying artifact: {0}".format(
+                os.path.basename(dest_file.decode("utf8"))
+            )
         )
         beets.util.copy(source_file, dest_file)
 
@@ -199,7 +203,9 @@ class CopyFileArtifactsPlugin(BeetsPlugin):
             return
 
         self._log.info(
-            "Moving artifact: {0}".format(os.path.basename(dest_file.decode("utf8")))
+            "Moving artifact: {0}".format(
+                os.path.basename(dest_file.decode("utf8"))
+            )
         )
         beets.util.move(source_file, dest_file)
 

@@ -1,9 +1,10 @@
 import os
 import sys
 
-from tests.helper import CopyFileArtifactsTestCase
 import beets
 from beets import config
+
+from tests.helper import CopyFileArtifactsTestCase
 
 
 class CopyFileArtifactsFilename(CopyFileArtifactsTestCase):
@@ -37,7 +38,9 @@ class CopyFileArtifactsFilename(CopyFileArtifactsTestCase):
         self._run_importer()
 
         self.assert_in_lib_dir(
-            b"Tag Artist", b"Tag Album", beets.util.bytestring_path("\xe4rtifact.file")
+            b"Tag Artist",
+            b"Tag Album",
+            beets.util.bytestring_path("\xe4rtifact.file"),
         )
 
     def test_import_dir_with_unicode_character_in_artifact_name_move(self):
@@ -57,7 +60,9 @@ class CopyFileArtifactsFilename(CopyFileArtifactsTestCase):
         self._run_importer()
 
         self.assert_in_lib_dir(
-            b"Tag Artist", b"Tag Album", beets.util.bytestring_path("\xe4rtifact.file")
+            b"Tag Artist",
+            b"Tag Album",
+            beets.util.bytestring_path("\xe4rtifact.file"),
         )
 
     def test_import_dir_with_illegal_character_in_album_name(self):
@@ -66,7 +71,9 @@ class CopyFileArtifactsFilename(CopyFileArtifactsTestCase):
         # Create import directory, illegal filename character used in the album name
         open(os.path.join(self.album_path, b"artifact.file"), "a").close()
         medium = self._create_medium(
-            os.path.join(self.album_path, b"track_1.mp3"), b"full.mp3", b"Tag Album?"
+            os.path.join(self.album_path, b"track_1.mp3"),
+            b"full.mp3",
+            b"Tag Album?",
         )
         self.import_media = [medium]
 

@@ -1,8 +1,9 @@
 import os
 import sys
 
-from tests.helper import CopyFileArtifactsTestCase
 from beets import config
+
+from tests.helper import CopyFileArtifactsTestCase
 
 
 class CopyFileArtifactsFromNestedDirectoryTest(CopyFileArtifactsTestCase):

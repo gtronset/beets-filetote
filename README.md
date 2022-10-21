@@ -2,17 +2,20 @@
 
 [![MIT license][license image]][license link] [![CI][ci image]][ci link]
 
-A plugin that moves non-music files during the import process for [beets](http://beets.radbox.org/), a music library manager (and much more!).
+A plugin that moves non-music files during the import process for
+[beets](http://beets.radbox.org/), a music library manager (and much more!).
 
-This is a fork of [copyartifacts3](https://github.com/adammillerio/beets-copyartifacts) that expands functionality. beets-copyartifacts3 itself a fork
-of the archived [copyartifacts (by Sami Barakat)](https://github.com/sbarakat/beets-copyartifacts) which includes Python 3 fixes and was been published to PyPI
-as beets-copyartifacts3.
+This is a fork of [copyartifacts3](https://github.com/adammillerio/beets-copyartifacts)
+that expands functionality. beets-copyartifacts3 itself a fork of the archived
+[copyartifacts (by Sami Barakat)](https://github.com/sbarakat/beets-copyartifacts)
+which includes Python 3 fixes and was been published to PyPI as beets-copyartifacts3.
 
 ## Installing
 
 ### Stable
 
-The stable version of the plugin is available from PyPI. Installation can be done using pip:
+The stable version of the plugin is available from PyPI. Installation can be
+done using pip:
 
 ```sh
 pip install beets-copyfileartifacts
@@ -103,10 +106,9 @@ copyfileartifacts:
 
 ## Thanks
 
-copyfileartifacts was built on top of the hard work already done by Sami Barakat, Adrian
-Sampson, and the larger community on
-[beets](http://beets.radbox.org/). We have also benefited from the
-work of our
+copyfileartifacts was built on top of the hard work already done by Sami
+Barakat, Adrian Sampson, and the larger community on [beets](http://beets.radbox.org/).
+We have also benefited from the work of our
 [contributors](https://github.com/gtronset/beets-copyfileartifacts/graphs/contributors).
 
 This plugin was built out of necessity and to scratch an itch. It has

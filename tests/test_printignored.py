@@ -1,8 +1,9 @@
 import os
 import sys
 
-from tests.helper import CopyFileArtifactsTestCase, capture_log
 from beets import config
+
+from tests.helper import CopyFileArtifactsTestCase, capture_log
 
 
 class CopyFileArtifactsPrintIgnoredTest(CopyFileArtifactsTestCase):
@@ -22,7 +23,9 @@ class CopyFileArtifactsPrintIgnoredTest(CopyFileArtifactsTestCase):
         with capture_log() as logs:
             self._run_importer()
 
-        self.assert_not_in_lib_dir(b"Tag Artist", b"Tag Album", b"artifact.file2")
+        self.assert_not_in_lib_dir(
+            b"Tag Artist", b"Tag Album", b"artifact.file2"
+        )
 
         # check output log
         logs = [line for line in logs if line.startswith("copyfileartifacts:")]
@@ -35,7 +38,9 @@ class CopyFileArtifactsPrintIgnoredTest(CopyFileArtifactsTestCase):
         with capture_log() as logs:
             self._run_importer()
 
-        self.assert_not_in_lib_dir(b"Tag Artist", b"Tag Album", b"artifact.file2")
+        self.assert_not_in_lib_dir(
+            b"Tag Artist", b"Tag Album", b"artifact.file2"
+        )
 
         # check output log
         logs = [line for line in logs if line.startswith("copyfileartifacts:")]
