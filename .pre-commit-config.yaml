@@ -21,6 +21,11 @@ repos:
     hooks:
     - id: black
 
+  - repo: https://github.com/PyCQA/isort
+    rev: 5.10.1
+    hooks:
+      - id: isort
+
   - repo: https://github.com/igorshubovych/markdownlint-cli
     rev: v0.32.2
     hooks:
@@ -31,7 +36,8 @@ repos:
         args: ["--fix"]
         stages: [manual]
 
-  - repo: https://github.com/PyCQA/isort
-    rev: 5.10.1
+  - repo: https://github.com/crate-ci/typos
+    rev: v1.12.2
     hooks:
-      - id: isort
+      - id: typos
+        exclude: "(_typos.toml|.gitignore)"
