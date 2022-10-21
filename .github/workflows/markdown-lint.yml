@@ -1,0 +1,25 @@
+# yaml-language-server: $schema=https://json.schemastore.org/github-workflow.json
+
+name: Markdown Lint
+
+on:
+  push:
+    paths: ["**.md", "**.markdown"]
+  pull_request:
+    paths: ["**.md", "**.markdown"]
+    types: [opened, reopened]
+
+jobs:
+  markdownlint:
+    name: Markdown Lint
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+      - name: Lint Markdown Files
+        uses: DavidAnson/markdownlint-cli2-action@v7
+        with:
+          globs: |
+            **.md
+            **.markdown
+            !src/**

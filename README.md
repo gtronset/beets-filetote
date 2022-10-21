@@ -43,7 +43,7 @@ You will need to enable the plugin in beets' `config.yaml`:
 plugins: copyfileartifacts
 ```
 
-It can copy files by file extenstion:
+It can copy files by file extension:
 
 ```yaml
 copyfileartifacts:

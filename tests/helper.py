@@ -77,14 +77,14 @@ class CopyFileArtifactsTestCase(_common.TestCase):
         # Exercise
         # Run the importer
         self.importer.run()
-        # Fake the occurence of the cli_exit event
+        # Fake the occurrence of the cli_exit event
         plugins.send("cli_exit", lib=self.lib)
 
         # Teardown
         if plugins._instances:
             classes = list(plugins._classes)
 
-            # Unregister listners
+            # Unregister listeners
             for event in classes[0].listeners:
                 del classes[0].listeners[event][0]
 

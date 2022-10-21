@@ -69,7 +69,7 @@ class CopyFileArtifactsFromFlatDirectoryTest(CopyFileArtifactsTestCase):
 
     def test_do_nothing_when_not_copying_or_moving(self):
         """
-        Check that plugin leaves everthing alone when not
+        Check that plugin leaves everything alone when not
         copying (-C command line option) and not moving.
         """
         config["import"]["copy"] = False
