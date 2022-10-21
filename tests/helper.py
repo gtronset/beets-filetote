@@ -1,27 +1,24 @@
 import os
-import sys
-import six
 import shutil
+import sys
 from contextlib import contextmanager
 from enum import Enum
 
-import tests._common as _common
-
-from beets import util
-from beets import library
-from beets import importer
 import mediafile
-from beets import config
-from beets import plugins
+import six
+from beets import config, importer, library, plugins, util
 
 # Make sure the development versions of the plugins are used
 import beetsplug  # noqa: E402
+import tests._common as _common
 
-beetsplug.__path__ = [os.path.abspath(os.path.join(__file__, "..", "..", "beetsplug"))]
-
-from beetsplug import copyfileartifacts
+beetsplug.__path__ = [
+    os.path.abspath(os.path.join(__file__, "..", "..", "beetsplug"))
+]
 
 import logging
+
+from beetsplug import copyfileartifacts
 
 log = logging.getLogger("beets")
 
@@ -216,7 +213,10 @@ class CopyFileArtifactsTestCase(_common.TestCase):
         config["import"]["resume"] = False
 
         self.importer = TestImportSession(
-            self.lib, loghandler=None, paths=[import_dir or self.import_dir], query=None
+            self.lib,
+            loghandler=None,
+            paths=[import_dir or self.import_dir],
+            query=None,
         )
 
     def _list_files(self, startpath):

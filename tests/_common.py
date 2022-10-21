@@ -1,12 +1,11 @@
-import sys
 import os
 import shutil
-import unittest
+import sys
 import tempfile
+import unittest
 
 import beets
-from beets import util
-from beets import logging
+from beets import logging, util
 
 # Test resources path.
 RSRC = util.bytestring_path(os.path.join(os.path.dirname(__file__), "rsrc"))
@@ -22,12 +21,14 @@ class Assertions(object):
 
     def assertExists(self, path):  # noqa
         self.assertTrue(
-            os.path.exists(util.syspath(path)), "file does not exist: {!r}".format(path)
+            os.path.exists(util.syspath(path)),
+            "file does not exist: {!r}".format(path),
         )
 
     def assertNotExists(self, path):  # noqa
         self.assertFalse(
-            os.path.exists(util.syspath(path)), "file exists: {!r}".format((path))
+            os.path.exists(util.syspath(path)),
+            "file exists: {!r}".format((path)),
         )
 
     def assert_equal_path(self, a, b):

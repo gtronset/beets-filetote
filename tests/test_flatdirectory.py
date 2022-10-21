@@ -1,8 +1,9 @@
 import os
 import sys
 
-from tests.helper import CopyFileArtifactsTestCase
 from beets import config
+
+from tests.helper import CopyFileArtifactsTestCase
 
 
 class CopyFileArtifactsFromFlatDirectoryTest(CopyFileArtifactsTestCase):
@@ -24,7 +25,9 @@ class CopyFileArtifactsFromFlatDirectoryTest(CopyFileArtifactsTestCase):
         self._run_importer()
 
         self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"artifact.file")
-        self.assert_not_in_lib_dir(b"Tag Artist", b"Tag Album", b"artifact.file2")
+        self.assert_not_in_lib_dir(
+            b"Tag Artist", b"Tag Album", b"artifact.file2"
+        )
 
     def test_copy_all_artifacts_by_default(self):
         self._run_importer()

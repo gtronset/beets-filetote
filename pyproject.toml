@@ -1,0 +1,11 @@
+[build-system]
+requires = ['setuptools>=40.8.0']
+build-backend = 'setuptools.build_meta'
+
+[tool.black]
+target-version = ['py36']
+experimental-string-processing = true
+line-length = 80
+
+[tool.isort]
+profile = 'black'
