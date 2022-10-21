@@ -1,44 +1,48 @@
 import os
 import sys
 
-from tests.helper import CopyArtifactsTestCase, capture_log
+from tests.helper import CopyFileArtifactsTestCase, capture_log
 from beets import config
 
-class CopyArtifactsPrintIgnoredTest(CopyArtifactsTestCase):
+
+class CopyFileArtifactsPrintIgnoredTest(CopyFileArtifactsTestCase):
     """
     Tests to check print ignored files functionality and configuration.
     """
+
     def setUp(self):
-        super(CopyArtifactsPrintIgnoredTest, self).setUp()
+        super(CopyFileArtifactsPrintIgnoredTest, self).setUp()
 
         self._create_flat_import_dir()
         self._setup_import_session(autotag=False)
 
     def test_do_not_print_ignored_by_default(self):
-        config['copyartifacts']['extensions'] = '.file'
+        config["copyfileartifacts"]["extensions"] = ".file"
 
         with capture_log() as logs:
             self._run_importer()
 
-        self.assert_not_in_lib_dir(b'Tag Artist', b'Tag Album', b'artifact.file2')
+        self.assert_not_in_lib_dir(b"Tag Artist", b"Tag Album", b"artifact.file2")
 
         # check output log
-        logs = [line for line in logs if line.startswith('copyartifacts:')]
+        logs = [line for line in logs if line.startswith("copyfileartifacts:")]
         self.assertEqual(logs, [])
 
     def test_print_ignored(self):
-        config['copyartifacts']['print_ignored'] = True
-        config['copyartifacts']['extensions'] = '.file'
+        config["copyfileartifacts"]["print_ignored"] = True
+        config["copyfileartifacts"]["extensions"] = ".file"
 
         with capture_log() as logs:
             self._run_importer()
 
-        self.assert_not_in_lib_dir(b'Tag Artist', b'Tag Album', b'artifact.file2')
+        self.assert_not_in_lib_dir(b"Tag Artist", b"Tag Album", b"artifact.file2")
 
         # check output log
-        logs = [line for line in logs if line.startswith('copyartifacts:')]
-        self.assertEqual(logs, [
-            'copyartifacts: Ignored files:',
-            'copyartifacts:    artifact.file2',
-        ])
-
+        logs = [line for line in logs if line.startswith("copyfileartifacts:")]
+        self.assertEqual(
+            logs,
+            [
+                "copyfileartifacts: Ignored files:",
+                "copyfileartifacts:    artifact.file2",
+            ],
+        )

@@ -1,5 +1,5 @@
-This is a fork of copyartifacts, which was created in its entirety by Sami
-Barakat. It includes Python 3 fixes and has been published to PyPI as
+This is a fork of copyartifacts3 that expands functionality. Itself a fork of copyartifacts (by Sami
+Barakat) includes Python 3 fixes and has been published to PyPI as
 beets-copyartifacts3.
 
 copyartifacts plugin for beets
@@ -23,7 +23,7 @@ The stable version of the plugin is available from PyPI. Installation can be don
 
 ::
 
-    pip install beets-copyartifacts3
+    pip install beets-copyfileartifacts
 
 If you get permission errors try running it with ``sudo``
 
@@ -34,8 +34,8 @@ The development version can be installed from GitHub by using these commands:
 
 ::
 
-    git clone https://github.com/adammillerio/beets-copyartifacts.git
-    cd beets-copyartifacts
+    git clone https://github.com/gtronset/beets-copyfileartifacts.git
+    cd beets-copyfileartifacts
     python setup.py install
 
 If you get permission errors try running it with ``sudo``
@@ -47,27 +47,27 @@ You will need to enable the plugin in beets' config.yaml
 
 ::
 
-    plugins: copyartifacts
+    plugins: copyfileartifacts
 
 It can copy files by file extenstion:
 
 ::
 
-    copyartifacts:
+    copyfileartifacts:
         extensions: .cue .log
 
 Or copy all non-music files (it does this by default):
 
 ::
 
-    copyartifacts:
+    copyfileartifacts:
         extensions: .*
 
 It can also print what got left:
 
 ::
 
-    copyartifacts:
+    copyfileartifacts:
         print_ignored: yes
 
 Renaming files
@@ -99,7 +99,7 @@ Example config
 
 ::
 
-    plugins: copyartifacts
+    plugins: copyfileartifacts
 
     paths:
         default: $albumartist/$year - $album/$track - $title
@@ -108,7 +108,7 @@ Example config
         ext:cue: $albumpath/$artist - $album
         ext:jpg: $albumpath/cover
 
-    copyartifacts:
+    copyfileartifacts:
         extensions: .cue .log .jpg
         print_ignored: yes
 
@@ -118,8 +118,8 @@ Thanks
 copyartifacts was built in its entirety by Sami Barakat. This fork
 is simply a Python 3 compatible version published to PyPI.
 
-copyartifacts was built on top of the hard work already done by Adrian
-Sampson and the larger community on
+copyfileartifacts was built on top of the hard work already done by Sami Barakat, Adrian
+Sampson, and the larger community on
 `beets <http://beets.radbox.org/>`__. We have also benefited from the
 work of our
 `contributors <https://github.com/adammillerio/beets-copyartifacts/graphs/contributors>`__.

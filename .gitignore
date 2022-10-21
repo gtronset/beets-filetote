@@ -1,8 +1,10 @@
 *.pyc
 *.swp
-.tox/*
-dist/*
-build/*
-env/*
-beets/*
-beets_copyartifacts.egg-info/*
+.tox/
+.pytest_cache/
+__pycache__/
+dist/
+build/
+env/
+beets/
+*.egg-info/

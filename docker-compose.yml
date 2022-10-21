@@ -1,0 +1,7 @@
+version: "3.8"
+services:
+  wizarr:
+    container_name: beets-copyfileartifacts
+    image: beets-copyfileartifacts
+    volumes:
+      - .:/src

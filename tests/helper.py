@@ -10,24 +10,23 @@ import tests._common as _common
 from beets import util
 from beets import library
 from beets import importer
-from beets import mediafile
+import mediafile
 from beets import config
 from beets import plugins
 
 # Make sure the development versions of the plugins are used
 import beetsplug  # noqa: E402
-beetsplug.__path__ = [os.path.abspath(
-    os.path.join(__file__, '..', '..', 'beetsplug')
-)]
 
-from beetsplug import copyartifacts
+beetsplug.__path__ = [os.path.abspath(os.path.join(__file__, "..", "..", "beetsplug"))]
+
+from beetsplug import copyfileartifacts
 
 import logging
+
 log = logging.getLogger("beets")
 
 
 class LogCapture(logging.Handler):
-
     def __init__(self):
         logging.Handler.__init__(self)
         self.messages = []
@@ -37,7 +36,7 @@ class LogCapture(logging.Handler):
 
 
 @contextmanager
-def capture_log(logger='beets'):
+def capture_log(logger="beets"):
     capture = LogCapture()
     log = logging.getLogger(logger)
     log.addHandler(capture)
@@ -47,18 +46,18 @@ def capture_log(logger='beets'):
         log.removeHandler(capture)
 
 
-
-class CopyArtifactsTestCase(_common.TestCase):
+class CopyFileArtifactsTestCase(_common.TestCase):
     """
     Provides common setup and teardown, a convenience method for exercising the
     plugin/importer, tools to setup a library, a directory containing files
     that are to be imported and an import session. The class also provides stubs
     for the autotagging library and assertions helpers.
     """
-    def setUp(self):
-        super(CopyArtifactsTestCase, self).setUp()
 
-        plugins._classes = set([copyartifacts.CopyArtifactsPlugin])
+    def setUp(self):
+        super(CopyFileArtifactsTestCase, self).setUp()
+
+        plugins._classes = set([copyfileartifacts.CopyFileArtifactsPlugin])
 
         self._setup_library()
 
@@ -82,7 +81,7 @@ class CopyArtifactsTestCase(_common.TestCase):
         # Run the importer
         self.importer.run()
         # Fake the occurence of the cli_exit event
-        plugins.send('cli_exit', lib=self.lib)
+        plugins.send("cli_exit", lib=self.lib)
 
         # Teardown
         if plugins._instances:
@@ -99,17 +98,17 @@ class CopyArtifactsTestCase(_common.TestCase):
         self._list_files(self.lib_dir)
 
     def _setup_library(self):
-        self.lib_db = os.path.join(self.temp_dir, b'testlib.blb')
-        self.lib_dir = os.path.join(self.temp_dir, b'testlib_dir')
+        self.lib_db = os.path.join(self.temp_dir, b"testlib.blb")
+        self.lib_dir = os.path.join(self.temp_dir, b"testlib_dir")
 
         os.mkdir(self.lib_dir)
 
         self.lib = library.Library(self.lib_db)
         self.lib.directory = self.lib_dir
         self.lib.path_formats = [
-            (u'default', os.path.join(u'$artist', u'$album', u'$title')),
-            (u'singleton:true', os.path.join(u'singletons', u'$title')),
-            (u'comp:true', os.path.join(u'compilations', u'$album', u'$title')),
+            ("default", os.path.join("$artist", "$album", "$title")),
+            ("singleton:true", os.path.join("singletons", "$title")),
+            ("comp:true", os.path.join("compilations", "$album", "$title")),
         ]
 
     def _create_flat_import_dir(self):
@@ -127,14 +126,16 @@ class CopyArtifactsTestCase(_common.TestCase):
         """
         self._set_import_dir()
 
-        album_path = os.path.join(self.import_dir, b'the_album')
+        album_path = os.path.join(self.import_dir, b"the_album")
         os.makedirs(album_path)
 
         # Create artifact
-        open(os.path.join(album_path, b'artifact.file'), 'a').close()
-        open(os.path.join(album_path, b'artifact.file2'), 'a').close()
+        open(os.path.join(album_path, b"artifact.file"), "a").close()
+        open(os.path.join(album_path, b"artifact.file2"), "a").close()
 
-        medium = self._create_medium(os.path.join(album_path, b'track_1.mp3'), b'full.mp3')
+        medium = self._create_medium(
+            os.path.join(album_path, b"track_1.mp3"), b"full.mp3"
+        )
         self.import_media = [medium]
 
         log.debug("--- import directory created")
@@ -149,21 +150,21 @@ class CopyArtifactsTestCase(_common.TestCase):
         resource_path = os.path.join(_common.RSRC, resource_name)
 
         metadata = {
-                     'artist': 'Tag Artist',
-                     'album':  album or 'Tag Album',
-                     'albumartist':  None,
-                     'mb_trackid': None,
-                     'mb_albumid': None,
-                     'comp': None
-                   }
+            "artist": "Tag Artist",
+            "album": album or "Tag Album",
+            "albumartist": None,
+            "mb_trackid": None,
+            "mb_albumid": None,
+            "comp": None,
+        }
 
         # Copy media file
         shutil.copy(resource_path, path)
         medium = mediafile.MediaFile(path)
 
         # Set metadata
-        metadata['track'] = 1
-        metadata['title'] = 'Tag Title 1'
+        metadata["track"] = 1
+        metadata["title"] = "Tag Title 1"
         for attr in metadata:
             setattr(medium, attr, metadata[attr])
         medium.save()
@@ -174,7 +175,7 @@ class CopyArtifactsTestCase(_common.TestCase):
         """
         Sets the import_dir and ensures that it is empty.
         """
-        self.import_dir = os.path.join(self.temp_dir, b'testsrcdir')
+        self.import_dir = os.path.join(self.temp_dir, b"testsrcdir")
         if os.path.isdir(self.import_dir):
             shutil.rmtree(self.import_dir)
 
@@ -195,32 +196,38 @@ class CopyArtifactsTestCase(_common.TestCase):
               artifact2.file
         """
 
-    def _setup_import_session(self, import_dir=None,
-            delete=False, threaded=False, copy=True,
-            singletons=False, move=False, autotag=True):
-        config['import']['copy'] = copy
-        config['import']['delete'] = delete
-        config['import']['timid'] = True
-        config['threaded'] = False
-        config['import']['singletons'] = singletons
-        config['import']['move'] = move
-        config['import']['autotag'] = autotag
-        config['import']['resume'] = False
+    def _setup_import_session(
+        self,
+        import_dir=None,
+        delete=False,
+        threaded=False,
+        copy=True,
+        singletons=False,
+        move=False,
+        autotag=True,
+    ):
+        config["import"]["copy"] = copy
+        config["import"]["delete"] = delete
+        config["import"]["timid"] = True
+        config["threaded"] = False
+        config["import"]["singletons"] = singletons
+        config["import"]["move"] = move
+        config["import"]["autotag"] = autotag
+        config["import"]["resume"] = False
 
-        self.importer = TestImportSession(self.lib,
-                                loghandler=None,
-                                paths=[import_dir or self.import_dir],
-                                query=None)
+        self.importer = TestImportSession(
+            self.lib, loghandler=None, paths=[import_dir or self.import_dir], query=None
+        )
 
     def _list_files(self, startpath):
-        path = startpath.decode('utf8')
+        path = startpath.decode("utf8")
         for root, dirs, files in os.walk(path):
-            level = root.replace(path, '').count(os.sep)
-            indent = u' ' * 4 * (level)
-            log.debug(u'{}{}/'.format(indent, os.path.basename(root)))
-            subindent = u' ' * 4 * (level + 1)
+            level = root.replace(path, "").count(os.sep)
+            indent = " " * 4 * (level)
+            log.debug("{}{}/".format(indent, os.path.basename(root)))
+            subindent = " " * 4 * (level + 1)
             for f in files:
-                log.debug(u'{}{}'.format(subindent, f))
+                log.debug("{}{}".format(subindent, f))
 
     def assert_in_lib_dir(self, *segments):
         """
@@ -254,7 +261,9 @@ class CopyArtifactsTestCase(_common.TestCase):
         """
         Assert that there are ``count`` files in path formed by joining ``segments``
         """
-        self.assertEqual(len([name for name in os.listdir(os.path.join(*segments))]), count)
+        self.assertEqual(
+            len([name for name in os.listdir(os.path.join(*segments))]), count
+        )
 
 
 class TestImportSession(importer.ImportSession):
@@ -300,9 +309,9 @@ class TestImportSession(importer.ImportSession):
 
     choose_item = choose_match
 
-    Resolution = Enum('Resolution', 'REMOVE SKIP KEEPBOTH')
+    Resolution = Enum("Resolution", "REMOVE SKIP KEEPBOTH")
 
-    default_resolution = 'REMOVE'
+    default_resolution = "REMOVE"
 
     def add_resolution(self, resolution):
         assert isinstance(resolution, self.Resolution)
@@ -318,4 +327,3 @@ class TestImportSession(importer.ImportSession):
             task.set_choice(importer.action.SKIP)
         elif res == self.Resolution.REMOVE:
             task.should_remove_duplicates = True
-
