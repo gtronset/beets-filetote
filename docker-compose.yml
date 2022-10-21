@@ -5,3 +5,4 @@ services:
     image: beets-copyfileartifacts
     volumes:
       - .:/src
+      
