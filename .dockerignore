@@ -1,8 +1,7 @@
-*.pyc
-*.swp
-.tox/
-.pytest_cache/
+.venv/
 __pycache__/
+.pytest_cache/
+.tox/
 dist/
 build/
 env/

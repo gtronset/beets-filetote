@@ -6,4 +6,4 @@ init:
 	cp -b config.yaml ~/.config/beets/
 
 test:
-	nosetests tests
+	pytest tests

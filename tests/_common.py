@@ -9,28 +9,34 @@ from beets import util
 from beets import logging
 
 # Test resources path.
-RSRC = util.bytestring_path(os.path.join(os.path.dirname(__file__), 'rsrc'))
+RSRC = util.bytestring_path(os.path.join(os.path.dirname(__file__), "rsrc"))
 
 # Propagate to root logger so nosetest can capture it
-log = logging.getLogger('beets')
+log = logging.getLogger("beets")
 log.propagate = True
 log.setLevel(logging.DEBUG)
+
 
 class Assertions(object):
     """A mixin with additional unit test assertions."""
 
     def assertExists(self, path):  # noqa
-        self.assertTrue(os.path.exists(util.syspath(path)),
-                        u'file does not exist: {!r}'.format(path))
+        self.assertTrue(
+            os.path.exists(util.syspath(path)), "file does not exist: {!r}".format(path)
+        )
 
     def assertNotExists(self, path):  # noqa
-        self.assertFalse(os.path.exists(util.syspath(path)),
-                         u'file exists: {!r}'.format((path)))
+        self.assertFalse(
+            os.path.exists(util.syspath(path)), "file exists: {!r}".format((path))
+        )
 
     def assert_equal_path(self, a, b):
         """Check that two paths are equal."""
-        self.assertEqual(util.normpath(a), util.normpath(b),
-                         u'paths are not equal: {!r} and {!r}'.format(a, b))
+        self.assertEqual(
+            util.normpath(a),
+            util.normpath(b),
+            "paths are not equal: {!r} and {!r}".format(a, b),
+        )
 
 
 # A test harness for all beets tests.
@@ -42,6 +48,7 @@ class TestCase(unittest.TestCase, Assertions):
     completes. Also provides some additional assertion methods, a
     temporary directory, and a DummyIO.
     """
+
     def setUp(self):
         # A "clean" source list including only the defaults.
         beets.config.sources = []
@@ -51,17 +58,20 @@ class TestCase(unittest.TestCase, Assertions):
         # temporary directory.
         self.temp_dir = util.bytestring_path(tempfile.mkdtemp())
 
-        beets.config['statefile'] = \
-            util.py3_path(os.path.join(self.temp_dir, b'state.pickle'))
-        beets.config['library'] = \
-            util.py3_path(os.path.join(self.temp_dir, b'library.db'))
-        beets.config['directory'] = \
-            util.py3_path(os.path.join(self.temp_dir, b'libdir'))
+        beets.config["statefile"] = util.py3_path(
+            os.path.join(self.temp_dir, b"state.pickle")
+        )
+        beets.config["library"] = util.py3_path(
+            os.path.join(self.temp_dir, b"library.db")
+        )
+        beets.config["directory"] = util.py3_path(
+            os.path.join(self.temp_dir, b"libdir")
+        )
 
         # Set $HOME, which is used by confit's `config_dir()` to create
         # directories.
-        self._old_home = os.environ.get('HOME')
-        os.environ['HOME'] = util.py3_path(self.temp_dir)
+        self._old_home = os.environ.get("HOME")
+        os.environ["HOME"] = util.py3_path(self.temp_dir)
 
         # Initialize, but don't install, a DummyIO.
         self.io = DummyIO()
@@ -70,17 +80,17 @@ class TestCase(unittest.TestCase, Assertions):
         if os.path.isdir(self.temp_dir):
             shutil.rmtree(self.temp_dir)
         if self._old_home is None:
-            del os.environ['HOME']
+            del os.environ["HOME"]
         else:
-            os.environ['HOME'] = self._old_home
+            os.environ["HOME"] = self._old_home
         self.io.restore()
 
         beets.config.clear()
         beets.config._materialized = False
 
 
-
 # Mock I/O.
+
 
 class InputException(Exception):
     def __init__(self, output=None):
@@ -94,7 +104,7 @@ class InputException(Exception):
 
 
 class DummyOut(object):
-    encoding = 'utf-8'
+    encoding = "utf-8"
 
     def __init__(self):
         self.buf = []
@@ -104,9 +114,9 @@ class DummyOut(object):
 
     def get(self):
         if six.PY2:
-            return b''.join(self.buf)
+            return b"".join(self.buf)
         else:
-            return ''.join(self.buf)
+            return "".join(self.buf)
 
     def flush(self):
         self.clear()
@@ -114,8 +124,9 @@ class DummyOut(object):
     def clear(self):
         self.buf = []
 
+
 class DummyIn(object):
-    encoding = 'utf-8'
+    encoding = "utf-8"
 
     def __init__(self, out=None):
         self.buf = []
@@ -124,9 +135,9 @@ class DummyIn(object):
 
     def add(self, s):
         if six.PY2:
-            self.buf.append(s + b'\n')
+            self.buf.append(s + b"\n")
         else:
-            self.buf.append(s + '\n')
+            self.buf.append(s + "\n")
 
     def readline(self):
         if not self.buf:
@@ -137,8 +148,10 @@ class DummyIn(object):
         self.reads += 1
         return self.buf.pop(0)
 
+
 class DummyIO(object):
     """Mocks input and output streams for testing UI code."""
+
     def __init__(self):
         self.stdout = DummyOut()
         self.stdin = DummyIn(self.stdout)
@@ -161,5 +174,3 @@ class DummyIO(object):
     def restore(self):
         sys.stdin = sys.__stdin__
         sys.stdout = sys.__stdout__
-
-
