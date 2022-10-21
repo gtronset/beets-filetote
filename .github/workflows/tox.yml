@@ -42,4 +42,3 @@ jobs:
           python -m tox --discover $(which python)
           python -m tox -e  pytest
         shell: bash
-        

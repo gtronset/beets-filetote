@@ -18,4 +18,3 @@ updates:
     schedule:
       interval: weekly
       time: "04:00"
-      
