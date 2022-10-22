@@ -24,6 +24,7 @@ class CopyFileArtifactsReimportTest(CopyFileArtifactsTestCase):
                     Tag Album/
                         Tag Title 1.mp3
                         artifact.file
+                        artifact2.file
         """
         super(CopyFileArtifactsReimportTest, self).setUp()
 
@@ -110,9 +111,10 @@ class CopyFileArtifactsReimportTest(CopyFileArtifactsTestCase):
         self._run_importer()
 
         self.assert_number_of_files_in_dir(
-            2, self.lib_dir, b"Tag Artist", b"Tag Album"
+            3, self.lib_dir, b"Tag Artist", b"Tag Album"
         )
         self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"artifact.file")
+        self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"artifact2.file")
 
     def test_do_nothing_when_paths_do_not_change_with_move_import(self):
         self._setup_import_session(
@@ -122,10 +124,8 @@ class CopyFileArtifactsReimportTest(CopyFileArtifactsTestCase):
         log.debug("--- second import")
         self._run_importer()
 
-        self.assert_number_of_files_in_dir(
-            2, self.lib_dir, b"Tag Artist", b"Tag Album"
-        )
         self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"artifact.file")
+        self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"artifact2.file")
 
     def test_rename_with_copy_import(self):
         config["paths"]["ext:file"] = str(
