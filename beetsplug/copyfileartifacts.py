@@ -15,12 +15,21 @@ class CopyFileArtifactsPlugin(BeetsPlugin):
     def __init__(self):
         super(CopyFileArtifactsPlugin, self).__init__()
 
-        self.config.add({"extensions": ".*", "print_ignored": False})
+        self.config.add(
+            {
+                "extensions": ".*",
+                "filenames": "",
+                "exclude": "",
+                "print_ignored": False,
+            }
+        )
 
         self._process_queue = []
         self._dirs_seen = []
 
         self.extensions = self.config["extensions"].as_str_seq()
+        self.filenames = self.config["filenames"].as_str_seq()
+        self.exclude = self.config["exclude"].as_str_seq()
         self.print_ignored = self.config["print_ignored"].get()
 
         self.path_formats = [
@@ -150,11 +159,19 @@ class CopyFileArtifactsPlugin(BeetsPlugin):
                 ignored_files.append(source_file)
                 continue
 
-            # Skip extensions not handled by plugin
+            # Skip if filename is explicitly in `exclude`
+            if filename.decode("utf8") in self.exclude:
+                ignored_files.append(source_file)
+                continue
+
+            # Skip:
+            # - extensions not allowed in `extensions`
+            # - filenames not explicitly in `filenames`
             file_ext = os.path.splitext(filename)[1]
             if (
                 ".*" not in self.extensions
                 and file_ext.decode("utf8") not in self.extensions
+                and filename.decode("utf8") not in self.filenames
             ):
                 ignored_files.append(source_file)
                 continue
@@ -210,4 +227,5 @@ class CopyFileArtifactsPlugin(BeetsPlugin):
         beets.util.move(source_file, dest_file)
 
         dir_path = os.path.split(source_file)[0]
+
         beets.util.prune_dirs(dir_path, clutter=config["clutter"].as_str_seq())

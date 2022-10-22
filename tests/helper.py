@@ -5,7 +5,6 @@ from contextlib import contextmanager
 from enum import Enum
 
 import mediafile
-import six
 from beets import config, importer, library, plugins, util
 
 # Make sure the development versions of the plugins are used
@@ -29,7 +28,7 @@ class LogCapture(logging.Handler):
         self.messages = []
 
     def emit(self, record):
-        self.messages.append(six.text_type(record.msg))
+        self.messages.append(str(record.msg))
 
 
 @contextmanager
@@ -119,7 +118,9 @@ class CopyFileArtifactsTestCase(_common.TestCase):
           the_album/
             track_1.mp3
             artifact.file
+            artifact2.file
             artifact.file2
+            artifact.file3
         """
         self._set_import_dir()
 
@@ -128,7 +129,9 @@ class CopyFileArtifactsTestCase(_common.TestCase):
 
         # Create artifact
         open(os.path.join(album_path, b"artifact.file"), "a").close()
+        open(os.path.join(album_path, b"artifact2.file"), "a").close()
         open(os.path.join(album_path, b"artifact.file2"), "a").close()
+        open(os.path.join(album_path, b"artifact.file3"), "a").close()
 
         medium = self._create_medium(
             os.path.join(album_path, b"track_1.mp3"), b"full.mp3"

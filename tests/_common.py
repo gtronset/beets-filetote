@@ -114,10 +114,7 @@ class DummyOut(object):
         self.buf.append(s)
 
     def get(self):
-        if six.PY2:
-            return b"".join(self.buf)
-        else:
-            return "".join(self.buf)
+        return "".join(self.buf)
 
     def flush(self):
         self.clear()
@@ -135,10 +132,7 @@ class DummyIn(object):
         self.out = out
 
     def add(self, s):
-        if six.PY2:
-            self.buf.append(s + b"\n")
-        else:
-            self.buf.append(s + "\n")
+        self.buf.append(s + "\n")
 
     def readline(self):
         if not self.buf:

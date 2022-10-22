@@ -50,6 +50,13 @@ copyfileartifacts:
   extensions: .cue .log
 ```
 
+Or copy files by filename:
+
+```yaml
+copyfileartifacts:
+  filenames: song.log
+```
+
 Or copy all non-music files (it does this by default):
 
 ```yaml
@@ -57,12 +64,23 @@ copyfileartifacts:
   extensions: .*
 ```
 
-It can also print what got left:
+It can also exclude files by name:
+
+```yaml
+copyfileartifacts:
+  exclude: song_lyrics.nfo
+```
+
+And print what got left:
 
 ```yaml
 copyfileartifacts:
   print_ignored: yes
 ```
+
+d
+`exclude`-d files take precedence over other matching, meaning exclude will
+trump other matches by either `extensions` or `filenames`.
 
 ### Renaming files
 
