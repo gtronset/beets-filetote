@@ -159,14 +159,14 @@ class CopyFileArtifactsPlugin(BeetsPlugin):
                 ignored_files.append(source_file)
                 continue
 
-            # Skip if filename is expicitly in `exclude`
+            # Skip if filename is explicitly in `exclude`
             if filename.decode("utf8") in self.exclude:
                 ignored_files.append(source_file)
                 continue
 
             # Skip:
             # - extensions not allowed in `extensions`
-            # - filenames not expicitly in `filenames`
+            # - filenames not explicitly in `filenames`
             file_ext = os.path.splitext(filename)[1]
             if (
                 ".*" not in self.extensions
