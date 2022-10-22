@@ -3,5 +3,6 @@ services:
   wizarr:
     container_name: beets-copyfileartifacts
     image: beets-copyfileartifacts
+    command: tail -F anything
     volumes:
       - .:/src
