@@ -79,7 +79,8 @@ copyfileartifacts:
 ```
 
 d
-`exclude`-d files take precedence over other matching, meaning exclude will trump other matches by either `extensions` or `filenames`.
+`exclude`-d files take precedence over other matching, meaning exclude will
+trump other matches by either `extensions` or `filenames`.
 
 ### Renaming files
 
