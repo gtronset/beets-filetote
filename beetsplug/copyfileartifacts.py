@@ -33,7 +33,9 @@ class CopyFileArtifactsPlugin(BeetsPlugin):
         self.print_ignored = self.config["print_ignored"].get()
 
         self.path_formats = [
-            c for c in beets.ui.get_path_formats() if c[0][:4] == "ext:"
+            c
+            for c in beets.ui.get_path_formats()
+            if (c[0][:4] == "ext:" or c[0][:9] == "filename:")
         ]
 
         self.register_listener("item_moved", self.collect_artifacts)
@@ -48,11 +50,35 @@ class CopyFileArtifactsPlugin(BeetsPlugin):
         extension the original filename is used with the album path.
             - ripped from beets/library.py
         """
-        file_ext = os.path.splitext(filename)[1]
 
-        for query, path_format in self.path_formats:
-            query_ext = "." + query[4:]
-            if query_ext == file_ext.decode("utf8"):
+        full_filename = filename.decode("utf8")
+        file_name_no_ext = os.path.splitext(filename)[0].decode("utf8")
+        file_ext = os.path.splitext(filename)[1].decode("utf8")
+
+        mapping["old_filename"] = file_name_no_ext
+
+        selected_path_query = None
+        selected_path_format = None
+
+        for query, path_format in reversed(self.path_formats):
+            ext_len = len("ext:")
+            filename_len = len("filename:")
+
+            if query[:ext_len] == "ext:" and file_ext == (
+                "." + query[ext_len:]
+            ):
+                # Prioritze `filename:` query selectory over `ext:`
+                if selected_path_query != "filename:":
+                    selected_path_query = "ext:"
+                    selected_path_format = path_format
+                break
+
+            if (
+                query[:filename_len] == "filename:"
+                and full_filename == query[filename_len:]
+            ):
+                selected_path_query = "filename:"
+                selected_path_format = path_format
                 break
         else:
             # No query matched; use original filename
@@ -61,16 +87,14 @@ class CopyFileArtifactsPlugin(BeetsPlugin):
             )
             return file_path
 
-        if isinstance(path_format, Template):
-            subpath_tmpl = path_format
+        if isinstance(selected_path_format, Template):
+            subpath_tmpl = selected_path_format
         else:
-            subpath_tmpl = Template(path_format)
+            subpath_tmpl = Template(selected_path_format)
 
         # Get template funcs and evaluate against mapping
         funcs = DefaultTemplateFunctions().functions()
-        file_path = subpath_tmpl.substitute(mapping, funcs) + file_ext.decode(
-            "utf8"
-        )
+        file_path = subpath_tmpl.substitute(mapping, funcs) + file_ext
 
         # Sanitize filename
         filename = beets.util.sanitize_path(os.path.basename(file_path))
@@ -91,7 +115,7 @@ class CopyFileArtifactsPlugin(BeetsPlugin):
 
         return value
 
-    def _generate_mapping(self, item, album_path):
+    def _generate_mapping(self, item, album_path, source_path):
         mapping = {
             "artist": item.artist or "None",
             "albumartist": item.albumartist or "None",
@@ -101,6 +125,12 @@ class CopyFileArtifactsPlugin(BeetsPlugin):
             mapping[key] = self._get_formatted(mapping[key])
 
         mapping["albumpath"] = beets.util.displayable_path(album_path)
+
+        pathsep = beets.config["path_sep_replace"].get(str)
+        strpath = beets.util.displayable_path(item.path)
+        filename, fileext = os.path.splitext(os.path.basename(strpath))
+
+        mapping["item_old_filename"] = filename
 
         return mapping
 
@@ -130,7 +160,9 @@ class CopyFileArtifactsPlugin(BeetsPlugin):
             [
                 {
                     "files": non_handled_files,
-                    "mapping": self._generate_mapping(item, dest_path),
+                    "mapping": self._generate_mapping(
+                        item, dest_path, source_path
+                    ),
                 }
             ]
         )
