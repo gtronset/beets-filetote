@@ -102,7 +102,7 @@ extensions. For example the following template string will be applied to
 
 ```yaml
 paths:
-  ext:log: $albumpath/$artist - $album
+  ext:.log: $albumpath/$artist - $album
 ```
 
 This will rename a log file to:
@@ -121,9 +121,9 @@ plugins: copyfileartifacts
 paths:
   default: $albumartist/$year - $album/$track - $title
   singleton: Singletons/$artist - $title
-  ext:log: $albumpath/$artist - $album
-  ext:cue: $albumpath/$artist - $album
-  ext:jpg: $albumpath/cover
+  ext:.log: $albumpath/$artist - $album
+  ext:.cue: $albumpath/$artist - $album
+  ext:.jpg: $albumpath/cover
 
 copyfileartifacts:
   extensions: .cue .log .jpg
