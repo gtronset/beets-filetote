@@ -93,6 +93,9 @@ class CopyFileArtifactsTestCase(_common.TestCase):
         log.debug("--- library structure")
         self._list_files(self.lib_dir)
 
+        log.debug("--- source structure after import")
+        self._list_files(self.import_dir)
+
     def _setup_library(self):
         self.lib_db = os.path.join(self.temp_dir, b"testlib.blb")
         self.lib_dir = os.path.join(self.temp_dir, b"testlib_dir")
@@ -152,7 +155,7 @@ class CopyFileArtifactsTestCase(_common.TestCase):
         metadata = {
             "artist": "Tag Artist",
             "album": album or "Tag Album",
-            "albumartist": None,
+            "albumartist": "Tag Album Artist",
             "mb_trackid": None,
             "mb_albumid": None,
             "comp": None,

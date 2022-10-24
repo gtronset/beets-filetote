@@ -1,3 +1,4 @@
+import logging
 import os
 import sys
 
@@ -5,12 +6,14 @@ from beets import config
 
 from tests.helper import CopyFileArtifactsTestCase
 
+log = logging.getLogger("beets")
+
 
 class CopyFileArtifactsFromFlatDirectoryTest(CopyFileArtifactsTestCase):
     """
-    Tests to check that copyfileartifacts copies or moves artifact files from a flat directory.
-    i.e. all songs in an album are imported from a single directory
-    Also tests extensions config option
+    Tests to check that copyfileartifacts copies or moves artifact files from a
+    flat directory (e.g., all songs in an album are imported from a single
+    directory). Also tests `extensions` and `filenames` config options.
     """
 
     def setUp(self):
@@ -179,26 +182,3 @@ class CopyFileArtifactsFromFlatDirectoryTest(CopyFileArtifactsTestCase):
         self.assert_in_import_dir(b"the_album", b"artifact2.file")
         self.assert_in_import_dir(b"the_album", b"artifact.file2")
         self.assert_in_import_dir(b"the_album", b"artifact.file3")
-
-    def test_rename_when_copying(self):
-        config["copyfileartifacts"]["extensions"] = ".file"
-        config["paths"]["ext:file"] = str("$albumpath/$artist - $album")
-
-        self._run_importer()
-
-        self.assert_in_lib_dir(
-            b"Tag Artist", b"Tag Album", b"Tag Artist - Tag Album.file"
-        )
-        self.assert_in_import_dir(b"the_album", b"artifact.file")
-
-    def test_rename_when_moving(self):
-        config["copyfileartifacts"]["extensions"] = ".file"
-        config["paths"]["ext:file"] = str("$albumpath/$artist - $album")
-        config["import"]["move"] = True
-
-        self._run_importer()
-
-        self.assert_in_lib_dir(
-            b"Tag Artist", b"Tag Album", b"Tag Artist - Tag Album.file"
-        )
-        self.assert_not_in_import_dir(b"the_album", b"artifact.file")

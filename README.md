@@ -87,11 +87,14 @@ trump other matches by either `extensions` or `filenames`.
 Renaming works in much the same way as beets [Path Formats](http://beets.readthedocs.org/en/stable/reference/pathformat.html)
 with the following limitations:
 
-- The fields available are `$artist`, `$albumartist`, `$album` and `$albumpath`.
-- The full set of
-  [built in functions](http://beets.readthedocs.org/en/stable/reference/pathformat.html#functions)
-  are also supported, with the exception of `%aunique` - which will
-  return an empty string.
+- The fields available are `$artist`, `$albumartist`, `$album`, `$albumpath`,
+  `$old_filename` (filename of the extra/artifcat file before its renamed),
+  and `$item_old_filename` (filename of the item/track triggering it, before
+  its renamed).
+  - The full set of
+    [built in functions](http://beets.readthedocs.org/en/stable/reference/pathformat.html#functions)
+    are also supported, with the exception of `%aunique` - which will
+    return an empty string.
 
 Each template string uses a query syntax for each of the file
 extensions. For example the following template string will be applied to
@@ -99,11 +102,16 @@ extensions. For example the following template string will be applied to
 
 ```yaml
 paths:
-  ext:log: $albumpath/$artist - $album
+  ext:.log: $albumpath/$artist - $album
 ```
 
 This will rename a log file to:
 `~/Music/Artist/2014 - Album/Artist - Album.log`
+
+> **Note:** if the rename is set and there are multiple files that qualify,
+> only the first will be added to the library (new folder); other files that
+> subsequently match will not be saved/renamed. To work around this,
+> `$old_filename` can be used to help with adding uniqueness to the name.
 
 ### Example `config.yaml`
 
@@ -113,9 +121,9 @@ plugins: copyfileartifacts
 paths:
   default: $albumartist/$year - $album/$track - $title
   singleton: Singletons/$artist - $title
-  ext:log: $albumpath/$artist - $album
-  ext:cue: $albumpath/$artist - $album
-  ext:jpg: $albumpath/cover
+  ext:.log: $albumpath/$artist - $album
+  ext:.cue: $albumpath/$artist - $album
+  ext:.jpg: $albumpath/cover
 
 copyfileartifacts:
   extensions: .cue .log .jpg
