@@ -57,10 +57,10 @@ class CopyFileArtifactsPlugin(BeetsPlugin):
 
         mapping["old_filename"] = file_name_no_ext
 
-        selected_path_query = None
-        selected_path_format = None
+        selected_path_query = ""
+        selected_path_format = ""
 
-        for query, path_format in reversed(self.path_formats):
+        for query, path_format in self.path_formats:
             ext_len = len("ext:")
             filename_len = len("filename:")
 
