@@ -118,7 +118,7 @@ class CopyFileArtifactsPlugin(BeetsPlugin):
 
         return value
 
-    def _generate_mapping(self, item, album_path, source_path):
+    def _generate_mapping(self, item, album_path):
         mapping = {
             "artist": item.artist or "None",
             "albumartist": item.albumartist or "None",
@@ -163,9 +163,7 @@ class CopyFileArtifactsPlugin(BeetsPlugin):
             [
                 {
                     "files": non_handled_files,
-                    "mapping": self._generate_mapping(
-                        item, dest_path, source_path
-                    ),
+                    "mapping": self._generate_mapping(item, dest_path),
                 }
             ]
         )
