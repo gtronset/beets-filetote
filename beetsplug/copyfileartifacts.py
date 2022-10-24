@@ -65,7 +65,7 @@ class CopyFileArtifactsPlugin(BeetsPlugin):
             filename_len = len("filename:")
 
             if query[:ext_len] == "ext:" and file_ext == (
-                "." + query[ext_len:]
+                "." + query[ext_len:].lstrip(".")
             ):
                 # Prioritize `filename:` query selectory over `ext:`
                 if selected_path_query != "filename:":

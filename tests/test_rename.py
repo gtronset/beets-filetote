@@ -100,6 +100,23 @@ class CopyFileArtifactsRenameTest(CopyFileArtifactsTestCase):
         )
         self.assert_not_in_import_dir(b"the_album", b"artifact.file")
 
+    def test_rename_period_is_optional_for_ext(self):
+        config["copyfileartifacts"]["extensions"] = ".file .file2"
+        config["paths"]["ext:file"] = str("$albumpath/$artist - $album")
+        config["paths"]["ext:.file2"] = str("$albumpath/$artist - $album 2")
+        config["import"]["move"] = True
+
+        self._run_importer()
+
+        self.assert_in_lib_dir(
+            b"Tag Artist", b"Tag Album", b"Tag Artist - Tag Album.file"
+        )
+        self.assert_in_lib_dir(
+            b"Tag Artist", b"Tag Album", b"Tag Artist - Tag Album 2.file2"
+        )
+        self.assert_not_in_import_dir(b"the_album", b"artifact.file")
+        self.assert_not_in_import_dir(b"the_album", b"artifact.file2")
+
     def test_rename_ignores_file_when_name_conflicts(self):
         config["copyfileartifacts"]["extensions"] = ".file"
         config["paths"]["ext:file"] = str("$albumpath/$artist - $album")
@@ -172,6 +189,32 @@ class CopyFileArtifactsRenameTest(CopyFileArtifactsTestCase):
         )
         self.assert_in_lib_dir(
             b"Tag Artist", b"Tag Album", b"Tag Artist - artifact2.file"
+        )
+
+        self.assert_not_in_import_dir(b"the_album", b"artifact1.file")
+        self.assert_not_in_import_dir(b"the_album", b"artifact2.file")
+
+    def test_rename_multiple_files_prioritizes_filename_over_ext(self):
+        config["copyfileartifacts"]["extensions"] = ".file"
+        config["copyfileartifacts"][
+            "filenames"
+        ] = "artifact.file artifact2.file"
+        config["paths"]["ext:file"] = str("$albumpath/$artist - $old_filename")
+        config["paths"]["filename:artifact.file"] = str(
+            "$albumpath/new-filename"
+        )
+        config["paths"]["filename:artifact2.file"] = str(
+            "$albumpath/new-filename2"
+        )
+        config["import"]["move"] = True
+
+        self._run_importer()
+
+        self.assert_in_lib_dir(
+            b"Tag Artist", b"Tag Album", b"new-filename.file"
+        )
+        self.assert_in_lib_dir(
+            b"Tag Artist", b"Tag Album", b"new-filename2.file"
         )
 
         self.assert_not_in_import_dir(b"the_album", b"artifact1.file")
