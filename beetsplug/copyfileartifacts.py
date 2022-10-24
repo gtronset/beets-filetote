@@ -32,10 +32,13 @@ class CopyFileArtifactsPlugin(BeetsPlugin):
         self.exclude = self.config["exclude"].as_str_seq()
         self.print_ignored = self.config["print_ignored"].get()
 
+        ext_len = len("ext:")
+        filename_len = len("filename:")
+
         self.path_formats = [
             c
             for c in beets.ui.get_path_formats()
-            if (c[0][:4] == "ext:" or c[0][:9] == "filename:")
+            if (c[0][:ext_len] == "ext:" or c[0][:filename_len] == "filename:")
         ]
 
         self.register_listener("item_moved", self.collect_artifacts)
