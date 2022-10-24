@@ -9,3 +9,4 @@ env/
 beets/
 *.egg-info/
 .vscode/
+.DS_Store

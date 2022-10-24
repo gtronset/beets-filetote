@@ -136,15 +136,40 @@ class CopyFileArtifactsTestCase(_common.TestCase):
         open(os.path.join(album_path, b"artifact.file2"), "a").close()
         open(os.path.join(album_path, b"artifact.file3"), "a").close()
 
-        medium = self._create_medium(
-            os.path.join(album_path, b"track_1.mp3"), b"full.mp3"
+        medium_track_1 = self._create_medium(
+            os.path.join(album_path, b"track_1.mp3"),
+            b"track_1.mp3",
+            track_name="Tag Title 1",
+            track_number=1,
         )
-        self.import_media = [medium]
+        medium_track_2 = self._create_medium(
+            os.path.join(album_path, b"track_2.mp3"),
+            b"track_2.mp3",
+            track_name="Tag Title 2",
+            track_number=2,
+        )
+        medium_track_3 = self._create_medium(
+            os.path.join(album_path, b"track_3.mp3"),
+            b"track_3.mp3",
+            track_name="Tag Title 3",
+            track_number=3,
+        )
+
+        media_list = [medium_track_1, medium_track_2, medium_track_3]
+        self._media_count = len(media_list)
+        self.import_media = media_list
 
         log.debug("--- import directory created")
         self._list_files(album_path)
 
-    def _create_medium(self, path, resource_name, album=None):
+    def _create_medium(
+        self,
+        path,
+        resource_name,
+        album=None,
+        track_name=None,
+        track_number=None,
+    ):
         """
         Creates and saves a media file object located at path using resource_name
         from the beets test resources directory as initial data
@@ -166,8 +191,8 @@ class CopyFileArtifactsTestCase(_common.TestCase):
         medium = mediafile.MediaFile(path)
 
         # Set metadata
-        metadata["track"] = 1
-        metadata["title"] = "Tag Title 1"
+        metadata["track"] = track_number or 1
+        metadata["title"] = track_name or "Tag Title 1"
         for attr in metadata:
             setattr(medium, attr, metadata[attr])
         medium.save()

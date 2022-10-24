@@ -1,8 +1,8 @@
 import logging
 import os
 import sys
-import unittest
 
+import pytest
 from beets import config
 
 from tests.helper import CopyFileArtifactsTestCase
@@ -87,7 +87,7 @@ class CopyFileArtifactsReimportTest(CopyFileArtifactsTestCase):
         self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"artifact.file")
         self.assert_in_lib_dir(b"1Tag Artist", b"Tag Album", b"artifact.file")
 
-    @unittest.skip("Failing")
+    @pytest.mark.skip(reason="Failing")
     def test_prune_empty_directories_with_move_import(self):
         # Cause files to relocate when reimported
         self.lib.path_formats[0] = (
@@ -111,7 +111,7 @@ class CopyFileArtifactsReimportTest(CopyFileArtifactsTestCase):
         self._run_importer()
 
         self.assert_number_of_files_in_dir(
-            3, self.lib_dir, b"Tag Artist", b"Tag Album"
+            5, self.lib_dir, b"Tag Artist", b"Tag Album"
         )
         self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"artifact.file")
         self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"artifact2.file")
@@ -178,7 +178,7 @@ class CopyFileArtifactsReimportTest(CopyFileArtifactsTestCase):
         )
         self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"Tag Album.file")
 
-    @unittest.skip("Todo")
+    @pytest.mark.skip(reason="Todo")
     def test_multiple_reimport_artifacts_with_move(self):
         # Cause files to relocate when reimported
         # self.lib.path_formats[0] = ('default', os.path.join('1$artist', '$album', '$title'))
