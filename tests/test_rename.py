@@ -2,6 +2,7 @@ import logging
 import os
 import sys
 
+import pytest
 from beets import config
 
 from tests.helper import CopyFileArtifactsTestCase
@@ -180,6 +181,28 @@ class CopyFileArtifactsRenameTest(CopyFileArtifactsTestCase):
         config["paths"]["filename:artifact.file"] = str(
             "$albumpath/new-filename"
         )
+        config["import"]["move"] = True
+
+        self._run_importer()
+
+        self.assert_in_lib_dir(
+            b"Tag Artist", b"Tag Album", b"new-filename.file"
+        )
+        self.assert_in_lib_dir(
+            b"Tag Artist", b"Tag Album", b"Tag Artist - artifact2.file"
+        )
+
+        self.assert_not_in_import_dir(b"the_album", b"artifact1.file")
+        self.assert_not_in_import_dir(b"the_album", b"artifact2.file")
+
+    def test_rename_prioritizes_filename_over_ext_reversed(self):
+        config["copyfileartifacts"]["extensions"] = ".file"
+        config["copyfileartifacts"]["filenames"] = "artifact.file"
+        # order of paths matter here; this is the opposite order as `test_rename_prioritizes_filename_over_ext`
+        config["paths"]["filename:artifact.file"] = str(
+            "$albumpath/new-filename"
+        )
+        config["paths"]["ext:file"] = str("$albumpath/$artist - $old_filename")
         config["import"]["move"] = True
 
         self._run_importer()

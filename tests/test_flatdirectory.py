@@ -28,7 +28,7 @@ class CopyFileArtifactsFromFlatDirectoryTest(CopyFileArtifactsTestCase):
         self._run_importer()
 
         self.assert_number_of_files_in_dir(
-            3, self.lib_dir, b"Tag Artist", b"Tag Album"
+            self._media_count + 2, self.lib_dir, b"Tag Artist", b"Tag Album"
         )
 
         self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"artifact.file")
@@ -48,7 +48,7 @@ class CopyFileArtifactsFromFlatDirectoryTest(CopyFileArtifactsTestCase):
         self._run_importer()
 
         self.assert_number_of_files_in_dir(
-            2, self.lib_dir, b"Tag Artist", b"Tag Album"
+            self._media_count + 1, self.lib_dir, b"Tag Artist", b"Tag Album"
         )
 
         self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"artifact.file")
@@ -70,7 +70,7 @@ class CopyFileArtifactsFromFlatDirectoryTest(CopyFileArtifactsTestCase):
         self._run_importer()
 
         self.assert_number_of_files_in_dir(
-            2, self.lib_dir, b"Tag Artist", b"Tag Album"
+            self._media_count + 1, self.lib_dir, b"Tag Artist", b"Tag Album"
         )
 
         self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"artifact.file")
@@ -94,14 +94,14 @@ class CopyFileArtifactsFromFlatDirectoryTest(CopyFileArtifactsTestCase):
         self._run_importer()
 
         self.assert_number_of_files_in_dir(
-            4, self.lib_dir, b"Tag Artist", b"Tag Album"
+            self._media_count + 3, self.lib_dir, b"Tag Artist", b"Tag Album"
         )
 
         self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"artifact.file")
         self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"artifact2.file")
         self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"artifact.file2")
 
-        self.assert_number_of_files_in_dir(5, self.import_dir, b"the_album")
+        self.assert_number_of_files_in_dir(7, self.import_dir, b"the_album")
 
         self.assert_not_in_lib_dir(
             b"Tag Artist", b"Tag Album", b"artifact.file3"
@@ -111,7 +111,7 @@ class CopyFileArtifactsFromFlatDirectoryTest(CopyFileArtifactsTestCase):
         self._run_importer()
 
         self.assert_number_of_files_in_dir(
-            5, self.lib_dir, b"Tag Artist", b"Tag Album"
+            self._media_count + 4, self.lib_dir, b"Tag Artist", b"Tag Album"
         )
 
         self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"artifact.file")
@@ -123,7 +123,7 @@ class CopyFileArtifactsFromFlatDirectoryTest(CopyFileArtifactsTestCase):
         self._run_importer()
 
         self.assert_number_of_files_in_dir(
-            5, self.lib_dir, b"Tag Artist", b"Tag Album"
+            self._media_count + 4, self.lib_dir, b"Tag Artist", b"Tag Album"
         )
 
         self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"artifact.file")
@@ -142,7 +142,7 @@ class CopyFileArtifactsFromFlatDirectoryTest(CopyFileArtifactsTestCase):
         self._run_importer()
 
         self.assert_number_of_files_in_dir(
-            5, self.lib_dir, b"Tag Artist", b"Tag Album"
+            self._media_count + 4, self.lib_dir, b"Tag Artist", b"Tag Album"
         )
 
         self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"artifact.file")
@@ -176,9 +176,27 @@ class CopyFileArtifactsFromFlatDirectoryTest(CopyFileArtifactsTestCase):
 
         self._run_importer()
 
-        self.assert_number_of_files_in_dir(5, self.import_dir, b"the_album")
+        self.assert_number_of_files_in_dir(
+            self._media_count + 4, self.import_dir, b"the_album"
+        )
 
         self.assert_in_import_dir(b"the_album", b"artifact.file")
         self.assert_in_import_dir(b"the_album", b"artifact2.file")
         self.assert_in_import_dir(b"the_album", b"artifact.file2")
         self.assert_in_import_dir(b"the_album", b"artifact.file3")
+
+    def test_artifacts_copymove_on_first_media_by_default(self):
+        """By default, all eligible files are grabbed with the first item."""
+        config["copyfileartifacts"]["extensions"] = ".file"
+        config["paths"]["ext:file"] = str(
+            "$albumpath/$item_old_filename - $old_filename"
+        )
+
+        self._run_importer()
+
+        self.assert_in_lib_dir(
+            b"Tag Artist", b"Tag Album", b"track_1 - artifact.file"
+        )
+        self.assert_in_lib_dir(
+            b"Tag Artist", b"Tag Album", b"track_1 - artifact2.file"
+        )

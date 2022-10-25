@@ -31,7 +31,7 @@ class CopyFileArtifactsFilename(CopyFileArtifactsTestCase):
             "a",
         ).close()
         medium = self._create_medium(
-            os.path.join(self.album_path, b"track_1.mp3"), b"full.mp3"
+            os.path.join(self.album_path, b"track_1.mp3"), b"track_1.mp3"
         )
         self.import_media = [medium]
 
@@ -53,7 +53,7 @@ class CopyFileArtifactsFilename(CopyFileArtifactsTestCase):
             "a",
         ).close()
         medium = self._create_medium(
-            os.path.join(self.album_path, b"track_1.mp3"), b"full.mp3"
+            os.path.join(self.album_path, b"track_1.mp3"), b"track_1.mp3"
         )
         self.import_media = [medium]
 
@@ -72,7 +72,7 @@ class CopyFileArtifactsFilename(CopyFileArtifactsTestCase):
         open(os.path.join(self.album_path, b"artifact.file"), "a").close()
         medium = self._create_medium(
             os.path.join(self.album_path, b"track_1.mp3"),
-            b"full.mp3",
+            b"track_1.mp3",
             b"Tag Album?",
         )
         self.import_media = [medium]
