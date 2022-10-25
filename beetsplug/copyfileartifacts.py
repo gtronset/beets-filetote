@@ -60,8 +60,8 @@ class CopyFileArtifactsPlugin(BeetsPlugin):
 
         mapping["old_filename"] = file_name_no_ext
 
-        selected_path_query = ""
-        selected_path_format = ""
+        selected_path_query = "None"
+        selected_path_format = "None"
 
         for query, path_format in self.path_formats:
             ext_len = len("ext:")
@@ -74,16 +74,15 @@ class CopyFileArtifactsPlugin(BeetsPlugin):
                 if selected_path_query != "filename:":
                     selected_path_query = "ext:"
                     selected_path_format = path_format
-                break
 
-            if (
+            elif (
                 query[:filename_len] == "filename:"
                 and full_filename == query[filename_len:]
             ):
                 selected_path_query = "filename:"
                 selected_path_format = path_format
-                break
-        else:
+
+        if selected_path_query == "None":
             # No query matched; use original filename
             file_path = os.path.join(
                 mapping["albumpath"], beets.util.displayable_path(filename)
