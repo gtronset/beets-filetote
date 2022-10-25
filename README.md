@@ -91,14 +91,16 @@ with the following limitations:
   `$old_filename` (filename of the extra/artifcat file before its renamed),
   and `$item_old_filename` (filename of the item/track triggering it, before
   its renamed).
-  - The full set of
-    [built in functions](http://beets.readthedocs.org/en/stable/reference/pathformat.html#functions)
-    are also supported, with the exception of `%aunique` - which will
-    return an empty string.
+- The full set of
+  [built in functions](http://beets.readthedocs.org/en/stable/reference/pathformat.html#functions)
+  are also supported, with the exception of `%aunique` - which will
+  return an empty string.
+- `filename:` path query will take precedence over `ext:` if a given file
+  qualifies for both
 
 Each template string uses a query syntax for each of the file
 extensions. For example the following template string will be applied to
-`.log` files:
+`.log` files by using the `ext:` query:
 
 ```yaml
 paths:
@@ -106,6 +108,16 @@ paths:
 ```
 
 This will rename a log file to:
+`~/Music/Artist/2014 - Album/Artist - Album.log`
+
+Or by using the `filename:` query:
+
+```yaml
+paths:
+  filename:track.log: $albumpath/$artist - $album
+```
+
+This will rename the specific `track.log` log file to:
 `~/Music/Artist/2014 - Album/Artist - Album.log`
 
 > **Note:** if the rename is set and there are multiple files that qualify,
@@ -123,7 +135,7 @@ paths:
   singleton: Singletons/$artist - $title
   ext:.log: $albumpath/$artist - $album
   ext:.cue: $albumpath/$artist - $album
-  ext:.jpg: $albumpath/cover
+  filename:cover.jpg: $albumpath/cover
 
 copyfileartifacts:
   extensions: .cue .log .jpg
