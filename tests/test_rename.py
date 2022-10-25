@@ -195,7 +195,6 @@ class CopyFileArtifactsRenameTest(CopyFileArtifactsTestCase):
         self.assert_not_in_import_dir(b"the_album", b"artifact1.file")
         self.assert_not_in_import_dir(b"the_album", b"artifact2.file")
 
-    # @pytest.mark.skip(reason="Failing; order of paths matter")
     def test_rename_prioritizes_filename_over_ext_reversed(self):
         config["copyfileartifacts"]["extensions"] = ".file"
         config["copyfileartifacts"]["filenames"] = "artifact.file"
