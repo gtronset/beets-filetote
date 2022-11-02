@@ -12,7 +12,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-version: [3.6, 3.7, 3.8, 3.9, 3.10, 3.11]
+        python-version: [3.6, 3.7, 3.8, 3.9, "3.10", "3.11"]
         os: [ubuntu-latest]
         include:
           - python-version: 3.6
@@ -23,10 +23,10 @@ jobs:
             tox-env: py38
           - python-version: 3.9
             tox-env: py39
-          - python-version: 3.10
+          - python-version: "3.10"
             tox-env: py310
-          - python-version: 3.11
-            tox-env: py310
+          - python-version: "3.11"
+            tox-env: py311
     env:
       TOXENV: ${{ matrix.tox-env }}
     runs-on: ${{ matrix.os }}
