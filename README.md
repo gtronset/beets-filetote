@@ -78,7 +78,6 @@ copyfileartifacts:
   print_ignored: yes
 ```
 
-d
 `exclude`-d files take precedence over other matching, meaning exclude will
 trump other matches by either `extensions` or `filenames`.
 

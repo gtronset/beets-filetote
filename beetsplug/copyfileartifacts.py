@@ -41,9 +41,14 @@ class CopyFileArtifactsPlugin(BeetsPlugin):
             if (c[0][:ext_len] == "ext:" or c[0][:filename_len] == "filename:")
         ]
 
+        self.register_listener("import_begin", self._register_source)
         self.register_listener("item_moved", self.collect_artifacts)
         self.register_listener("item_copied", self.collect_artifacts)
         self.register_listener("cli_exit", self.process_events)
+
+    def _register_source(self, session):
+        """ """
+        self.paths = os.path.expanduser(session.paths[0])
 
     def _destination(self, filename, mapping):
         """Returns a destination path a file should be moved to. The filename
@@ -168,7 +173,9 @@ class CopyFileArtifactsPlugin(BeetsPlugin):
         )
         self._dirs_seen.extend([source_path])
 
-    def process_events(self):
+    def process_events(self, lib):
+        # Ensure destination library settings are accessible
+        self.lib = lib
         for item in self._process_queue:
             self.process_artifacts(item["files"], item["mapping"], False)
 
@@ -258,6 +265,19 @@ class CopyFileArtifactsPlugin(BeetsPlugin):
         )
         beets.util.move(source_file, dest_file)
 
-        dir_path = os.path.split(source_file)[0]
+        source_path = os.path.dirname(source_file)
 
-        beets.util.prune_dirs(dir_path, clutter=config["clutter"].as_str_seq())
+        library_dir = self.lib.directory
+
+        root_path = None
+
+        if self.paths == library_dir:
+            root_path = os.path.dirname(self.paths)
+        elif library_dir in beets.util.ancestry(self.paths):
+            root_path = self.paths
+
+        beets.util.prune_dirs(
+            source_path,
+            root=root_path,
+            clutter=config["clutter"].as_str_seq(),
+        )

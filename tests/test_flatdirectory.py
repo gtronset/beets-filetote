@@ -155,17 +155,6 @@ class CopyFileArtifactsFromFlatDirectoryTest(CopyFileArtifactsTestCase):
         self.assert_not_in_import_dir(b"the_album", b"artifact.file2")
         self.assert_not_in_import_dir(b"the_album", b"artifact.file3")
 
-    def test_prune_import_directory_when_emptied(self):
-        """
-        Check that plugin does not interfere with normal
-        pruning of emptied import directories.
-        """
-        config["import"]["move"] = True
-
-        self._run_importer()
-
-        self.assert_not_in_import_dir(b"the_album")
-
     def test_do_nothing_when_not_copying_or_moving(self):
         """
         Check that plugin leaves everything alone when not
