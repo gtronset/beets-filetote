@@ -17,6 +17,7 @@ class CopyFileArtifactsFilename(CopyFileArtifactsTestCase):
 
         self._set_import_dir()
         self.album_path = os.path.join(self.import_dir, b"the_album")
+        self.rsrc_mp3 = b"full.mp3"
         os.makedirs(self.album_path)
 
         self._setup_import_session(autotag=False)
@@ -31,7 +32,7 @@ class CopyFileArtifactsFilename(CopyFileArtifactsTestCase):
             "a",
         ).close()
         medium = self._create_medium(
-            os.path.join(self.album_path, b"track_1.mp3"), b"track_1.mp3"
+            os.path.join(self.album_path, b"track_1.mp3"), self.rsrc_mp3
         )
         self.import_media = [medium]
 
@@ -53,7 +54,7 @@ class CopyFileArtifactsFilename(CopyFileArtifactsTestCase):
             "a",
         ).close()
         medium = self._create_medium(
-            os.path.join(self.album_path, b"track_1.mp3"), b"track_1.mp3"
+            os.path.join(self.album_path, b"track_1.mp3"), self.rsrc_mp3
         )
         self.import_media = [medium]
 
@@ -72,8 +73,8 @@ class CopyFileArtifactsFilename(CopyFileArtifactsTestCase):
         open(os.path.join(self.album_path, b"artifact.file"), "a").close()
         medium = self._create_medium(
             os.path.join(self.album_path, b"track_1.mp3"),
-            b"track_1.mp3",
-            b"Tag Album?",
+            self.rsrc_mp3,
+            album=b"Tag Album?",
         )
         self.import_media = [medium]
 

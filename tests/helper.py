@@ -57,6 +57,8 @@ class CopyFileArtifactsTestCase(_common.TestCase):
 
         self._setup_library()
 
+        self.rsrc_mp3 = b"full.mp3"
+
         # Install the DummyIO to capture anything directed to stdout
         self.io.install()
 
@@ -94,7 +96,7 @@ class CopyFileArtifactsTestCase(_common.TestCase):
         self._list_files(self.lib_dir)
 
         log.debug("--- source structure after import")
-        self._list_files(self.import_dir)
+        self._list_files(self.paths)
 
     def _setup_library(self):
         self.lib_db = os.path.join(self.temp_dir, b"testlib.blb")
@@ -104,6 +106,7 @@ class CopyFileArtifactsTestCase(_common.TestCase):
 
         self.lib = library.Library(self.lib_db)
         self.lib.directory = self.lib_dir
+
         self.lib.path_formats = [
             ("default", os.path.join("$artist", "$album", "$title")),
             ("singleton:true", os.path.join("singletons", "$title")),
@@ -118,12 +121,15 @@ class CopyFileArtifactsTestCase(_common.TestCase):
         the directory.
 
         The directory has the following layout
-          the_album/
-            track_1.mp3
-            artifact.file
-            artifact2.file
-            artifact.file2
-            artifact.file3
+            testsrc_dir/
+                the_album/
+                    track_1.mp3
+                    track_2.mp3
+                    track_3.mp3
+                    artifact.file
+                    artifact2.file
+                    artifact.file2
+                    artifact.file3
         """
         self._set_import_dir()
 
@@ -138,19 +144,19 @@ class CopyFileArtifactsTestCase(_common.TestCase):
 
         medium_track_1 = self._create_medium(
             os.path.join(album_path, b"track_1.mp3"),
-            b"track_1.mp3",
+            self.rsrc_mp3,
             track_name="Tag Title 1",
             track_number=1,
         )
         medium_track_2 = self._create_medium(
             os.path.join(album_path, b"track_2.mp3"),
-            b"track_2.mp3",
+            self.rsrc_mp3,
             track_name="Tag Title 2",
             track_number=2,
         )
         medium_track_3 = self._create_medium(
             os.path.join(album_path, b"track_3.mp3"),
-            b"track_3.mp3",
+            self.rsrc_mp3,
             track_name="Tag Title 3",
             track_number=3,
         )
@@ -160,13 +166,15 @@ class CopyFileArtifactsTestCase(_common.TestCase):
         self.import_media = media_list
 
         log.debug("--- import directory created")
-        self._list_files(album_path)
+        self._list_files(self.import_dir)
 
     def _create_medium(
         self,
         path,
         resource_name,
+        artist=None,
         album=None,
+        albumartist=None,
         track_name=None,
         track_number=None,
     ):
@@ -178,9 +186,9 @@ class CopyFileArtifactsTestCase(_common.TestCase):
         resource_path = os.path.join(_common.RSRC, resource_name)
 
         metadata = {
-            "artist": "Tag Artist",
+            "artist": artist or "Tag Artist",
             "album": album or "Tag Album",
-            "albumartist": "Tag Album Artist",
+            "albumartist": albumartist or "Tag Album Artist",
             "mb_trackid": None,
             "mb_albumid": None,
             "comp": None,
@@ -203,9 +211,10 @@ class CopyFileArtifactsTestCase(_common.TestCase):
         """
         Sets the import_dir and ensures that it is empty.
         """
-        self.import_dir = os.path.join(self.temp_dir, b"testsrcdir")
+        self.import_dir = os.path.join(self.temp_dir, b"testsrc_dir")
         if os.path.isdir(self.import_dir):
             shutil.rmtree(self.import_dir)
+        self.import_dir = os.path.join(self.temp_dir, b"testsrc_dir")
 
     def _create_nested_import_dir(self):
         """
@@ -215,13 +224,13 @@ class CopyFileArtifactsTestCase(_common.TestCase):
         the directory.
 
         The directory has the following layout
-          the_album/
-            disc1/
-              track_1.mp3
-              artifact1.file
-            disc2/
-              track_1.mp3
-              artifact2.file
+            the_album/
+                disc1/
+                    track_1.mp3
+                    artifact1.file
+                disc2/
+                    track_1.mp3
+                    artifact2.file
         """
 
     def _setup_import_session(
@@ -242,6 +251,8 @@ class CopyFileArtifactsTestCase(_common.TestCase):
         config["import"]["move"] = move
         config["import"]["autotag"] = autotag
         config["import"]["resume"] = False
+
+        self.paths = import_dir or self.import_dir
 
         self.importer = TestImportSession(
             self.lib,
@@ -273,6 +284,14 @@ class CopyFileArtifactsTestCase(_common.TestCase):
         the library directory
         """
         self.assertNotExists(os.path.join(self.lib_dir, *segments))
+
+    def assert_import_dir_exists(self, import_dir=None):
+        """
+        Join the ``segments`` and assert that this path exists in the import
+        directory
+        """
+        directory = import_dir or self.import_dir
+        self.assertExists(directory)
 
     def assert_in_import_dir(self, *segments):
         """
