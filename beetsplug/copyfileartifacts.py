@@ -144,6 +144,7 @@ class CopyFileArtifactsPlugin(BeetsPlugin):
         album_path = os.path.dirname(destination)
         mapping["albumpath"] = beets.util.displayable_path(album_path)
 
+        # TODO: Retool to utilize the OS's path separator
         # pathsep = beets.config["path_sep_replace"].get(str)
         strpath_old = beets.util.displayable_path(item.path)
         filename_old, fileext = os.path.splitext(os.path.basename(strpath_old))
