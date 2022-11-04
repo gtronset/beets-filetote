@@ -179,7 +179,7 @@ class CopyFileArtifactsPlugin(BeetsPlugin):
                         os.path.basename(filepath)
                     )
                     if file_name == item_source_filename:
-                        paired_files.append((filepath, True))
+                        paired_files.append({"path": filepath, "paired": True})
 
                         # Remove from shared artifacts, as the item-move will
                         # handle this file.
@@ -212,9 +212,9 @@ class CopyFileArtifactsPlugin(BeetsPlugin):
                     continue
 
                 if not self.pairing:
-                    paired_files.append((source_file, False))
+                    paired_files.append({"path": source_file, "paired": False})
                 if self.pairing and file_name == item_source_filename:
-                    paired_files.append((source_file, True))
+                    paired_files.append({"path": source_file, "paired": True})
                 else:
                     non_handled_files.append(source_file)
 
@@ -236,11 +236,13 @@ class CopyFileArtifactsPlugin(BeetsPlugin):
         for item in self._process_queue:
             artifacts = item["files"]
 
-            source_path = os.path.dirname(item["files"][0][0])
+            source_path = os.path.dirname(item["files"][0]["path"])
 
             if not self.pairing_only:
                 for shared_artifact in self._shared_artifacts[source_path]:
-                    artifacts.extend([(shared_artifact, False)])
+                    artifacts.extend(
+                        [{"path": shared_artifact, "paired": False}]
+                    )
 
             self._shared_artifacts[source_path] = []
 
@@ -252,7 +254,9 @@ class CopyFileArtifactsPlugin(BeetsPlugin):
 
         ignored_files = []
 
-        for source_file, paired in source_files:
+        for artifact in source_files:
+            source_file = artifact["path"]
+
             # self._log.warning(str(paired))
 
             source_path = os.path.dirname(source_file)
