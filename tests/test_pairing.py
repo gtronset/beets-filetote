@@ -38,10 +38,37 @@ class CopyFileArtifactsPairingTest(CopyFileArtifactsTestCase):
 
         config["copyfileartifacts"]["extensions"] = ".lrc"
         config["copyfileartifacts"]["pairing"] = True
-        config["paths"]["paired-ext:lrc"] = str("$albumpath/$medianame")
 
         self._run_importer()
 
         self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"track_1.lrc")
         self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"track_2.lrc")
         self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"artifact.lrc")
+
+    def test_pairing_only_disabled_copies_all_matches(self):
+        self._create_flat_import_dir(media_files=2)
+        self._setup_import_session(autotag=False)
+
+        config["copyfileartifacts"]["extensions"] = ".lrc"
+        config["copyfileartifacts"]["pairing"] = True
+        config["copyfileartifacts"]["pairing_only"] = False
+
+        self._run_importer()
+
+        self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"track_1.lrc")
+        self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"track_2.lrc")
+        self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"artifact.lrc")
+
+    def test_pairing_only_enabled_copies_all_matches(self):
+        self._create_flat_import_dir(media_files=2)
+        self._setup_import_session(autotag=False)
+
+        config["copyfileartifacts"]["extensions"] = ".lrc"
+        config["copyfileartifacts"]["pairing"] = True
+        config["copyfileartifacts"]["pairing_only"] = True
+
+        self._run_importer()
+
+        self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"track_1.lrc")
+        self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"track_2.lrc")
+        self.assert_not_in_lib_dir(b"Tag Artist", b"Tag Album", b"artifact.lrc")

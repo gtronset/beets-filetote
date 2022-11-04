@@ -22,6 +22,7 @@ class CopyFileArtifactsPlugin(BeetsPlugin):
                 "exclude": "",
                 "print_ignored": False,
                 "pairing": False,
+                "pairing_only": False,
             }
         )
 
@@ -34,6 +35,7 @@ class CopyFileArtifactsPlugin(BeetsPlugin):
         self.exclude = self.config["exclude"].as_str_seq()
         self.print_ignored = self.config["print_ignored"].get()
         self.pairing = self.config["pairing"].get()
+        self.pairing_only = self.config["pairing_only"].get()
 
         ext_len = len("ext:")
         filename_len = len("filename:")
@@ -236,8 +238,9 @@ class CopyFileArtifactsPlugin(BeetsPlugin):
 
             source_path = os.path.dirname(item["files"][0][0])
 
-            for shared_artifact in self._shared_artifacts[source_path]:
-                artifacts.extend([(shared_artifact, False)])
+            if not self.pairing_only:
+                for shared_artifact in self._shared_artifacts[source_path]:
+                    artifacts.extend([(shared_artifact, False)])
 
             self._shared_artifacts[source_path] = []
 
