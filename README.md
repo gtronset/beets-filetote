@@ -99,8 +99,15 @@ trump other matches by either `extensions` or `filenames`.
 
 ### Renaming files
 
-Renaming works in much the same way as beets [Path Formats](http://beets.readthedocs.org/en/stable/reference/pathformat.html)
-with the following considerations:
+Renaming works in much the same way as beets [Path Formats](http://beets.readthedocs.org/en/stable/reference/pathformat.html).
+This plugin supports the below new path queries (from least to most specific).
+Each takes a single corresponding value.
+
+- `ext:`
+- `paired_ext:`
+- `filename:`
+
+Renaming has the following considerations:
 
 - The fields available are `$artist`, `$albumartist`, `$album`, `$albumpath`,
   `$old_filename` (filename of the extra/artifcat file before its renamed),
