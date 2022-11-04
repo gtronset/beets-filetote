@@ -256,6 +256,11 @@ class CopyFileArtifactsPlugin(BeetsPlugin):
                         [{"path": shared_artifact, "paired": False}]
                     )
 
+            self._log.warning(
+                b", ".join(self._shared_artifacts[source_path]).decode("utf8")
+            )
+
+            self._log.warning(b", ".join(artifacts).decode("utf8"))
             self._shared_artifacts[source_path] = []
 
             self.process_artifacts(artifacts, item["mapping"], False)
@@ -278,11 +283,13 @@ class CopyFileArtifactsPlugin(BeetsPlugin):
 
             # Skip as another plugin or beets has already moved this file
             if not os.path.exists(source_file):
+                self._log.warning("first fail: " + str(source_file))
                 ignored_files.append(source_file)
                 continue
 
             # Skip if filename is explicitly in `exclude`
             if filename.decode("utf8") in self.exclude:
+                self._log.warning("second fail: " + str(source_file))
                 ignored_files.append(source_file)
                 continue
 
@@ -295,6 +302,7 @@ class CopyFileArtifactsPlugin(BeetsPlugin):
                 and file_ext.decode("utf8") not in self.extensions
                 and filename.decode("utf8") not in self.filenames
             ):
+                self._log.warning("third fail: " + str(source_file))
                 ignored_files.append(source_file)
                 continue
 
@@ -302,6 +310,7 @@ class CopyFileArtifactsPlugin(BeetsPlugin):
             if os.path.exists(dest_file) and filecmp.cmp(
                 source_file, dest_file
             ):
+                self._log.warning("fourth fail: " + str(source_file))
                 ignored_files.append(source_file)
                 continue
 
