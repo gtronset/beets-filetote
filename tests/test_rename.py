@@ -77,6 +77,18 @@ class CopyFileArtifactsRenameTest(CopyFileArtifactsTestCase):
 
         self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"track_1.file")
 
+    def test_rename_field_item_new_filename(self):
+        config["copyfileartifacts"]["extensions"] = ".lrc"
+        config["copyfileartifacts"]["pairing"] = True
+        config["copyfileartifacts"]["paring_only"] = True
+        config["paths"]["ext:lrc"] = str("$albumpath/$item_new_filename")
+
+        self._run_importer()
+
+        self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"Tag Title 1.lrc")
+        self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"Tag Title 2.lrc")
+        self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"Tag Title 3.lrc")
+
     def test_rename_when_copying(self):
         config["copyfileartifacts"]["extensions"] = ".file"
         config["paths"]["ext:file"] = str("$albumpath/$artist - $album")

@@ -155,6 +155,8 @@ class CopyFileArtifactsPlugin(BeetsPlugin):
         mapping["item_old_filename"] = filename_old
         mapping["item_new_filename"] = filename_new
 
+        self._log.warning(str(filename_new))
+
         return mapping
 
     def collect_artifacts(self, item, source, destination):
@@ -169,10 +171,17 @@ class CopyFileArtifactsPlugin(BeetsPlugin):
 
         # Check if this path has already been processed
         if source_path in self._dirs_seen:
-
+            self._log.warning("Pairing==========" + str(self.pairing))
+            self._log.warning("GAVIN==========" + str(item_source_filename))
+            self._log.warning(
+                "Shared=========="
+                + b", ".join(self._shared_artifacts[source_path]).decode("utf8")
+            )
             # Check to see if "pairing" is enabled and, if so, if there are
             # artifacts to look at
             if self.pairing and self._shared_artifacts[source_path]:
+
+                self._log.warning(str(item_source_filename))
 
                 # Iterate through shared artifacts to find paired matches
                 for filepath in self._shared_artifacts[source_path]:
