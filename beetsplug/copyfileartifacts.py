@@ -47,7 +47,7 @@ class CopyFileArtifactsPlugin(BeetsPlugin):
             if (
                 c[0][:ext_len] == "ext:"
                 or c[0][:filename_len] == "filename:"
-                or c[0][:paired_len] == "paired-ext:"
+                or c[0][:paired_len] == "paired_ext:"
             )
         ]
 
@@ -60,7 +60,7 @@ class CopyFileArtifactsPlugin(BeetsPlugin):
         """ """
         self.paths = os.path.expanduser(session.paths[0])
 
-    def _destination(self, filename, mapping):
+    def _destination(self, filename, mapping, paired=False):
         """Returns a destination path a file should be moved to. The filename
         is unique to ensure files aren't overwritten. This also checks the
         config for path formats based on file extension allowing the use of
@@ -81,12 +81,23 @@ class CopyFileArtifactsPlugin(BeetsPlugin):
         for query, path_format in self.path_formats:
             ext_len = len("ext:")
             filename_len = len("filename:")
+            paired_ext_len = len("paired_ext:")
 
-            if query[:ext_len] == "ext:" and file_ext == (
+            if (
+                paired
+                and query[:paired_ext_len] == "paired_ext:"
+                and file_ext == ("." + query[paired_ext_len:].lstrip("."))
+            ):
+                # Prioritize `filename:` query selectory over `paired_ext:`
+                if selected_path_query != "filename:":
+                    selected_path_query = "paired_ext:"
+                    selected_path_format = path_format
+            elif query[:ext_len] == "ext:" and file_ext == (
                 "." + query[ext_len:].lstrip(".")
             ):
-                # Prioritize `filename:` query selectory over `ext:`
-                if selected_path_query != "filename:":
+                # Prioritize `filename:` and `paired_ext:` query selectory over
+                # `ext:`
+                if selected_path_query not in ["filename:", "paired_ext:"]:
                     selected_path_query = "ext:"
                     selected_path_format = path_format
 
@@ -152,10 +163,8 @@ class CopyFileArtifactsPlugin(BeetsPlugin):
         strpath_new = beets.util.displayable_path(destination)
         filename_new = os.path.splitext(os.path.basename(strpath_new))[0]
 
-        mapping["item_old_filename"] = filename_old
-        mapping["item_new_filename"] = filename_new
-
-        self._log.warning(str(filename_new))
+        mapping["medianame_old"] = filename_old
+        mapping["medianame_new"] = filename_new
 
         return mapping
 
@@ -171,17 +180,10 @@ class CopyFileArtifactsPlugin(BeetsPlugin):
 
         # Check if this path has already been processed
         if source_path in self._dirs_seen:
-            self._log.warning("Pairing==========" + str(self.pairing))
-            self._log.warning("GAVIN==========" + str(item_source_filename))
-            self._log.warning(
-                "Shared=========="
-                + b", ".join(self._shared_artifacts[source_path]).decode("utf8")
-            )
+
             # Check to see if "pairing" is enabled and, if so, if there are
             # artifacts to look at
             if self.pairing and self._shared_artifacts[source_path]:
-
-                self._log.warning(str(item_source_filename))
 
                 # Iterate through shared artifacts to find paired matches
                 for filepath in self._shared_artifacts[source_path]:
@@ -267,14 +269,12 @@ class CopyFileArtifactsPlugin(BeetsPlugin):
         for artifact in source_files:
             source_file = artifact["path"]
 
-            # self._log.warning(str(paired))
-
             source_path = os.path.dirname(source_file)
             # os.path.basename() not suitable here as files may be contained
             # within dir of source_path
             filename = source_file[len(source_path) + 1 :]
 
-            dest_file = self._destination(filename, mapping)
+            dest_file = self._destination(filename, mapping, artifact["paired"])
 
             # Skip as another plugin or beets has already moved this file
             if not os.path.exists(source_file):

@@ -178,7 +178,7 @@ class CopyFileArtifactsFromFlatDirectoryTest(CopyFileArtifactsTestCase):
         """By default, all eligible files are grabbed with the first item."""
         config["copyfileartifacts"]["extensions"] = ".file"
         config["paths"]["ext:file"] = str(
-            "$albumpath/$item_old_filename - $old_filename"
+            "$albumpath/$medianame_old - $old_filename"
         )
 
         self._run_importer()
