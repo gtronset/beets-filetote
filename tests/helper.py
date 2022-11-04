@@ -113,7 +113,7 @@ class CopyFileArtifactsTestCase(_common.TestCase):
             ("comp:true", os.path.join("compilations", "$album", "$title")),
         ]
 
-    def _create_flat_import_dir(self):
+    def _create_flat_import_dir(self, media_files=3, generate_pair=True):
         """
         Creates a directory with media files and artifacts.
         Sets ``self.import_dir`` to the path of the directory. Also sets
@@ -130,43 +130,66 @@ class CopyFileArtifactsTestCase(_common.TestCase):
                     artifact2.file
                     artifact.file2
                     artifact.file3
+                    track_1.lrc
+                    track_2.lrc
+                    track_3.lrc
         """
         self._set_import_dir()
 
         album_path = os.path.join(self.import_dir, b"the_album")
         os.makedirs(album_path)
 
-        # Create artifact
+        # Create artifacts
         open(os.path.join(album_path, b"artifact.file"), "a").close()
         open(os.path.join(album_path, b"artifact2.file"), "a").close()
-        open(os.path.join(album_path, b"artifact.file2"), "a").close()
-        open(os.path.join(album_path, b"artifact.file3"), "a").close()
+        open(os.path.join(album_path, b"artifact.nfo"), "a").close()
+        open(os.path.join(album_path, b"artifact.lrc"), "a").close()
 
-        medium_track_1 = self._create_medium(
-            os.path.join(album_path, b"track_1.mp3"),
-            self.rsrc_mp3,
-            track_name="Tag Title 1",
-            track_number=1,
-        )
-        medium_track_2 = self._create_medium(
-            os.path.join(album_path, b"track_2.mp3"),
-            self.rsrc_mp3,
-            track_name="Tag Title 2",
-            track_number=2,
-        )
-        medium_track_3 = self._create_medium(
-            os.path.join(album_path, b"track_3.mp3"),
-            self.rsrc_mp3,
-            track_name="Tag Title 3",
-            track_number=3,
-        )
+        # Number of desired media
+        self._media_count = self._pairs_count = media_files
 
-        media_list = [medium_track_1, medium_track_2, medium_track_3]
-        self._media_count = len(media_list)
+        media_list = self._generate_paired_media_list(
+            album_path=album_path,
+            count=self._media_count,
+            generate_pair=generate_pair,
+        )
         self.import_media = media_list
 
         log.debug("--- import directory created")
         self._list_files(self.import_dir)
+
+    def _generate_paired_media_list(
+        self, album_path, count, generate_pair=True
+    ):
+        """
+        Generates the desired number of media files and corresponding
+        "paired" artifacts.
+        """
+        media_list = []
+
+        while count > 0:
+            trackname = f"track_{count}"
+            media_list.append(
+                self._create_medium(
+                    os.path.join(
+                        album_path, f"{trackname}.mp3".encode("utf-8")
+                    ),
+                    self.rsrc_mp3,
+                    track_name=f"Tag Title {count}",
+                    track_number=count,
+                )
+            )
+            count = count - 1
+
+            if generate_pair:
+                # Create paired artifact
+                open(
+                    os.path.join(
+                        album_path, f"{trackname}.lrc".encode("utf-8")
+                    ),
+                    "a",
+                ).close()
+        return media_list
 
     def _create_medium(
         self,

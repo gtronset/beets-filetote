@@ -21,24 +21,32 @@ class CopyFileArtifactsPlugin(BeetsPlugin):
                 "filenames": "",
                 "exclude": "",
                 "print_ignored": False,
+                "pairing": False,
             }
         )
 
         self._process_queue = []
+        self._shared_artifacts = {}
         self._dirs_seen = []
 
         self.extensions = self.config["extensions"].as_str_seq()
         self.filenames = self.config["filenames"].as_str_seq()
         self.exclude = self.config["exclude"].as_str_seq()
         self.print_ignored = self.config["print_ignored"].get()
+        self.pairing = self.config["pairing"].get()
 
         ext_len = len("ext:")
         filename_len = len("filename:")
+        paired_len = len("paired-ext:")
 
         self.path_formats = [
             c
             for c in beets.ui.get_path_formats()
-            if (c[0][:ext_len] == "ext:" or c[0][:filename_len] == "filename:")
+            if (
+                c[0][:ext_len] == "ext:"
+                or c[0][:filename_len] == "filename:"
+                or c[0][:paired_len] == "paired-ext:"
+            )
         ]
 
         self.register_listener("import_begin", self._register_source)
@@ -122,7 +130,7 @@ class CopyFileArtifactsPlugin(BeetsPlugin):
 
         return value
 
-    def _generate_mapping(self, item, album_path):
+    def _generate_mapping(self, item, destination):
         mapping = {
             "artist": item.artist or "None",
             "albumartist": item.albumartist or "None",
@@ -131,22 +139,62 @@ class CopyFileArtifactsPlugin(BeetsPlugin):
         for key in mapping:
             mapping[key] = self._get_formatted(mapping[key])
 
+        album_path = os.path.dirname(destination)
         mapping["albumpath"] = beets.util.displayable_path(album_path)
 
-        pathsep = beets.config["path_sep_replace"].get(str)
-        strpath = beets.util.displayable_path(item.path)
-        filename, fileext = os.path.splitext(os.path.basename(strpath))
+        # pathsep = beets.config["path_sep_replace"].get(str)
+        strpath_old = beets.util.displayable_path(item.path)
+        filename_old, fileext = os.path.splitext(os.path.basename(strpath_old))
 
-        mapping["item_old_filename"] = filename
+        strpath_new = beets.util.displayable_path(destination)
+        filename_new = os.path.splitext(os.path.basename(strpath_new))[0]
+
+        mapping["item_old_filename"] = filename_old
+        mapping["item_new_filename"] = filename_new
 
         return mapping
 
     def collect_artifacts(self, item, source, destination):
+        item_source_filename = os.path.splitext(os.path.basename(source))[0]
+        item_destination_filename = os.path.splitext(
+            os.path.basename(destination)
+        )[0]
         source_path = os.path.dirname(source)
         dest_path = os.path.dirname(destination)
 
+        paired_files = []
+
         # Check if this path has already been processed
         if source_path in self._dirs_seen:
+
+            # Check to see if "pairing" is enabled and, if so, if there are
+            # artifacts to look at
+            if self.pairing and self._shared_artifacts[source_path]:
+
+                # Iterate through shared artifacts to find paired matches
+                for filepath in self._shared_artifacts[source_path]:
+                    file_name, file_ext = os.path.splitext(
+                        os.path.basename(filepath)
+                    )
+                    if file_name == item_source_filename:
+                        paired_files.append((filepath, True))
+
+                        # Remove from shared artifacts, as the item-move will
+                        # handle this file.
+                        self._shared_artifacts[source_path].remove(filepath)
+
+                if paired_files:
+                    self._process_queue.extend(
+                        [
+                            {
+                                "files": paired_files,
+                                "mapping": self._generate_mapping(
+                                    item, destination
+                                ),
+                            }
+                        ]
+                    )
+
             return
 
         non_handled_files = []
@@ -157,36 +205,54 @@ class CopyFileArtifactsPlugin(BeetsPlugin):
                 source_file = os.path.join(root, filename)
 
                 # Skip any files extensions handled by beets
-                file_ext = os.path.splitext(filename)[1]
+                file_name, file_ext = os.path.splitext(filename)
                 if len(file_ext) > 1 and file_ext.decode("utf8")[1:] in TYPES:
                     continue
 
-                non_handled_files.append(source_file)
+                if not self.pairing:
+                    paired_files.append((source_file, False))
+                if self.pairing and file_name == item_source_filename:
+                    paired_files.append((source_file, True))
+                else:
+                    non_handled_files.append(source_file)
 
         self._process_queue.extend(
             [
                 {
-                    "files": non_handled_files,
-                    "mapping": self._generate_mapping(item, dest_path),
+                    "files": paired_files,
+                    "mapping": self._generate_mapping(item, destination),
                 }
             ]
         )
         self._dirs_seen.extend([source_path])
 
+        self._shared_artifacts[source_path] = non_handled_files
+
     def process_events(self, lib):
         # Ensure destination library settings are accessible
         self.lib = lib
         for item in self._process_queue:
-            self.process_artifacts(item["files"], item["mapping"], False)
+            artifacts = item["files"]
+
+            source_path = os.path.dirname(item["files"][0][0])
+
+            for shared_artifact in self._shared_artifacts[source_path]:
+                artifacts.extend([(shared_artifact, False)])
+
+            self._shared_artifacts[source_path] = []
+
+            self.process_artifacts(artifacts, item["mapping"], False)
 
     def process_artifacts(self, source_files, mapping, reimport=False):
-        if len(source_files) == 0:
+        if not source_files:
             return
 
         ignored_files = []
-        source_path = os.path.dirname(source_files[0])
 
-        for source_file in source_files:
+        for source_file, paired in source_files:
+            # self._log.warning(str(paired))
+
+            source_path = os.path.dirname(source_file)
             # os.path.basename() not suitable here as files may be contained
             # within dir of source_path
             filename = source_file[len(source_path) + 1 :]

@@ -22,6 +22,8 @@ class CopyFileArtifactsFromFlatDirectoryTest(CopyFileArtifactsTestCase):
         self._create_flat_import_dir()
         self._setup_import_session(autotag=False)
 
+        self._base_file_count = self._media_count + self._pairs_count
+
     def test_only_copy_artifacts_matching_configured_extension(self):
         config["copyfileartifacts"]["extensions"] = ".file"
 
@@ -89,7 +91,7 @@ class CopyFileArtifactsFromFlatDirectoryTest(CopyFileArtifactsTestCase):
         self,
     ):
         config["copyfileartifacts"]["extensions"] = ".file"
-        config["copyfileartifacts"]["filenames"] = "artifact.file2"
+        config["copyfileartifacts"]["filenames"] = "artifact.nfo"
 
         self._run_importer()
 
@@ -99,9 +101,7 @@ class CopyFileArtifactsFromFlatDirectoryTest(CopyFileArtifactsTestCase):
 
         self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"artifact.file")
         self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"artifact2.file")
-        self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"artifact.file2")
-
-        self.assert_number_of_files_in_dir(7, self.import_dir, b"the_album")
+        self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"artifact.nfo")
 
         self.assert_not_in_lib_dir(
             b"Tag Artist", b"Tag Album", b"artifact.file3"
@@ -111,25 +111,25 @@ class CopyFileArtifactsFromFlatDirectoryTest(CopyFileArtifactsTestCase):
         self._run_importer()
 
         self.assert_number_of_files_in_dir(
-            self._media_count + 4, self.lib_dir, b"Tag Artist", b"Tag Album"
+            self._base_file_count + 4, self.lib_dir, b"Tag Artist", b"Tag Album"
         )
 
         self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"artifact.file")
         self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"artifact2.file")
-        self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"artifact.file2")
-        self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"artifact.file3")
+        self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"artifact.nfo")
+        self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"artifact.lrc")
 
     def test_copy_artifacts(self):
         self._run_importer()
 
         self.assert_number_of_files_in_dir(
-            self._media_count + 4, self.lib_dir, b"Tag Artist", b"Tag Album"
+            self._base_file_count + 4, self.lib_dir, b"Tag Artist", b"Tag Album"
         )
 
         self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"artifact.file")
         self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"artifact2.file")
-        self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"artifact.file2")
-        self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"artifact.file3")
+        self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"artifact.nfo")
+        self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"artifact.lrc")
 
     def test_ignore_media_files(self):
         self._run_importer()
@@ -142,18 +142,18 @@ class CopyFileArtifactsFromFlatDirectoryTest(CopyFileArtifactsTestCase):
         self._run_importer()
 
         self.assert_number_of_files_in_dir(
-            self._media_count + 4, self.lib_dir, b"Tag Artist", b"Tag Album"
+            self._base_file_count + 4, self.lib_dir, b"Tag Artist", b"Tag Album"
         )
 
         self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"artifact.file")
         self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"artifact2.file")
-        self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"artifact.file2")
-        self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"artifact.file3")
+        self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"artifact.nfo")
+        self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"artifact.lrc")
 
         self.assert_not_in_import_dir(b"the_album", b"artifact.file")
         self.assert_not_in_import_dir(b"the_album", b"artifact2.file")
-        self.assert_not_in_import_dir(b"the_album", b"artifact.file2")
-        self.assert_not_in_import_dir(b"the_album", b"artifact.file3")
+        self.assert_not_in_import_dir(b"the_album", b"artifact.nfo")
+        self.assert_not_in_import_dir(b"the_album", b"artifact.lrc")
 
     def test_do_nothing_when_not_copying_or_moving(self):
         """
@@ -166,13 +166,13 @@ class CopyFileArtifactsFromFlatDirectoryTest(CopyFileArtifactsTestCase):
         self._run_importer()
 
         self.assert_number_of_files_in_dir(
-            self._media_count + 4, self.import_dir, b"the_album"
+            self._base_file_count + 4, self.import_dir, b"the_album"
         )
 
         self.assert_in_import_dir(b"the_album", b"artifact.file")
         self.assert_in_import_dir(b"the_album", b"artifact2.file")
-        self.assert_in_import_dir(b"the_album", b"artifact.file2")
-        self.assert_in_import_dir(b"the_album", b"artifact.file3")
+        self.assert_in_import_dir(b"the_album", b"artifact.nfo")
+        self.assert_in_import_dir(b"the_album", b"artifact.lrc")
 
     def test_artifacts_copymove_on_first_media_by_default(self):
         """By default, all eligible files are grabbed with the first item."""

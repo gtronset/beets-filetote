@@ -102,9 +102,9 @@ class CopyFileArtifactsRenameTest(CopyFileArtifactsTestCase):
         self.assert_not_in_import_dir(b"the_album", b"artifact.file")
 
     def test_rename_period_is_optional_for_ext(self):
-        config["copyfileartifacts"]["extensions"] = ".file .file2"
+        config["copyfileartifacts"]["extensions"] = ".file .nfo"
         config["paths"]["ext:file"] = str("$albumpath/$artist - $album")
-        config["paths"]["ext:.file2"] = str("$albumpath/$artist - $album 2")
+        config["paths"]["ext:.nfo"] = str("$albumpath/$artist - $album 2")
         config["import"]["move"] = True
 
         self._run_importer()
@@ -113,10 +113,10 @@ class CopyFileArtifactsRenameTest(CopyFileArtifactsTestCase):
             b"Tag Artist", b"Tag Album", b"Tag Artist - Tag Album.file"
         )
         self.assert_in_lib_dir(
-            b"Tag Artist", b"Tag Album", b"Tag Artist - Tag Album 2.file2"
+            b"Tag Artist", b"Tag Album", b"Tag Artist - Tag Album 2.nfo"
         )
         self.assert_not_in_import_dir(b"the_album", b"artifact.file")
-        self.assert_not_in_import_dir(b"the_album", b"artifact.file2")
+        self.assert_not_in_import_dir(b"the_album", b"artifact.nfo")
 
     def test_rename_ignores_file_when_name_conflicts(self):
         config["copyfileartifacts"]["extensions"] = ".file"
@@ -133,9 +133,9 @@ class CopyFileArtifactsRenameTest(CopyFileArtifactsTestCase):
         self.assert_in_import_dir(b"the_album", b"artifact2.file")
 
     def test_rename_multiple_extensions(self):
-        config["copyfileartifacts"]["extensions"] = ".file .file2"
+        config["copyfileartifacts"]["extensions"] = ".file .nfo"
         config["paths"]["ext:file"] = str("$albumpath/$artist - $album")
-        config["paths"]["ext:file2"] = str("$albumpath/$artist - $album")
+        config["paths"]["ext:nfo"] = str("$albumpath/$artist - $album")
         config["import"]["move"] = True
 
         self._run_importer()
@@ -144,10 +144,10 @@ class CopyFileArtifactsRenameTest(CopyFileArtifactsTestCase):
             b"Tag Artist", b"Tag Album", b"Tag Artist - Tag Album.file"
         )
         self.assert_in_lib_dir(
-            b"Tag Artist", b"Tag Album", b"Tag Artist - Tag Album.file2"
+            b"Tag Artist", b"Tag Album", b"Tag Artist - Tag Album.nfo"
         )
         self.assert_not_in_import_dir(b"the_album", b"artifact.file")
-        self.assert_not_in_import_dir(b"the_album", b"artifact.file2")
+        self.assert_not_in_import_dir(b"the_album", b"artifact.nfo")
         # `artifact2.file` will rename since the destination filename conflicts with `artifact.file`
         self.assert_in_import_dir(b"the_album", b"artifact2.file")
 
