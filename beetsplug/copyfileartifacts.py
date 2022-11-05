@@ -205,6 +205,7 @@ class CopyFileArtifactsPlugin(BeetsPlugin):
                                 "mapping": self._generate_mapping(
                                     item, destination
                                 ),
+                                "source_path": source_path,
                             }
                         ]
                     )
@@ -235,6 +236,7 @@ class CopyFileArtifactsPlugin(BeetsPlugin):
                 {
                     "files": queue_files,
                     "mapping": self._generate_mapping(item, destination),
+                    "source_path": source_path,
                 }
             ]
         )
@@ -248,7 +250,7 @@ class CopyFileArtifactsPlugin(BeetsPlugin):
         for item in self._process_queue:
             artifacts = item["files"]
 
-            source_path = os.path.dirname(item["files"][0]["path"])
+            source_path = item["source_path"]
 
             if not self.pairing_only:
                 for shared_artifact in self._shared_artifacts[source_path]:
