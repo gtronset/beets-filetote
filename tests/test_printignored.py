@@ -24,12 +24,8 @@ class CopyFileArtifactsPrintIgnoredTest(CopyFileArtifactsTestCase):
         with capture_log() as logs:
             self._run_importer()
 
-        self.assert_not_in_lib_dir(
-            b"Tag Artist", b"Tag Album", b"artifact.file2"
-        )
-        self.assert_not_in_lib_dir(
-            b"Tag Artist", b"Tag Album", b"artifact.file3"
-        )
+        self.assert_not_in_lib_dir(b"Tag Artist", b"Tag Album", b"artifact.nfo")
+        self.assert_not_in_lib_dir(b"Tag Artist", b"Tag Album", b"artifact.lrc")
 
         # check output log
         logs = [line for line in logs if line.startswith("copyfileartifacts:")]

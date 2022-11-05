@@ -36,12 +36,8 @@ class CopyFileArtifactsFromFlatDirectoryTest(CopyFileArtifactsTestCase):
         self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"artifact.file")
         self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"artifact2.file")
 
-        self.assert_not_in_lib_dir(
-            b"Tag Artist", b"Tag Album", b"artifact.file2"
-        )
-        self.assert_not_in_lib_dir(
-            b"Tag Artist", b"Tag Album", b"artifact.file3"
-        )
+        self.assert_not_in_lib_dir(b"Tag Artist", b"Tag Album", b"artifact.nfo")
+        self.assert_not_in_lib_dir(b"Tag Artist", b"Tag Album", b"artifact.lrc")
 
     def test_exclude_artifacts_matching_configured_exclude(self):
         config["copyfileartifacts"]["extensions"] = ".file"
@@ -58,12 +54,8 @@ class CopyFileArtifactsFromFlatDirectoryTest(CopyFileArtifactsTestCase):
         self.assert_not_in_lib_dir(
             b"Tag Artist", b"Tag Album", b"artifact2.file"
         )
-        self.assert_not_in_lib_dir(
-            b"Tag Artist", b"Tag Album", b"artifact.file2"
-        )
-        self.assert_not_in_lib_dir(
-            b"Tag Artist", b"Tag Album", b"artifact.file3"
-        )
+        self.assert_not_in_lib_dir(b"Tag Artist", b"Tag Album", b"artifact.nfo")
+        self.assert_not_in_lib_dir(b"Tag Artist", b"Tag Album", b"artifact.lrc")
 
     def test_only_copy_artifacts_matching_configured_filename(self):
         config["copyfileartifacts"]["extensions"] = ""
@@ -80,12 +72,8 @@ class CopyFileArtifactsFromFlatDirectoryTest(CopyFileArtifactsTestCase):
         self.assert_not_in_lib_dir(
             b"Tag Artist", b"Tag Album", b"artifact2.file"
         )
-        self.assert_not_in_lib_dir(
-            b"Tag Artist", b"Tag Album", b"artifact.file2"
-        )
-        self.assert_not_in_lib_dir(
-            b"Tag Artist", b"Tag Album", b"artifact.file3"
-        )
+        self.assert_not_in_lib_dir(b"Tag Artist", b"Tag Album", b"artifact.nfo")
+        self.assert_not_in_lib_dir(b"Tag Artist", b"Tag Album", b"artifact.lrc")
 
     def test_only_copy_artifacts_matching_configured_extension_and_filename(
         self,
@@ -103,9 +91,7 @@ class CopyFileArtifactsFromFlatDirectoryTest(CopyFileArtifactsTestCase):
         self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"artifact2.file")
         self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"artifact.nfo")
 
-        self.assert_not_in_lib_dir(
-            b"Tag Artist", b"Tag Album", b"artifact.file3"
-        )
+        self.assert_not_in_lib_dir(b"Tag Artist", b"Tag Album", b"artifact.lrc")
 
     def test_copy_all_artifacts_by_default(self):
         self._run_importer()

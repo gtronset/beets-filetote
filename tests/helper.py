@@ -128,8 +128,8 @@ class CopyFileArtifactsTestCase(_common.TestCase):
                     track_3.mp3
                     artifact.file
                     artifact2.file
-                    artifact.file2
-                    artifact.file3
+                    artifact.nfo
+                    artifact.lrc
                     track_1.lrc
                     track_2.lrc
                     track_3.lrc
