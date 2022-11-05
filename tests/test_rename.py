@@ -69,13 +69,82 @@ class CopyFileArtifactsRenameTest(CopyFileArtifactsTestCase):
         self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"artifact.file")
         self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"artifact2.file")
 
-    def test_rename_field_item_old_filename(self):
+    def test_rename_field_medianame_old(self):
         config["copyfileartifacts"]["extensions"] = ".file"
-        config["paths"]["ext:file"] = str("$albumpath/$item_old_filename")
+        config["paths"]["ext:file"] = str("$albumpath/$medianame_old")
 
         self._run_importer()
 
         self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"track_1.file")
+
+    def test_rename_paired_ext(self):
+        config["copyfileartifacts"]["extensions"] = ".lrc"
+        config["copyfileartifacts"]["pairing"] = True
+        config["copyfileartifacts"]["paring_only"] = True
+        config["paths"]["paired_ext:lrc"] = str("$albumpath/$medianame_new")
+
+        self._run_importer()
+
+        self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"artifact.lrc")
+        self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"Tag Title 1.lrc")
+        self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"Tag Title 2.lrc")
+        self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"Tag Title 3.lrc")
+
+    def test_rename_paired_ext_does_not_conflict_with_ext(self):
+        config["copyfileartifacts"]["extensions"] = ".lrc"
+        config["copyfileartifacts"]["pairing"] = True
+        config["copyfileartifacts"]["paring_only"] = True
+        config["paths"]["ext:lrc"] = str("$albumpath/1 $old_filename")
+        config["paths"]["paired_ext:lrc"] = str("$albumpath/$medianame_new")
+
+        self._run_importer()
+
+        self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"1 artifact.lrc")
+        self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"Tag Title 1.lrc")
+        self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"Tag Title 2.lrc")
+        self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"Tag Title 3.lrc")
+
+    def test_rename_paired_ext_is_prioritized_over_ext(self):
+        config["copyfileartifacts"]["extensions"] = ".lrc"
+        config["copyfileartifacts"]["pairing"] = True
+        config["copyfileartifacts"]["paring_only"] = True
+        config["paths"]["paired_ext:lrc"] = str("$albumpath/$medianame_new")
+        config["paths"]["ext:lrc"] = str("$albumpath/1 $old_filename")
+
+        self._run_importer()
+
+        self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"1 artifact.lrc")
+        self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"Tag Title 1.lrc")
+        self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"Tag Title 2.lrc")
+        self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"Tag Title 3.lrc")
+
+    def test_rename_filename_is_prioritized_over_paired_ext(self):
+        config["copyfileartifacts"]["extensions"] = ".lrc"
+        config["copyfileartifacts"]["pairing"] = True
+        config["copyfileartifacts"]["paring_only"] = True
+        config["paths"]["paired_ext:lrc"] = str("$albumpath/$medianame_new")
+        config["paths"]["filename:track_1.lrc"] = str(
+            "$albumpath/1 $old_filename"
+        )
+
+        self._run_importer()
+
+        self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"artifact.lrc")
+        self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"1 track_1.lrc")
+        self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"Tag Title 2.lrc")
+        self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"Tag Title 3.lrc")
+
+    def test_rename_field_medianame_new(self):
+        config["copyfileartifacts"]["extensions"] = ".lrc"
+        config["copyfileartifacts"]["pairing"] = True
+        config["copyfileartifacts"]["paring_only"] = True
+        config["paths"]["ext:lrc"] = str("$albumpath/$medianame_new")
+
+        self._run_importer()
+
+        self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"Tag Title 1.lrc")
+        self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"Tag Title 2.lrc")
+        self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"Tag Title 3.lrc")
 
     def test_rename_when_copying(self):
         config["copyfileartifacts"]["extensions"] = ".file"
@@ -102,9 +171,9 @@ class CopyFileArtifactsRenameTest(CopyFileArtifactsTestCase):
         self.assert_not_in_import_dir(b"the_album", b"artifact.file")
 
     def test_rename_period_is_optional_for_ext(self):
-        config["copyfileartifacts"]["extensions"] = ".file .file2"
+        config["copyfileartifacts"]["extensions"] = ".file .nfo"
         config["paths"]["ext:file"] = str("$albumpath/$artist - $album")
-        config["paths"]["ext:.file2"] = str("$albumpath/$artist - $album 2")
+        config["paths"]["ext:.nfo"] = str("$albumpath/$artist - $album 2")
         config["import"]["move"] = True
 
         self._run_importer()
@@ -113,10 +182,10 @@ class CopyFileArtifactsRenameTest(CopyFileArtifactsTestCase):
             b"Tag Artist", b"Tag Album", b"Tag Artist - Tag Album.file"
         )
         self.assert_in_lib_dir(
-            b"Tag Artist", b"Tag Album", b"Tag Artist - Tag Album 2.file2"
+            b"Tag Artist", b"Tag Album", b"Tag Artist - Tag Album 2.nfo"
         )
         self.assert_not_in_import_dir(b"the_album", b"artifact.file")
-        self.assert_not_in_import_dir(b"the_album", b"artifact.file2")
+        self.assert_not_in_import_dir(b"the_album", b"artifact.nfo")
 
     def test_rename_ignores_file_when_name_conflicts(self):
         config["copyfileartifacts"]["extensions"] = ".file"
@@ -133,9 +202,9 @@ class CopyFileArtifactsRenameTest(CopyFileArtifactsTestCase):
         self.assert_in_import_dir(b"the_album", b"artifact2.file")
 
     def test_rename_multiple_extensions(self):
-        config["copyfileartifacts"]["extensions"] = ".file .file2"
+        config["copyfileartifacts"]["extensions"] = ".file .nfo"
         config["paths"]["ext:file"] = str("$albumpath/$artist - $album")
-        config["paths"]["ext:file2"] = str("$albumpath/$artist - $album")
+        config["paths"]["ext:nfo"] = str("$albumpath/$artist - $album")
         config["import"]["move"] = True
 
         self._run_importer()
@@ -144,10 +213,10 @@ class CopyFileArtifactsRenameTest(CopyFileArtifactsTestCase):
             b"Tag Artist", b"Tag Album", b"Tag Artist - Tag Album.file"
         )
         self.assert_in_lib_dir(
-            b"Tag Artist", b"Tag Album", b"Tag Artist - Tag Album.file2"
+            b"Tag Artist", b"Tag Album", b"Tag Artist - Tag Album.nfo"
         )
         self.assert_not_in_import_dir(b"the_album", b"artifact.file")
-        self.assert_not_in_import_dir(b"the_album", b"artifact.file2")
+        self.assert_not_in_import_dir(b"the_album", b"artifact.nfo")
         # `artifact2.file` will rename since the destination filename conflicts with `artifact.file`
         self.assert_in_import_dir(b"the_album", b"artifact2.file")
 

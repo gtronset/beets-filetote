@@ -64,6 +64,22 @@ copyfileartifacts:
   extensions: .*
 ```
 
+It can look for and target "pairs" (files having the same name as a matching or
+"paired" media item/track):
+
+```yaml
+copyfileartifacts:
+  pairing: True
+```
+
+And target/include only paired files:
+
+```yaml
+copyfileartifacts:
+  pairing: True
+  pairing_only: True
+```
+
 It can also exclude files by name:
 
 ```yaml
@@ -83,19 +99,28 @@ trump other matches by either `extensions` or `filenames`.
 
 ### Renaming files
 
-Renaming works in much the same way as beets [Path Formats](http://beets.readthedocs.org/en/stable/reference/pathformat.html)
-with the following limitations:
+Renaming works in much the same way as beets [Path Formats](http://beets.readthedocs.org/en/stable/reference/pathformat.html).
+This plugin supports the below new path queries (from least to most specific).
+Each takes a single corresponding value.
+
+- `ext:`
+- `paired_ext:`
+- `filename:`
+
+Renaming has the following considerations:
 
 - The fields available are `$artist`, `$albumartist`, `$album`, `$albumpath`,
   `$old_filename` (filename of the extra/artifcat file before its renamed),
-  and `$item_old_filename` (filename of the item/track triggering it, before
+  `$medianame_old` (filename of the item/track triggering it, _before_
+  its renamed), and `$medianame_new` (filename of the item/track triggering it, _after_
   its renamed).
 - The full set of
   [built in functions](http://beets.readthedocs.org/en/stable/reference/pathformat.html#functions)
   are also supported, with the exception of `%aunique` - which will
   return an empty string.
-- `filename:` path query will take precedence over `ext:` if a given file
-  qualifies for both
+- `filename:` path query will take precedence over `paired_ext:` and `ext:` if
+  a given file qualifies for them. `paired_ext:` takes precedence over `ext:`,
+  but is not required.
 
 Each template string uses a query syntax for each of the file
 extensions. For example the following template string will be applied to
@@ -134,10 +159,13 @@ paths:
   singleton: Singletons/$artist - $title
   ext:.log: $albumpath/$artist - $album
   ext:.cue: $albumpath/$artist - $album
+  paired_ext:.lrc: $albumpath/$medianame_old
   filename:cover.jpg: $albumpath/cover
 
 copyfileartifacts:
-  extensions: .cue .log .jpg
+  extensions: .cue .log .jpg .lrc
+  filename: "cover.jpg"
+  pairing: True
   print_ignored: yes
 ```
 
