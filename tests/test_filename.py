@@ -25,12 +25,9 @@ class CopyFileArtifactsFilename(CopyFileArtifactsTestCase):
         config["copyfileartifacts"]["extensions"] = ".file"
 
     def test_import_dir_with_unicode_character_in_artifact_name_copy(self):
-        open(
-            os.path.join(
-                self.album_path, beets.util.bytestring_path("\xe4rtifact.file")
-            ),
-            "a",
-        ).close()
+        self._create_file(
+            self.album_path, beets.util.bytestring_path("\xe4rtifact.file")
+        )
         medium = self._create_medium(
             os.path.join(self.album_path, b"track_1.mp3"), self.rsrc_mp3
         )
@@ -47,12 +44,9 @@ class CopyFileArtifactsFilename(CopyFileArtifactsTestCase):
     def test_import_dir_with_unicode_character_in_artifact_name_move(self):
         config["import"]["move"] = True
 
-        open(
-            os.path.join(
-                self.album_path, beets.util.bytestring_path("\xe4rtifact.file")
-            ),
-            "a",
-        ).close()
+        self._create_file(
+            self.album_path, beets.util.bytestring_path("\xe4rtifact.file")
+        )
         medium = self._create_medium(
             os.path.join(self.album_path, b"track_1.mp3"), self.rsrc_mp3
         )
@@ -66,11 +60,44 @@ class CopyFileArtifactsFilename(CopyFileArtifactsTestCase):
             beets.util.bytestring_path("\xe4rtifact.file"),
         )
 
+    def test_import_with_illegal_character_in_artifact_name_obeys_beets(
+        self,
+    ):
+        config["import"]["move"] = True
+        config["copyfileartifacts"]["extensions"] = ".log"
+        config["paths"]["ext:.log"] = str("$albumpath/$album - $old_filename")
+
+        self.lib.path_formats[0] = (
+            "default",
+            os.path.join("$artist", "$album", "$album - $title"),
+        )
+
+        self._create_file(
+            self.album_path,
+            b"Cool$Name: Album&Tag.log",
+        )
+        medium = self._create_medium(
+            os.path.join(self.album_path, b"track_1.mp3"),
+            self.rsrc_mp3,
+            album="Album: Subtitle",
+        )
+        self.import_media = [medium]
+
+        self._run_importer()
+
+        self.assert_in_lib_dir(
+            b"Tag Artist",
+            b"Album_ Subtitle",
+            beets.util.bytestring_path(
+                "Album_ Subtitle - Cool$Name_ Album&Tag.log"
+            ),
+        )
+
     def test_import_dir_with_illegal_character_in_album_name(self):
         config["paths"]["ext:file"] = str("$albumpath/$artist - $album")
 
         # Create import directory, illegal filename character used in the album name
-        open(os.path.join(self.album_path, b"artifact.file"), "a").close()
+        self._create_file(self.album_path, b"artifact.file")
         medium = self._create_medium(
             os.path.join(self.album_path, b"track_1.mp3"),
             self.rsrc_mp3,
