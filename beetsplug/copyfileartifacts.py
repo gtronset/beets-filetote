@@ -176,7 +176,7 @@ class CopyFileArtifactsPlugin(BeetsPlugin):
         source_path = os.path.dirname(source)
         dest_path = os.path.dirname(destination)
 
-        paired_files = []
+        queue_files = []
 
         # Check if this path has already been processed
         if source_path in self._dirs_seen:
@@ -191,17 +191,17 @@ class CopyFileArtifactsPlugin(BeetsPlugin):
                         os.path.basename(filepath)
                     )
                     if file_name == item_source_filename:
-                        paired_files.append({"path": filepath, "paired": True})
+                        queue_files.append({"path": filepath, "paired": True})
 
                         # Remove from shared artifacts, as the item-move will
                         # handle this file.
                         self._shared_artifacts[source_path].remove(filepath)
 
-                if paired_files:
+                if queue_files:
                     self._process_queue.extend(
                         [
                             {
-                                "files": paired_files,
+                                "files": queue_files,
                                 "mapping": self._generate_mapping(
                                     item, destination
                                 ),
@@ -224,16 +224,16 @@ class CopyFileArtifactsPlugin(BeetsPlugin):
                     continue
 
                 if not self.pairing:
-                    paired_files.append({"path": source_file, "paired": False})
+                    queue_files.append({"path": source_file, "paired": False})
                 elif self.pairing and file_name == item_source_filename:
-                    paired_files.append({"path": source_file, "paired": True})
+                    queue_files.append({"path": source_file, "paired": True})
                 else:
                     non_handled_files.append(source_file)
 
         self._process_queue.extend(
             [
                 {
-                    "files": paired_files,
+                    "files": queue_files,
                     "mapping": self._generate_mapping(item, destination),
                 }
             ]
