@@ -113,6 +113,10 @@ class CopyFileArtifactsTestCase(_common.TestCase):
             ("comp:true", os.path.join("compilations", "$album", "$title")),
         ]
 
+    def _create_file(self, album_path, filename):
+        """Creates a file in a specific location."""
+        open(os.path.join(album_path, filename), "a").close()
+
     def _create_flat_import_dir(self, media_files=3, generate_pair=True):
         """
         Creates a directory with media files and artifacts.
@@ -140,10 +144,10 @@ class CopyFileArtifactsTestCase(_common.TestCase):
         os.makedirs(album_path)
 
         # Create artifacts
-        open(os.path.join(album_path, b"artifact.file"), "a").close()
-        open(os.path.join(album_path, b"artifact2.file"), "a").close()
-        open(os.path.join(album_path, b"artifact.nfo"), "a").close()
-        open(os.path.join(album_path, b"artifact.lrc"), "a").close()
+        self._create_file(album_path, b"artifact.file")
+        self._create_file(album_path, b"artifact2.file")
+        self._create_file(album_path, b"artifact.nfo")
+        self._create_file(album_path, b"artifact.lrc")
 
         # Number of desired media
         self._media_count = self._pairs_count = media_files
@@ -183,12 +187,9 @@ class CopyFileArtifactsTestCase(_common.TestCase):
 
             if generate_pair:
                 # Create paired artifact
-                open(
-                    os.path.join(
-                        album_path, f"{trackname}.lrc".encode("utf-8")
-                    ),
-                    "a",
-                ).close()
+                self._create_file(
+                    album_path, f"{trackname}.lrc".encode("utf-8")
+                )
         return media_list
 
     def _create_medium(
