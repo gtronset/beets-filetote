@@ -2,11 +2,11 @@ import filecmp
 import os
 import sys
 
-import beets.util
-from beets import config
+from beets import config, util
 from beets.library import DefaultTemplateFunctions
 from beets.plugins import BeetsPlugin
 from beets.ui import get_path_formats
+from beets.util import MoveOperation
 from beets.util.functemplate import Template
 from mediafile import TYPES
 
@@ -43,7 +43,7 @@ class CopyFileArtifactsPlugin(BeetsPlugin):
 
         self.path_formats = [
             path_format
-            for path_format in beets.ui.get_path_formats()
+            for path_format in get_path_formats()
             for query in queries
             if (path_format[0][: len(query)] == query)
         ]
@@ -117,7 +117,7 @@ class CopyFileArtifactsPlugin(BeetsPlugin):
         if selected_path_query == "None":
             # No query matched; use original filename
             file_path = os.path.join(
-                mapping["albumpath"], beets.util.displayable_path(filename)
+                mapping["albumpath"], util.displayable_path(filename)
             )
             return file_path
 
@@ -131,7 +131,7 @@ class CopyFileArtifactsPlugin(BeetsPlugin):
         file_path = subpath_tmpl.substitute(mapping, funcs) + file_ext
 
         # Sanitize filename
-        filename = beets.util.sanitize_path(os.path.basename(file_path))
+        filename = util.sanitize_path(os.path.basename(file_path))
         dirname = os.path.dirname(file_path)
         file_path = os.path.join(dirname, filename)
 
@@ -142,7 +142,7 @@ class CopyFileArtifactsPlugin(BeetsPlugin):
         """Replace path separators in value
         - ripped from beets/dbcore/db.py
         """
-        sep_repl = beets.config["path_sep_replace"].as_str()
+        sep_repl = config["path_sep_replace"].as_str()
         for sep in (os.path.sep, os.path.altsep):
             if sep:
                 value = value.replace(sep, sep_repl)
@@ -159,14 +159,14 @@ class CopyFileArtifactsPlugin(BeetsPlugin):
             mapping[key] = self._get_formatted(mapping[key])
 
         album_path = os.path.dirname(destination)
-        mapping["albumpath"] = beets.util.displayable_path(album_path)
+        mapping["albumpath"] = util.displayable_path(album_path)
 
         # TODO: Retool to utilize the OS's path separator
-        # pathsep = beets.config["path_sep_replace"].get(str)
-        strpath_old = beets.util.displayable_path(item.path)
+        # pathsep = config["path_sep_replace"].get(str)
+        strpath_old = util.displayable_path(item.path)
         filename_old, fileext = os.path.splitext(os.path.basename(strpath_old))
 
-        strpath_new = beets.util.displayable_path(destination)
+        strpath_new = util.displayable_path(destination)
         filename_new = os.path.splitext(os.path.basename(strpath_new))[0]
 
         mapping["medianame_old"] = filename_old
@@ -219,7 +219,7 @@ class CopyFileArtifactsPlugin(BeetsPlugin):
             return
 
         non_handled_files = []
-        for root, dirs, files in beets.util.sorted_walk(
+        for root, dirs, files in util.sorted_walk(
             source_path, ignore=config["ignore"].as_str_seq()
         ):
             for filename in files:
@@ -313,9 +313,9 @@ class CopyFileArtifactsPlugin(BeetsPlugin):
                 ignored_files.append(source_file)
                 continue
 
-            dest_file = beets.util.unique_path(dest_file)
-            beets.util.mkdirall(dest_file)
-            dest_file = beets.util.bytestring_path(dest_file)
+            dest_file = util.unique_path(dest_file)
+            util.mkdirall(dest_file)
+            dest_file = util.bytestring_path(dest_file)
 
             # TODO: detect if beets was called with 'move' and override config
             # option here
@@ -342,15 +342,15 @@ class CopyFileArtifactsPlugin(BeetsPlugin):
         """Returns the file manipulations type."""
 
         if config["import"]["move"]:
-            operation = beets.util.MoveOperation.MOVE
+            operation = MoveOperation.MOVE
         elif config["import"]["copy"]:
-            operation = beets.util.MoveOperation.COPY
+            operation = MoveOperation.COPY
         elif config["import"]["link"]:
-            operation = beets.util.MoveOperation.LINK
+            operation = MoveOperation.LINK
         elif config["import"]["hardlink"]:
-            operation = beets.util.MoveOperation.HARDLINK
+            operation = MoveOperation.HARDLINK
         elif config["import"]["reflink"]:
-            operation = beets.util.MoveOperation.REFLINK
+            operation = MoveOperation.REFLINK
         else:
             operation = None
 
@@ -359,7 +359,7 @@ class CopyFileArtifactsPlugin(BeetsPlugin):
     def manipulate_artifact(self, source_file, dest_file):
         """Copy, move, link, hardlink or reflink (depending on `operation`)
         the files as well as write metadata.
-        NOTE: `operation` should be an instance of `beets.util.MoveOperation`.
+        NOTE: `operation` should be an instance of `MoveOperation`.
         """
 
         if not os.path.exists(source_file):
@@ -379,7 +379,7 @@ class CopyFileArtifactsPlugin(BeetsPlugin):
         if self.paths == library_dir:
             root_path = os.path.dirname(self.paths)
             reimport = True
-        elif library_dir in beets.util.ancestry(self.paths):
+        elif library_dir in util.ancestry(self.paths):
             root_path = self.paths
             reimport = True
 
@@ -394,23 +394,23 @@ class CopyFileArtifactsPlugin(BeetsPlugin):
             )
         )
 
-        if reimport or self.operation == beets.util.MoveOperation.MOVE:
-            beets.util.move(source_file, dest_file)
+        if reimport or self.operation == MoveOperation.MOVE:
+            util.move(source_file, dest_file)
 
-            beets.util.prune_dirs(
+            util.prune_dirs(
                 source_path,
                 root=root_path,
                 clutter=config["clutter"].as_str_seq(),
             )
-        elif self.operation == beets.util.MoveOperation.COPY:
-            beets.util.copy(source_file, dest_file)
-        elif self.operation == beets.util.MoveOperation.LINK:
-            beets.util.link(source_file, dest_file)
-        elif self.operation == beets.util.MoveOperation.HARDLINK:
-            beets.util.hardlink(source_file, dest_file)
-        elif self.operation == beets.util.MoveOperation.REFLINK:
-            beets.util.reflink(source_file, dest_file, fallback=False)
-        elif self.operation == beets.util.MoveOperation.REFLINK_AUTO:
-            beets.util.reflink(source_file, dest_file, fallback=True)
+        elif self.operation == MoveOperation.COPY:
+            util.copy(source_file, dest_file)
+        elif self.operation == MoveOperation.LINK:
+            util.link(source_file, dest_file)
+        elif self.operation == MoveOperation.HARDLINK:
+            util.hardlink(source_file, dest_file)
+        elif self.operation == MoveOperation.REFLINK:
+            util.reflink(source_file, dest_file, fallback=False)
+        elif self.operation == MoveOperation.REFLINK_AUTO:
+            util.reflink(source_file, dest_file, fallback=True)
         else:
             assert False, "unknown MoveOperation"
