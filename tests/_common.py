@@ -5,6 +5,7 @@ import tempfile
 import unittest
 
 import beets
+import reflink
 from beets import logging, util
 
 # Test resources path.
@@ -14,6 +15,11 @@ RSRC = util.bytestring_path(os.path.join(os.path.dirname(__file__), "rsrc"))
 log = logging.getLogger("beets")
 log.propagate = True
 log.setLevel(logging.DEBUG)
+
+# OS feature test.
+HAVE_SYMLINK = sys.platform != "win32"
+HAVE_HARDLINK = sys.platform != "win32"
+HAVE_REFLINK = reflink.supported_at(tempfile.gettempdir())
 
 
 class Assertions(object):
