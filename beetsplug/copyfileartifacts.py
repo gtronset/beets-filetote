@@ -48,12 +48,18 @@ class CopyFileArtifactsPlugin(BeetsPlugin):
             if (path_format[0][: len(query)] == query)
         ]
 
+        move_events = [
+            "item_moved",
+            "item_copied",
+            "item_linked",
+            "item_hardlinked",
+            "item_reflinked",
+        ]
+
+        for move_event in move_events:
+            self.register_listener(move_event, self.collect_artifacts)
+
         self.register_listener("import_begin", self._register_source)
-        self.register_listener("item_moved", self.collect_artifacts)
-        self.register_listener("item_copied", self.collect_artifacts)
-        self.register_listener("item_linked", self.collect_artifacts)
-        self.register_listener("item_hardlinked", self.collect_artifacts)
-        self.register_listener("item_reflinked", self.collect_artifacts)
         self.register_listener("cli_exit", self.process_events)
 
     def _register_source(self, session):
