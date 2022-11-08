@@ -266,9 +266,9 @@ class CopyFileArtifactsPlugin(BeetsPlugin):
 
             self._shared_artifacts[source_path] = []
 
-            self.process_artifacts(artifacts, item["mapping"], False)
+            self.process_artifacts(artifacts, item["mapping"])
 
-    def process_artifacts(self, source_files, mapping, reimport=False):
+    def process_artifacts(self, source_files, mapping):
         if not source_files:
             return
 
@@ -320,18 +320,18 @@ class CopyFileArtifactsPlugin(BeetsPlugin):
             # TODO: detect if beets was called with 'move' and override config
             # option here
 
-            # self._log.warning(str(self._operation_type()))
+            self.manipulate_artifact(source_file, dest_file)
 
-            if config["import"]["move"]:
-                self._move_artifact(source_file, dest_file)
-            else:
-                if reimport:
-                    # This is a reimport
-                    # files are already in the library directory
-                    self._move_artifact(source_file, dest_file)
-                else:
-                    # A normal import, just copy
-                    self._copy_artifact(source_file, dest_file)
+            # if config["import"]["move"]:
+            #     self._move_artifact(source_file, dest_file)
+            # else:
+            #     if reimport:
+            #         # This is a reimport
+            #         # files are already in the library directory
+            #         self._move_artifact(source_file, dest_file)
+            #     else:
+            #         # A normal import, just copy
+            #         self._copy_artifact(source_file, dest_file)
 
         if self.print_ignored and ignored_files:
             self._log.warning("Ignored files:")
@@ -356,55 +356,19 @@ class CopyFileArtifactsPlugin(BeetsPlugin):
 
         return operation
 
-    def manipulate_artifacts(self, source_file, dest_file):
+    def manipulate_artifact(self, source_file, dest_file):
         """Copy, move, link, hardlink or reflink (depending on `operation`)
         the files as well as write metadata.
         NOTE: `operation` should be an instance of `beets.util.MoveOperation`.
         """
 
-        items = self.imported_items()
-        # Save the original paths of all items for deletion and pruning
-        # in the next step (finalization).
-        self.old_paths = [item.path for item in items]
-        for item in items:
-            if self.operation is not None:
-                # In copy and link modes, treat re-imports specially:
-                # move in-library files. (Out-of-library files are
-                # copied/moved as usual).
-                old_path = item.path
-                if (
-                    self.operation != beets.util.MoveOperation.MOVE
-                    and self.replaced_items[item]
-                    and session.lib.directory in util.ancestry(old_path)
-                ):
-                    item.move()
-                    # We moved the item, so remove the
-                    # now-nonexistent file from old_paths.
-                    self.old_paths.remove(old_path)
-                else:
-                    # A normal import. Just copy files and keep track of
-                    # old paths.
-                    item.move(self.operation)
-
-    def _copy_artifact(self, source_file, dest_file):
-        self._log.info(
-            "Copying artifact: {0}".format(
-                os.path.basename(dest_file.decode("utf8"))
-            )
-        )
-        beets.util.copy(source_file, dest_file)
-
-    def _move_artifact(self, source_file, dest_file):
         if not os.path.exists(source_file):
             # Sanity check for other plugins moving files
             return
 
-        self._log.info(
-            "Moving artifact: {0}".format(
-                os.path.basename(dest_file.decode("utf8"))
-            )
-        )
-        beets.util.move(source_file, dest_file)
+        # In copy and link modes, treat reimports specially: move in-library
+        # files. (Out-of-library files are copied/moved as usual).
+        reimport = False
 
         source_path = os.path.dirname(source_file)
 
@@ -414,11 +378,39 @@ class CopyFileArtifactsPlugin(BeetsPlugin):
 
         if self.paths == library_dir:
             root_path = os.path.dirname(self.paths)
+            reimport = True
         elif library_dir in beets.util.ancestry(self.paths):
             root_path = self.paths
+            reimport = True
 
-        beets.util.prune_dirs(
-            source_path,
-            root=root_path,
-            clutter=config["clutter"].as_str_seq(),
+        operation_display = self.operation
+
+        if reimport:
+            operation_display = "REIMPORT"
+
+        self._log.info(
+            "{0}-ing artifact: {1}".format(
+                operation_display, os.path.basename(dest_file.decode("utf8"))
+            )
         )
+
+        if reimport or self.operation == beets.util.MoveOperation.MOVE:
+            beets.util.move(source_file, dest_file)
+
+            beets.util.prune_dirs(
+                source_path,
+                root=root_path,
+                clutter=config["clutter"].as_str_seq(),
+            )
+        elif self.operation == beets.util.MoveOperation.COPY:
+            beets.util.copy(source_file, dest_file)
+        elif self.operation == beets.util.MoveOperation.LINK:
+            beets.util.link(source_file, dest_file)
+        elif self.operation == beets.util.MoveOperation.HARDLINK:
+            beets.util.hardlink(source_file, dest_file)
+        elif self.operation == beets.util.MoveOperation.REFLINK:
+            beets.util.reflink(source_file, dest_file, fallback=False)
+        elif self.operation == beets.util.MoveOperation.REFLINK_AUTO:
+            beets.util.reflink(source_file, dest_file, fallback=True)
+        else:
+            assert False, "unknown MoveOperation"

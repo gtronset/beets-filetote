@@ -39,7 +39,7 @@ class CopyFileArtifactsReimportTest(CopyFileArtifactsTestCase):
         self._run_importer()
 
     def test_reimport_artifacts_with_copy(self):
-        # Cause files to relocate when reimported
+        # Cause files to relocate (move) when reimported
         self.lib.path_formats[0] = (
             "default",
             os.path.join("1$artist", "$album", "$title"),
@@ -49,7 +49,9 @@ class CopyFileArtifactsReimportTest(CopyFileArtifactsTestCase):
         log.debug("--- second import")
         self._run_importer()
 
-        self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"artifact.file")
+        self.assert_not_in_lib_dir(
+            b"Tag Artist", b"Tag Album", b"artifact.file"
+        )
         self.assert_in_lib_dir(b"1Tag Artist", b"Tag Album", b"artifact.file")
 
     def test_reimport_artifacts_with_move(self):
@@ -70,11 +72,9 @@ class CopyFileArtifactsReimportTest(CopyFileArtifactsTestCase):
         )
         self.assert_in_lib_dir(b"1Tag Artist", b"Tag Album", b"artifact.file")
 
-    def test_prune_empty_directories_with_copy_import(self):
+    def test_prune_empty_directories_with_copy_reimport(self):
         """
-        No directories are pruned when importing with 'copy'. Test is
-        identical to test_reimport_artifacts_with_copy, included for
-        completeness.
+        Ensure directories are pruned when reimporting with 'copy'.
         """
         # Cause files to relocate when reimported
         self.lib.path_formats[0] = (
@@ -86,7 +86,9 @@ class CopyFileArtifactsReimportTest(CopyFileArtifactsTestCase):
         log.debug("--- second import")
         self._run_importer()
 
-        self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"artifact.file")
+        self.assert_not_in_lib_dir(
+            b"Tag Artist", b"Tag Album", b"artifact.file"
+        )
         self.assert_in_lib_dir(b"1Tag Artist", b"Tag Album", b"artifact.file")
 
     def test_do_nothing_when_paths_do_not_change_with_copy_import(self):
@@ -112,7 +114,7 @@ class CopyFileArtifactsReimportTest(CopyFileArtifactsTestCase):
         self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"artifact.file")
         self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"artifact2.file")
 
-    def test_rename_with_copy_import(self):
+    def test_rename_with_copy_reimport(self):
         config["paths"]["ext:file"] = str(
             os.path.join("$albumpath", "$artist - $album")
         )
@@ -121,12 +123,14 @@ class CopyFileArtifactsReimportTest(CopyFileArtifactsTestCase):
         log.debug("--- second import")
         self._run_importer()
 
-        self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"artifact.file")
+        self.assert_not_in_lib_dir(
+            b"Tag Artist", b"Tag Album", b"artifact.file"
+        )
         self.assert_in_lib_dir(
             b"Tag Artist", b"Tag Album", b"Tag Artist - Tag Album.file"
         )
 
-    def test_rename_with_move_import(self):
+    def test_rename_with_move_reimport(self):
         config["paths"]["ext:file"] = str(
             os.path.join("$albumpath", "$artist - $album")
         )
