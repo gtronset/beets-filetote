@@ -66,6 +66,24 @@ class CopyFileArtifactsPlugin(BeetsPlugin):
         """ """
         self.paths = os.path.expanduser(session.paths[0])
 
+    def _operation_type(self):
+        """Returns the file manipulations type."""
+
+        if config["import"]["move"]:
+            operation = MoveOperation.MOVE
+        elif config["import"]["copy"]:
+            operation = MoveOperation.COPY
+        elif config["import"]["link"]:
+            operation = MoveOperation.LINK
+        elif config["import"]["hardlink"]:
+            operation = MoveOperation.HARDLINK
+        elif config["import"]["reflink"]:
+            operation = MoveOperation.REFLINK
+        else:
+            operation = None
+
+        return operation
+
     def _destination(self, filename, mapping, paired=False):
         """Returns a destination path a file should be moved to. The filename
         is unique to ensure files aren't overwritten. This also checks the
@@ -322,39 +340,10 @@ class CopyFileArtifactsPlugin(BeetsPlugin):
 
             self.manipulate_artifact(source_file, dest_file)
 
-            # if config["import"]["move"]:
-            #     self._move_artifact(source_file, dest_file)
-            # else:
-            #     if reimport:
-            #         # This is a reimport
-            #         # files are already in the library directory
-            #         self._move_artifact(source_file, dest_file)
-            #     else:
-            #         # A normal import, just copy
-            #         self._copy_artifact(source_file, dest_file)
-
         if self.print_ignored and ignored_files:
             self._log.warning("Ignored files:")
             for f in ignored_files:
                 self._log.warning("   {0}", os.path.basename(f))
-
-    def _operation_type(self):
-        """Returns the file manipulations type."""
-
-        if config["import"]["move"]:
-            operation = MoveOperation.MOVE
-        elif config["import"]["copy"]:
-            operation = MoveOperation.COPY
-        elif config["import"]["link"]:
-            operation = MoveOperation.LINK
-        elif config["import"]["hardlink"]:
-            operation = MoveOperation.HARDLINK
-        elif config["import"]["reflink"]:
-            operation = MoveOperation.REFLINK
-        else:
-            operation = None
-
-        return operation
 
     def manipulate_artifact(self, source_file, dest_file):
         """Copy, move, link, hardlink or reflink (depending on `operation`)
