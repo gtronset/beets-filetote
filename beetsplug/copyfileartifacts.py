@@ -26,6 +26,8 @@ class CopyFileArtifactsPlugin(BeetsPlugin):
             }
         )
 
+        self.operation = self._operation_type()
+
         self._process_queue = []
         self._shared_artifacts = {}
         self._dirs_seen = []
@@ -37,23 +39,21 @@ class CopyFileArtifactsPlugin(BeetsPlugin):
         self.pairing = self.config["pairing"].get()
         self.pairing_only = self.config["pairing_only"].get()
 
-        ext_len = len("ext:")
-        filename_len = len("filename:")
-        paired_len = len("paired-ext:")
+        queries = ["filename:", "paired_ext:", "ext:"]
 
         self.path_formats = [
-            c
-            for c in beets.ui.get_path_formats()
-            if (
-                c[0][:ext_len] == "ext:"
-                or c[0][:filename_len] == "filename:"
-                or c[0][:paired_len] == "paired_ext:"
-            )
+            path_format
+            for path_format in beets.ui.get_path_formats()
+            for query in queries
+            if (path_format[0][: len(query)] == query)
         ]
 
         self.register_listener("import_begin", self._register_source)
         self.register_listener("item_moved", self.collect_artifacts)
         self.register_listener("item_copied", self.collect_artifacts)
+        self.register_listener("item_linked", self.collect_artifacts)
+        self.register_listener("item_hardlinked", self.collect_artifacts)
+        self.register_listener("item_reflinked", self.collect_artifacts)
         self.register_listener("cli_exit", self.process_events)
 
     def _register_source(self, session):
@@ -314,6 +314,8 @@ class CopyFileArtifactsPlugin(BeetsPlugin):
             # TODO: detect if beets was called with 'move' and override config
             # option here
 
+            # self._log.warning(str(self._operation_type()))
+
             if config["import"]["move"]:
                 self._move_artifact(source_file, dest_file)
             else:
@@ -329,6 +331,54 @@ class CopyFileArtifactsPlugin(BeetsPlugin):
             self._log.warning("Ignored files:")
             for f in ignored_files:
                 self._log.warning("   {0}", os.path.basename(f))
+
+    def _operation_type(self):
+        """Returns the file manipulations type."""
+
+        if config["import"]["move"]:
+            operation = beets.util.MoveOperation.MOVE
+        elif config["import"]["copy"]:
+            operation = beets.util.MoveOperation.COPY
+        elif config["import"]["link"]:
+            operation = beets.util.MoveOperation.LINK
+        elif config["import"]["hardlink"]:
+            operation = beets.util.MoveOperation.HARDLINK
+        elif config["import"]["reflink"]:
+            operation = beets.util.MoveOperation.REFLINK
+        else:
+            operation = None
+
+        return operation
+
+    def manipulate_artifacts(self, source_file, dest_file):
+        """Copy, move, link, hardlink or reflink (depending on `operation`)
+        the files as well as write metadata.
+        NOTE: `operation` should be an instance of `beets.util.MoveOperation`.
+        """
+
+        items = self.imported_items()
+        # Save the original paths of all items for deletion and pruning
+        # in the next step (finalization).
+        self.old_paths = [item.path for item in items]
+        for item in items:
+            if self.operation is not None:
+                # In copy and link modes, treat re-imports specially:
+                # move in-library files. (Out-of-library files are
+                # copied/moved as usual).
+                old_path = item.path
+                if (
+                    self.operation != beets.util.MoveOperation.MOVE
+                    and self.replaced_items[item]
+                    and session.lib.directory in util.ancestry(old_path)
+                ):
+                    item.move()
+                    # We moved the item, so remove the
+                    # now-nonexistent file from old_paths.
+                    self.old_paths.remove(old_path)
+                else:
+                    # A normal import. Just copy files and keep track of
+                    # old paths.
+                    item.move(self.operation)
 
     def _copy_artifact(self, source_file, dest_file):
         self._log.info(
