@@ -74,7 +74,7 @@ class CopyFileArtifactsFilename(CopyFileArtifactsTestCase):
 
         self._create_file(
             self.album_path,
-            b"Cool$Name: Album&Tag.log",
+            b"CoolName: Album&Tag.log",
         )
         medium = self._create_medium(
             os.path.join(self.album_path, b"track_1.mp3"),
@@ -89,7 +89,7 @@ class CopyFileArtifactsFilename(CopyFileArtifactsTestCase):
             b"Tag Artist",
             b"Album_ Subtitle",
             beets.util.bytestring_path(
-                "Album_ Subtitle - Cool$Name_ Album&Tag.log"
+                "Album_ Subtitle - CoolName_ Album&Tag.log"
             ),
         )
 
