@@ -331,6 +331,22 @@ class CopyFileArtifactsTestCase(_common.TestCase):
         """
         self.assertNotExists(os.path.join(self.import_dir, *segments))
 
+    def assert_islink(self, *segments):
+        """
+        Join the ``segments`` and assert that this path is a link
+        """
+        self.assertTrue(
+            os.path.islink(os.path.join(self.import_dir, *segments))
+        )
+
+    def assert_equal_path(self, a, b):
+        """Check that two paths are equal."""
+        self.assertEqual(
+            util.normpath(a),
+            util.normpath(b),
+            f"paths are not equal: {a!r} and {b!r}",
+        )
+
     def assert_number_of_files_in_dir(self, count, *segments):
         """
         Assert that there are ``count`` files in path formed by joining ``segments``
