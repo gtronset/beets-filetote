@@ -333,11 +333,9 @@ class CopyFileArtifactsTestCase(_common.TestCase):
 
     def assert_islink(self, *segments):
         """
-        Join the ``segments`` and assert that this path is a link
+        Join the ``segments`` with the `lib_dir` and assert that this path is a link
         """
-        self.assertTrue(
-            os.path.islink(os.path.join(self.import_dir, *segments))
-        )
+        self.assertTrue(os.path.islink(os.path.join(self.lib_dir, *segments)))
 
     def assert_equal_path(self, a, b):
         """Check that two paths are equal."""
