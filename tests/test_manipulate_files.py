@@ -89,7 +89,7 @@ class CopyFileArtifactsManipulateFiles(CopyFileArtifactsTestCase):
     def test_import_reflink_files(self):
         config["copyfileartifacts"]["extensions"] = ".file"
         config["paths"]["ext:file"] = str("$albumpath/newname")
-        config["import"]["hardlink"] = True
+        config["import"]["reflink"] = True
 
         old_path = os.path.join(
             self.import_dir,
