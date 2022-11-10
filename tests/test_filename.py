@@ -60,6 +60,7 @@ class CopyFileArtifactsFilename(CopyFileArtifactsTestCase):
             beets.util.bytestring_path("\xe4rtifact.file"),
         )
 
+    @pytest.mark.skipif(not _common.PLATFORM == "win32", "win32")
     def test_import_with_illegal_character_in_artifact_name_obeys_beets(
         self,
     ):

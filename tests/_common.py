@@ -16,9 +16,11 @@ log = logging.getLogger("beets")
 log.propagate = True
 log.setLevel(logging.DEBUG)
 
+PLATFORM = sys.platform
+
 # OS feature test.
-HAVE_SYMLINK = sys.platform != "win32"
-HAVE_HARDLINK = sys.platform != "win32"
+HAVE_SYMLINK = PLATFORM != "win32"
+HAVE_HARDLINK = PLATFORM != "win32"
 HAVE_REFLINK = reflink.supported_at(tempfile.gettempdir())
 
 
