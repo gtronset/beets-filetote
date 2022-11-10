@@ -84,6 +84,8 @@ class TestCase(unittest.TestCase, Assertions):
         self.io = DummyIO()
 
     def tearDown(self):
+        self.lib._close()
+
         if os.path.isdir(self.temp_dir):
             shutil.rmtree(self.temp_dir)
         if self._old_home is None:
