@@ -2,8 +2,10 @@ import os
 import sys
 
 import beets
+import pytest
 from beets import config
 
+import tests._common as _common
 from tests.helper import CopyFileArtifactsTestCase
 
 
@@ -60,7 +62,7 @@ class CopyFileArtifactsFilename(CopyFileArtifactsTestCase):
             beets.util.bytestring_path("\xe4rtifact.file"),
         )
 
-    @pytest.mark.skipif(not _common.PLATFORM == "win32", "win32")
+    @pytest.mark.skipif(_common.PLATFORM == "win32", reason="win32")
     def test_import_with_illegal_character_in_artifact_name_obeys_beets(
         self,
     ):
