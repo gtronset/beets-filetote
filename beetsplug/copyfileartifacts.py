@@ -39,7 +39,7 @@ class CopyFileArtifactsPlugin(BeetsPlugin):
         self.pairing = self.config["pairing"].get()
         self.pairing_only = self.config["pairing_only"].get()
 
-        queries = ["filename:", "paired_ext:", "ext:"]
+        queries = ["ext:", "filename:", "paired_ext:"]
 
         self.path_formats = [
             path_format
