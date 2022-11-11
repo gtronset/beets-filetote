@@ -97,6 +97,20 @@ copyfileartifacts:
 `exclude`-d files take precedence over other matching, meaning exclude will
 trump other matches by either `extensions` or `filenames`.
 
+### Import Operations
+
+This plugin supports the same operations as beets:
+
+- `copy`
+- `move`
+- `link` (symlink)
+- `harklink`
+- `reflink`
+
+These options are mutually exclusive, and there are nuances to how beets (and
+thus this plugin) behave when there multiple set. See the [beets documentation](https://beets.readthedocs.io/en/stable/reference/config.html#importer-options)
+for more details.
+
 ### Renaming files
 
 Renaming works in much the same way as beets [Path Formats](http://beets.readthedocs.org/en/stable/reference/pathformat.html).
