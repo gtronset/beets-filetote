@@ -2,8 +2,10 @@ import os
 import sys
 
 import beets
+import pytest
 from beets import config
 
+import tests._common as _common
 from tests.helper import CopyFileArtifactsTestCase
 
 
@@ -60,6 +62,7 @@ class CopyFileArtifactsFilename(CopyFileArtifactsTestCase):
             beets.util.bytestring_path("\xe4rtifact.file"),
         )
 
+    @pytest.mark.skipif(_common.PLATFORM == "win32", reason="win32")
     def test_import_with_illegal_character_in_artifact_name_obeys_beets(
         self,
     ):
@@ -74,7 +77,7 @@ class CopyFileArtifactsFilename(CopyFileArtifactsTestCase):
 
         self._create_file(
             self.album_path,
-            b"Cool$Name: Album&Tag.log",
+            b"CoolName: Album&Tag.log",
         )
         medium = self._create_medium(
             os.path.join(self.album_path, b"track_1.mp3"),
@@ -89,7 +92,7 @@ class CopyFileArtifactsFilename(CopyFileArtifactsTestCase):
             b"Tag Artist",
             b"Album_ Subtitle",
             beets.util.bytestring_path(
-                "Album_ Subtitle - Cool$Name_ Album&Tag.log"
+                "Album_ Subtitle - CoolName_ Album&Tag.log"
             ),
         )
 

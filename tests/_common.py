@@ -5,6 +5,7 @@ import tempfile
 import unittest
 
 import beets
+import reflink
 from beets import logging, util
 
 # Test resources path.
@@ -14,6 +15,13 @@ RSRC = util.bytestring_path(os.path.join(os.path.dirname(__file__), "rsrc"))
 log = logging.getLogger("beets")
 log.propagate = True
 log.setLevel(logging.DEBUG)
+
+PLATFORM = sys.platform
+
+# OS feature test.
+HAVE_SYMLINK = PLATFORM != "win32"
+HAVE_HARDLINK = PLATFORM != "win32"
+HAVE_REFLINK = reflink.supported_at(tempfile.gettempdir())
 
 
 class Assertions(object):
@@ -78,6 +86,8 @@ class TestCase(unittest.TestCase, Assertions):
         self.io = DummyIO()
 
     def tearDown(self):
+        self.lib._close()
+
         if os.path.isdir(self.temp_dir):
             shutil.rmtree(self.temp_dir)
         if self._old_home is None:
