@@ -1,6 +1,6 @@
+import logging
 import os
 import shutil
-import sys
 from contextlib import contextmanager
 from enum import Enum
 
@@ -10,14 +10,11 @@ from beets import config, importer, library, plugins, util
 # Make sure the development versions of the plugins are used
 import beetsplug  # noqa: E402
 import tests._common as _common
+from beetsplug import filetote
 
 beetsplug.__path__ = [
     os.path.abspath(os.path.join(__file__, "..", "..", "beetsplug"))
 ]
-
-import logging
-
-from beetsplug import filetote
 
 log = logging.getLogger("beets")
 
