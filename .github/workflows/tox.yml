@@ -18,6 +18,9 @@ jobs:
           - python-version: "3.6"
             os: ubuntu-20.04
             tox-env: py36
+          - python-version: "3.6"
+            os: windows-latest
+            tox-env: py36
           - python-version: "3.7"
             tox-env: py37
           - python-version: "3.8"
