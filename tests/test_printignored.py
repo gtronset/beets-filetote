@@ -1,7 +1,3 @@
-import os
-import sys
-
-import pytest
 from beets import config
 
 from tests.helper import FiletoteTestCase, capture_log

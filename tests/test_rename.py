@@ -1,8 +1,5 @@
 import logging
-import os
-import sys
 
-import pytest
 from beets import config
 
 from tests.helper import FiletoteTestCase
@@ -198,7 +195,8 @@ class FiletoteRenameTest(FiletoteTestCase):
             b"Tag Artist", b"Tag Album", b"Tag Artist - Tag Album.file"
         )
         self.assert_not_in_import_dir(b"the_album", b"artifact.file")
-        # `artifact2.file` will rename since the destination filename conflicts with `artifact.file`
+        # `artifact2.file` will rename since the destination filename conflicts with
+        # `artifact.file`
         self.assert_in_import_dir(b"the_album", b"artifact2.file")
 
     def test_rename_multiple_extensions(self):
@@ -217,7 +215,8 @@ class FiletoteRenameTest(FiletoteTestCase):
         )
         self.assert_not_in_import_dir(b"the_album", b"artifact.file")
         self.assert_not_in_import_dir(b"the_album", b"artifact.nfo")
-        # `artifact2.file` will rename since the destination filename conflicts with `artifact.file`
+        # `artifact2.file` will rename since the destination filename conflicts with
+        #  `artifact.file`
         self.assert_in_import_dir(b"the_album", b"artifact2.file")
 
     def test_rename_matching_filename(self):
@@ -265,7 +264,8 @@ class FiletoteRenameTest(FiletoteTestCase):
     def test_rename_prioritizes_filename_over_ext_reversed(self):
         config["filetote"]["extensions"] = ".file"
         config["filetote"]["filenames"] = "artifact.file"
-        # order of paths matter here; this is the opposite order as `test_rename_prioritizes_filename_over_ext`
+        # order of paths matter here; this is the opposite order as
+        # `test_rename_prioritizes_filename_over_ext`
         config["paths"]["filename:artifact.file"] = str(
             "$albumpath/new-filename"
         )

@@ -1,7 +1,6 @@
 import logging
 import os
 import stat
-import sys
 
 import pytest
 from beets import config, util
@@ -90,19 +89,6 @@ class FiletoteManipulateFiles(FiletoteTestCase):
         config["filetote"]["extensions"] = ".file"
         config["paths"]["ext:file"] = str("$albumpath/newname")
         config["import"]["reflink"] = True
-
-        old_path = os.path.join(
-            self.import_dir,
-            b"the_album",
-            b"artifact.file",
-        )
-
-        new_path = os.path.join(
-            self.lib_dir,
-            b"Tag Artist",
-            b"Tag Album",
-            b"newname.file",
-        )
 
         self._run_importer()
 

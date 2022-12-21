@@ -1,8 +1,3 @@
-import os
-import sys
-
-from beets import config
-
 from tests.helper import FiletoteTestCase
 
 
