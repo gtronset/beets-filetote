@@ -1,8 +1,7 @@
 import logging
 import os
-import sys
 
-from beets import config, util
+from beets import config
 
 from tests.helper import FiletoteTestCase
 

@@ -1,6 +1,5 @@
 import logging
 import os
-import sys
 
 from beets import config
 
