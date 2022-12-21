@@ -11,6 +11,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.3.0] - 2022-12-21
 
+### Added
+
+- CHANGELOG <https://github.com/gtronset/beets-filetote/pull/24>
+
 ### Changed
 
 - Fix py3.6 CI issue & ignore py3.11 Win fails by @gtronset in <https://github.com/gtronset/beets-filetote/pull/22>
