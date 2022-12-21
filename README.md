@@ -204,7 +204,7 @@ Copyright (c) 2015-2017 Sami Barakat
 Licensed under the [MIT license][license link].
 
 [license image]: https://img.shields.io/badge/License-MIT-blue.svg
-[license link]: https://github.com/gtronset/beets-filetote/blob/master/LICENSE
+[license link]: https://github.com/gtronset/beets-filetote/blob/main/LICENSE
 [ci image]: https://github.com/gtronset/beets-filetote/actions/workflows/tox.yml/badge.svg
 [ci link]: https://github.com/gtronset/beets-filetote/actions/workflows/tox.yml
 [github image]: https://img.shields.io/github/release/gtronset/beets-filetote.svg
