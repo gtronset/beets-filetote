@@ -1,6 +1,5 @@
 import filecmp
 import os
-import sys
 
 from beets import config, util
 from beets.library import DefaultTemplateFunctions
@@ -194,11 +193,7 @@ class FiletotePlugin(BeetsPlugin):
 
     def collect_artifacts(self, item, source, destination):
         item_source_filename = os.path.splitext(os.path.basename(source))[0]
-        item_destination_filename = os.path.splitext(
-            os.path.basename(destination)
-        )[0]
         source_path = os.path.dirname(source)
-        dest_path = os.path.dirname(destination)
 
         queue_files = []
 
