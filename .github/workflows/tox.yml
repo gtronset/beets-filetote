@@ -14,7 +14,6 @@ jobs:
       matrix:
         python-version: ["3.7", "3.8", "3.9", "3.10", "3.11"]
         os: [ubuntu-latest, windows-latest]
-        continue-on-error: ${{ matrix.experimental }}
         experimental: [false]
         include:
           - python-version: "3.6"
@@ -36,6 +35,7 @@ jobs:
     env:
       TOXENV: ${{ matrix.tox-env }}
     runs-on: ${{ matrix.os }}
+    continue-on-error: ${{ matrix.experimental }}
     steps:
       - uses: actions/checkout@v3
       - name: Setup Python ${{ matrix.python-version }}
