@@ -1,4 +1,4 @@
-FROM python:3.11.0-alpine
+FROM python:3.11.1-alpine
 
 # Add dependencies for the reflink python module
 RUN apk update && apk add python3-dev \
