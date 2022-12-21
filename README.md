@@ -1,24 +1,20 @@
-# _filetote_ plugin for beets
+# _Filetote_ plugin for beets
 
 [![MIT license][license image]][license link] [![CI][ci image]][ci link]
 
-A plugin that moves non-music files during the import process for
-[beets](http://beets.radbox.org/), a music library manager (and much more!).
-
-This is a fork of [copyartifacts3](https://github.com/adammillerio/beets-copyartifacts)
-that expands functionality. beets-copyartifacts3 itself a fork of the archived
-[copyartifacts (by Sami Barakat)](https://github.com/sbarakat/beets-copyartifacts)
-which includes Python 3 fixes and was been published to PyPI as beets-copyartifacts3.
+A plugin that moves non-music extra files, attachments, and artifacts during
+the import process for [beets](http://beets.radbox.org/), a music library
+manager (and much more!).
 
 ## Installing
 
 ### Stable
 
-The stable version of the plugin is available from PyPI. Installation can be
-done using pip:
+In the future, the stable version of the plugin will be available from PyPI.
+Installation will be able to be done using `pip3`:
 
 ```sh
-pip install beets-filetote
+pip3 install beets-filetote
 ```
 
 If you get permission errors, try running it with `sudo`.
@@ -185,14 +181,13 @@ filetote:
 
 ## Thanks
 
-filetote was built on top of the hard work already done by Sami
-Barakat, Adrian Sampson, and the larger community on [beets](http://beets.radbox.org/).
-We have also benefited from the work of our
-[contributors](https://github.com/gtronset/beets-filetote/graphs/contributors).
+This was origanlly a fork of [copyartifacts3 (Adrian Sampson)](https://github.com/adammillerio/beets-copyartifacts)
+that expands functionality since that is no longer actively maintained.
+beets-copyartifacts3 itself a fork of the archived [copyartifacts (Sami Barakat)](https://github.com/sbarakat/beets-copyartifacts).
 
-This plugin was built out of necessity and to scratch an itch. It has
-gained a bit of attention, so I intend to maintain it where I can,
-however I doubt I will be able to spend large amount of time on it.
+Filetote was built on top of the excellent work done by Sami
+Barakat, Adrian Sampson, and the larger community on [beets](http://beets.radbox.org/).
+
 Please report any issues you may have and feel free to contribute.
 
 ## License
