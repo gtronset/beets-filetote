@@ -11,7 +11,7 @@ log = logging.getLogger("beets")
 
 class FiletotePruningyTest(FiletoteTestCase):
     """
-    Tests to check that filetote correctly "prunes" directories when
+    Tests to check that Filetote correctly "prunes" directories when
     it moves artifact files.
     """
 

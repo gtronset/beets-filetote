@@ -8,7 +8,7 @@ from tests.helper import FiletoteTestCase
 
 class FiletoteFromNestedDirectoryTest(FiletoteTestCase):
     """
-    Tests to check that filetote copies or moves artifact files from a nested directory
+    Tests to check that Filetote copies or moves artifact files from a nested directory
     structure. i.e. songs in an album are imported from two directories corresponding to
     disc numbers or flat option is used
     """

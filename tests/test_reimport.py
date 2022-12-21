@@ -12,7 +12,7 @@ log = logging.getLogger("beets")
 
 class FiletoteReimportTest(FiletoteTestCase):
     """
-    Tests to check that filetote handles reimports correctly
+    Tests to check that Filetote handles reimports correctly
     """
 
     def setUp(self):

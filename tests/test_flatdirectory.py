@@ -11,7 +11,7 @@ log = logging.getLogger("beets")
 
 class FiletoteFromFlatDirectoryTest(FiletoteTestCase):
     """
-    Tests to check that filetote copies or moves artifact files from a
+    Tests to check that Filetote copies or moves artifact files from a
     flat directory (e.g., all songs in an album are imported from a single
     directory). Also tests `extensions` and `filenames` config options.
     """
