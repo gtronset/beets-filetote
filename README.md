@@ -181,7 +181,7 @@ filetote:
 
 ## Thanks
 
-This plugin originally was forked from [copyartifacts3 (Adrian Sampson)] (no
+This plugin originally was a fork from [copyartifacts3 (Adrian Sampson)] (no
 longer actively maintained) to expand functionality. `beets-copyartifacts3`
 itself a fork of the archived [copyartifacts (Sami Barakat)].
 
