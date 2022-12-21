@@ -9,6 +9,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.3.0] - 2022-12-21
+
+### Changed
+
+- Fix py3.6 CI issue & ignore py3.11 Win fails by @gtronset in <https://github.com/gtronset/beets-filetote/pull/22>
+- Bump DavidAnson/markdownlint-cli2-action from 7 to 8 by @dependabot in <https://github.com/gtronset/beets-filetote/pull/20>
+- Bump python from 3.11.0-alpine to 3.11.1-alpine by @dependabot in <https://github.com/gtronset/beets-filetote/pull/21>
+- Rename plugin to Filetote by @gtronset in <https://github.com/gtronset/beets-filetote/pull/23>
+
 ## [0.2.2] - 2022-11-10
 
 ### Added
@@ -53,7 +62,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - <!-- Release Links -->
 
-[unreleased]: https://github.com/gtronset/beets-filetote/compare/v0.2.2...HEAD
+[unreleased]: https://github.com/gtronset/beets-filetote/compare/v0.3.0...HEAD
+[0.3.0]: https://github.com/gtronset/beets-filetote/releases/tag/v0.3.0
 [0.2.2]: https://github.com/gtronset/beets-filetote/releases/tag/v0.2.2
 [0.2.1]: https://github.com/gtronset/beets-filetote/releases/tag/v0.2.1
 [0.2.0]: https://github.com/gtronset/beets-filetote/releases/tag/v0.2.0
