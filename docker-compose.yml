@@ -1,8 +1,8 @@
 version: "3.8"
 services:
-  beets-copyfileartifacts:
-    container_name: beets-copyfileartifacts
-    image: beets-copyfileartifacts
+  beets-filetote:
+    container_name: beets-filetote
+    image: beets-filetote
     command: tail -F anything
     restart: unless-stopped
     volumes:

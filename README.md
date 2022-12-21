@@ -1,4 +1,4 @@
-# _copyfileartifacts_ plugin for beets
+# _filetote_ plugin for beets
 
 [![MIT license][license image]][license link] [![CI][ci image]][ci link]
 
@@ -18,7 +18,7 @@ The stable version of the plugin is available from PyPI. Installation can be
 done using pip:
 
 ```sh
-pip install beets-copyfileartifacts
+pip install beets-filetote
 ```
 
 If you get permission errors, try running it with `sudo`.
@@ -28,8 +28,8 @@ If you get permission errors, try running it with `sudo`.
 The development version can be installed from GitHub by using these commands:
 
 ```sh
-git clone https://github.com/gtronset/beets-copyfileartifacts.git
-cd beets-copyfileartifacts
+git clone https://github.com/gtronset/beets-filetote.git
+cd beets-filetote
 python setup.py install
 ```
 
@@ -40,27 +40,27 @@ If you get permission errors, try running it with `sudo`.
 You will need to enable the plugin in beets' `config.yaml`:
 
 ```yaml
-plugins: copyfileartifacts
+plugins: filetote
 ```
 
 It can copy files by file extension:
 
 ```yaml
-copyfileartifacts:
+filetote:
   extensions: .cue .log
 ```
 
 Or copy files by filename:
 
 ```yaml
-copyfileartifacts:
+filetote:
   filenames: song.log
 ```
 
 Or copy all non-music files (it does this by default):
 
 ```yaml
-copyfileartifacts:
+filetote:
   extensions: .*
 ```
 
@@ -68,14 +68,14 @@ It can look for and target "pairs" (files having the same name as a matching or
 "paired" media item/track):
 
 ```yaml
-copyfileartifacts:
+filetote:
   pairing: True
 ```
 
 And target/include only paired files:
 
 ```yaml
-copyfileartifacts:
+filetote:
   pairing: True
   pairing_only: True
 ```
@@ -83,14 +83,14 @@ copyfileartifacts:
 It can also exclude files by name:
 
 ```yaml
-copyfileartifacts:
+filetote:
   exclude: song_lyrics.nfo
 ```
 
 And print what got left:
 
 ```yaml
-copyfileartifacts:
+filetote:
   print_ignored: yes
 ```
 
@@ -166,7 +166,7 @@ This will rename the specific `track.log` log file to:
 ### Example `config.yaml`
 
 ```yaml
-plugins: copyfileartifacts
+plugins: filetote
 
 paths:
   default: $albumartist/$year - $album/$track - $title
@@ -176,7 +176,7 @@ paths:
   paired_ext:.lrc: $albumpath/$medianame_old
   filename:cover.jpg: $albumpath/cover
 
-copyfileartifacts:
+filetote:
   extensions: .cue .log .jpg .lrc
   filename: "cover.jpg"
   pairing: True
@@ -185,10 +185,10 @@ copyfileartifacts:
 
 ## Thanks
 
-copyfileartifacts was built on top of the hard work already done by Sami
+filetote was built on top of the hard work already done by Sami
 Barakat, Adrian Sampson, and the larger community on [beets](http://beets.radbox.org/).
 We have also benefited from the work of our
-[contributors](https://github.com/gtronset/beets-copyfileartifacts/graphs/contributors).
+[contributors](https://github.com/gtronset/beets-filetote/graphs/contributors).
 
 This plugin was built out of necessity and to scratch an itch. It has
 gained a bit of attention, so I intend to maintain it where I can,
@@ -204,6 +204,6 @@ Copyright (c) 2015-2017 Sami Barakat
 Licensed under the [MIT license][license link].
 
 [license image]: https://img.shields.io/badge/License-MIT-blue.svg
-[license link]: https://github.com/gtronset/beets-copyfileartifacts/blob/master/LICENSE
-[ci image]: https://github.com/gtronset/beets-copyfileartifacts/actions/workflows/tox.yml/badge.svg
-[ci link]: https://github.com/gtronset/beets-copyfileartifacts/actions/workflows/tox.yml
+[license link]: https://github.com/gtronset/beets-filetote/blob/master/LICENSE
+[ci image]: https://github.com/gtronset/beets-filetote/actions/workflows/tox.yml/badge.svg
+[ci link]: https://github.com/gtronset/beets-filetote/actions/workflows/tox.yml

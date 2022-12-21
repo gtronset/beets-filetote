@@ -5,14 +5,14 @@ import sys
 import pytest
 from beets import config
 
-from tests.helper import CopyFileArtifactsTestCase, capture_log
+from tests.helper import FiletoteTestCase, capture_log
 
 log = logging.getLogger("beets")
 
 
-class CopyFileArtifactsReimportTest(CopyFileArtifactsTestCase):
+class FiletoteReimportTest(FiletoteTestCase):
     """
-    Tests to check that copyfileartifacts handles reimports correctly
+    Tests to check that filetote handles reimports correctly
     """
 
     def setUp(self):
@@ -28,12 +28,12 @@ class CopyFileArtifactsReimportTest(CopyFileArtifactsTestCase):
                         artifact.file
                         artifact2.file
         """
-        super(CopyFileArtifactsReimportTest, self).setUp()
+        super(FiletoteReimportTest, self).setUp()
 
         self._create_flat_import_dir()
         self._setup_import_session(autotag=False, move=True)
 
-        config["copyfileartifacts"]["extensions"] = ".file"
+        config["filetote"]["extensions"] = ".file"
 
         log.debug("--- initial import")
         self._run_importer()

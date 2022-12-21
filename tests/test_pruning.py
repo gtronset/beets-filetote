@@ -4,19 +4,19 @@ import sys
 
 from beets import config, util
 
-from tests.helper import CopyFileArtifactsTestCase
+from tests.helper import FiletoteTestCase
 
 log = logging.getLogger("beets")
 
 
-class CopyFileArtifactsPruningyTest(CopyFileArtifactsTestCase):
+class FiletotePruningyTest(FiletoteTestCase):
     """
-    Tests to check that copyfileartifacts correctly "prunes" directories when
+    Tests to check that filetote correctly "prunes" directories when
     it moves artifact files.
     """
 
     def setUp(self):
-        super(CopyFileArtifactsPruningyTest, self).setUp()
+        super(FiletotePruningyTest, self).setUp()
 
         self._create_flat_import_dir()
         self._setup_import_session(autotag=False, move=True)
@@ -26,7 +26,7 @@ class CopyFileArtifactsPruningyTest(CopyFileArtifactsTestCase):
         Check that plugin does not interfere with normal
         pruning of emptied import directories.
         """
-        config["copyfileartifacts"]["extensions"] = ".*"
+        config["filetote"]["extensions"] = ".*"
 
         self._run_importer()
 
@@ -42,7 +42,7 @@ class CopyFileArtifactsPruningyTest(CopyFileArtifactsTestCase):
             import_dir=os.path.join(self.import_dir, b"the_album"),
             move=True,
         )
-        config["copyfileartifacts"]["extensions"] = ".*"
+        config["filetote"]["extensions"] = ".*"
         self._run_importer()
 
         self.assert_import_dir_exists(self.import_dir)
@@ -58,7 +58,7 @@ class CopyFileArtifactsPruningyTest(CopyFileArtifactsTestCase):
             import_dir=os.path.join(self.import_dir, b"the_album"),
             move=True,
         )
-        config["copyfileartifacts"]["extensions"] = ".*"
+        config["filetote"]["extensions"] = ".*"
         self._run_importer()
 
         self.assert_import_dir_exists(self.import_dir)
@@ -81,7 +81,7 @@ class CopyFileArtifactsPruningyTest(CopyFileArtifactsTestCase):
                         artifact2.file
         """
 
-        config["copyfileartifacts"]["extensions"] = ".file"
+        config["filetote"]["extensions"] = ".file"
 
         log.debug("--- initial import")
         self._run_importer()

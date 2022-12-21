@@ -11,9 +11,9 @@ from beets.util.functemplate import Template
 from mediafile import TYPES
 
 
-class CopyFileArtifactsPlugin(BeetsPlugin):
+class FiletotePlugin(BeetsPlugin):
     def __init__(self):
-        super(CopyFileArtifactsPlugin, self).__init__()
+        super(FiletotePlugin, self).__init__()
 
         self.config.add(
             {

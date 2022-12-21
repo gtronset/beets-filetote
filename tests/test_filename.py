@@ -6,16 +6,16 @@ import pytest
 from beets import config
 
 import tests._common as _common
-from tests.helper import CopyFileArtifactsTestCase
+from tests.helper import FiletoteTestCase
 
 
-class CopyFileArtifactsFilename(CopyFileArtifactsTestCase):
+class FiletoteFilename(FiletoteTestCase):
     """
     Tests to check handling of artifacts with filenames containing unicode characters
     """
 
     def setUp(self):
-        super(CopyFileArtifactsFilename, self).setUp()
+        super(FiletoteFilename, self).setUp()
 
         self._set_import_dir()
         self.album_path = os.path.join(self.import_dir, b"the_album")
@@ -24,7 +24,7 @@ class CopyFileArtifactsFilename(CopyFileArtifactsTestCase):
 
         self._setup_import_session(autotag=False)
 
-        config["copyfileartifacts"]["extensions"] = ".file"
+        config["filetote"]["extensions"] = ".file"
 
     def test_import_dir_with_unicode_character_in_artifact_name_copy(self):
         self._create_file(
@@ -67,7 +67,7 @@ class CopyFileArtifactsFilename(CopyFileArtifactsTestCase):
         self,
     ):
         config["import"]["move"] = True
-        config["copyfileartifacts"]["extensions"] = ".log"
+        config["filetote"]["extensions"] = ".log"
         config["paths"]["ext:.log"] = str("$albumpath/$album - $old_filename")
 
         self.lib.path_formats[0] = (

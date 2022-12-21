@@ -5,25 +5,25 @@ import sys
 import pytest
 from beets import config
 
-from tests.helper import CopyFileArtifactsTestCase
+from tests.helper import FiletoteTestCase
 
 log = logging.getLogger("beets")
 
 
-class CopyFileArtifactsPairingTest(CopyFileArtifactsTestCase):
+class FiletotePairingTest(FiletoteTestCase):
     """
-    Tests to check that copyfileartifacts renames as expected for custom path
+    Tests to check that filetote renames as expected for custom path
     formats (both by extension and filename).
     """
 
     def setUp(self):
-        super(CopyFileArtifactsPairingTest, self).setUp()
+        super(FiletotePairingTest, self).setUp()
 
     def test_pairing_default_is_disabled(self):
         self._create_flat_import_dir(media_files=1)
         self._setup_import_session(autotag=False)
 
-        config["copyfileartifacts"]["extensions"] = ".lrc"
+        config["filetote"]["extensions"] = ".lrc"
 
         self._run_importer()
 
@@ -34,9 +34,9 @@ class CopyFileArtifactsPairingTest(CopyFileArtifactsTestCase):
         self._create_flat_import_dir(media_files=3)
         self._setup_import_session(autotag=False)
 
-        config["copyfileartifacts"]["extensions"] = ".lrc"
-        config["copyfileartifacts"]["pairing"] = False
-        config["copyfileartifacts"]["pairing_only"] = True
+        config["filetote"]["extensions"] = ".lrc"
+        config["filetote"]["pairing"] = False
+        config["filetote"]["pairing_only"] = True
 
         self._run_importer()
 
@@ -47,8 +47,8 @@ class CopyFileArtifactsPairingTest(CopyFileArtifactsTestCase):
         self._create_flat_import_dir(media_files=1)
         self._setup_import_session(autotag=False)
 
-        config["copyfileartifacts"]["extensions"] = ".lrc"
-        config["copyfileartifacts"]["pairing"] = False
+        config["filetote"]["extensions"] = ".lrc"
+        config["filetote"]["pairing"] = False
 
         self._run_importer()
 
@@ -59,8 +59,8 @@ class CopyFileArtifactsPairingTest(CopyFileArtifactsTestCase):
         self._create_flat_import_dir(media_files=2)
         self._setup_import_session(autotag=False)
 
-        config["copyfileartifacts"]["extensions"] = ".lrc"
-        config["copyfileartifacts"]["pairing"] = True
+        config["filetote"]["extensions"] = ".lrc"
+        config["filetote"]["pairing"] = True
 
         self._run_importer()
 
@@ -72,8 +72,8 @@ class CopyFileArtifactsPairingTest(CopyFileArtifactsTestCase):
         self._create_flat_import_dir(media_files=2, generate_pair=False)
         self._setup_import_session(autotag=False)
 
-        config["copyfileartifacts"]["extensions"] = ".lrc"
-        config["copyfileartifacts"]["pairing"] = True
+        config["filetote"]["extensions"] = ".lrc"
+        config["filetote"]["pairing"] = True
 
         self._run_importer()
 
@@ -83,8 +83,8 @@ class CopyFileArtifactsPairingTest(CopyFileArtifactsTestCase):
         self._create_flat_import_dir(media_files=2, generate_pair=False)
         self._setup_import_session(autotag=False)
 
-        config["copyfileartifacts"]["extensions"] = ".lrc"
-        config["copyfileartifacts"]["pairing"] = True
+        config["filetote"]["extensions"] = ".lrc"
+        config["filetote"]["pairing"] = True
 
         self._create_file(
             os.path.join(self.import_dir, b"the_album"), b"track_1.lrc"
@@ -99,9 +99,9 @@ class CopyFileArtifactsPairingTest(CopyFileArtifactsTestCase):
         self._create_flat_import_dir(media_files=2)
         self._setup_import_session(autotag=False)
 
-        config["copyfileartifacts"]["extensions"] = ".lrc"
-        config["copyfileartifacts"]["pairing"] = True
-        config["copyfileartifacts"]["pairing_only"] = False
+        config["filetote"]["extensions"] = ".lrc"
+        config["filetote"]["pairing"] = True
+        config["filetote"]["pairing_only"] = False
 
         self._run_importer()
 
@@ -113,9 +113,9 @@ class CopyFileArtifactsPairingTest(CopyFileArtifactsTestCase):
         self._create_flat_import_dir(media_files=2)
         self._setup_import_session(autotag=False)
 
-        config["copyfileartifacts"]["extensions"] = ".lrc"
-        config["copyfileartifacts"]["pairing"] = True
-        config["copyfileartifacts"]["pairing_only"] = True
+        config["filetote"]["extensions"] = ".lrc"
+        config["filetote"]["pairing"] = True
+        config["filetote"]["pairing_only"] = True
 
         self._run_importer()
 
@@ -127,9 +127,9 @@ class CopyFileArtifactsPairingTest(CopyFileArtifactsTestCase):
         self._create_flat_import_dir(media_files=2, generate_pair=False)
         self._setup_import_session(autotag=False)
 
-        config["copyfileartifacts"]["extensions"] = ".lrc"
-        config["copyfileartifacts"]["pairing"] = True
-        config["copyfileartifacts"]["pairing_only"] = True
+        config["filetote"]["extensions"] = ".lrc"
+        config["filetote"]["pairing"] = True
+        config["filetote"]["pairing_only"] = True
 
         self._create_file(
             os.path.join(self.import_dir, b"the_album"), b"track_1.lrc"
