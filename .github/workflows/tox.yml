@@ -49,3 +49,27 @@ jobs:
           python -m tox --discover $(which python)
           python -m tox -e  pytest
         shell: bash
+
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.11"
+      - name: Install Python dependencies
+        run: |
+          python -m pip install --upgrade pip tox
+      - name: Check with isort
+        if: always()
+        run: python -m tox -e isort && git diff --exit-code
+      - name: Check with black
+        if: always()
+        run: python -m tox -e black && git diff --exit-code
+      - name: Check with flake8
+        if: always()
+        run: python -m tox -e flake8
+      - name: Check with mypy
+        if: always()
+        run: python -m tox -e mypy
