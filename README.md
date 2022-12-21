@@ -1,6 +1,8 @@
 # _Filetote_ plugin for beets
 
-[![MIT license][license image]][license link] [![CI][ci image]][ci link]
+[![MIT license][license image]][license link]
+[![CI][ci image]][ci link]
+[![GitHub release][github image]][github link]
 
 A plugin that moves non-music extra files, attachments, and artifacts during
 the import process for [beets](http://beets.radbox.org/), a music library
@@ -205,3 +207,5 @@ Licensed under the [MIT license][license link].
 [license link]: https://github.com/gtronset/beets-filetote/blob/master/LICENSE
 [ci image]: https://github.com/gtronset/beets-filetote/actions/workflows/tox.yml/badge.svg
 [ci link]: https://github.com/gtronset/beets-filetote/actions/workflows/tox.yml
+[github image]: https://img.shields.io/github/release/gtronset/beets-filetote.svg
+[github link]: https://github.com/gtronset/beets-filetote/releases
