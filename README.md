@@ -181,14 +181,17 @@ filetote:
 
 ## Thanks
 
-This was origanlly a fork of [copyartifacts3 (Adrian Sampson)](https://github.com/adammillerio/beets-copyartifacts)
-that expands functionality since that is no longer actively maintained.
-beets-copyartifacts3 itself a fork of the archived [copyartifacts (Sami Barakat)](https://github.com/sbarakat/beets-copyartifacts).
+This plugin originally was forked from [copyartifacts3 (Adrian Sampson)] (no
+longer actively maintained) to expand functionality. `beets-copyartifacts3`
+itself a fork of the archived [copyartifacts (Sami Barakat)].
 
-Filetote was built on top of the excellent work done by Sami
-Barakat, Adrian Sampson, and the larger community on [beets](http://beets.radbox.org/).
+Filetote was built on top of the excellent work done by Sami Barakat, Adrian
+Sampson, and the larger community on [beets](http://beets.radbox.org/).
 
 Please report any issues you may have and feel free to contribute.
+
+[copyartifacts3 (adrian sampson)]: https://github.com/adammillerio/beets-copyartifacts
+[copyartifacts (sami barakat)]: https://github.com/sbarakat/beets-copyartifacts
 
 ## License
 
