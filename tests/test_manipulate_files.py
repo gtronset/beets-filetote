@@ -7,26 +7,26 @@ import pytest
 from beets import config, util
 
 import tests._common as _common
-from tests.helper import CopyFileArtifactsTestCase
+from tests.helper import FiletoteTestCase
 
 log = logging.getLogger("beets")
 
 
-class CopyFileArtifactsManipulateFiles(CopyFileArtifactsTestCase):
+class FiletoteManipulateFiles(FiletoteTestCase):
     """
-    Tests to check that copyfileartifacts renames as expected for custom path
+    Tests to check that Filetote renames as expected for custom path
     formats (both by extension and filename).
     """
 
     def setUp(self):
-        super(CopyFileArtifactsManipulateFiles, self).setUp()
+        super(FiletoteManipulateFiles, self).setUp()
 
         self._create_flat_import_dir()
         self._setup_import_session(autotag=False, copy=False)
 
     @pytest.mark.skipif(not _common.HAVE_SYMLINK, reason="need symlinks")
     def test_import_symlink_files(self):
-        config["copyfileartifacts"]["extensions"] = ".file"
+        config["filetote"]["extensions"] = ".file"
         config["paths"]["ext:file"] = str("$albumpath/newname")
         config["import"]["link"] = True
 
@@ -56,7 +56,7 @@ class CopyFileArtifactsManipulateFiles(CopyFileArtifactsTestCase):
 
     @pytest.mark.skipif(not _common.HAVE_HARDLINK, reason="need hardlinks")
     def test_import_hardlink_files(self):
-        config["copyfileartifacts"]["extensions"] = ".file"
+        config["filetote"]["extensions"] = ".file"
         config["paths"]["ext:file"] = str("$albumpath/newname")
         config["import"]["hardlink"] = True
 
@@ -87,7 +87,7 @@ class CopyFileArtifactsManipulateFiles(CopyFileArtifactsTestCase):
 
     @pytest.mark.skipif(not _common.HAVE_REFLINK, reason="need reflinks")
     def test_import_reflink_files(self):
-        config["copyfileartifacts"]["extensions"] = ".file"
+        config["filetote"]["extensions"] = ".file"
         config["paths"]["ext:file"] = str("$albumpath/newname")
         config["import"]["reflink"] = True
 

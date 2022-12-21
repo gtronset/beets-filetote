@@ -1,24 +1,20 @@
-# _copyfileartifacts_ plugin for beets
+# _Filetote_ plugin for beets
 
 [![MIT license][license image]][license link] [![CI][ci image]][ci link]
 
-A plugin that moves non-music files during the import process for
-[beets](http://beets.radbox.org/), a music library manager (and much more!).
-
-This is a fork of [copyartifacts3](https://github.com/adammillerio/beets-copyartifacts)
-that expands functionality. beets-copyartifacts3 itself a fork of the archived
-[copyartifacts (by Sami Barakat)](https://github.com/sbarakat/beets-copyartifacts)
-which includes Python 3 fixes and was been published to PyPI as beets-copyartifacts3.
+A plugin that moves non-music extra files, attachments, and artifacts during
+the import process for [beets](http://beets.radbox.org/), a music library
+manager (and much more!).
 
 ## Installing
 
 ### Stable
 
-The stable version of the plugin is available from PyPI. Installation can be
-done using pip:
+In the future, the stable version of the plugin will be available from PyPI.
+Installation will be able to be done using `pip3`:
 
 ```sh
-pip install beets-copyfileartifacts
+pip3 install beets-filetote
 ```
 
 If you get permission errors, try running it with `sudo`.
@@ -28,8 +24,8 @@ If you get permission errors, try running it with `sudo`.
 The development version can be installed from GitHub by using these commands:
 
 ```sh
-git clone https://github.com/gtronset/beets-copyfileartifacts.git
-cd beets-copyfileartifacts
+git clone https://github.com/gtronset/beets-filetote.git
+cd beets-filetote
 python setup.py install
 ```
 
@@ -40,27 +36,27 @@ If you get permission errors, try running it with `sudo`.
 You will need to enable the plugin in beets' `config.yaml`:
 
 ```yaml
-plugins: copyfileartifacts
+plugins: filetote
 ```
 
 It can copy files by file extension:
 
 ```yaml
-copyfileartifacts:
+filetote:
   extensions: .cue .log
 ```
 
 Or copy files by filename:
 
 ```yaml
-copyfileartifacts:
+filetote:
   filenames: song.log
 ```
 
 Or copy all non-music files (it does this by default):
 
 ```yaml
-copyfileartifacts:
+filetote:
   extensions: .*
 ```
 
@@ -68,14 +64,14 @@ It can look for and target "pairs" (files having the same name as a matching or
 "paired" media item/track):
 
 ```yaml
-copyfileartifacts:
+filetote:
   pairing: True
 ```
 
 And target/include only paired files:
 
 ```yaml
-copyfileartifacts:
+filetote:
   pairing: True
   pairing_only: True
 ```
@@ -83,14 +79,14 @@ copyfileartifacts:
 It can also exclude files by name:
 
 ```yaml
-copyfileartifacts:
+filetote:
   exclude: song_lyrics.nfo
 ```
 
 And print what got left:
 
 ```yaml
-copyfileartifacts:
+filetote:
   print_ignored: yes
 ```
 
@@ -166,7 +162,7 @@ This will rename the specific `track.log` log file to:
 ### Example `config.yaml`
 
 ```yaml
-plugins: copyfileartifacts
+plugins: filetote
 
 paths:
   default: $albumartist/$year - $album/$track - $title
@@ -176,7 +172,7 @@ paths:
   paired_ext:.lrc: $albumpath/$medianame_old
   filename:cover.jpg: $albumpath/cover
 
-copyfileartifacts:
+filetote:
   extensions: .cue .log .jpg .lrc
   filename: "cover.jpg"
   pairing: True
@@ -185,15 +181,17 @@ copyfileartifacts:
 
 ## Thanks
 
-copyfileartifacts was built on top of the hard work already done by Sami
-Barakat, Adrian Sampson, and the larger community on [beets](http://beets.radbox.org/).
-We have also benefited from the work of our
-[contributors](https://github.com/gtronset/beets-copyfileartifacts/graphs/contributors).
+This plugin originally was a fork from [copyartifacts3 (Adrian Sampson)] (no
+longer actively maintained) to expand functionality. `beets-copyartifacts3`
+itself a fork of the archived [copyartifacts (Sami Barakat)].
 
-This plugin was built out of necessity and to scratch an itch. It has
-gained a bit of attention, so I intend to maintain it where I can,
-however I doubt I will be able to spend large amount of time on it.
+Filetote was built on top of the excellent work done by Sami Barakat, Adrian
+Sampson, and the larger community on [beets](http://beets.radbox.org/).
+
 Please report any issues you may have and feel free to contribute.
+
+[copyartifacts3 (adrian sampson)]: https://github.com/adammillerio/beets-copyartifacts
+[copyartifacts (sami barakat)]: https://github.com/sbarakat/beets-copyartifacts
 
 ## License
 
@@ -204,6 +202,6 @@ Copyright (c) 2015-2017 Sami Barakat
 Licensed under the [MIT license][license link].
 
 [license image]: https://img.shields.io/badge/License-MIT-blue.svg
-[license link]: https://github.com/gtronset/beets-copyfileartifacts/blob/master/LICENSE
-[ci image]: https://github.com/gtronset/beets-copyfileartifacts/actions/workflows/tox.yml/badge.svg
-[ci link]: https://github.com/gtronset/beets-copyfileartifacts/actions/workflows/tox.yml
+[license link]: https://github.com/gtronset/beets-filetote/blob/master/LICENSE
+[ci image]: https://github.com/gtronset/beets-filetote/actions/workflows/tox.yml/badge.svg
+[ci link]: https://github.com/gtronset/beets-filetote/actions/workflows/tox.yml

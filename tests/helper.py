@@ -17,7 +17,7 @@ beetsplug.__path__ = [
 
 import logging
 
-from beetsplug import copyfileartifacts
+from beetsplug import filetote
 
 log = logging.getLogger("beets")
 
@@ -42,7 +42,7 @@ def capture_log(logger="beets"):
         log.removeHandler(capture)
 
 
-class CopyFileArtifactsTestCase(_common.TestCase):
+class FiletoteTestCase(_common.TestCase):
     """
     Provides common setup and teardown, a convenience method for exercising the
     plugin/importer, tools to setup a library, a directory containing files
@@ -51,9 +51,9 @@ class CopyFileArtifactsTestCase(_common.TestCase):
     """
 
     def setUp(self):
-        super(CopyFileArtifactsTestCase, self).setUp()
+        super(FiletoteTestCase, self).setUp()
 
-        plugins._classes = set([copyfileartifacts.CopyFileArtifactsPlugin])
+        plugins._classes = set([filetote.FiletotePlugin])
 
         self._setup_library()
 

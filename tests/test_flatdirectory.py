@@ -4,20 +4,20 @@ import sys
 
 from beets import config
 
-from tests.helper import CopyFileArtifactsTestCase
+from tests.helper import FiletoteTestCase
 
 log = logging.getLogger("beets")
 
 
-class CopyFileArtifactsFromFlatDirectoryTest(CopyFileArtifactsTestCase):
+class FiletoteFromFlatDirectoryTest(FiletoteTestCase):
     """
-    Tests to check that copyfileartifacts copies or moves artifact files from a
+    Tests to check that Filetote copies or moves artifact files from a
     flat directory (e.g., all songs in an album are imported from a single
     directory). Also tests `extensions` and `filenames` config options.
     """
 
     def setUp(self):
-        super(CopyFileArtifactsFromFlatDirectoryTest, self).setUp()
+        super(FiletoteFromFlatDirectoryTest, self).setUp()
 
         self._create_flat_import_dir()
         self._setup_import_session(autotag=False)
@@ -25,7 +25,7 @@ class CopyFileArtifactsFromFlatDirectoryTest(CopyFileArtifactsTestCase):
         self._base_file_count = self._media_count + self._pairs_count
 
     def test_only_copy_artifacts_matching_configured_extension(self):
-        config["copyfileartifacts"]["extensions"] = ".file"
+        config["filetote"]["extensions"] = ".file"
 
         self._run_importer()
 
@@ -43,7 +43,7 @@ class CopyFileArtifactsFromFlatDirectoryTest(CopyFileArtifactsTestCase):
         self.assert_not_in_lib_dir(b"Tag Artist", b"Tag Album", b"artifact.lrc")
 
     def test_exact_matching_configured_extension(self):
-        config["copyfileartifacts"]["extensions"] = ".file"
+        config["filetote"]["extensions"] = ".file"
 
         self._create_file(
             os.path.join(self.import_dir, b"the_album"), b"artifact.file2"
@@ -64,8 +64,8 @@ class CopyFileArtifactsFromFlatDirectoryTest(CopyFileArtifactsTestCase):
         )
 
     def test_exclude_artifacts_matching_configured_exclude(self):
-        config["copyfileartifacts"]["extensions"] = ".file"
-        config["copyfileartifacts"]["exclude"] = "artifact2.file"
+        config["filetote"]["extensions"] = ".file"
+        config["filetote"]["exclude"] = "artifact2.file"
 
         self._run_importer()
 
@@ -82,8 +82,8 @@ class CopyFileArtifactsFromFlatDirectoryTest(CopyFileArtifactsTestCase):
         self.assert_not_in_lib_dir(b"Tag Artist", b"Tag Album", b"artifact.lrc")
 
     def test_only_copy_artifacts_matching_configured_filename(self):
-        config["copyfileartifacts"]["extensions"] = ""
-        config["copyfileartifacts"]["filenames"] = "artifact.file"
+        config["filetote"]["extensions"] = ""
+        config["filetote"]["filenames"] = "artifact.file"
 
         self._run_importer()
 
@@ -102,8 +102,8 @@ class CopyFileArtifactsFromFlatDirectoryTest(CopyFileArtifactsTestCase):
     def test_only_copy_artifacts_matching_configured_extension_and_filename(
         self,
     ):
-        config["copyfileartifacts"]["extensions"] = ".file"
-        config["copyfileartifacts"]["filenames"] = "artifact.nfo"
+        config["filetote"]["extensions"] = ".file"
+        config["filetote"]["filenames"] = "artifact.nfo"
 
         self._run_importer()
 
@@ -186,7 +186,7 @@ class CopyFileArtifactsFromFlatDirectoryTest(CopyFileArtifactsTestCase):
 
     def test_artifacts_copymove_on_first_media_by_default(self):
         """By default, all eligible files are grabbed with the first item."""
-        config["copyfileartifacts"]["extensions"] = ".file"
+        config["filetote"]["extensions"] = ".file"
         config["paths"]["ext:file"] = str(
             "$albumpath/$medianame_old - $old_filename"
         )
