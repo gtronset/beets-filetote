@@ -12,7 +12,7 @@ from mediafile import TYPES
 
 class FiletotePlugin(BeetsPlugin):
     def __init__(self):
-        super(FiletotePlugin, self).__init__()
+        super().__init__()
 
         self.config.add(
             {
@@ -230,7 +230,7 @@ class FiletotePlugin(BeetsPlugin):
             return
 
         non_handled_files = []
-        for root, dirs, files in util.sorted_walk(
+        for root, _dirs, files in util.sorted_walk(
             source_path, ignore=config["ignore"].as_str_seq()
         ):
             for filename in files:

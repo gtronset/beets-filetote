@@ -5,7 +5,7 @@ import stat
 import pytest
 from beets import config, util
 
-import tests._common as _common
+from tests import _common
 from tests.helper import FiletoteTestCase
 
 log = logging.getLogger("beets")

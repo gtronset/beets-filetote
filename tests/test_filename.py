@@ -4,7 +4,7 @@ import beets
 import pytest
 from beets import config
 
-import tests._common as _common
+from tests import _common
 from tests.helper import FiletoteTestCase
 
 
@@ -14,7 +14,7 @@ class FiletoteFilename(FiletoteTestCase):
     """
 
     def setUp(self):
-        super(FiletoteFilename, self).setUp()
+        super().setUp()
 
         self._set_import_dir()
         self.album_path = os.path.join(self.import_dir, b"the_album")

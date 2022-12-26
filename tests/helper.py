@@ -9,8 +9,8 @@ from beets import config, importer, library, plugins, util
 
 # Make sure the development versions of the plugins are used
 import beetsplug  # noqa: E402
-import tests._common as _common
 from beetsplug import filetote
+from tests import _common
 
 beetsplug.__path__ = [
     os.path.abspath(os.path.join(__file__, "..", "..", "beetsplug"))
@@ -48,7 +48,7 @@ class FiletoteTestCase(_common.TestCase):
     """
 
     def setUp(self):
-        super(FiletoteTestCase, self).setUp()
+        super().setUp()
 
         plugins._classes = set([filetote.FiletotePlugin])
 
@@ -112,7 +112,8 @@ class FiletoteTestCase(_common.TestCase):
 
     def _create_file(self, album_path, filename):
         """Creates a file in a specific location."""
-        open(os.path.join(album_path, filename), "a").close()
+        with open(os.path.join(album_path, filename), "a") as file_handle:
+            file_handle.close()
 
     def _create_flat_import_dir(self, media_files=3, generate_pair=True):
         """
@@ -282,13 +283,16 @@ class FiletoteTestCase(_common.TestCase):
             query=None,
         )
 
+    def _indenter(self, indent_level):
+        return " " * 4 * (indent_level)
+
     def _list_files(self, startpath):
         path = startpath.decode("utf8")
-        for root, dirs, files in os.walk(path):
+        for root, _dirs, files in os.walk(path):
             level = root.replace(path, "").count(os.sep)
-            indent = " " * 4 * (level)
+            indent = self._indenter(level)
             log.debug("{}{}/".format(indent, os.path.basename(root)))
-            subindent = " " * 4 * (level + 1)
+            subindent = self._indenter(level + 1)
             for f in files:
                 log.debug("{}{}".format(subindent, f))
 
@@ -346,9 +350,7 @@ class FiletoteTestCase(_common.TestCase):
         """
         Assert that there are ``count`` files in path formed by joining ``segments``
         """
-        self.assertEqual(
-            len([name for name in os.listdir(os.path.join(*segments))]), count
-        )
+        self.assertEqual(len(list(os.listdir(os.path.join(*segments)))), count)
 
 
 class TestImportSession(importer.ImportSession):
@@ -367,7 +369,7 @@ class TestImportSession(importer.ImportSession):
     """
 
     def __init__(self, *args, **kwargs):
-        super(TestImportSession, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self._choices = []
         self._resolutions = []
 
@@ -385,12 +387,15 @@ class TestImportSession(importer.ImportSession):
         except IndexError:
             choice = self.default_choice
 
+        result = choice
+
         if choice == importer.action.APPLY:
-            return task.candidates[0]
-        elif isinstance(choice, int):
-            return task.candidates[choice - 1]
-        else:
-            return choice
+            result = task.candidates[0]
+
+        if isinstance(choice, int):
+            result = task.candidates[choice - 1]
+
+        return result
 
     choose_item = choose_match
 
