@@ -199,11 +199,9 @@ class FiletotePlugin(BeetsPlugin):
 
         # Check if this path has already been processed
         if source_path in self._dirs_seen:
-
             # Check to see if "pairing" is enabled and, if so, if there are
             # artifacts to look at
             if self.pairing and self._shared_artifacts[source_path]:
-
                 # Iterate through shared artifacts to find paired matches
                 for filepath in self._shared_artifacts[source_path]:
                     file_name, file_ext = os.path.splitext(
