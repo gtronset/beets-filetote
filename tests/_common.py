@@ -161,8 +161,8 @@ class DummyIO(object):
         self.stdout = DummyOut()
         self.stdin = DummyIn(self.stdout)
 
-    def addinput(self, s):
-        self.stdin.add(s)
+    def addinput(self, input):
+        self.stdin.add(input)
 
     def getoutput(self):
         res = self.stdout.get()
