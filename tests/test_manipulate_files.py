@@ -18,7 +18,7 @@ class FiletoteManipulateFiles(FiletoteTestCase):
     """
 
     def setUp(self):
-        super(FiletoteManipulateFiles, self).setUp()
+        super().setUp()
 
         self._create_flat_import_dir()
         self._setup_import_session(autotag=False, copy=False)
@@ -77,11 +77,11 @@ class FiletoteManipulateFiles(FiletoteTestCase):
         self.assert_in_import_dir(b"the_album", b"artifact.file")
         self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"newname.file")
 
-        s1 = os.stat(old_path)
-        s2 = os.stat(new_path)
+        stat_old_path = os.stat(old_path)
+        stat_new_path = os.stat(new_path)
         self.assertTrue(
-            (s1[stat.ST_INO], s1[stat.ST_DEV])
-            == (s2[stat.ST_INO], s2[stat.ST_DEV])
+            (stat_old_path[stat.ST_INO], stat_old_path[stat.ST_DEV])
+            == (stat_new_path[stat.ST_INO], stat_new_path[stat.ST_DEV])
         )
 
     @pytest.mark.skipif(not _common.HAVE_REFLINK, reason="need reflinks")

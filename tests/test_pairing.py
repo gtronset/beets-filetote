@@ -14,8 +14,8 @@ class FiletotePairingTest(FiletoteTestCase):
     formats (both by extension and filename).
     """
 
-    def setUp(self):
-        super(FiletotePairingTest, self).setUp()
+    # def setUp(self):
+    #    super().setUp()
 
     def test_pairing_default_is_disabled(self):
         self._create_flat_import_dir(media_files=1)

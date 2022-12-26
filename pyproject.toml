@@ -9,3 +9,8 @@ line-length = 80
 
 [tool.isort]
 profile = 'black'
+
+[tool.pylint.format]
+max-line-length = "88"
+docstring-min-length = 0
+disable = "W0511,C0114,C0115,C0116"
