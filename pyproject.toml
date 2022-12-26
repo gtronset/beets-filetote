@@ -4,7 +4,7 @@ build-backend = 'setuptools.build_meta'
 
 [tool.black]
 target-version = ['py36']
-experimental-string-processing = true
+preview = true
 line-length = 80
 
 [tool.isort]
