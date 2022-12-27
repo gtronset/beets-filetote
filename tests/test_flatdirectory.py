@@ -16,7 +16,7 @@ class FiletoteFromFlatDirectoryTest(FiletoteTestCase):
     """
 
     def setUp(self):
-        super(FiletoteFromFlatDirectoryTest, self).setUp()
+        super().setUp()
 
         self._create_flat_import_dir()
         self._setup_import_session(autotag=False)

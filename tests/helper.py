@@ -9,8 +9,8 @@ from beets import config, importer, library, plugins, util
 
 # Make sure the development versions of the plugins are used
 import beetsplug  # noqa: E402
-import tests._common as _common
 from beetsplug import filetote
+from tests import _common
 
 beetsplug.__path__ = [
     os.path.abspath(os.path.join(__file__, "..", "..", "beetsplug"))
@@ -31,15 +31,16 @@ class LogCapture(logging.Handler):
 @contextmanager
 def capture_log(logger="beets"):
     capture = LogCapture()
-    log = logging.getLogger(logger)
-    log.addHandler(capture)
+    logs = logging.getLogger(logger)
+    logs.addHandler(capture)
     try:
         yield capture.messages
     finally:
-        log.removeHandler(capture)
+        logs.removeHandler(capture)
 
 
 class FiletoteTestCase(_common.TestCase):
+    # pylint: disable=too-many-instance-attributes, protected-access
     """
     Provides common setup and teardown, a convenience method for exercising the
     plugin/importer, tools to setup a library, a directory containing files
@@ -48,7 +49,7 @@ class FiletoteTestCase(_common.TestCase):
     """
 
     def setUp(self):
-        super(FiletoteTestCase, self).setUp()
+        super().setUp()
 
         plugins._classes = set([filetote.FiletotePlugin])
 
@@ -56,8 +57,16 @@ class FiletoteTestCase(_common.TestCase):
 
         self.rsrc_mp3 = b"full.mp3"
 
+        self._media_count = None
+        self._pairs_count = None
+
+        self.import_dir = None
+        self.import_media = None
+        self.importer = None
+        self.paths = None
+
         # Install the DummyIO to capture anything directed to stdout
-        self.io.install()
+        self.in_out.install()
 
     def _run_importer(self):
         """
@@ -112,7 +121,10 @@ class FiletoteTestCase(_common.TestCase):
 
     def _create_file(self, album_path, filename):
         """Creates a file in a specific location."""
-        open(os.path.join(album_path, filename), "a").close()
+        with open(
+            os.path.join(album_path, filename), mode="a", encoding="utf-8"
+        ) as file_handle:
+            file_handle.close()
 
     def _create_flat_import_dir(self, media_files=3, generate_pair=True):
         """
@@ -199,6 +211,7 @@ class FiletoteTestCase(_common.TestCase):
         track_name=None,
         track_number=None,
     ):
+        # pylint: disable=too-many-arguments
         """
         Creates and saves a media file object located at path using resource_name
         from the beets test resources directory as initial data
@@ -222,8 +235,8 @@ class FiletoteTestCase(_common.TestCase):
         # Set metadata
         metadata["track"] = track_number or 1
         metadata["title"] = track_name or "Tag Title 1"
-        for attr in metadata:
-            setattr(medium, attr, metadata[attr])
+        for item, value in metadata.items():
+            setattr(medium, item, value)
         medium.save()
 
         return medium
@@ -264,10 +277,12 @@ class FiletoteTestCase(_common.TestCase):
         move=False,
         autotag=True,
     ):
+        # pylint: disable=too-many-arguments
+
         config["import"]["copy"] = copy
         config["import"]["delete"] = delete
         config["import"]["timid"] = True
-        config["threaded"] = False
+        config["threaded"] = threaded
         config["import"]["singletons"] = singletons
         config["import"]["move"] = move
         config["import"]["autotag"] = autotag
@@ -282,29 +297,32 @@ class FiletoteTestCase(_common.TestCase):
             query=None,
         )
 
+    def _indenter(self, indent_level):
+        return " " * 4 * (indent_level)
+
     def _list_files(self, startpath):
         path = startpath.decode("utf8")
-        for root, dirs, files in os.walk(path):
+        for root, _dirs, files in os.walk(path):
             level = root.replace(path, "").count(os.sep)
-            indent = " " * 4 * (level)
-            log.debug("{}{}/".format(indent, os.path.basename(root)))
-            subindent = " " * 4 * (level + 1)
-            for f in files:
-                log.debug("{}{}".format(subindent, f))
+            indent = self._indenter(level)
+            log.debug("%s%s/", indent, os.path.basename(root))
+            subindent = self._indenter(level + 1)
+            for filename in files:
+                log.debug("%s%s", subindent, filename)
 
     def assert_in_lib_dir(self, *segments):
         """
         Join the ``segments`` and assert that this path exists in the library
         directory
         """
-        self.assertExists(os.path.join(self.lib_dir, *segments))
+        self.assert_exists(os.path.join(self.lib_dir, *segments))
 
     def assert_not_in_lib_dir(self, *segments):
         """
         Join the ``segments`` and assert that this path does not exist in
         the library directory
         """
-        self.assertNotExists(os.path.join(self.lib_dir, *segments))
+        self.assert_does_not_exist(os.path.join(self.lib_dir, *segments))
 
     def assert_import_dir_exists(self, import_dir=None):
         """
@@ -312,21 +330,21 @@ class FiletoteTestCase(_common.TestCase):
         directory
         """
         directory = import_dir or self.import_dir
-        self.assertExists(directory)
+        self.assert_exists(directory)
 
     def assert_in_import_dir(self, *segments):
         """
         Join the ``segments`` and assert that this path exists in the import
         directory
         """
-        self.assertExists(os.path.join(self.import_dir, *segments))
+        self.assert_exists(os.path.join(self.import_dir, *segments))
 
     def assert_not_in_import_dir(self, *segments):
         """
         Join the ``segments`` and assert that this path does not exist in
         the library directory
         """
-        self.assertNotExists(os.path.join(self.import_dir, *segments))
+        self.assert_does_not_exist(os.path.join(self.import_dir, *segments))
 
     def assert_islink(self, *segments):
         """
@@ -334,24 +352,23 @@ class FiletoteTestCase(_common.TestCase):
         """
         self.assertTrue(os.path.islink(os.path.join(self.lib_dir, *segments)))
 
-    def assert_equal_path(self, a, b):
+    def assert_equal_path(self, path_a, path_b):
         """Check that two paths are equal."""
         self.assertEqual(
-            util.normpath(a),
-            util.normpath(b),
-            f"paths are not equal: {a!r} and {b!r}",
+            util.normpath(path_a),
+            util.normpath(path_b),
+            f"paths are not equal: {path_a!r} and {path_b!r}",
         )
 
     def assert_number_of_files_in_dir(self, count, *segments):
         """
         Assert that there are ``count`` files in path formed by joining ``segments``
         """
-        self.assertEqual(
-            len([name for name in os.listdir(os.path.join(*segments))]), count
-        )
+        self.assertEqual(len(list(os.listdir(os.path.join(*segments)))), count)
 
 
 class TestImportSession(importer.ImportSession):
+    # pylint: disable=abstract-method
     """ImportSession that can be controlled programaticaly.
 
     >>> lib = Library(':memory:')
@@ -367,7 +384,7 @@ class TestImportSession(importer.ImportSession):
     """
 
     def __init__(self, *args, **kwargs):
-        super(TestImportSession, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self._choices = []
         self._resolutions = []
 
@@ -385,12 +402,15 @@ class TestImportSession(importer.ImportSession):
         except IndexError:
             choice = self.default_choice
 
+        result = choice
+
         if choice == importer.action.APPLY:
-            return task.candidates[0]
-        elif isinstance(choice, int):
-            return task.candidates[choice - 1]
-        else:
-            return choice
+            result = task.candidates[0]
+
+        if isinstance(choice, int):
+            result = task.candidates[choice - 1]
+
+        return result
 
     choose_item = choose_match
 
@@ -399,6 +419,7 @@ class TestImportSession(importer.ImportSession):
     default_resolution = "REMOVE"
 
     def add_resolution(self, resolution):
+        # pylint: disable=isinstance-second-argument-not-valid-type
         assert isinstance(resolution, self.Resolution)
         self._resolutions.append(resolution)
 

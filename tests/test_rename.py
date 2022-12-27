@@ -1,3 +1,5 @@
+# pylint: disable=too-many-public-methods
+
 import logging
 
 from beets import config
@@ -14,7 +16,7 @@ class FiletoteRenameTest(FiletoteTestCase):
     """
 
     def setUp(self):
-        super(FiletoteRenameTest, self).setUp()
+        super().setUp()
 
         self._create_flat_import_dir()
         self._setup_import_session(autotag=False)

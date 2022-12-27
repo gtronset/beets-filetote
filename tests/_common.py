@@ -24,27 +24,28 @@ HAVE_HARDLINK = PLATFORM != "win32"
 HAVE_REFLINK = reflink.supported_at(tempfile.gettempdir())
 
 
-class Assertions(object):
+class Assertions:
+    # pylint: disable=no-member
     """A mixin with additional unit test assertions."""
 
-    def assertExists(self, path):  # noqa
+    def assert_exists(self, path):  # noqa
         self.assertTrue(
             os.path.exists(util.syspath(path)),
-            "file does not exist: {!r}".format(path),
+            f"file does not exist: {path!r}",
         )
 
-    def assertNotExists(self, path):  # noqa
+    def assert_does_not_exist(self, path):  # noqa
         self.assertFalse(
             os.path.exists(util.syspath(path)),
-            "file exists: {!r}".format((path)),
+            f"file exists: {path!r}",
         )
 
-    def assert_equal_path(self, a, b):
+    def assert_equal_path(self, path_a, path_b):
         """Check that two paths are equal."""
         self.assertEqual(
-            util.normpath(a),
-            util.normpath(b),
-            "paths are not equal: {!r} and {!r}".format(a, b),
+            util.normpath(path_a),
+            util.normpath(path_b),
+            f"paths are not equal: {path_a!r} and {path_b!r}",
         )
 
 
@@ -83,9 +84,10 @@ class TestCase(unittest.TestCase, Assertions):
         os.environ["HOME"] = util.py3_path(self.temp_dir)
 
         # Initialize, but don't install, a DummyIO.
-        self.io = DummyIO()
+        self.in_out = DummyIO()
 
     def tearDown(self):
+        # pylint: disable=protected-access, no-member
         self.lib._close()
 
         if os.path.isdir(self.temp_dir):
@@ -94,7 +96,7 @@ class TestCase(unittest.TestCase, Assertions):
             del os.environ["HOME"]
         else:
             os.environ["HOME"] = self._old_home
-        self.io.restore()
+        self.in_out.restore()
 
         beets.config.clear()
         beets.config._materialized = False
@@ -110,18 +112,18 @@ class InputException(Exception):
     def __str__(self):
         msg = "Attempt to read with no input provided."
         if self.output is not None:
-            msg += " Output: {!r}".format(self.output)
+            msg += f" Output: {self.output!r}"
         return msg
 
 
-class DummyOut(object):
+class DummyOut:
     encoding = "utf-8"
 
     def __init__(self):
         self.buf = []
 
-    def write(self, s):
-        self.buf.append(s)
+    def write(self, buf_item):
+        self.buf.append(buf_item)
 
     def get(self):
         return "".join(self.buf)
@@ -133,7 +135,7 @@ class DummyOut(object):
         self.buf = []
 
 
-class DummyIn(object):
+class DummyIn:
     encoding = "utf-8"
 
     def __init__(self, out=None):
@@ -141,28 +143,28 @@ class DummyIn(object):
         self.reads = 0
         self.out = out
 
-    def add(self, s):
-        self.buf.append(s + "\n")
+    def add(self, buf_item):
+        self.buf.append(buf_item + "\n")
 
     def readline(self):
         if not self.buf:
             if self.out:
                 raise InputException(self.out.get())
-            else:
-                raise InputException()
+
+            raise InputException()
         self.reads += 1
         return self.buf.pop(0)
 
 
-class DummyIO(object):
+class DummyIO:
     """Mocks input and output streams for testing UI code."""
 
     def __init__(self):
         self.stdout = DummyOut()
         self.stdin = DummyIn(self.stdout)
 
-    def addinput(self, s):
-        self.stdin.add(s)
+    def addinput(self, inputs):
+        self.stdin.add(inputs)
 
     def getoutput(self):
         res = self.stdout.get()

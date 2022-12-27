@@ -1,3 +1,5 @@
+# pylint: disable=duplicate-code
+
 import logging
 import os
 
@@ -15,7 +17,7 @@ class FiletotePruningyTest(FiletoteTestCase):
     """
 
     def setUp(self):
-        super(FiletotePruningyTest, self).setUp()
+        super().setUp()
 
         self._create_flat_import_dir()
         self._setup_import_session(autotag=False, move=True)

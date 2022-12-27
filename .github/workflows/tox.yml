@@ -70,3 +70,6 @@ jobs:
       - name: Check with flake8
         if: always()
         run: python -m tox -e flake8
+      - name: Check with pylint
+        if: always()
+        run: python -m tox -e pylint

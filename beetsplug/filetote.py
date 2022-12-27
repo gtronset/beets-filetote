@@ -11,8 +11,9 @@ from mediafile import TYPES
 
 
 class FiletotePlugin(BeetsPlugin):
+    # pylint: disable=too-many-instance-attributes
     def __init__(self):
-        super(FiletotePlugin, self).__init__()
+        super().__init__()
 
         self.config.add(
             {
@@ -40,6 +41,8 @@ class FiletotePlugin(BeetsPlugin):
 
         queries = ["ext:", "filename:", "paired_ext:"]
 
+        self.lib = None
+        self.paths = None
         self.path_formats = [
             path_format
             for path_format in get_path_formats()
@@ -84,6 +87,7 @@ class FiletotePlugin(BeetsPlugin):
         return operation
 
     def _destination(self, filename, mapping, paired=False):
+        # pylint: disable=too-many-locals
         """Returns a destination path a file should be moved to. The filename
         is unique to ensure files aren't overwritten. This also checks the
         config for path formats based on file extension allowing the use of
@@ -181,7 +185,7 @@ class FiletotePlugin(BeetsPlugin):
         # TODO: Retool to utilize the OS's path separator
         # pathsep = config["path_sep_replace"].get(str)
         strpath_old = util.displayable_path(item.path)
-        filename_old, fileext = os.path.splitext(os.path.basename(strpath_old))
+        filename_old, _fileext = os.path.splitext(os.path.basename(strpath_old))
 
         strpath_new = util.displayable_path(destination)
         filename_new = os.path.splitext(os.path.basename(strpath_new))[0]
@@ -192,6 +196,7 @@ class FiletotePlugin(BeetsPlugin):
         return mapping
 
     def collect_artifacts(self, item, source, destination):
+        # pylint: disable=too-many-locals
         item_source_filename = os.path.splitext(os.path.basename(source))[0]
         source_path = os.path.dirname(source)
 
@@ -199,11 +204,9 @@ class FiletotePlugin(BeetsPlugin):
 
         # Check if this path has already been processed
         if source_path in self._dirs_seen:
-
             # Check to see if "pairing" is enabled and, if so, if there are
             # artifacts to look at
             if self.pairing and self._shared_artifacts[source_path]:
-
                 # Iterate through shared artifacts to find paired matches
                 for filepath in self._shared_artifacts[source_path]:
                     file_name, file_ext = os.path.splitext(
@@ -232,7 +235,7 @@ class FiletotePlugin(BeetsPlugin):
             return
 
         non_handled_files = []
-        for root, dirs, files in util.sorted_walk(
+        for root, _dirs, files in util.sorted_walk(
             source_path, ignore=config["ignore"].as_str_seq()
         ):
             for filename in files:
@@ -337,8 +340,8 @@ class FiletotePlugin(BeetsPlugin):
 
         if self.print_ignored and ignored_files:
             self._log.warning("Ignored files:")
-            for f in ignored_files:
-                self._log.warning("   {0}", os.path.basename(f))
+            for filename in ignored_files:
+                self._log.warning("   {0}", os.path.basename(filename))
 
     def manipulate_artifact(self, source_file, dest_file):
         """Copy, move, link, hardlink or reflink (depending on `operation`)
@@ -373,9 +376,8 @@ class FiletotePlugin(BeetsPlugin):
             operation_display = "REIMPORT"
 
         self._log.info(
-            "{0}-ing artifact: {1}".format(
-                operation_display, os.path.basename(dest_file.decode("utf8"))
-            )
+            f"{operation_display}-ing artifact:"
+            f" {os.path.basename(dest_file.decode('utf8'))}"
         )
 
         if reimport or self.operation == MoveOperation.MOVE:

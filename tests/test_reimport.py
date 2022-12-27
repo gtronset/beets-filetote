@@ -1,3 +1,5 @@
+# pylint: disable=duplicate-code
+
 import logging
 import os
 
@@ -26,7 +28,7 @@ class FiletoteReimportTest(FiletoteTestCase):
                         artifact.file
                         artifact2.file
         """
-        super(FiletoteReimportTest, self).setUp()
+        super().setUp()
 
         self._create_flat_import_dir()
         self._setup_import_session(autotag=False, move=True)

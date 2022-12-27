@@ -4,8 +4,14 @@ build-backend = 'setuptools.build_meta'
 
 [tool.black]
 target-version = ['py36']
-experimental-string-processing = true
+preview = true
 line-length = 80
 
 [tool.isort]
 profile = 'black'
+
+[tool.pylint.format]
+disable = 'W0511,C0114,C0115,C0116'
+docstring-min-length = 0
+max-line-length = '88'
+output-format = 'colorized'
