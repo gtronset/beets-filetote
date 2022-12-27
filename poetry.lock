@@ -273,25 +273,28 @@ requirements-deprecated-finder = ["pip-api", "pipreqs"]
 
 [[package]]
 name = "jellyfish"
-version = "0.9.0"
+version = "0.8.9"
 description = "a library for doing approximate and phonetic matching of strings."
 category = "main"
 optional = false
-python-versions = ">3.6"
+python-versions = ">3.5"
 files = [
-    {file = "jellyfish-0.9.0-cp310-cp310-macosx_10_14_x86_64.whl", hash = "sha256:c0cbe9d294f75b4fa05c0a5cb7ca4c8e85297a3ec9bf66d13ed330190a86381f"},
-    {file = "jellyfish-0.9.0-cp310-cp310-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:a3b9fae0cba82ef5839d8f2e2275387807ccb6c3041fdc8e89bbcadaf09a5837"},
-    {file = "jellyfish-0.9.0-cp310-cp310-win_amd64.whl", hash = "sha256:465a2109e16b87554aec7ddd4ba0c8798f2377f6f957aed30dc64ab46b47e703"},
-    {file = "jellyfish-0.9.0-cp37-cp37m-macosx_10_14_x86_64.whl", hash = "sha256:35eefbbfb93aa82a4a4e5eafc3b866c3ac26418f064c4538c345b11cdebf2b5b"},
-    {file = "jellyfish-0.9.0-cp37-cp37m-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:96290b1e1acb30b2466112ba4ed9c7b511ac7028d7e9096b38558ea1f0484a98"},
-    {file = "jellyfish-0.9.0-cp37-cp37m-win_amd64.whl", hash = "sha256:c891c1465679bc9c2d114f75364e3b4dadeb6959a37c3e3fa41bc7746a84e060"},
-    {file = "jellyfish-0.9.0-cp38-cp38-macosx_10_14_x86_64.whl", hash = "sha256:cc68f01450290d5ad631f63917834788c178eebaa6efb8196319eea2f146ed70"},
-    {file = "jellyfish-0.9.0-cp38-cp38-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:3b6ffe2ab3d557892db1f87bb4846dfb7a697eba9248d6f2554555f998f4a265"},
-    {file = "jellyfish-0.9.0-cp38-cp38-win_amd64.whl", hash = "sha256:514c9d9e69170ac2c3eff48ba02d4f03540538d63028b76ebc8a2cb589e8cdd0"},
-    {file = "jellyfish-0.9.0-cp39-cp39-macosx_10_14_x86_64.whl", hash = "sha256:b682a6235d581669e6a9f0a6d716a6606bf42525ab90de4c6a49c36bfbdd73b4"},
-    {file = "jellyfish-0.9.0-cp39-cp39-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:954290c165511681aa9627e3c4305acf425942ad64e745ea56865cff8e0661a6"},
-    {file = "jellyfish-0.9.0-cp39-cp39-win_amd64.whl", hash = "sha256:8759c6d34f1bea5860ab5807968399b9dd259c703f6c5071fcd5703bf7a00d99"},
-    {file = "jellyfish-0.9.0.tar.gz", hash = "sha256:40c9a2ffd8bd3016f7611d424120442f627f56d518a106847dc93f0ead6ad79a"},
+    {file = "jellyfish-0.8.9-cp310-cp310-macosx_10_14_x86_64.whl", hash = "sha256:a3b3a31762b8c1286241ddd8a01c61d34df647d805bb5f659b8d6936612265d3"},
+    {file = "jellyfish-0.8.9-cp310-cp310-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:bb4b2e1886f96b5721a1cbf2f2c22e8fe94af9688aec8e29945c11ab8f129a02"},
+    {file = "jellyfish-0.8.9-cp310-cp310-win_amd64.whl", hash = "sha256:b1fd092e60e06115da2f4ab754ba11df7740d5bfe19021c73616b456240315c8"},
+    {file = "jellyfish-0.8.9-cp36-cp36m-macosx_10_14_x86_64.whl", hash = "sha256:13696b496dee907e86bc1966acaa53a85d3ac893221caa9fe020630cb49c0c4d"},
+    {file = "jellyfish-0.8.9-cp36-cp36m-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:9dd016d3731d90231a5f1874a91b05c4fea12de1fba1e7830484b1f30d78de4c"},
+    {file = "jellyfish-0.8.9-cp36-cp36m-win_amd64.whl", hash = "sha256:beebadb1602ef407b94d9b31914fd7e4e260e6e62e09865276f59cff1278a7e8"},
+    {file = "jellyfish-0.8.9-cp37-cp37m-macosx_10_14_x86_64.whl", hash = "sha256:77837d9156d34af8056cbf05818506549da3e585179ec8217ea32d9f5e2ad578"},
+    {file = "jellyfish-0.8.9-cp37-cp37m-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:2340c137a03dd3e64ed3eb5d60b7353c162bed80d7cd8bcb3c5e9053d325d724"},
+    {file = "jellyfish-0.8.9-cp37-cp37m-win_amd64.whl", hash = "sha256:a9ba695c97a8c3dc0b08d44503a137a12a2e6ce3cf02d4d77f1831aa4a5f7218"},
+    {file = "jellyfish-0.8.9-cp38-cp38-macosx_10_14_x86_64.whl", hash = "sha256:f218e8a004d8748f251923019d7979a7f83accc95b3a5f1d656d543b8f5b5291"},
+    {file = "jellyfish-0.8.9-cp38-cp38-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:5997559270da8df1566d3a19cfa89b7585c9da5aa60010bb925247e482c73afe"},
+    {file = "jellyfish-0.8.9-cp38-cp38-win_amd64.whl", hash = "sha256:9965ebaecba43c709ad4b93cd1e7cb0c0c452d58a339459e0d69c4b57e81f84d"},
+    {file = "jellyfish-0.8.9-cp39-cp39-macosx_10_14_x86_64.whl", hash = "sha256:3ad030b96f7d459daa97da249ca68d74ed261367b58e9af1f02c7bded7ed8e45"},
+    {file = "jellyfish-0.8.9-cp39-cp39-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:bb30a07adf110d6f7d03d6bd531b1947134b1517ef45147f1329c9715ab4b9ce"},
+    {file = "jellyfish-0.8.9-cp39-cp39-win_amd64.whl", hash = "sha256:92d69421ed39d4036ea82d7a726300b1e016368cf5f31c3b209887390165d30e"},
+    {file = "jellyfish-0.8.9.tar.gz", hash = "sha256:90d25e8f5971ebbcf56f216ff5bb65d6466572b78908c88c47ab588d4ea436c2"},
 ]
 
 [[package]]
@@ -337,18 +340,18 @@ files = [
 
 [[package]]
 name = "mediafile"
-version = "0.11.0"
+version = "0.10.0"
 description = "Handles low-level interfacing for files' tags. Wraps Mutagen to"
 category = "main"
 optional = false
-python-versions = ">=3.7"
+python-versions = ">=3.6"
 files = [
-    {file = "mediafile-0.11.0-py3-none-any.whl", hash = "sha256:88aa75595f5ff568173b914de0677ba58586c5babe319fb04ca68651a4a931df"},
-    {file = "mediafile-0.11.0.tar.gz", hash = "sha256:2771ae95a31b773635c1446957cf5cd91d29967b9606f8c8c6accba1715c5eaf"},
+    {file = "mediafile-0.10.0-py3-none-any.whl", hash = "sha256:4818f15dc0b735dfa69f169dceebade68900a99ee398f614ea01b5c6d6484701"},
+    {file = "mediafile-0.10.0.tar.gz", hash = "sha256:98e0abb300d323bdfc90e2a3ae7f679436c429086e8254e6bfbc6b4f049d3624"},
 ]
 
 [package.dependencies]
-mutagen = ">=1.46"
+mutagen = ">=1.45"
 six = ">=1.9"
 
 [package.extras]
@@ -397,14 +400,14 @@ files = [
 
 [[package]]
 name = "mutagen"
-version = "1.46.0"
+version = "1.45.1"
 description = "read and write audio tags for many formats"
 category = "main"
 optional = false
-python-versions = ">=3.7"
+python-versions = ">=3.5, <4"
 files = [
-    {file = "mutagen-1.46.0-py3-none-any.whl", hash = "sha256:8af0728aa2d5c3ee5a727e28d0627966641fddfe804c23eabb5926a4d770aed5"},
-    {file = "mutagen-1.46.0.tar.gz", hash = "sha256:6e5f8ba84836b99fe60be5fb27f84be4ad919bbb6b49caa6ae81e70584b55e58"},
+    {file = "mutagen-1.45.1-py3-none-any.whl", hash = "sha256:9c9f243fcec7f410f138cb12c21c84c64fde4195481a30c9bfb05b5f003adfed"},
+    {file = "mutagen-1.45.1.tar.gz", hash = "sha256:6397602efb3c2d7baebd2166ed85731ae1c1d475abca22090b7141ff5034b3e1"},
 ]
 
 [[package]]
@@ -773,5 +776,5 @@ testing = ["flake8 (<5)", "func-timeout", "jaraco.functools", "jaraco.itertools"
 
 [metadata]
 lock-version = "2.0"
-python-versions = "^3.7.2"
-content-hash = "39cc4afb4e4b9dd885b2a55b274b1feefe7e97e24fb624a80f2f1284a9aad60c"
+python-versions = "^3.6"
+content-hash = "23fec7350d60fdf46012215135bef7ff4fccf6ff2449f1e98b4519ecb27cd283"
