@@ -66,7 +66,7 @@ class FiletoteTestCase(_common.TestCase):
         self.paths = None
 
         # Install the DummyIO to capture anything directed to stdout
-        self.io.install()
+        self.in_out.install()
 
     def _run_importer(self):
         """
@@ -315,14 +315,14 @@ class FiletoteTestCase(_common.TestCase):
         Join the ``segments`` and assert that this path exists in the library
         directory
         """
-        self.assertExists(os.path.join(self.lib_dir, *segments))
+        self.assert_exists(os.path.join(self.lib_dir, *segments))
 
     def assert_not_in_lib_dir(self, *segments):
         """
         Join the ``segments`` and assert that this path does not exist in
         the library directory
         """
-        self.assertNotExists(os.path.join(self.lib_dir, *segments))
+        self.assert_does_not_exist(os.path.join(self.lib_dir, *segments))
 
     def assert_import_dir_exists(self, import_dir=None):
         """
@@ -330,21 +330,21 @@ class FiletoteTestCase(_common.TestCase):
         directory
         """
         directory = import_dir or self.import_dir
-        self.assertExists(directory)
+        self.assert_exists(directory)
 
     def assert_in_import_dir(self, *segments):
         """
         Join the ``segments`` and assert that this path exists in the import
         directory
         """
-        self.assertExists(os.path.join(self.import_dir, *segments))
+        self.assert_exists(os.path.join(self.import_dir, *segments))
 
     def assert_not_in_import_dir(self, *segments):
         """
         Join the ``segments`` and assert that this path does not exist in
         the library directory
         """
-        self.assertNotExists(os.path.join(self.import_dir, *segments))
+        self.assert_does_not_exist(os.path.join(self.import_dir, *segments))
 
     def assert_islink(self, *segments):
         """
@@ -352,12 +352,12 @@ class FiletoteTestCase(_common.TestCase):
         """
         self.assertTrue(os.path.islink(os.path.join(self.lib_dir, *segments)))
 
-    def assert_equal_path(self, a, b):
+    def assert_equal_path(self, path_a, path_b):
         """Check that two paths are equal."""
         self.assertEqual(
-            util.normpath(a),
-            util.normpath(b),
-            f"paths are not equal: {a!r} and {b!r}",
+            util.normpath(path_a),
+            util.normpath(path_b),
+            f"paths are not equal: {path_a!r} and {path_b!r}",
         )
 
     def assert_number_of_files_in_dir(self, count, *segments):
