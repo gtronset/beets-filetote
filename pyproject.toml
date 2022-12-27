@@ -1,6 +1,39 @@
+[tool.poetry]
+name = "beets-filetote"
+version = "0.3.0"
+description = "A beets plugin to copy/moves non-music extra files, attachments, and artifacts during the import process."
+authors = ["Gavin Tronset <gtronset@gmail.com>"]
+keywords = ["beets", "files", "artifacts", "extra"]
+license = "MIT"
+readme = "README.md"
+packages = [{include = "beetsplug"}]
+repository = "https://github.com/gtronset/beets-filetote"
+documentation = "https://github.com/gtronset/beets-filetote"
+classifiers = [
+    "Topic :: Multimedia :: Sound/Audio",
+    "Topic :: Multimedia :: Sound/Audio :: Players :: MP3",
+    "Environment :: Console",
+    "Environment :: Web Environment"
+]
+
+[tool.poetry.urls]
+"Release notes" = "https://github.com/gtronset/beets-filetote/releases"
+"Source" = "https://github.com/gtronset/beets-filetote"
+
+[tool.poetry.dependencies]
+python = "^3.7.2"
+beets = "^1.6.0"
+mediafile = "0.11.0"
+
+[tool.poetry.group.dev.dependencies]
+pylint = "^2.15.9"
+pytest = "^7.1.3"
+mock = "^4.0.3"
+reflink = "^0.2.1"
+
 [build-system]
-requires = ['setuptools>=40.8.0']
-build-backend = 'setuptools.build_meta'
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
 
 [tool.black]
 target-version = ['py36']
