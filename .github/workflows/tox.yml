@@ -43,7 +43,7 @@ jobs:
           python-version: ${{ matrix.python-version }}
       - name: Install dependencies
         run: |
-          python -m pip install --upgrade pip tox poetry
+          python -m pip install --upgrade pip tox
       - name: Run tox
         run: |
           python -m tox --discover $(which python)
@@ -60,7 +60,7 @@ jobs:
           python-version: "3.11"
       - name: Install Python dependencies
         run: |
-          python -m pip install --upgrade pip tox poetry
+          python -m pip install --upgrade pip tox
       - name: Check with isort
         if: always()
         run: python -m tox -e isort && git diff --exit-code
