@@ -3,6 +3,8 @@
 [![MIT license][license image]][license link]
 [![CI][ci image]][ci link]
 [![GitHub release][github image]][github link]
+[![PyPI][pypi_version]][pypi_link]
+[![PyPI - Python Version][pypi_python_versions]][pypi_link]
 
 A plugin that moves non-music extra files, attachments, and artifacts during
 the import process for [beets](http://beets.radbox.org/), a music library
@@ -12,8 +14,8 @@ manager (and much more!).
 
 ### Stable
 
-In the future, the stable version of the plugin will be available from PyPI.
-Installation will be able to be done using `pip3`:
+The stable version of the plugin is available from PyPI and can be installed
+using `pip3`:
 
 ```sh
 pip3 install beets-filetote
@@ -209,3 +211,6 @@ Licensed under the [MIT license][license link].
 [ci link]: https://github.com/gtronset/beets-filetote/actions/workflows/tox.yml
 [github image]: https://img.shields.io/github/release/gtronset/beets-filetote.svg
 [github link]: https://github.com/gtronset/beets-filetote/releases
+[pypi_version]: https://img.shields.io/pypi/v/beets-filetote
+[pypi_link]: https://pypi.org/project/beets-filetote/
+[pypi_python_versions]: https://img.shields.io/pypi/pyversions/beets-filetote
