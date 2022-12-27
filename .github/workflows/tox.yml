@@ -47,7 +47,7 @@ jobs:
       - name: Run tox
         run: |
           python -m tox --discover $(which python)
-          poetry run python -m tox -e  pytest
+          python -m tox -e pytest
         shell: bash
 
   lint:
@@ -60,16 +60,16 @@ jobs:
           python-version: "3.11"
       - name: Install Python dependencies
         run: |
-          poetry run python -m pip install --upgrade pip tox poetry
+          python -m pip install --upgrade pip tox poetry
       - name: Check with isort
         if: always()
-        run: poetry run python -m tox -e isort && git diff --exit-code
+        run: python -m tox -e isort && git diff --exit-code
       - name: Check with black
         if: always()
-        run: poetry run python -m tox -e black && git diff --exit-code
+        run: python -m tox -e black && git diff --exit-code
       - name: Check with flake8
         if: always()
-        run: poetry run python -m tox -e flake8
+        run: python -m tox -e flake8
       - name: Check with pylint
         if: always()
-        run: poetry run python -m tox -e pylint
+        run: python -m tox -e pylint
