@@ -69,7 +69,7 @@ class FiletoteTestCase(_common.TestCase):
         # Install the DummyIO to capture anything directed to stdout
         self.in_out.install()
 
-    def _run_importer(self):
+    def _run_importer(self, operation_option=None):
         """
         Create an instance of the plugin, run the importer, and
         remove/unregister the plugin instance so a new instance can
@@ -81,6 +81,13 @@ class FiletoteTestCase(_common.TestCase):
         # Setup
         # Create an instance of the plugin
         plugins.find_plugins()
+
+        if operation_option == "copy":
+            config["import"]["copy"] = True
+            config["import"]["move"] = False
+        elif operation_option == "move":
+            config["import"]["copy"] = False
+            config["import"]["move"] = True
 
         # Exercise
         # Run the importer
