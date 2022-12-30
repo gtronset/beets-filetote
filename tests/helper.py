@@ -40,7 +40,9 @@ def capture_log(logger="beets"):
 
 
 class FiletoteTestCase(_common.TestCase):
-    # pylint: disable=too-many-instance-attributes, protected-access
+    # pylint: disable=too-many-instance-attributes
+    # pylint: disable=protected-access
+    # pylint: disable=logging-fstring-interpolation
     """
     Provides common setup and teardown, a convenience method for exercising the
     plugin/importer, tools to setup a library, a directory containing files
@@ -68,7 +70,7 @@ class FiletoteTestCase(_common.TestCase):
         # Install the DummyIO to capture anything directed to stdout
         self.in_out.install()
 
-    def _run_importer(self):
+    def _run_importer(self, operation_option=None):
         """
         Create an instance of the plugin, run the importer, and
         remove/unregister the plugin instance so a new instance can
@@ -80,6 +82,13 @@ class FiletoteTestCase(_common.TestCase):
         # Setup
         # Create an instance of the plugin
         plugins.find_plugins()
+
+        if operation_option == "copy":
+            config["import"]["copy"] = True
+            config["import"]["move"] = False
+        elif operation_option == "move":
+            config["import"]["copy"] = False
+            config["import"]["move"] = True
 
         # Exercise
         # Run the importer
@@ -305,10 +314,10 @@ class FiletoteTestCase(_common.TestCase):
         for root, _dirs, files in os.walk(path):
             level = root.replace(path, "").count(os.sep)
             indent = self._indenter(level)
-            log.debug("%s%s/", indent, os.path.basename(root))
+            log.debug(f"{indent}{os.path.basename(root)}/")
             subindent = self._indenter(level + 1)
             for filename in files:
-                log.debug("%s%s", subindent, filename)
+                log.debug(f"{subindent}{filename}")
 
     def assert_in_lib_dir(self, *segments):
         """

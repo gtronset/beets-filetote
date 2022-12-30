@@ -35,6 +35,13 @@ python setup.py install
 
 If you get permission errors, try running it with `sudo`.
 
+Update the `config.yaml` to utilize the local plugin with:
+
+```yaml
+pluginpath:
+  - /path/to.../beets-filetote/beetsplug
+```
+
 ## Configuration
 
 You will need to enable the plugin in beets' `config.yaml`:
@@ -108,8 +115,10 @@ This plugin supports the same operations as beets:
 - `reflink`
 
 These options are mutually exclusive, and there are nuances to how beets (and
-thus this plugin) behave when there multiple set. See the [beets documentation](https://beets.readthedocs.io/en/stable/reference/config.html#importer-options)
-for more details.
+thus this plugin) behave when there multiple set. See the [beets documentation]
+and [#36](https://github.com/gtronset/beets-filetote/pull/36) for more details.
+
+[beets documentation]: https://beets.readthedocs.io/en/stable/reference/config.html#importer-options
 
 ### Renaming files
 
