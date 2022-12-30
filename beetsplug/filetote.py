@@ -67,7 +67,6 @@ class FiletotePlugin(BeetsPlugin):
     def _register_session_settings(self, session):
         """ """
         self.operation = self._operation_type()
-        self._log.info(f"{self.operation}")
         self.paths = os.path.expanduser(session.paths[0])
 
     def _operation_type(self):
