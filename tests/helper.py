@@ -40,7 +40,8 @@ def capture_log(logger="beets"):
 
 
 class FiletoteTestCase(_common.TestCase):
-    # pylint: disable=too-many-instance-attributes, protected-access
+    # pylint: disable=too-many-instance-attributes
+    # pylint: disable=protected-access
     # pylint: disable=logging-fstring-interpolation
     """
     Provides common setup and teardown, a convenience method for exercising the
