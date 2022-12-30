@@ -9,6 +9,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.3.2] - 2022-12-30
+
+### Fixed
+
+- MoveOperation bugfix for CLI overrides <https://github.com/gtronset/beets-filetote/pull/36>
+
 ## [0.3.1] - 2022-12-26
 
 ### Added
@@ -79,7 +85,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - <!-- Release Links -->
 
-[unreleased]: https://github.com/gtronset/beets-filetote/compare/v0.3.1...HEAD
+[unreleased]: https://github.com/gtronset/beets-filetote/compare/v0.3.2...HEAD
+[0.3.2]: https://github.com/gtronset/beets-filetote/releases/tag/v0.3.2
 [0.3.1]: https://github.com/gtronset/beets-filetote/releases/tag/v0.3.1
 [0.3.0]: https://github.com/gtronset/beets-filetote/releases/tag/v0.3.0
 [0.2.2]: https://github.com/gtronset/beets-filetote/releases/tag/v0.2.2
