@@ -61,10 +61,10 @@ class FiletotePlugin(BeetsPlugin):
         for move_event in move_events:
             self.register_listener(move_event, self.collect_artifacts)
 
-        self.register_listener("import_begin", self._register_runtime_settings)
+        self.register_listener("import_begin", self._register_session_settings)
         self.register_listener("cli_exit", self.process_events)
 
-    def _register_runtime_settings(self, session):
+    def _register_session_settings(self, session):
         """ """
         self.operation = self._operation_type()
         self._log.info(f"{self.operation}")
