@@ -65,7 +65,8 @@ class FiletotePlugin(BeetsPlugin):
         self.register_listener("cli_exit", self.process_events)
 
     def _register_session_settings(self, session):
-        """ """
+        """Certain settings are only available and/or finalized once the
+        import session begins."""
         self.operation = self._operation_type()
         self.paths = os.path.expanduser(session.paths[0])
 
