@@ -26,7 +26,7 @@ class FiletotePlugin(BeetsPlugin):
             }
         )
 
-        self.operation = self._operation_type()
+        self.operation = None
 
         self._process_queue = []
         self._shared_artifacts = {}
@@ -61,11 +61,12 @@ class FiletotePlugin(BeetsPlugin):
         for move_event in move_events:
             self.register_listener(move_event, self.collect_artifacts)
 
-        self.register_listener("import_begin", self._register_source)
+        self.register_listener("import_begin", self._register_runtime_settings)
         self.register_listener("cli_exit", self.process_events)
 
-    def _register_source(self, session):
+    def _register_runtime_settings(self, session):
         """ """
+        self.operation = self._operation_type()
         self.paths = os.path.expanduser(session.paths[0])
 
     def _operation_type(self):
@@ -332,9 +333,6 @@ class FiletotePlugin(BeetsPlugin):
             dest_file = util.unique_path(dest_file)
             util.mkdirall(dest_file)
             dest_file = util.bytestring_path(dest_file)
-
-            # TODO: detect if beets was called with 'move' and override config
-            # option here
 
             self.manipulate_artifact(source_file, dest_file)
 

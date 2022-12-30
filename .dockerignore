@@ -9,3 +9,5 @@ beets/
 *.egg-info/
 .vscode/
 .DS_Store
+*.pyc
+*.swp
