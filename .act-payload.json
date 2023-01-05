@@ -1,0 +1,13 @@
+{
+    "//comment": "Event payload for local GitHub Action testing. See: https://github.com/nektos/act",
+    "act": true,
+    "repository": {
+        "full_name": "gtronset/beets-filetote"
+    },
+    "release": {
+        "tag_name": "v9.99.999"
+    },
+    "push": {
+        "ref": "refs/tags/v9.99.999"
+    }
+}

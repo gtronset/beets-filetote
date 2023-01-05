@@ -10,3 +10,5 @@ beets/
 *.egg-info/
 .vscode/
 .DS_Store
+.act-secrets
+.actrc

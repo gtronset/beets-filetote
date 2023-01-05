@@ -11,3 +11,5 @@ beets/
 .DS_Store
 *.pyc
 *.swp
+.act-secrets
+.actrc
