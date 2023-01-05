@@ -1,3 +1,5 @@
+"""Tests print ignored for the beets-filetote plugin."""
+
 from beets import config
 
 from tests.helper import FiletoteTestCase, capture_log
@@ -15,6 +17,8 @@ class FiletotePrintIgnoredTest(FiletoteTestCase):
         self._setup_import_session(autotag=False)
 
     def test_do_not_print_ignored_by_default(self):
+        """Tests to ensure the default behavior for printing ignored is "disabled".
+        """
         config["filetote"]["extensions"] = ".file"
 
         with capture_log() as logs:
@@ -28,6 +32,10 @@ class FiletotePrintIgnoredTest(FiletoteTestCase):
         self.assertEqual(logs, [])
 
     def test_print_ignored(self):
+        """
+        Tests that when `print_ignored` is enabled, it prints out all files not handled
+        by Filetote.
+        """
         config["filetote"]["print_ignored"] = True
         config["filetote"]["extensions"] = ".file .lrc"
 

@@ -1,3 +1,7 @@
+"""Setup for tests for the beets-filetote plugin."""
+
+# pylint: disable=missing-function-docstring
+
 import os
 import shutil
 import sys
@@ -106,6 +110,8 @@ class TestCase(unittest.TestCase, Assertions):
 
 
 class InputException(Exception):
+    """Provides handling of input exceptions."""
+
     def __init__(self, output=None):
         self.output = output
 
@@ -117,6 +123,8 @@ class InputException(Exception):
 
 
 class DummyOut:
+    """Provides fake/"dummy" output handling."""
+
     encoding = "utf-8"
 
     def __init__(self):
@@ -136,6 +144,8 @@ class DummyOut:
 
 
 class DummyIn:
+    """Provides fake/"dummy" input handling."""
+
     encoding = "utf-8"
 
     def __init__(self, out=None):

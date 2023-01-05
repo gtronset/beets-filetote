@@ -1,4 +1,7 @@
+"""Tests renaming for the beets-filetote plugin."""
+
 # pylint: disable=too-many-public-methods
+# pylint: disable=missing-function-docstring
 
 import logging
 
