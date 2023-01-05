@@ -43,6 +43,13 @@ jobs:
       - name: Build project for distribution
         run: poetry build
 
+      - name: Tag Name
+        id: tag-name
+        env:
+          TAG_REF: ${{ github.event.push.ref }}
+        run: |
+          echo name=${TAG_REF#refs/tags/} >> $GITHUB_OUTPUT
+
       - name: Check Version
         id: check-version
         run: |
@@ -53,7 +60,8 @@ jobs:
         with:
           artifacts: "dist/*"
           token: ${{ secrets.GITHUB_TOKEN }}
-          draft: false
+          tag: "${{ steps.tag-name.outputs.name }}"
+          draft: true
           generateReleaseNotes: true
           prerelease: steps.check-version.outputs.prerelease == 'true'
 
