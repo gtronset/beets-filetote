@@ -30,12 +30,8 @@ jobs:
           python-version: ${{ env.PYTHON_VERSION }}
           cache: 'poetry'
 
-      - name: Update PATH & Get Tag Name
-        env:
-          TAG_REF: ${{ github.event.push.ref }}
-        run: |
-          echo "$HOME/.local/bin" >> $GITHUB_PATH
-          echo "TAG_NAME=${TAG_REF#refs/tags/}" >> $GITHUB_ENV
+      - name: Update PATH
+        run: echo "$HOME/.local/bin" >> $GITHUB_PATH
 
       - if: ${{ github.event.act }}
         name: Set Poetry to use TestPyPi
@@ -57,7 +53,6 @@ jobs:
         with:
           artifacts: "dist/*"
           token: ${{ secrets.GITHUB_TOKEN }}
-          tag: ${{ env.TAG_NAME }}
           draft: false
           generateReleaseNotes: true
           prerelease: steps.check-version.outputs.prerelease == 'true'
