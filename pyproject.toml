@@ -44,7 +44,6 @@ line-length = 80
 profile = 'black'
 
 [tool.pylint.format]
-disable = 'W0511,C0114,C0115,C0116'
-docstring-min-length = 0
+disable = ''
 max-line-length = '88'
 output-format = 'colorized'

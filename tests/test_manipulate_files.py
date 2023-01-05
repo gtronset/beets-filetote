@@ -1,3 +1,5 @@
+"""Tests manipulation of files for the beets-filetote plugin."""
+
 import logging
 import os
 import stat
@@ -13,8 +15,7 @@ log = logging.getLogger("beets")
 
 class FiletoteManipulateFiles(FiletoteTestCase):
     """
-    Tests to check that Filetote renames as expected for custom path
-    formats (both by extension and filename).
+    Tests to check that Filetote manipulates files using the correct operation.
     """
 
     def setUp(self):
@@ -25,6 +26,7 @@ class FiletoteManipulateFiles(FiletoteTestCase):
 
     @pytest.mark.skipif(not _common.HAVE_SYMLINK, reason="need symlinks")
     def test_import_symlink_files(self):
+        """Tests that the `symlink` operation correctly symlinks files."""
         config["filetote"]["extensions"] = ".file"
         config["paths"]["ext:file"] = str("$albumpath/newname")
         config["import"]["link"] = True
@@ -55,6 +57,8 @@ class FiletoteManipulateFiles(FiletoteTestCase):
 
     @pytest.mark.skipif(not _common.HAVE_HARDLINK, reason="need hardlinks")
     def test_import_hardlink_files(self):
+        """Tests that the `hardlink` operation correctly hardlinks files."""
+
         config["filetote"]["extensions"] = ".file"
         config["paths"]["ext:file"] = str("$albumpath/newname")
         config["import"]["hardlink"] = True
@@ -86,6 +90,8 @@ class FiletoteManipulateFiles(FiletoteTestCase):
 
     @pytest.mark.skipif(not _common.HAVE_REFLINK, reason="need reflinks")
     def test_import_reflink_files(self):
+        """Tests that the `reflink` operation correctly links files."""
+
         config["filetote"]["extensions"] = ".file"
         config["paths"]["ext:file"] = str("$albumpath/newname")
         config["import"]["reflink"] = True

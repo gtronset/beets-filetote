@@ -1,3 +1,5 @@
+"""Helper functions for tests for the beets-filetote plugin."""
+
 import logging
 import os
 import shutil
@@ -20,6 +22,8 @@ log = logging.getLogger("beets")
 
 
 class LogCapture(logging.Handler):
+    """Provides the ability to capture logs within tests."""
+
     def __init__(self):
         logging.Handler.__init__(self)
         self.messages = []
@@ -30,6 +34,7 @@ class LogCapture(logging.Handler):
 
 @contextmanager
 def capture_log(logger="beets"):
+    """Adds handler to capture beets' logs."""
     capture = LogCapture()
     logs = logging.getLogger(logger)
     logs.addHandler(capture)
@@ -400,9 +405,11 @@ class TestImportSession(importer.ImportSession):
     default_choice = importer.action.APPLY
 
     def add_choice(self, choice):
+        """Adds choice in import."""
         self._choices.append(choice)
 
     def clear_choices(self):
+        """Clears choices in import."""
         self._choices = []
 
     def choose_match(self, task):
@@ -428,11 +435,13 @@ class TestImportSession(importer.ImportSession):
     default_resolution = "REMOVE"
 
     def add_resolution(self, resolution):
+        """Adds image? resolution."""
         # pylint: disable=isinstance-second-argument-not-valid-type
         assert isinstance(resolution, self.Resolution)
         self._resolutions.append(resolution)
 
     def resolve_duplicate(self, task, found_duplicates):
+        """If detected, resolves duplicates."""
         try:
             res = self._resolutions.pop(0)
         except IndexError:

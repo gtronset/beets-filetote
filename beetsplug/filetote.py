@@ -1,3 +1,4 @@
+"""beets-filetote plugin for beets."""
 import filecmp
 import os
 
@@ -11,7 +12,10 @@ from mediafile import TYPES
 
 
 class FiletotePlugin(BeetsPlugin):
+    """Plugin main class."""
+
     # pylint: disable=too-many-instance-attributes
+    # pylint: disable=fixme
     def __init__(self):
         super().__init__()
 
@@ -160,7 +164,7 @@ class FiletotePlugin(BeetsPlugin):
 
         return file_path
 
-    # XXX: may be better to use FormattedMapping class from beets/dbcore/db.py
+    # TODO: may be better to use FormattedMapping class from beets/dbcore/db.py
     def _get_formatted(self, value):
         """Replace path separators in value
         - ripped from beets/dbcore/db.py
@@ -173,6 +177,7 @@ class FiletotePlugin(BeetsPlugin):
         return value
 
     def _generate_mapping(self, item, destination):
+        """Creates a mapping of usable path values for renaming."""
         mapping = {
             "artist": item.artist or "None",
             "albumartist": item.albumartist or "None",
@@ -198,6 +203,8 @@ class FiletotePlugin(BeetsPlugin):
         return mapping
 
     def collect_artifacts(self, item, source, destination):
+        """Creates lists of the various extra files and artificats for processing.
+        """
         # pylint: disable=too-many-locals
         item_source_filename = os.path.splitext(os.path.basename(source))[0]
         source_path = os.path.dirname(source)
@@ -269,6 +276,10 @@ class FiletotePlugin(BeetsPlugin):
         self._shared_artifacts[source_path] = non_handled_files
 
     def process_events(self, lib):
+        """
+        Triggered by the CLI exit event, which itself triggers the processing and
+        manipuation of the extra files and artificats.
+        """
         # Ensure destination library settings are accessible
         self.lib = lib
         for item in self._process_queue:
@@ -287,6 +298,9 @@ class FiletotePlugin(BeetsPlugin):
             self.process_artifacts(artifacts, item["mapping"])
 
     def process_artifacts(self, source_files, mapping):
+        """
+        Processes and prepares extra files / artifacts for subsequent manipulation.
+        """
         if not source_files:
             return
 

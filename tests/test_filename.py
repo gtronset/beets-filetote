@@ -1,3 +1,5 @@
+"""Tests file-naming for the beets-filetote plugin."""
+
 import os
 
 import beets
@@ -26,6 +28,7 @@ class FiletoteFilename(FiletoteTestCase):
         config["filetote"]["extensions"] = ".file"
 
     def test_import_dir_with_unicode_character_in_artifact_name_copy(self):
+        """Tests that unicode characters copy as expected."""
         self._create_file(
             self.album_path, beets.util.bytestring_path("\xe4rtifact.file")
         )
@@ -43,6 +46,8 @@ class FiletoteFilename(FiletoteTestCase):
         )
 
     def test_import_dir_with_unicode_character_in_artifact_name_move(self):
+        """Tests that unicode characters move as expected."""
+
         config["import"]["move"] = True
 
         self._create_file(
@@ -65,6 +70,10 @@ class FiletoteFilename(FiletoteTestCase):
     def test_import_with_illegal_character_in_artifact_name_obeys_beets(
         self,
     ):
+        """
+        Tests that illegal characters in file name are replaced following beets
+        conventions.
+        """
         config["import"]["move"] = True
         config["filetote"]["extensions"] = ".log"
         config["paths"]["ext:.log"] = str("$albumpath/$album - $old_filename")
@@ -96,6 +105,10 @@ class FiletoteFilename(FiletoteTestCase):
         )
 
     def test_import_dir_with_illegal_character_in_album_name(self):
+        """
+        Tests that illegal characters in album name are replaced following beets
+        conventions.
+        """
         config["paths"]["ext:file"] = str("$albumpath/$artist - $album")
 
         # Create import directory, illegal filename character used in the album name

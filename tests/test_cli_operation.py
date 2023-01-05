@@ -1,3 +1,5 @@
+"""Tests CLI operations supersede config for the beets-filetote plugin."""
+
 # pylint: disable=duplicate-code
 
 import os
@@ -8,7 +10,7 @@ from beets import config
 from tests.helper import FiletoteTestCase
 
 
-class FiletoteMoveOperation(FiletoteTestCase):
+class FiletoteCLIOperation(FiletoteTestCase):
     """
     Tests to check handling of the operation (copy, move, etc.) can be
     overridden by the CLI.

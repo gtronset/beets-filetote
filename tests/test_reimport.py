@@ -1,4 +1,7 @@
+"""Tests reimporting for the beets-filetote plugin."""
+
 # pylint: disable=duplicate-code
+# pylint: disable=missing-function-docstring
 
 import logging
 import os

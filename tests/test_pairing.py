@@ -1,3 +1,7 @@
+"""Tests pairing the beets-filetote plugin."""
+
+# pylint: disable=missing-function-docstring
+
 import logging
 import os
 
@@ -10,8 +14,7 @@ log = logging.getLogger("beets")
 
 class FiletotePairingTest(FiletoteTestCase):
     """
-    Tests to check that Filetote renames as expected for custom path
-    formats (both by extension and filename).
+    Tests to check that Filetote handles "pairs" of files.
     """
 
     def test_pairing_default_is_disabled(self):

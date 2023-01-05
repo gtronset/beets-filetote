@@ -1,3 +1,5 @@
+"""Tests nested directories for the beets-filetote plugin."""
+
 from tests.helper import FiletoteTestCase
 
 

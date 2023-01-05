@@ -1,3 +1,7 @@
+"""Tests flat directory structure for the beets-filetote plugin."""
+
+# pylint: disable=missing-function-docstring
+
 import logging
 import os
 
