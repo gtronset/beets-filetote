@@ -1,8 +1,5 @@
 """Tests renaming for the beets-filetote plugin."""
 
-# pylint: disable=too-many-public-methods
-# pylint: disable=missing-function-docstring
-
 import logging
 
 from beets import config
@@ -26,6 +23,7 @@ class FiletoteRenameTest(FiletoteTestCase):
         self._setup_import_session(autotag=False)
 
     def test_rename_when_copying(self):
+        """Tests that renaming works when copying."""
         config["filetote"]["extensions"] = ".file"
         config["paths"]["ext:file"] = str("$albumpath/$artist - $album")
 
@@ -38,6 +36,7 @@ class FiletoteRenameTest(FiletoteTestCase):
         self.assert_in_import_dir(b"the_album", b"artifact2.file")
 
     def test_rename_when_moving(self):
+        """Tests that renaming works when moving."""
         config["filetote"]["extensions"] = ".file"
         config["paths"]["ext:file"] = str("$albumpath/$artist - $album")
         config["import"]["move"] = True
@@ -133,17 +132,23 @@ class FiletoteRenameTest(FiletoteTestCase):
         self.assert_not_in_import_dir(b"the_album", b"artifact.nfo")
 
     def test_rename_ignores_file_when_name_conflicts(self):
+        """Ensure that if there are multiple files that would rename to the
+        exact same name, that only the first is renamed (moved/copied/etc.)
+        but not subsequent ones that conflict."""
+
         config["filetote"]["extensions"] = ".file"
         config["paths"]["ext:file"] = str("$albumpath/$artist - $album")
         config["import"]["move"] = True
 
         self._run_importer()
 
+        # `artifact.file` correctly renames.
+        self.assert_not_in_import_dir(b"the_album", b"artifact.file")
         self.assert_in_lib_dir(
             b"Tag Artist", b"Tag Album", b"Tag Artist - Tag Album.file"
         )
-        self.assert_not_in_import_dir(b"the_album", b"artifact.file")
-        # `artifact2.file` will rename since the destination filename conflicts with
+
+        # `artifact2.file` will not rename since the destination filename conflicts with
         # `artifact.file`
         self.assert_in_import_dir(b"the_album", b"artifact2.file")
 
