@@ -19,134 +19,11 @@ class FiletoteRenameTest(FiletoteTestCase):
     """
 
     def setUp(self):
+        """Provides shared setup for tests."""
         super().setUp()
 
         self._create_flat_import_dir()
         self._setup_import_session(autotag=False)
-
-    def test_rename_field_albumpath(self):
-        config["filetote"]["extensions"] = ".file"
-        config["paths"]["ext:file"] = str("$albumpath/newname")
-
-        self._run_importer()
-
-        self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"newname.file")
-
-    def test_rename_field_artist(self):
-        config["filetote"]["extensions"] = ".file"
-        config["paths"]["ext:file"] = str("$albumpath/$artist - newname")
-
-        self._run_importer()
-
-        self.assert_in_lib_dir(
-            b"Tag Artist", b"Tag Album", b"Tag Artist - newname.file"
-        )
-
-    def test_rename_field_albumartist(self):
-        config["filetote"]["extensions"] = ".file"
-        config["paths"]["ext:file"] = str("$albumpath/$albumartist - newname")
-
-        self._run_importer()
-
-        self.assert_in_lib_dir(
-            b"Tag Artist", b"Tag Album", b"Tag Album Artist - newname.file"
-        )
-
-    def test_rename_field_album(self):
-        config["filetote"]["extensions"] = ".file"
-        config["paths"]["ext:file"] = str("$albumpath/$album - newname")
-
-        self._run_importer()
-
-        self.assert_in_lib_dir(
-            b"Tag Artist", b"Tag Album", b"Tag Album - newname.file"
-        )
-
-    def test_rename_field_old_filename(self):
-        config["filetote"]["extensions"] = ".file"
-        config["paths"]["ext:file"] = str("$albumpath/$old_filename")
-
-        self._run_importer()
-
-        self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"artifact.file")
-        self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"artifact2.file")
-
-    def test_rename_field_medianame_old(self):
-        config["filetote"]["extensions"] = ".file"
-        config["paths"]["ext:file"] = str("$albumpath/$medianame_old")
-
-        self._run_importer()
-
-        self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"track_1.file")
-
-    def test_rename_paired_ext(self):
-        config["filetote"]["extensions"] = ".lrc"
-        config["filetote"]["pairing"] = True
-        config["filetote"]["paring_only"] = True
-        config["paths"]["paired_ext:lrc"] = str("$albumpath/$medianame_new")
-
-        self._run_importer()
-
-        self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"artifact.lrc")
-        self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"Tag Title 1.lrc")
-        self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"Tag Title 2.lrc")
-        self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"Tag Title 3.lrc")
-
-    def test_rename_paired_ext_does_not_conflict_with_ext(self):
-        config["filetote"]["extensions"] = ".lrc"
-        config["filetote"]["pairing"] = True
-        config["filetote"]["paring_only"] = True
-        config["paths"]["ext:lrc"] = str("$albumpath/1 $old_filename")
-        config["paths"]["paired_ext:lrc"] = str("$albumpath/$medianame_new")
-
-        self._run_importer()
-
-        self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"1 artifact.lrc")
-        self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"Tag Title 1.lrc")
-        self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"Tag Title 2.lrc")
-        self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"Tag Title 3.lrc")
-
-    def test_rename_paired_ext_is_prioritized_over_ext(self):
-        config["filetote"]["extensions"] = ".lrc"
-        config["filetote"]["pairing"] = True
-        config["filetote"]["paring_only"] = True
-        config["paths"]["paired_ext:lrc"] = str("$albumpath/$medianame_new")
-        config["paths"]["ext:lrc"] = str("$albumpath/1 $old_filename")
-
-        self._run_importer()
-
-        self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"1 artifact.lrc")
-        self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"Tag Title 1.lrc")
-        self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"Tag Title 2.lrc")
-        self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"Tag Title 3.lrc")
-
-    def test_rename_filename_is_prioritized_over_paired_ext(self):
-        config["filetote"]["extensions"] = ".lrc"
-        config["filetote"]["pairing"] = True
-        config["filetote"]["paring_only"] = True
-        config["paths"]["paired_ext:lrc"] = str("$albumpath/$medianame_new")
-        config["paths"]["filename:track_1.lrc"] = str(
-            "$albumpath/1 $old_filename"
-        )
-
-        self._run_importer()
-
-        self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"artifact.lrc")
-        self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"1 track_1.lrc")
-        self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"Tag Title 2.lrc")
-        self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"Tag Title 3.lrc")
-
-    def test_rename_field_medianame_new(self):
-        config["filetote"]["extensions"] = ".lrc"
-        config["filetote"]["pairing"] = True
-        config["filetote"]["paring_only"] = True
-        config["paths"]["ext:lrc"] = str("$albumpath/$medianame_new")
-
-        self._run_importer()
-
-        self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"Tag Title 1.lrc")
-        self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"Tag Title 2.lrc")
-        self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"Tag Title 3.lrc")
 
     def test_rename_when_copying(self):
         config["filetote"]["extensions"] = ".file"
@@ -172,7 +49,73 @@ class FiletoteRenameTest(FiletoteTestCase):
         )
         self.assert_not_in_import_dir(b"the_album", b"artifact.file")
 
+    def test_rename_paired_ext(self):
+        """Tests that the value of `medianame_new` populates in renaming."""
+        config["filetote"]["extensions"] = ".lrc"
+        config["filetote"]["pairing"] = True
+        config["filetote"]["paring_only"] = True
+        config["paths"]["paired_ext:lrc"] = str("$albumpath/$medianame_new")
+
+        self._run_importer()
+
+        self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"artifact.lrc")
+        self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"Tag Title 1.lrc")
+        self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"Tag Title 2.lrc")
+        self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"Tag Title 3.lrc")
+
+    def test_rename_paired_ext_does_not_conflict_with_ext(self):
+        """Tests that paired path definitions work alongside `ext` ones."""
+        config["filetote"]["extensions"] = ".lrc"
+        config["filetote"]["pairing"] = True
+        config["filetote"]["paring_only"] = True
+        config["paths"]["ext:lrc"] = str("$albumpath/1 $old_filename")
+        config["paths"]["paired_ext:lrc"] = str("$albumpath/$medianame_new")
+
+        self._run_importer()
+
+        self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"1 artifact.lrc")
+        self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"Tag Title 1.lrc")
+        self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"Tag Title 2.lrc")
+        self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"Tag Title 3.lrc")
+
+    def test_rename_paired_ext_is_prioritized_over_ext(self):
+        """Tests that paired path definitions supersede `ext` ones when there's
+        a collision."""
+        config["filetote"]["extensions"] = ".lrc"
+        config["filetote"]["pairing"] = True
+        config["filetote"]["paring_only"] = True
+        config["paths"]["paired_ext:lrc"] = str("$albumpath/$medianame_new")
+        config["paths"]["ext:lrc"] = str("$albumpath/1 $old_filename")
+
+        self._run_importer()
+
+        self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"1 artifact.lrc")
+        self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"Tag Title 1.lrc")
+        self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"Tag Title 2.lrc")
+        self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"Tag Title 3.lrc")
+
+    def test_rename_filename_is_prioritized_over_paired_ext(self):
+        """Tests that filename path definitions supersede `paired` ones when there's
+        a collision."""
+        config["filetote"]["extensions"] = ".lrc"
+        config["filetote"]["pairing"] = True
+        config["filetote"]["paring_only"] = True
+        config["paths"]["paired_ext:lrc"] = str("$albumpath/$medianame_new")
+        config["paths"]["filename:track_1.lrc"] = str(
+            "$albumpath/1 $old_filename"
+        )
+
+        self._run_importer()
+
+        self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"artifact.lrc")
+        self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"1 track_1.lrc")
+        self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"Tag Title 2.lrc")
+        self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"Tag Title 3.lrc")
+
     def test_rename_period_is_optional_for_ext(self):
+        """
+        Tests that leading periods are options when definiting `ext` paths.
+        """
         config["filetote"]["extensions"] = ".file .nfo"
         config["paths"]["ext:file"] = str("$albumpath/$artist - $album")
         config["paths"]["ext:.nfo"] = str("$albumpath/$artist - $album 2")
@@ -205,6 +148,8 @@ class FiletoteRenameTest(FiletoteTestCase):
         self.assert_in_import_dir(b"the_album", b"artifact2.file")
 
     def test_rename_multiple_extensions(self):
+        """Ensure that specifying multiple extensions and definitions properly
+        rename."""
         config["filetote"]["extensions"] = ".file .nfo"
         config["paths"]["ext:file"] = str("$albumpath/$artist - $album")
         config["paths"]["ext:nfo"] = str("$albumpath/$artist - $album")
@@ -225,6 +170,7 @@ class FiletoteRenameTest(FiletoteTestCase):
         self.assert_in_import_dir(b"the_album", b"artifact2.file")
 
     def test_rename_matching_filename(self):
+        """Ensure that `filename` path definitions rename correctly."""
         config["filetote"]["filenames"] = "artifact.file artifact2.file"
         config["paths"]["filename:artifact.file"] = str(
             "$albumpath/new-filename"
@@ -246,6 +192,8 @@ class FiletoteRenameTest(FiletoteTestCase):
         self.assert_not_in_import_dir(b"the_album", b"artifact2.file")
 
     def test_rename_prioritizes_filename_over_ext(self):
+        """Tests that filename path definitions supersede `ext` ones when there's
+        a collision."""
         config["filetote"]["extensions"] = ".file"
         config["filetote"]["filenames"] = "artifact.file"
         config["paths"]["ext:file"] = str("$albumpath/$artist - $old_filename")
@@ -267,6 +215,9 @@ class FiletoteRenameTest(FiletoteTestCase):
         self.assert_not_in_import_dir(b"the_album", b"artifact2.file")
 
     def test_rename_prioritizes_filename_over_ext_reversed(self):
+        """Ensure the order of path definitions does not effect the priority
+        order.
+        """
         config["filetote"]["extensions"] = ".file"
         config["filetote"]["filenames"] = "artifact.file"
         # order of paths matter here; this is the opposite order as
@@ -290,6 +241,8 @@ class FiletoteRenameTest(FiletoteTestCase):
         self.assert_not_in_import_dir(b"the_album", b"artifact2.file")
 
     def test_rename_multiple_files_prioritizes_filename_over_ext(self):
+        """Tests that multiple filename path definitions still supersede `ext`
+        ones when there's collision(s)."""
         config["filetote"]["extensions"] = ".file"
         config["filetote"]["filenames"] = "artifact.file artifact2.file"
         config["paths"]["ext:file"] = str("$albumpath/$artist - $old_filename")

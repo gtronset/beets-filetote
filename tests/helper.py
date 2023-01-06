@@ -413,6 +413,7 @@ class TestImportSession(importer.ImportSession):
         self._choices = []
 
     def choose_match(self, task):
+        """Automatically choose a match in import."""
         try:
             choice = self._choices.pop(0)
         except IndexError:

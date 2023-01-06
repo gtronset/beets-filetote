@@ -8,7 +8,7 @@ from beets.plugins import BeetsPlugin
 from beets.ui import get_path_formats
 from beets.util import MoveOperation
 from beets.util.functemplate import Template
-from mediafile import TYPES
+from mediafile import TYPES as BEETS_TYPES
 
 
 class FiletotePlugin(BeetsPlugin):
@@ -252,7 +252,10 @@ class FiletotePlugin(BeetsPlugin):
 
                 # Skip any files extensions handled by beets
                 file_name, file_ext = os.path.splitext(filename)
-                if len(file_ext) > 1 and file_ext.decode("utf8")[1:] in TYPES:
+                if (
+                    len(file_ext) > 1
+                    and file_ext.decode("utf8")[1:] in BEETS_TYPES
+                ):
                     continue
 
                 if not self.pairing:

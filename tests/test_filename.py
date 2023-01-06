@@ -16,6 +16,7 @@ class FiletoteFilename(FiletoteTestCase):
     """
 
     def setUp(self):
+        """Provides shared setup for tests."""
         super().setUp()
 
         self._set_import_dir()

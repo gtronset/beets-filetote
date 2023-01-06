@@ -11,6 +11,7 @@ class FiletotePrintIgnoredTest(FiletoteTestCase):
     """
 
     def setUp(self):
+        """Provides shared setup for tests."""
         super().setUp()
 
         self._create_flat_import_dir()
