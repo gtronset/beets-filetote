@@ -17,7 +17,7 @@ class FiletoteReimportTest(FiletoteTestCase):
     Tests to check that Filetote handles reimports correctly
     """
 
-    def setUp(self):
+    def setUp(self, audible_plugin=False):
         """
         Setup subsequent import directory of the following structure:
 

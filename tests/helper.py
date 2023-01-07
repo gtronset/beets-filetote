@@ -12,7 +12,7 @@ from beets import config, importer, library, plugins, util
 
 # Make sure the development versions of the plugins are used
 import beetsplug  # noqa: E402
-from beetsplug import filetote
+from beetsplug import audible, filetote  # pylint: disable=no-name-in-module
 from tests import _common
 
 beetsplug.__path__ = [
@@ -67,10 +67,15 @@ class FiletoteTestCase(_common.TestCase):
     for the autotagging library and assertions helpers.
     """
 
-    def setUp(self):
+    def setUp(self, audible_plugin=False):
         super().setUp()
 
-        plugins._classes = set([filetote.FiletotePlugin])
+        if audible_plugin:
+            plugins._classes = set([audible.Audible, filetote.FiletotePlugin])
+            config["plugins"] = ["audible", "filetote"]
+        else:
+            plugins._classes = set([filetote.FiletotePlugin])
+            config["plugins"] = ["filetote"]
 
         self._setup_library()
 
@@ -117,12 +122,14 @@ class FiletoteTestCase(_common.TestCase):
         if plugins._instances:
             classes = list(plugins._classes)
 
-            # Unregister listeners
-            for event in classes[0].listeners:
-                del classes[0].listeners[event][0]
+            # In case Audible is included, iterate through each plugin class.
+            for plugin_class in classes:
+                # Unregister listeners
+                for event in plugin_class.listeners:
+                    del plugin_class.listeners[event][0]
 
-            # Delete the plugin instance so a new one gets created for each test
-            del plugins._instances[classes[0]]
+                # Delete the plugin instance so a new one gets created for each test
+                del plugins._instances[plugin_class]
 
         log.debug("--- library structure")
         self._list_files(self.lib_dir)

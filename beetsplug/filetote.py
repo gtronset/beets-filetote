@@ -10,8 +10,6 @@ from beets.util import MoveOperation
 from beets.util.functemplate import Template
 from mediafile import TYPES as BEETS_TYPES
 
-# BEETS_TYPES.update({"m4a": "M4A", "m4b": "M4B"})
-
 
 class FiletotePlugin(BeetsPlugin):
     """Plugin main class. Eventually, should encompass additional features as
@@ -74,6 +72,12 @@ class FiletotePlugin(BeetsPlugin):
     def _register_session_settings(self, session):
         """Certain settings are only available and/or finalized once the
         import session begins."""
+
+        # BEETS_TYPES.update({"m4a": "M4A"})
+
+        # if "audible" in config["plugins"].get():
+        #    BEETS_TYPES.update({"m4b": "M4B"})
+
         self.operation = self._operation_type()
         self.paths = os.path.expanduser(session.paths[0])
 

@@ -18,13 +18,13 @@ class FiletoteMusicFilesIgnoredTest(FiletoteTestCase):
     music files
     """
 
-    def setUp(self):
+    def setUp(self, audible_plugin=False):
         """Provides shared setup for tests."""
-        super().setUp()
+        super().setUp(audible_plugin=True)
 
         self._base_file_count = None
 
-    def test_only_copies_files_matching_configured_extension(self):
+    def test_default_music_file_types_are_ignored(self):
         """First test."""
         self._create_flat_import_dir(media_files=2, generate_pair=False)
         self._setup_import_session(autotag=False)
@@ -32,6 +32,12 @@ class FiletoteMusicFilesIgnoredTest(FiletoteTestCase):
         self._base_file_count = self._media_count + self._pairs_count
 
         config["filetote"]["extensions"] = ".file"
+
+        self._run_importer()
+
+        self.assert_not_in_lib_dir(
+            b"Tag Artist", b"Tag Album", b"artifact.file"
+        )
 
 
 # def test_exact_matching_configured_extension(self):

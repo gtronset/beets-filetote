@@ -10,7 +10,7 @@ class FiletotePrintIgnoredTest(FiletoteTestCase):
     Tests to check print ignored files functionality and configuration.
     """
 
-    def setUp(self):
+    def setUp(self, audible_plugin=False):
         """Provides shared setup for tests."""
         super().setUp()
 

@@ -16,7 +16,7 @@ class FiletoteCLIOperation(FiletoteTestCase):
     overridden by the CLI.
     """
 
-    def setUp(self):
+    def setUp(self, audible_plugin=False):
         """Provides shared setup for tests."""
         super().setUp()
 
