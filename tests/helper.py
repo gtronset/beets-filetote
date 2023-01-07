@@ -4,6 +4,7 @@ import logging
 import os
 import shutil
 from contextlib import contextmanager
+from dataclasses import dataclass
 from enum import Enum
 
 import mediafile
@@ -42,6 +43,17 @@ def capture_log(logger="beets"):
         yield capture.messages
     finally:
         logs.removeHandler(capture)
+
+
+@dataclass
+class MediaMeta:
+    """Metadata for created media files."""
+
+    artist: str = None
+    album: str = None
+    albumartist: str = None
+    track_name: str = None
+    track_number: str = None
 
 
 class FiletoteTestCase(_common.TestCase):
@@ -198,12 +210,14 @@ class FiletoteTestCase(_common.TestCase):
             trackname = f"track_{count}"
             media_list.append(
                 self._create_medium(
-                    os.path.join(
+                    path=os.path.join(
                         album_path, f"{trackname}.mp3".encode("utf-8")
                     ),
-                    self.rsrc_mp3,
-                    track_name=f"Tag Title {count}",
-                    track_number=count,
+                    resource_name=self.rsrc_mp3,
+                    media_meta=MediaMeta(
+                        track_name=f"Tag Title {count}",
+                        track_number=count,
+                    ),
                 )
             )
             count = count - 1
@@ -216,16 +230,8 @@ class FiletoteTestCase(_common.TestCase):
         return media_list
 
     def _create_medium(
-        self,
-        path,
-        resource_name,
-        artist=None,
-        album=None,
-        albumartist=None,
-        track_name=None,
-        track_number=None,
+        self, path, resource_name, media_meta: MediaMeta = MediaMeta
     ):
-        # pylint: disable=too-many-arguments
         """
         Creates and saves a media file object located at path using resource_name
         from the beets test resources directory as initial data
@@ -234,9 +240,9 @@ class FiletoteTestCase(_common.TestCase):
         resource_path = os.path.join(_common.RSRC, resource_name)
 
         metadata = {
-            "artist": artist or "Tag Artist",
-            "album": album or "Tag Album",
-            "albumartist": albumartist or "Tag Album Artist",
+            "artist": media_meta.artist or "Tag Artist",
+            "album": media_meta.album or "Tag Album",
+            "albumartist": media_meta.albumartist or "Tag Album Artist",
             "mb_trackid": None,
             "mb_albumid": None,
             "comp": None,
@@ -247,8 +253,8 @@ class FiletoteTestCase(_common.TestCase):
         medium = mediafile.MediaFile(path)
 
         # Set metadata
-        metadata["track"] = track_number or 1
-        metadata["title"] = track_name or "Tag Title 1"
+        metadata["track"] = media_meta.track_number or 1
+        metadata["title"] = media_meta.track_name or "Tag Title 1"
         for item, value in metadata.items():
             setattr(medium, item, value)
         medium.save()

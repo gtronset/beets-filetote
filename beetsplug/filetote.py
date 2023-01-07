@@ -10,9 +10,12 @@ from beets.util import MoveOperation
 from beets.util.functemplate import Template
 from mediafile import TYPES as BEETS_TYPES
 
+# BEETS_TYPES.update({"m4a": "M4A", "m4b": "M4B"})
+
 
 class FiletotePlugin(BeetsPlugin):
-    """Plugin main class."""
+    """Plugin main class. Eventually, should encompass additional features as
+    described in https://github.com/beetbox/beets/wiki/Attachments."""
 
     # pylint: disable=too-many-instance-attributes
     # pylint: disable=fixme
