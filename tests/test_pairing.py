@@ -7,7 +7,7 @@ import os
 
 from beets import config
 
-from tests.helper import FiletoteTestCase
+from tests.helper import FiletoteTestCase, MediaSetup
 
 log = logging.getLogger("beets")
 
@@ -18,7 +18,7 @@ class FiletotePairingTest(FiletoteTestCase):
     """
 
     def test_pairing_default_is_disabled(self):
-        self._create_flat_import_dir(media_files=1)
+        self._create_flat_import_dir(media_files=[MediaSetup(count=1)])
         self._setup_import_session(autotag=False)
 
         config["filetote"]["extensions"] = ".lrc"
@@ -29,7 +29,7 @@ class FiletotePairingTest(FiletoteTestCase):
         self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"artifact.lrc")
 
     def test_pairingonly_requires_pairing_enabled(self):
-        self._create_flat_import_dir(media_files=3)
+        self._create_flat_import_dir()
         self._setup_import_session(autotag=False)
 
         config["filetote"]["extensions"] = ".lrc"
@@ -42,7 +42,7 @@ class FiletotePairingTest(FiletoteTestCase):
         self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"artifact.lrc")
 
     def test_pairing_disabled_copies_all_matches(self):
-        self._create_flat_import_dir(media_files=1)
+        self._create_flat_import_dir(media_files=[MediaSetup(count=1)])
         self._setup_import_session(autotag=False)
 
         config["filetote"]["extensions"] = ".lrc"
@@ -54,7 +54,7 @@ class FiletotePairingTest(FiletoteTestCase):
         self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"artifact.lrc")
 
     def test_pairing_enabled_copies_all_matches(self):
-        self._create_flat_import_dir(media_files=2)
+        self._create_flat_import_dir(media_files=[MediaSetup(count=2)])
         self._setup_import_session(autotag=False)
 
         config["filetote"]["extensions"] = ".lrc"
@@ -67,7 +67,9 @@ class FiletotePairingTest(FiletoteTestCase):
         self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"artifact.lrc")
 
     def test_pairing_enabled_works_without_pairs(self):
-        self._create_flat_import_dir(media_files=2, generate_pair=False)
+        self._create_flat_import_dir(
+            media_files=[MediaSetup(count=1, generate_pair=False)]
+        )
         self._setup_import_session(autotag=False)
 
         config["filetote"]["extensions"] = ".lrc"
@@ -78,7 +80,9 @@ class FiletotePairingTest(FiletoteTestCase):
         self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"artifact.lrc")
 
     def test_pairing_does_not_require_pairs_for_all_media(self):
-        self._create_flat_import_dir(media_files=2, generate_pair=False)
+        self._create_flat_import_dir(
+            media_files=[MediaSetup(count=2, generate_pair=False)]
+        )
         self._setup_import_session(autotag=False)
 
         config["filetote"]["extensions"] = ".lrc"
@@ -94,7 +98,7 @@ class FiletotePairingTest(FiletoteTestCase):
         self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"artifact.lrc")
 
     def test_pairingonly_disabled_copies_all_matches(self):
-        self._create_flat_import_dir(media_files=2)
+        self._create_flat_import_dir(media_files=[MediaSetup(count=2)])
         self._setup_import_session(autotag=False)
 
         config["filetote"]["extensions"] = ".lrc"
@@ -108,7 +112,7 @@ class FiletotePairingTest(FiletoteTestCase):
         self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"artifact.lrc")
 
     def test_pairingonly_enabled_copies_all_matches(self):
-        self._create_flat_import_dir(media_files=2)
+        self._create_flat_import_dir(media_files=[MediaSetup(count=2)])
         self._setup_import_session(autotag=False)
 
         config["filetote"]["extensions"] = ".lrc"
@@ -122,7 +126,9 @@ class FiletotePairingTest(FiletoteTestCase):
         self.assert_not_in_lib_dir(b"Tag Artist", b"Tag Album", b"artifact.lrc")
 
     def test_pairingonly_does_not_require_pairs_for_all_media(self):
-        self._create_flat_import_dir(media_files=2, generate_pair=False)
+        self._create_flat_import_dir(
+            media_files=[MediaSetup(count=2, generate_pair=False)]
+        )
         self._setup_import_session(autotag=False)
 
         config["filetote"]["extensions"] = ".lrc"

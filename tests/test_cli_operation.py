@@ -16,7 +16,7 @@ class FiletoteCLIOperation(FiletoteTestCase):
     overridden by the CLI.
     """
 
-    def setUp(self):
+    def setUp(self, audible_plugin=False):
         """Provides shared setup for tests."""
         super().setUp()
 
@@ -25,7 +25,33 @@ class FiletoteCLIOperation(FiletoteTestCase):
         self.rsrc_mp3 = b"full.mp3"
         os.makedirs(self.album_path)
 
+        self._base_file_count = None
+
         config["filetote"]["extensions"] = ".file"
+
+    def test_do_nothing_when_not_copying_or_moving(self):
+        """
+        Check that plugin leaves everything alone when not
+        copying (-C command line option) and not moving.
+        """
+        self._create_flat_import_dir()
+        self._setup_import_session(autotag=False)
+
+        self._base_file_count = self._media_count + self._pairs_count
+
+        config["import"]["copy"] = False
+        config["import"]["move"] = False
+
+        self._run_importer()
+
+        self.assert_number_of_files_in_dir(
+            self._base_file_count + 4, self.import_dir, b"the_album"
+        )
+
+        self.assert_in_import_dir(b"the_album", b"artifact.file")
+        self.assert_in_import_dir(b"the_album", b"artifact2.file")
+        self.assert_in_import_dir(b"the_album", b"artifact.nfo")
+        self.assert_in_import_dir(b"the_album", b"artifact.lrc")
 
     def test_import_config_copy_false_import_op_copy(self):
         """Tests that when config does not have an operation set, that

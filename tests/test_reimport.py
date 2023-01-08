@@ -1,7 +1,6 @@
 """Tests reimporting for the beets-filetote plugin."""
 
 # pylint: disable=duplicate-code
-# pylint: disable=missing-function-docstring
 
 import logging
 import os
@@ -18,7 +17,7 @@ class FiletoteReimportTest(FiletoteTestCase):
     Tests to check that Filetote handles reimports correctly
     """
 
-    def setUp(self):
+    def setUp(self, audible_plugin=False):
         """
         Setup subsequent import directory of the following structure:
 
@@ -42,6 +41,7 @@ class FiletoteReimportTest(FiletoteTestCase):
         self._run_importer()
 
     def test_reimport_artifacts_with_copy(self):
+        """Tests that when reimporting, copying works."""
         # Cause files to relocate (move) when reimported
         self.lib.path_formats[0] = (
             "default",
@@ -58,6 +58,7 @@ class FiletoteReimportTest(FiletoteTestCase):
         self.assert_in_lib_dir(b"1Tag Artist", b"Tag Album", b"artifact.file")
 
     def test_reimport_artifacts_with_move(self):
+        """Tests that when reimporting, moving works."""
         # Cause files to relocate when reimported
         self.lib.path_formats[0] = (
             "default",
@@ -95,6 +96,8 @@ class FiletoteReimportTest(FiletoteTestCase):
         self.assert_in_lib_dir(b"1Tag Artist", b"Tag Album", b"artifact.file")
 
     def test_do_nothing_when_paths_do_not_change_with_copy_import(self):
+        """Tests that when paths are the same (before/after), no action is
+        taken for default `copy` action."""
         self._setup_import_session(autotag=False, import_dir=self.lib_dir)
 
         log.debug("--- second import")
@@ -107,6 +110,8 @@ class FiletoteReimportTest(FiletoteTestCase):
         self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"artifact2.file")
 
     def test_do_nothing_when_paths_do_not_change_with_move_import(self):
+        """Tests that when paths are the same (before/after), no action is
+        taken for default `move` action."""
         self._setup_import_session(
             autotag=False, import_dir=self.lib_dir, move=True
         )
@@ -118,6 +123,7 @@ class FiletoteReimportTest(FiletoteTestCase):
         self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"artifact2.file")
 
     def test_rename_with_copy_reimport(self):
+        """Tests that renaming during `copy` works even when reimporting."""
         config["paths"]["ext:file"] = str(
             os.path.join("$albumpath", "$artist - $album")
         )
@@ -134,6 +140,7 @@ class FiletoteReimportTest(FiletoteTestCase):
         )
 
     def test_rename_with_move_reimport(self):
+        """Tests that renaming during `move` works even when reimporting."""
         config["paths"]["ext:file"] = str(
             os.path.join("$albumpath", "$artist - $album")
         )
@@ -171,6 +178,8 @@ class FiletoteReimportTest(FiletoteTestCase):
         self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"Tag Album.file")
 
     def test_multiple_reimport_artifacts_with_move(self):
+        """Tests that multiple reimports work the same as the initial action or
+        a single reimport."""
         # Cause files to relocate when reimported
         self.lib.path_formats[0] = (
             "default",

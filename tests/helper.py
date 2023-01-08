@@ -4,6 +4,7 @@ import logging
 import os
 import shutil
 from contextlib import contextmanager
+from dataclasses import dataclass
 from enum import Enum
 
 import mediafile
@@ -11,7 +12,9 @@ from beets import config, importer, library, plugins, util
 
 # Make sure the development versions of the plugins are used
 import beetsplug  # noqa: E402
-from beetsplug import filetote
+
+# pylint doesn't recognize audible as an extended module
+from beetsplug import audible, filetote  # pylint: disable=no-name-in-module
 from tests import _common
 
 beetsplug.__path__ = [
@@ -44,6 +47,48 @@ def capture_log(logger="beets"):
         logs.removeHandler(capture)
 
 
+@dataclass
+class MediaMeta:
+    """Metadata for created media files."""
+
+    artist: str = "Tag Artist"
+    album: str = "Tag Album"
+    albumartist: str = "Tag Album Artist"
+    track_name: str = "Tag Title 1"
+    track_number: str = 1
+
+
+@dataclass
+class MediaSetup:
+    """Setup config for to-be-created media files."""
+
+    file_type: str = "mp3"
+    count: int = 3
+    generate_pair: bool = True
+
+
+# More may be expanded as testing becomes more sophisticated.
+RSRC_TYPES = {
+    "mp3": b"full.mp3",
+    # 'aac':  b"full.aac",
+    # 'alac':  b"full.alac",
+    # 'alac.m4a':  b"full.alac.m4a",
+    # 'ogg':  b"full.ogg",
+    # 'opus': b"full.opus",
+    "flac": b"full.flac",
+    # 'ape':  b"full.ape",
+    # 'wv':   b"full.wv",
+    # 'mpc':  b"full.mpc",
+    # 'm4a':  b"full.m4a",
+    # 'asf':  b"full.asf",
+    # 'aiff': b"full.aiff",
+    # 'dsf':  b"full.dsf",
+    # 'wav':  b"full.wav",
+    # 'wave':  b"full.wave",
+    # 'wma':  b"full.wma",
+}
+
+
 class FiletoteTestCase(_common.TestCase):
     # pylint: disable=too-many-instance-attributes
     # pylint: disable=protected-access
@@ -55,10 +100,15 @@ class FiletoteTestCase(_common.TestCase):
     for the autotagging library and assertions helpers.
     """
 
-    def setUp(self):
+    def setUp(self, audible_plugin=False):
         super().setUp()
 
-        plugins._classes = set([filetote.FiletotePlugin])
+        if audible_plugin:
+            plugins._classes = set([audible.Audible, filetote.FiletotePlugin])
+            config["plugins"] = ["audible", "filetote"]
+        else:
+            plugins._classes = set([filetote.FiletotePlugin])
+            config["plugins"] = ["filetote"]
 
         self._setup_library()
 
@@ -105,12 +155,16 @@ class FiletoteTestCase(_common.TestCase):
         if plugins._instances:
             classes = list(plugins._classes)
 
-            # Unregister listeners
-            for event in classes[0].listeners:
-                del classes[0].listeners[event][0]
+            # In case Audible is included, iterate through each plugin class.
+            for plugin_class in classes:
+                # Unregister listeners
+                for event in plugin_class.listeners:
+                    del plugin_class.listeners[event][0]
 
-            # Delete the plugin instance so a new one gets created for each test
-            del plugins._instances[classes[0]]
+                # Delete the plugin instance so a new one gets created for each test
+                del plugins._instances[plugin_class]
+
+            config["plugins"] = []
 
         log.debug("--- library structure")
         self._list_files(self.lib_dir)
@@ -140,7 +194,12 @@ class FiletoteTestCase(_common.TestCase):
         ) as file_handle:
             file_handle.close()
 
-    def _create_flat_import_dir(self, media_files=3, generate_pair=True):
+    def _create_flat_import_dir(
+        self, media_files=[MediaSetup]
+    ):  # pylint: disable=dangerous-default-value
+        # Pylint doesn't recognize the dataclass as a value, instead sees an empty
+        # list
+
         """
         Creates a directory with media files and artifacts.
         Sets ``self.import_dir`` to the path of the directory. Also sets
@@ -172,21 +231,37 @@ class FiletoteTestCase(_common.TestCase):
         self._create_file(album_path, b"artifact.nfo")
         self._create_file(album_path, b"artifact.lrc")
 
-        # Number of desired media
-        self._media_count = self._pairs_count = media_files
+        media_file_count = 0
 
-        media_list = self._generate_paired_media_list(
-            album_path=album_path,
-            count=self._media_count,
-            generate_pair=generate_pair,
-        )
+        media_list = []
+
+        for media_file in media_files:
+            media_file_count += media_file.count
+
+            media_list.append(
+                self._generate_paired_media_list(
+                    album_path=album_path,
+                    file_type=media_file.file_type,
+                    count=media_file.count,
+                    generate_pair=media_file.generate_pair,
+                )
+            )
+
+        # Number of desired media
+        self._media_count = self._pairs_count = media_file_count
+
         self.import_media = media_list
 
         log.debug("--- import directory created")
         self._list_files(self.import_dir)
 
+    def _get_rsrc_from_file_type(self, filetype):
+        """Gets the actual file matching extension if available, otherwise
+        default to MP3."""
+        return RSRC_TYPES.get(filetype, RSRC_TYPES["mp3"])
+
     def _generate_paired_media_list(
-        self, album_path, count, generate_pair=True
+        self, album_path, file_type="mp3", count=3, generate_pair=True
     ):
         """
         Generates the desired number of media files and corresponding
@@ -198,12 +273,15 @@ class FiletoteTestCase(_common.TestCase):
             trackname = f"track_{count}"
             media_list.append(
                 self._create_medium(
-                    os.path.join(
-                        album_path, f"{trackname}.mp3".encode("utf-8")
+                    path=os.path.join(
+                        album_path,
+                        f"{trackname}.{file_type}".encode("utf-8"),
                     ),
-                    self.rsrc_mp3,
-                    track_name=f"Tag Title {count}",
-                    track_number=count,
+                    resource_name=self._get_rsrc_from_file_type(file_type),
+                    media_meta=MediaMeta(
+                        track_name=f"Tag Title {count}",
+                        track_number=count,
+                    ),
                 )
             )
             count = count - 1
@@ -216,16 +294,8 @@ class FiletoteTestCase(_common.TestCase):
         return media_list
 
     def _create_medium(
-        self,
-        path,
-        resource_name,
-        artist=None,
-        album=None,
-        albumartist=None,
-        track_name=None,
-        track_number=None,
+        self, path, resource_name, media_meta: MediaMeta = MediaMeta
     ):
-        # pylint: disable=too-many-arguments
         """
         Creates and saves a media file object located at path using resource_name
         from the beets test resources directory as initial data
@@ -234,9 +304,9 @@ class FiletoteTestCase(_common.TestCase):
         resource_path = os.path.join(_common.RSRC, resource_name)
 
         metadata = {
-            "artist": artist or "Tag Artist",
-            "album": album or "Tag Album",
-            "albumartist": albumartist or "Tag Album Artist",
+            "artist": media_meta.artist,
+            "album": media_meta.album,
+            "albumartist": media_meta.albumartist,
             "mb_trackid": None,
             "mb_albumid": None,
             "comp": None,
@@ -247,8 +317,8 @@ class FiletoteTestCase(_common.TestCase):
         medium = mediafile.MediaFile(path)
 
         # Set metadata
-        metadata["track"] = track_number or 1
-        metadata["title"] = track_name or "Tag Title 1"
+        metadata["track"] = media_meta.track_number
+        metadata["title"] = media_meta.track_name
         for item, value in metadata.items():
             setattr(medium, item, value)
         medium.save()
@@ -413,6 +483,7 @@ class TestImportSession(importer.ImportSession):
         self._choices = []
 
     def choose_match(self, task):
+        """Automatically choose a match in import."""
         try:
             choice = self._choices.pop(0)
         except IndexError:

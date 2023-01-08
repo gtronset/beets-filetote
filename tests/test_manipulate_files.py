@@ -18,7 +18,8 @@ class FiletoteManipulateFiles(FiletoteTestCase):
     Tests to check that Filetote manipulates files using the correct operation.
     """
 
-    def setUp(self):
+    def setUp(self, audible_plugin=False):
+        """Provides shared setup for tests."""
         super().setUp()
 
         self._create_flat_import_dir()

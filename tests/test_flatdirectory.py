@@ -19,7 +19,8 @@ class FiletoteFromFlatDirectoryTest(FiletoteTestCase):
     directory). Also tests `extensions` and `filenames` config options.
     """
 
-    def setUp(self):
+    def setUp(self, audible_plugin=False):
+        """Provides shared setup for tests."""
         super().setUp()
 
         self._create_flat_import_dir()
@@ -27,7 +28,7 @@ class FiletoteFromFlatDirectoryTest(FiletoteTestCase):
 
         self._base_file_count = self._media_count + self._pairs_count
 
-    def test_only_copy_artifacts_matching_configured_extension(self):
+    def test_only_copies_files_matching_configured_extension(self):
         config["filetote"]["extensions"] = ".file"
 
         self._run_importer()
@@ -167,25 +168,6 @@ class FiletoteFromFlatDirectoryTest(FiletoteTestCase):
         self.assert_not_in_import_dir(b"the_album", b"artifact2.file")
         self.assert_not_in_import_dir(b"the_album", b"artifact.nfo")
         self.assert_not_in_import_dir(b"the_album", b"artifact.lrc")
-
-    def test_do_nothing_when_not_copying_or_moving(self):
-        """
-        Check that plugin leaves everything alone when not
-        copying (-C command line option) and not moving.
-        """
-        config["import"]["copy"] = False
-        config["import"]["move"] = False
-
-        self._run_importer()
-
-        self.assert_number_of_files_in_dir(
-            self._base_file_count + 4, self.import_dir, b"the_album"
-        )
-
-        self.assert_in_import_dir(b"the_album", b"artifact.file")
-        self.assert_in_import_dir(b"the_album", b"artifact2.file")
-        self.assert_in_import_dir(b"the_album", b"artifact.nfo")
-        self.assert_in_import_dir(b"the_album", b"artifact.lrc")
 
     def test_artifacts_copymove_on_first_media_by_default(self):
         """By default, all eligible files are grabbed with the first item."""

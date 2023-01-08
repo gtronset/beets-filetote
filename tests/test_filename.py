@@ -7,7 +7,7 @@ import pytest
 from beets import config
 
 from tests import _common
-from tests.helper import FiletoteTestCase
+from tests.helper import FiletoteTestCase, MediaMeta
 
 
 class FiletoteFilename(FiletoteTestCase):
@@ -15,7 +15,8 @@ class FiletoteFilename(FiletoteTestCase):
     Tests to check handling of artifacts with filenames containing unicode characters
     """
 
-    def setUp(self):
+    def setUp(self, audible_plugin=False):
+        """Provides shared setup for tests."""
         super().setUp()
 
         self._set_import_dir()
@@ -90,7 +91,7 @@ class FiletoteFilename(FiletoteTestCase):
         medium = self._create_medium(
             os.path.join(self.album_path, b"track_1.mp3"),
             self.rsrc_mp3,
-            album="Album: Subtitle",
+            MediaMeta(album="Album: Subtitle"),
         )
         self.import_media = [medium]
 
@@ -116,7 +117,7 @@ class FiletoteFilename(FiletoteTestCase):
         medium = self._create_medium(
             os.path.join(self.album_path, b"track_1.mp3"),
             self.rsrc_mp3,
-            album=b"Tag Album?",
+            MediaMeta(album=b"Tag Album?"),
         )
         self.import_media = [medium]
 
