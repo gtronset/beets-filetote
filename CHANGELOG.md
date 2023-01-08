@@ -9,6 +9,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.3.3] - 2022-01-08
+
+### Fixed
+
+- Bugfix of mediafile types - Exclude m4a, m4b, etc. <https://github.com/gtronset/beets-filetote/pull/43>
+
 ### Changed
 
 - Add Release Action to CI in <https://github.com/gtronset/beets-filetote/pull/40>
@@ -88,9 +94,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Fork from <https://github.com/adammillerio/beets-copyartifacts>
 
-- <!-- Release Links -->
+<!-- Release Links -->
 
-[unreleased]: https://github.com/gtronset/beets-filetote/compare/v0.3.2...HEAD
+[unreleased]: https://github.com/gtronset/beets-filetote/compare/v0.3.3...HEAD
+[0.3.3]: https://github.com/gtronset/beets-filetote/releases/tag/v0.3.3
 [0.3.2]: https://github.com/gtronset/beets-filetote/releases/tag/v0.3.2
 [0.3.1]: https://github.com/gtronset/beets-filetote/releases/tag/v0.3.1
 [0.3.0]: https://github.com/gtronset/beets-filetote/releases/tag/v0.3.0
