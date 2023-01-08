@@ -1,5 +1,7 @@
-"""Tests that m4b music/audiobook files are ignored for the beets-filetote
-plugin, when the beets-audible plugin is loaded."""
+"""
+Tests that m4b music/audiobook files are ignored for the beets-filetote
+plugin, when the beets-audible plugin is loaded.
+"""
 
 import logging
 
