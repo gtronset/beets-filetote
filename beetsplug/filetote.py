@@ -8,7 +8,7 @@ from beets.plugins import BeetsPlugin
 from beets.ui import get_path_formats
 from beets.util import MoveOperation
 from beets.util.functemplate import Template
-from mediafile import TYPES as BEETS_TYPES
+from mediafile import TYPES as BEETS_FILE_TYPES
 
 
 class FiletotePlugin(BeetsPlugin):
@@ -70,10 +70,16 @@ class FiletotePlugin(BeetsPlugin):
         self.register_listener("cli_exit", self.process_events)
 
     def _register_session_settings(self, session):
-        """Certain settings are only available and/or finalized once the
-        import session begins."""
+        """
+        Certain settings are only available and/or finalized once the
+        import session begins.
 
-        BEETS_TYPES.update(
+        This also augments the file type list of what is considered a music
+        file or media, since MediaFile.TYPES isn't fundamentally a complete
+        list of files by extension.
+        """
+
+        BEETS_FILE_TYPES.update(
             {
                 "m4a": "M4A",
                 "wma": "WMA",
@@ -82,7 +88,7 @@ class FiletotePlugin(BeetsPlugin):
         )
 
         if "audible" in config["plugins"].get():
-            BEETS_TYPES.update({"m4b": "M4B"})
+            BEETS_FILE_TYPES.update({"m4b": "M4B"})
 
         self.operation = self._operation_type()
         self.paths = os.path.expanduser(session.paths[0])
@@ -267,7 +273,7 @@ class FiletotePlugin(BeetsPlugin):
                 file_name, file_ext = os.path.splitext(filename)
                 if (
                     len(file_ext) > 1
-                    and file_ext.decode("utf8")[1:] in BEETS_TYPES
+                    and file_ext.decode("utf8")[1:] in BEETS_FILE_TYPES
                 ):
                     continue
 

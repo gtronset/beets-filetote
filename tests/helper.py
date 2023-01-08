@@ -12,6 +12,8 @@ from beets import config, importer, library, plugins, util
 
 # Make sure the development versions of the plugins are used
 import beetsplug  # noqa: E402
+
+# pylint doesn't recognize audible as an extended module
 from beetsplug import audible, filetote  # pylint: disable=no-name-in-module
 from tests import _common
 
@@ -49,11 +51,11 @@ def capture_log(logger="beets"):
 class MediaMeta:
     """Metadata for created media files."""
 
-    artist: str = None
-    album: str = None
-    albumartist: str = None
-    track_name: str = None
-    track_number: str = None
+    artist: str = "Tag Artist"
+    album: str = "Tag Album"
+    albumartist: str = "Tag Album Artist"
+    track_name: str = "Tag Title 1"
+    track_number: str = 1
 
 
 @dataclass
@@ -65,6 +67,7 @@ class MediaSetup:
     generate_pair: bool = True
 
 
+# More may be expanded as testing becomes more sophisticated.
 RSRC_TYPES = {
     "mp3": b"full.mp3",
     # 'aac':  b"full.aac",
@@ -194,6 +197,9 @@ class FiletoteTestCase(_common.TestCase):
     def _create_flat_import_dir(
         self, media_files=[MediaSetup]
     ):  # pylint: disable=dangerous-default-value
+        # Pylint doesn't recognize the dataclass as a value, instead sees an empty
+        # list
+
         """
         Creates a directory with media files and artifacts.
         Sets ``self.import_dir`` to the path of the directory. Also sets
@@ -250,6 +256,8 @@ class FiletoteTestCase(_common.TestCase):
         self._list_files(self.import_dir)
 
     def _get_rsrc_from_file_type(self, filetype):
+        """Gets the actual file matching extension if available, otherwise
+        default to MP3."""
         return RSRC_TYPES.get(filetype, RSRC_TYPES["mp3"])
 
     def _generate_paired_media_list(
@@ -296,9 +304,9 @@ class FiletoteTestCase(_common.TestCase):
         resource_path = os.path.join(_common.RSRC, resource_name)
 
         metadata = {
-            "artist": media_meta.artist or "Tag Artist",
-            "album": media_meta.album or "Tag Album",
-            "albumartist": media_meta.albumartist or "Tag Album Artist",
+            "artist": media_meta.artist,
+            "album": media_meta.album,
+            "albumartist": media_meta.albumartist,
             "mb_trackid": None,
             "mb_albumid": None,
             "comp": None,
@@ -309,8 +317,8 @@ class FiletoteTestCase(_common.TestCase):
         medium = mediafile.MediaFile(path)
 
         # Set metadata
-        metadata["track"] = media_meta.track_number or 1
-        metadata["title"] = media_meta.track_name or "Tag Title 1"
+        metadata["track"] = media_meta.track_number
+        metadata["title"] = media_meta.track_name
         for item, value in metadata.items():
             setattr(medium, item, value)
         medium.save()
