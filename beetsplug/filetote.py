@@ -73,10 +73,16 @@ class FiletotePlugin(BeetsPlugin):
         """Certain settings are only available and/or finalized once the
         import session begins."""
 
-        # BEETS_TYPES.update({"m4a": "M4A"})
+        BEETS_TYPES.update(
+            {
+                "m4a": "M4A",
+                "wma": "WMA",
+                "wave": "WAVE",
+            }
+        )
 
-        # if "audible" in config["plugins"].get():
-        #    BEETS_TYPES.update({"m4b": "M4B"})
+        if "audible" in config["plugins"].get():
+            BEETS_TYPES.update({"m4b": "M4B"})
 
         self.operation = self._operation_type()
         self.paths = os.path.expanduser(session.paths[0])

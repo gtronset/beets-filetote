@@ -3,11 +3,9 @@
 import logging
 
 from beets import config
+from mediafile import TYPES as BEETS_TYPES
 
-from tests.helper import FiletoteTestCase
-
-# import os
-
+from tests.helper import FiletoteTestCase, MediaSetup
 
 log = logging.getLogger("beets")
 
@@ -15,84 +13,59 @@ log = logging.getLogger("beets")
 class FiletoteMusicFilesIgnoredTest(FiletoteTestCase):
     """
     Tests to check that Filetote only copies or moves artifact files and not
-    music files
+    music files as defined by MediaFile's TYPES and expanded list.
     """
 
-    def setUp(self, audible_plugin=False):
-        """Provides shared setup for tests."""
-        super().setUp(audible_plugin=True)
-
-        self._base_file_count = None
-
     def test_default_music_file_types_are_ignored(self):
-        """First test."""
-        self._create_flat_import_dir(media_files=2, generate_pair=False)
+        """Ensure that mediafile types are ignored by Filetote."""
+
+        media_file_list = []
+
+        for beet_type in BEETS_TYPES:
+            media_file_list.append(MediaSetup(file_type=beet_type, count=1))
+
+        self._create_flat_import_dir(media_files=media_file_list)
         self._setup_import_session(autotag=False)
 
-        self._base_file_count = self._media_count + self._pairs_count
-
-        config["filetote"]["extensions"] = ".file"
+        config["filetote"]["extensions"] = ".*"
 
         self._run_importer()
 
+        self.assert_not_in_lib_dir(b"Tag Artist", b"Tag Album", b"track_1.aac")
+        self.assert_not_in_lib_dir(b"Tag Artist", b"Tag Album", b"track_1.aiff")
+        self.assert_not_in_lib_dir(b"Tag Artist", b"Tag Album", b"track_1.alac")
+        self.assert_not_in_lib_dir(b"Tag Artist", b"Tag Album", b"track_1.ape")
+        self.assert_not_in_lib_dir(b"Tag Artist", b"Tag Album", b"track_1.asf")
+        self.assert_not_in_lib_dir(b"Tag Artist", b"Tag Album", b"track_1.dsf")
+        self.assert_not_in_lib_dir(b"Tag Artist", b"Tag Album", b"track_1.flac")
+        self.assert_not_in_lib_dir(b"Tag Artist", b"Tag Album", b"track_1.mp3")
+        self.assert_not_in_lib_dir(b"Tag Artist", b"Tag Album", b"track_1.mpc")
+        self.assert_not_in_lib_dir(b"Tag Artist", b"Tag Album", b"track_1.ogg")
+        self.assert_not_in_lib_dir(b"Tag Artist", b"Tag Album", b"track_1.opus")
+        self.assert_not_in_lib_dir(b"Tag Artist", b"Tag Album", b"track_1.wav")
+        self.assert_not_in_lib_dir(b"Tag Artist", b"Tag Album", b"track_1.wv")
+
+    def test_expanded_music_file_types_are_ignored(self):
+        """Ensure that `.m4a`, `.alac.m4a`, `.wma`, and `.wave` file types are
+        ignored by Filetote."""
+
+        media_file_list = [
+            MediaSetup(file_type="m4a", count=1),
+            MediaSetup(file_type="alac.m4a", count=1),
+            MediaSetup(file_type="wma", count=1),
+            MediaSetup(file_type="wave", count=1),
+        ]
+
+        self._create_flat_import_dir(media_files=media_file_list)
+        self._setup_import_session(autotag=False)
+
+        config["filetote"]["extensions"] = ".*"
+
+        self._run_importer()
+
+        self.assert_not_in_lib_dir(b"Tag Artist", b"Tag Album", b"track_1.m4a")
         self.assert_not_in_lib_dir(
-            b"Tag Artist", b"Tag Album", b"artifact.file"
+            b"Tag Artist", b"Tag Album", b"track_1.alac.m4a"
         )
-
-
-# def test_exact_matching_configured_extension(self):
-#     config["filetote"]["extensions"] = ".file"
-
-#     self._create_file(
-#         os.path.join(self.import_dir, b"the_album"), b"artifact.file2"
-#     )
-
-#     self._run_importer()
-
-#     self.assert_number_of_files_in_dir(
-#         self._media_count + 2, self.lib_dir, b"Tag Artist", b"Tag Album"
-#     )
-
-#     self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"artifact.file")
-#     self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"artifact2.file")
-
-#     self.assert_in_import_dir(b"the_album", b"artifact.file2")
-#     self.assert_not_in_lib_dir(
-#         b"Tag Artist", b"Tag Album", b"artifact.file2"
-#     )
-
-# def test_exclude_artifacts_matching_configured_exclude(self):
-#     config["filetote"]["extensions"] = ".file"
-#     config["filetote"]["exclude"] = "artifact2.file"
-
-#     self._run_importer()
-
-#     self.assert_number_of_files_in_dir(
-#         self._media_count + 1, self.lib_dir, b"Tag Artist", b"Tag Album"
-#     )
-
-#     self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"artifact.file")
-
-#     self.assert_not_in_lib_dir(
-#         b"Tag Artist", b"Tag Album", b"artifact2.file"
-#     )
-#     self.assert_not_in_lib_dir(b"Tag Artist", b"Tag Album", b"artifact.nfo")
-#     self.assert_not_in_lib_dir(b"Tag Artist", b"Tag Album", b"artifact.lrc")
-
-# def test_only_copy_artifacts_matching_configured_filename(self):
-#     config["filetote"]["extensions"] = ""
-#     config["filetote"]["filenames"] = "artifact.file"
-
-#     self._run_importer()
-
-#     self.assert_number_of_files_in_dir(
-#         self._media_count + 1, self.lib_dir, b"Tag Artist", b"Tag Album"
-#     )
-
-#     self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"artifact.file")
-
-#     self.assert_not_in_lib_dir(
-#         b"Tag Artist", b"Tag Album", b"artifact2.file"
-#     )
-#     self.assert_not_in_lib_dir(b"Tag Artist", b"Tag Album", b"artifact.nfo")
-#     self.assert_not_in_lib_dir(b"Tag Artist", b"Tag Album", b"artifact.lrc")
+        self.assert_not_in_lib_dir(b"Tag Artist", b"Tag Album", b"track_1.wma")
+        self.assert_not_in_lib_dir(b"Tag Artist", b"Tag Album", b"track_1.wave")

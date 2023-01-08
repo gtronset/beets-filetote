@@ -56,6 +56,36 @@ class MediaMeta:
     track_number: str = None
 
 
+@dataclass
+class MediaSetup:
+    """Setup config for to-be-created media files."""
+
+    file_type: str = "mp3"
+    count: int = 3
+    generate_pair: bool = True
+
+
+RSRC_TYPES = {
+    "mp3": b"full.mp3",
+    # 'aac':  b"full.aac",
+    # 'alac':  b"full.alac",
+    # 'alac.m4a':  b"full.alac.m4a",
+    # 'ogg':  b"full.ogg",
+    # 'opus': b"full.opus",
+    "flac": b"full.flac",
+    # 'ape':  b"full.ape",
+    # 'wv':   b"full.wv",
+    # 'mpc':  b"full.mpc",
+    # 'm4a':  b"full.m4a",
+    # 'asf':  b"full.asf",
+    # 'aiff': b"full.aiff",
+    # 'dsf':  b"full.dsf",
+    # 'wav':  b"full.wav",
+    # 'wave':  b"full.wave",
+    # 'wma':  b"full.wma",
+}
+
+
 class FiletoteTestCase(_common.TestCase):
     # pylint: disable=too-many-instance-attributes
     # pylint: disable=protected-access
@@ -131,6 +161,8 @@ class FiletoteTestCase(_common.TestCase):
                 # Delete the plugin instance so a new one gets created for each test
                 del plugins._instances[plugin_class]
 
+            config["plugins"] = []
+
         log.debug("--- library structure")
         self._list_files(self.lib_dir)
 
@@ -159,7 +191,9 @@ class FiletoteTestCase(_common.TestCase):
         ) as file_handle:
             file_handle.close()
 
-    def _create_flat_import_dir(self, media_files=3, generate_pair=True):
+    def _create_flat_import_dir(
+        self, media_files=[MediaSetup]
+    ):  # pylint: disable=dangerous-default-value
         """
         Creates a directory with media files and artifacts.
         Sets ``self.import_dir`` to the path of the directory. Also sets
@@ -191,21 +225,35 @@ class FiletoteTestCase(_common.TestCase):
         self._create_file(album_path, b"artifact.nfo")
         self._create_file(album_path, b"artifact.lrc")
 
-        # Number of desired media
-        self._media_count = self._pairs_count = media_files
+        media_file_count = 0
 
-        media_list = self._generate_paired_media_list(
-            album_path=album_path,
-            count=self._media_count,
-            generate_pair=generate_pair,
-        )
+        media_list = []
+
+        for media_file in media_files:
+            media_file_count += media_file.count
+
+            media_list.append(
+                self._generate_paired_media_list(
+                    album_path=album_path,
+                    file_type=media_file.file_type,
+                    count=media_file.count,
+                    generate_pair=media_file.generate_pair,
+                )
+            )
+
+        # Number of desired media
+        self._media_count = self._pairs_count = media_file_count
+
         self.import_media = media_list
 
         log.debug("--- import directory created")
         self._list_files(self.import_dir)
 
+    def _get_rsrc_from_file_type(self, filetype):
+        return RSRC_TYPES.get(filetype, RSRC_TYPES["mp3"])
+
     def _generate_paired_media_list(
-        self, album_path, count, generate_pair=True
+        self, album_path, file_type="mp3", count=3, generate_pair=True
     ):
         """
         Generates the desired number of media files and corresponding
@@ -218,9 +266,10 @@ class FiletoteTestCase(_common.TestCase):
             media_list.append(
                 self._create_medium(
                     path=os.path.join(
-                        album_path, f"{trackname}.mp3".encode("utf-8")
+                        album_path,
+                        f"{trackname}.{file_type}".encode("utf-8"),
                     ),
-                    resource_name=self.rsrc_mp3,
+                    resource_name=self._get_rsrc_from_file_type(file_type),
                     media_meta=MediaMeta(
                         track_name=f"Tag Title {count}",
                         track_number=count,
