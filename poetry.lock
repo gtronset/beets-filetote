@@ -2,20 +2,20 @@
 
 [[package]]
 name = "astroid"
-version = "2.13.0"
+version = "2.13.2"
 description = "An abstract syntax tree for Python with inference support."
 category = "dev"
 optional = false
 python-versions = ">=3.7.2"
 files = [
-    {file = "astroid-2.13.0-py3-none-any.whl", hash = "sha256:0ab8b1655f63d657b83ba3c914e5ac6ed2c04033e626bc831d6e41df37f5d3c4"},
-    {file = "astroid-2.13.0.tar.gz", hash = "sha256:a6e7508cdda7d3427b6612d85cb29e1a106043862d9c2a4d94c31456eeebc508"},
+    {file = "astroid-2.13.2-py3-none-any.whl", hash = "sha256:8f6a8d40c4ad161d6fc419545ae4b2f275ed86d1c989c97825772120842ee0d2"},
+    {file = "astroid-2.13.2.tar.gz", hash = "sha256:3bc7834720e1a24ca797fd785d77efb14f7a28ee8e635ef040b6e2d80ccb3303"},
 ]
 
 [package.dependencies]
 lazy-object-proxy = ">=1.4.0"
 typed-ast = {version = ">=1.4.0,<2.0", markers = "implementation_name == \"cpython\" and python_version < \"3.8\""}
-typing-extensions = {version = ">=3.10", markers = "python_version < \"3.10\""}
+typing-extensions = ">=4.0.0"
 wrapt = [
     {version = ">=1.11,<2", markers = "python_version < \"3.11\""},
     {version = ">=1.14,<2", markers = "python_version >= \"3.11\""},
