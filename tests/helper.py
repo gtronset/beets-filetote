@@ -14,7 +14,7 @@ from beets import config, importer, library, plugins, util
 # Make sure the development versions of the plugins are used
 import beetsplug  # noqa: E402
 
-# pylint doesn't recognize audible as an extended module
+# pylint & mypy don't recognize `audible` as an extended module. Also pleases Flake8
 from beetsplug import (  # type: ignore[attr-defined] # pylint: disable=no-name-in-module # noqa: E501
     audible,
     filetote,
