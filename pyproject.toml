@@ -26,9 +26,11 @@ beets = "^1.6.0"
 mediafile = "0.10.0"
 
 [tool.poetry.group.dev.dependencies]
+dataclasses = { version = "^0.8", python = ">=3.6, <3.7" }
 pylint = { version = "^2.15.9", python = "^3.7.2" }
 pytest = { version = "^7.1.3", python = "^3.7" }
 mock = "^5.0.0"
+mypy = { version = "^0.991", python = ">=3.7" }
 reflink = "^0.2.1"
 
 [build-system]
@@ -47,3 +49,7 @@ profile = 'black'
 disable = ''
 max-line-length = '88'
 output-format = 'colorized'
+
+[tool.mypy]
+# FIXME: Would be better to write stubs. For now, silence errors
+ignore_missing_imports = true

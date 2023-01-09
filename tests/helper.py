@@ -6,6 +6,7 @@ import shutil
 from contextlib import contextmanager
 from dataclasses import dataclass
 from enum import Enum
+from typing import Optional
 
 import mediafile
 from beets import config, importer, library, plugins, util
@@ -13,8 +14,11 @@ from beets import config, importer, library, plugins, util
 # Make sure the development versions of the plugins are used
 import beetsplug  # noqa: E402
 
-# pylint doesn't recognize audible as an extended module
-from beetsplug import audible, filetote  # pylint: disable=no-name-in-module
+# pylint & mypy don't recognize `audible` as an extended module. Also pleases Flake8
+from beetsplug import (  # type: ignore[attr-defined] # pylint: disable=no-name-in-module # noqa: E501
+    audible,
+    filetote,
+)
 from tests import _common
 
 beetsplug.__path__ = [
@@ -55,7 +59,7 @@ class MediaMeta:
     album: str = "Tag Album"
     albumartist: str = "Tag Album Artist"
     track_name: str = "Tag Title 1"
-    track_number: str = 1
+    track_number: str = "1"
 
 
 @dataclass
@@ -100,7 +104,7 @@ class FiletoteTestCase(_common.TestCase):
     for the autotagging library and assertions helpers.
     """
 
-    def setUp(self, audible_plugin=False):
+    def setUp(self, audible_plugin: bool = False):
         super().setUp()
 
         if audible_plugin:
@@ -112,10 +116,10 @@ class FiletoteTestCase(_common.TestCase):
 
         self._setup_library()
 
-        self.rsrc_mp3 = b"full.mp3"
+        self.rsrc_mp3: bytes = b"full.mp3"
 
-        self._media_count = None
-        self._pairs_count = None
+        self._media_count: Optional[int] = None
+        self._pairs_count: Optional[int] = None
 
         self.import_dir = None
         self.import_media = None
@@ -195,7 +199,7 @@ class FiletoteTestCase(_common.TestCase):
             file_handle.close()
 
     def _create_flat_import_dir(
-        self, media_files=[MediaSetup]
+        self, media_files=[MediaSetup()]
     ):  # pylint: disable=dangerous-default-value
         # Pylint doesn't recognize the dataclass as a value, instead sees an empty
         # list
@@ -294,7 +298,7 @@ class FiletoteTestCase(_common.TestCase):
         return media_list
 
     def _create_medium(
-        self, path, resource_name, media_meta: MediaMeta = MediaMeta
+        self, path, resource_name, media_meta: MediaMeta = MediaMeta()
     ):
         """
         Creates and saves a media file object located at path using resource_name
