@@ -69,7 +69,7 @@ class FiletotePlugin(BeetsPlugin):
         self.register_listener("import_begin", self._register_session_settings)
         self.register_listener("cli_exit", self.process_events)
 
-    def _register_session_settings(self, session):
+    def _register_session_settings(self, session):  # type: ignore[no-untyped-def]
         """
         Certain settings are only available and/or finalized once the
         import session begins.
@@ -93,7 +93,7 @@ class FiletotePlugin(BeetsPlugin):
         self.operation = self._operation_type()
         self.paths = os.path.expanduser(session.paths[0])
 
-    def _operation_type(self):
+    def _operation_type(self) -> MoveOperation:
         """Returns the file manipulations type."""
 
         if config["import"]["move"]:
@@ -111,7 +111,9 @@ class FiletotePlugin(BeetsPlugin):
 
         return operation
 
-    def _destination(self, filename: bytes, mapping, paired: bool = False):
+    def _destination(
+        self, filename: bytes, mapping, paired: bool = False
+    ) -> bytes:
         # pylint: disable=too-many-locals
         """Returns a destination path a file should be moved to. The filename
         is unique to ensure files aren't overwritten. This also checks the
@@ -195,7 +197,7 @@ class FiletotePlugin(BeetsPlugin):
 
         return value
 
-    def _generate_mapping(self, item, destination):
+    def _generate_mapping(self, item, destination: bytes):
         """Creates a mapping of usable path values for renaming."""
         mapping = {
             "artist": item.artist or "None",
