@@ -14,7 +14,10 @@ from beets import config, importer, library, plugins, util
 import beetsplug  # noqa: E402
 
 # pylint doesn't recognize audible as an extended module
-from beetsplug import audible, filetote  # pylint: disable=no-name-in-module
+from beetsplug import (  # type: ignore[attr-defined] # pylint: disable=no-name-in-module # noqa: E501
+    audible,
+    filetote,
+)
 from tests import _common
 
 beetsplug.__path__ = [
@@ -55,7 +58,7 @@ class MediaMeta:
     album: str = "Tag Album"
     albumartist: str = "Tag Album Artist"
     track_name: str = "Tag Title 1"
-    track_number: str = 1
+    track_number: str = "1"
 
 
 @dataclass
@@ -195,7 +198,7 @@ class FiletoteTestCase(_common.TestCase):
             file_handle.close()
 
     def _create_flat_import_dir(
-        self, media_files=[MediaSetup]
+        self, media_files=[MediaSetup()]
     ):  # pylint: disable=dangerous-default-value
         # Pylint doesn't recognize the dataclass as a value, instead sees an empty
         # list
@@ -294,7 +297,7 @@ class FiletoteTestCase(_common.TestCase):
         return media_list
 
     def _create_medium(
-        self, path, resource_name, media_meta: MediaMeta = MediaMeta
+        self, path, resource_name, media_meta: MediaMeta = MediaMeta()
     ):
         """
         Creates and saves a media file object located at path using resource_name
