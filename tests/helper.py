@@ -6,6 +6,7 @@ import shutil
 from contextlib import contextmanager
 from dataclasses import dataclass
 from enum import Enum
+from typing import Optional
 
 import mediafile
 from beets import config, importer, library, plugins, util
@@ -103,7 +104,7 @@ class FiletoteTestCase(_common.TestCase):
     for the autotagging library and assertions helpers.
     """
 
-    def setUp(self, audible_plugin=False):
+    def setUp(self, audible_plugin: bool = False):
         super().setUp()
 
         if audible_plugin:
@@ -115,10 +116,10 @@ class FiletoteTestCase(_common.TestCase):
 
         self._setup_library()
 
-        self.rsrc_mp3 = b"full.mp3"
+        self.rsrc_mp3: bytes = b"full.mp3"
 
-        self._media_count = None
-        self._pairs_count = None
+        self._media_count: Optional[int] = None
+        self._pairs_count: Optional[int] = None
 
         self.import_dir = None
         self.import_media = None
