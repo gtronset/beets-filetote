@@ -59,7 +59,7 @@ class FiletotePlugin(BeetsPlugin):
 
         self._process_queue: list[FiletoteItem] = []
         self._shared_artifacts: dict = {}
-        self._dirs_seen: list = []
+        self._dirs_seen: list[str] = []
 
         self.extensions = self.config["extensions"].as_str_seq()
         self.filenames = self.config["filenames"].as_str_seq()
@@ -410,6 +410,11 @@ class FiletotePlugin(BeetsPlugin):
             dest_file = util.bytestring_path(dest_file)
 
             self.manipulate_artifact(source_file, dest_file)
+
+        self.print_ignored_files(ignored_files)
+
+    def print_ignored_files(self, ignored_files: list):
+        """If enabled in config, output ignored files to beets logs."""
 
         if self.print_ignored and ignored_files:
             self._log.warning("Ignored files:")
