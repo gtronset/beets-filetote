@@ -1,6 +1,8 @@
 """beets-filetote plugin for beets."""
 import filecmp
 import os
+from dataclasses import asdict, dataclass, replace
+from typing import Optional
 
 from beets import config, util
 from beets.library import DefaultTemplateFunctions
@@ -9,6 +11,19 @@ from beets.ui import get_path_formats
 from beets.util import MoveOperation
 from beets.util.functemplate import Template
 from mediafile import TYPES as BEETS_FILE_TYPES
+
+
+@dataclass
+class FiletoteMapping:
+    """Path and nameing Mapping for FileTote Items."""
+
+    artist: str
+    albumartist: str
+    album: str
+    albumpath: str
+    medianame_old: str
+    medianame_new: str
+    old_filename: Optional[str] = None
 
 
 class FiletotePlugin(BeetsPlugin):
@@ -112,8 +127,11 @@ class FiletotePlugin(BeetsPlugin):
         return operation
 
     def _destination(
-        self, filename: bytes, mapping, paired: bool = False
-    ) -> bytes:
+        self,
+        filename: bytes,
+        mapping: FiletoteMapping,
+        paired: bool = False,
+    ) -> str:
         # pylint: disable=too-many-locals
         """Returns a destination path a file should be moved to. The filename
         is unique to ensure files aren't overwritten. This also checks the
@@ -127,7 +145,7 @@ class FiletotePlugin(BeetsPlugin):
         file_name_no_ext = os.path.splitext(filename)[0].decode("utf8")
         file_ext = os.path.splitext(filename)[1].decode("utf8")
 
-        mapping["old_filename"] = file_name_no_ext
+        mapping = replace(mapping, old_filename=file_name_no_ext)
 
         selected_path_query = "None"
         selected_path_format = "None"
@@ -165,7 +183,7 @@ class FiletotePlugin(BeetsPlugin):
         if selected_path_query == "None":
             # No query matched; use original filename
             file_path = os.path.join(
-                mapping["albumpath"], util.displayable_path(filename)
+                mapping.albumpath, util.displayable_path(filename)
             )
             return file_path
 
@@ -176,12 +194,13 @@ class FiletotePlugin(BeetsPlugin):
 
         # Get template funcs and evaluate against mapping
         funcs = DefaultTemplateFunctions().functions()
-        file_path = subpath_tmpl.substitute(mapping, funcs) + file_ext
+        mapping_dict = asdict(mapping)
+        file_path = subpath_tmpl.substitute(mapping_dict, funcs) + file_ext
 
         # Sanitize filename
         filename = util.sanitize_path(os.path.basename(file_path))
         dirname = os.path.dirname(file_path)
-        file_path = os.path.join(dirname, filename)
+        file_path = os.path.join(dirname, util.displayable_path(filename))
 
         return file_path
 
@@ -197,7 +216,7 @@ class FiletotePlugin(BeetsPlugin):
 
         return value
 
-    def _generate_mapping(self, item, destination: bytes):
+    def _generate_mapping(self, item, destination: bytes) -> FiletoteMapping:
         """Creates a mapping of usable path values for renaming."""
         mapping = {
             "artist": item.artist or "None",
@@ -221,7 +240,15 @@ class FiletotePlugin(BeetsPlugin):
         mapping["medianame_old"] = filename_old
         mapping["medianame_new"] = filename_new
 
-        return mapping
+        # return mapping
+        return FiletoteMapping(
+            artist=mapping["artist"],
+            albumartist=mapping["albumartist"],
+            album=mapping["album"],
+            albumpath=mapping["albumpath"],
+            medianame_old=mapping["medianame_old"],
+            medianame_new=mapping["medianame_new"],
+        )
 
     def collect_artifacts(self, item, source, destination):
         """Creates lists of the various extra files and artificats for processing.
@@ -321,7 +348,7 @@ class FiletotePlugin(BeetsPlugin):
 
             self.process_artifacts(artifacts, item["mapping"])
 
-    def process_artifacts(self, source_files, mapping):
+    def process_artifacts(self, source_files, mapping: FiletoteMapping):
         """
         Processes and prepares extra files / artifacts for subsequent manipulation.
         """
