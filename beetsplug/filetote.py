@@ -27,7 +27,7 @@ class FiletoteMapping:
 
 
 @dataclass
-class FiletoteItem:
+class FiletoteItemCollection:
     """An individual FileTote Item collection for processing."""
 
     files: list
@@ -57,7 +57,7 @@ class FiletotePlugin(BeetsPlugin):
 
         self.operation = None
 
-        self._process_queue: list[FiletoteItem] = []
+        self._process_queue: list[FiletoteItemCollection] = []
         self._shared_artifacts: dict = {}
         self._dirs_seen: list[str] = []
 
@@ -288,7 +288,7 @@ class FiletotePlugin(BeetsPlugin):
                 if queue_files:
                     self._process_queue.extend(
                         [
-                            FiletoteItem(
+                            FiletoteItemCollection(
                                 files=queue_files,
                                 mapping=self._generate_mapping(
                                     item, destination
@@ -324,7 +324,7 @@ class FiletotePlugin(BeetsPlugin):
 
         self._process_queue.extend(
             [
-                FiletoteItem(
+                FiletoteItemCollection(
                     files=queue_files,
                     mapping=self._generate_mapping(item, destination),
                     source_path=source_path,
