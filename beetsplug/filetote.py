@@ -150,9 +150,9 @@ class FiletotePlugin(BeetsPlugin):
             - ripped from beets/library.py
         """
 
-        full_filename = filename.decode("utf8")
-        file_name_no_ext = os.path.splitext(filename)[0].decode("utf8")
-        file_ext = os.path.splitext(filename)[1].decode("utf8")
+        full_filename = util.displayable_path(filename)
+        file_name_no_ext = util.displayable_path(os.path.splitext(filename)[0])
+        file_ext = util.displayable_path(os.path.splitext(filename)[1])
 
         mapping = replace(mapping, old_filename=file_name_no_ext)
 
@@ -311,7 +311,7 @@ class FiletotePlugin(BeetsPlugin):
                 file_name, file_ext = os.path.splitext(filename)
                 if (
                     len(file_ext) > 1
-                    and file_ext.decode("utf8")[1:] in BEETS_FILE_TYPES
+                    and util.displayable_path(file_ext)[1:] in BEETS_FILE_TYPES
                 ):
                     continue
 
@@ -382,7 +382,7 @@ class FiletotePlugin(BeetsPlugin):
                 continue
 
             # Skip if filename is explicitly in `exclude`
-            if filename.decode("utf8") in self.exclude:
+            if util.displayable_path(filename) in self.exclude:
                 ignored_files.append(source_file)
                 continue
 
@@ -392,8 +392,8 @@ class FiletotePlugin(BeetsPlugin):
             file_ext = os.path.splitext(filename)[1]
             if (
                 ".*" not in self.extensions
-                and file_ext.decode("utf8") not in self.extensions
-                and filename.decode("utf8") not in self.filenames
+                and util.displayable_path(file_ext) not in self.extensions
+                and util.displayable_path(filename) not in self.filenames
             ):
                 ignored_files.append(source_file)
                 continue
@@ -455,7 +455,7 @@ class FiletotePlugin(BeetsPlugin):
 
         self._log.info(
             f"{operation_display}-ing artifact:"
-            f" {os.path.basename(dest_file.decode('utf8'))}"
+            f" {os.path.basename(util.displayable_path(dest_file))}"
         )
 
         if reimport or self.operation == MoveOperation.MOVE:
