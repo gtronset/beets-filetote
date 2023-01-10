@@ -27,10 +27,18 @@ class FiletoteMapping:
 
 
 @dataclass
+class FiletoteItem:
+    """An individual FileTote Item for processing."""
+
+    path: str
+    paired: bool
+
+
+@dataclass
 class FiletoteItemCollection:
     """An individual FileTote Item collection for processing."""
 
-    files: list
+    files: list[FiletoteItem]
     mapping: FiletoteMapping
     source_path: str
 
@@ -137,7 +145,7 @@ class FiletotePlugin(BeetsPlugin):
 
     def _destination(
         self,
-        filename: bytes,
+        filename: str,
         mapping: FiletoteMapping,
         paired: bool = False,
     ) -> str:
@@ -279,7 +287,9 @@ class FiletotePlugin(BeetsPlugin):
                         os.path.basename(filepath)
                     )
                     if file_name == item_source_filename:
-                        queue_files.append({"path": filepath, "paired": True})
+                        queue_files.append(
+                            FiletoteItem(path=filepath, paired=True)
+                        )
 
                         # Remove from shared artifacts, as the item-move will
                         # handle this file.
@@ -316,9 +326,13 @@ class FiletotePlugin(BeetsPlugin):
                     continue
 
                 if not self.pairing:
-                    queue_files.append({"path": source_file, "paired": False})
+                    queue_files.append(
+                        FiletoteItem(path=source_file, paired=False)
+                    )
                 elif self.pairing and file_name == item_source_filename:
-                    queue_files.append({"path": source_file, "paired": True})
+                    queue_files.append(
+                        FiletoteItem(path=source_file, paired=True)
+                    )
                 else:
                     non_handled_files.append(source_file)
 
@@ -343,21 +357,25 @@ class FiletotePlugin(BeetsPlugin):
         # Ensure destination library settings are accessible
         self.lib = lib
         for item in self._process_queue:
-            artifacts = item.files
+            artifacts: list[FiletoteItem] = item.files
 
             source_path = item.source_path
 
             if not self.pairing_only:
                 for shared_artifact in self._shared_artifacts[source_path]:
                     artifacts.extend(
-                        [{"path": shared_artifact, "paired": False}]
+                        [FiletoteItem(path=shared_artifact, paired=False)]
                     )
 
             self._shared_artifacts[source_path] = []
 
             self.process_artifacts(artifacts, item.mapping)
 
-    def process_artifacts(self, source_files, mapping: FiletoteMapping):
+    def process_artifacts(
+        self,
+        source_files: list[FiletoteItem],
+        mapping: FiletoteMapping,
+    ):
         """
         Processes and prepares extra files / artifacts for subsequent manipulation.
         """
@@ -367,14 +385,14 @@ class FiletotePlugin(BeetsPlugin):
         ignored_files = []
 
         for artifact in source_files:
-            source_file = artifact["path"]
+            source_file = artifact.path
 
             source_path = os.path.dirname(source_file)
             # os.path.basename() not suitable here as files may be contained
             # within dir of source_path
             filename = source_file[len(source_path) + 1 :]
 
-            dest_file = self._destination(filename, mapping, artifact["paired"])
+            dest_file = self._destination(filename, mapping, artifact.paired)
 
             # Skip as another plugin or beets has already moved this file
             if not os.path.exists(source_file):
