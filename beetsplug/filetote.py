@@ -26,6 +26,15 @@ class FiletoteMapping:
     old_filename: Optional[str] = None
 
 
+@dataclass
+class FiletoteItem:
+    """An individual FileTote Item collection for processing."""
+
+    files: list
+    mapping: FiletoteMapping
+    source_path: str
+
+
 class FiletotePlugin(BeetsPlugin):
     """Plugin main class. Eventually, should encompass additional features as
     described in https://github.com/beetbox/beets/wiki/Attachments."""
@@ -48,7 +57,7 @@ class FiletotePlugin(BeetsPlugin):
 
         self.operation = None
 
-        self._process_queue: list = []
+        self._process_queue: list[FiletoteItem] = []
         self._shared_artifacts: dict = {}
         self._dirs_seen: list = []
 
@@ -279,13 +288,13 @@ class FiletotePlugin(BeetsPlugin):
                 if queue_files:
                     self._process_queue.extend(
                         [
-                            {
-                                "files": queue_files,
-                                "mapping": self._generate_mapping(
+                            FiletoteItem(
+                                files=queue_files,
+                                mapping=self._generate_mapping(
                                     item, destination
                                 ),
-                                "source_path": source_path,
-                            }
+                                source_path=source_path,
+                            )
                         ]
                     )
 
@@ -315,11 +324,11 @@ class FiletotePlugin(BeetsPlugin):
 
         self._process_queue.extend(
             [
-                {
-                    "files": queue_files,
-                    "mapping": self._generate_mapping(item, destination),
-                    "source_path": source_path,
-                }
+                FiletoteItem(
+                    files=queue_files,
+                    mapping=self._generate_mapping(item, destination),
+                    source_path=source_path,
+                )
             ]
         )
         self._dirs_seen.extend([source_path])
@@ -334,9 +343,9 @@ class FiletotePlugin(BeetsPlugin):
         # Ensure destination library settings are accessible
         self.lib = lib
         for item in self._process_queue:
-            artifacts = item["files"]
+            artifacts = item.files
 
-            source_path = item["source_path"]
+            source_path = item.source_path
 
             if not self.pairing_only:
                 for shared_artifact in self._shared_artifacts[source_path]:
@@ -346,7 +355,7 @@ class FiletotePlugin(BeetsPlugin):
 
             self._shared_artifacts[source_path] = []
 
-            self.process_artifacts(artifacts, item["mapping"])
+            self.process_artifacts(artifacts, item.mapping)
 
     def process_artifacts(self, source_files, mapping: FiletoteMapping):
         """
