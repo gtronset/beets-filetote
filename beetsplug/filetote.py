@@ -2,7 +2,7 @@
 import filecmp
 import os
 from dataclasses import asdict, dataclass, replace
-from typing import Optional
+from typing import List, Optional
 
 from beets import config, util
 from beets.library import DefaultTemplateFunctions
@@ -38,7 +38,7 @@ class FiletoteItem:
 class FiletoteItemCollection:
     """An individual FileTote Item collection for processing."""
 
-    files: list[FiletoteItem]
+    files: List[FiletoteItem]
     mapping: FiletoteMapping
     source_path: str
 
@@ -65,9 +65,9 @@ class FiletotePlugin(BeetsPlugin):
 
         self.operation = None
 
-        self._process_queue: list[FiletoteItemCollection] = []
+        self._process_queue: List[FiletoteItemCollection] = []
         self._shared_artifacts: dict = {}
-        self._dirs_seen: list[str] = []
+        self._dirs_seen: List[str] = []
 
         self.extensions = self.config["extensions"].as_str_seq()
         self.filenames = self.config["filenames"].as_str_seq()
@@ -357,7 +357,7 @@ class FiletotePlugin(BeetsPlugin):
         # Ensure destination library settings are accessible
         self.lib = lib
         for item in self._process_queue:
-            artifacts: list[FiletoteItem] = item.files
+            artifacts: List[FiletoteItem] = item.files
 
             source_path = item.source_path
 
@@ -373,7 +373,7 @@ class FiletotePlugin(BeetsPlugin):
 
     def process_artifacts(
         self,
-        source_files: list[FiletoteItem],
+        source_files: List[FiletoteItem],
         mapping: FiletoteMapping,
     ):
         """
