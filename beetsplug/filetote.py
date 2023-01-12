@@ -84,7 +84,7 @@ class FiletotePlugin(BeetsPlugin):
             path_format
             for path_format in get_path_formats()
             for query in queries
-            if (path_format[0][: len(query)] == query)
+            if (path_format[0].startswith(query))
         ]
 
         move_events = [
