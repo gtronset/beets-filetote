@@ -158,14 +158,14 @@ class FiletotePlugin(BeetsPlugin):
             - ripped from beets/library.py
         """
 
-        full_filename = util.displayable_path(filename)
         file_name_no_ext = util.displayable_path(os.path.splitext(filename)[0])
-        file_ext = util.displayable_path(os.path.splitext(filename)[1])
-
         mapping = replace(mapping, old_filename=file_name_no_ext)
 
-        selected_path_query = "None"
-        selected_path_format = "None"
+        full_filename = util.displayable_path(filename)
+        file_ext = util.displayable_path(os.path.splitext(filename)[1])
+
+        selected_path_query: Optional[str] = None
+        selected_path_format: Optional[str] = None
 
         for query, path_format in self.path_formats:
             ext_len = len("ext:")
@@ -197,7 +197,7 @@ class FiletotePlugin(BeetsPlugin):
                 selected_path_query = "filename:"
                 selected_path_format = path_format
 
-        if selected_path_query == "None":
+        if not selected_path_query:
             # No query matched; use original filename
             file_path = os.path.join(
                 mapping.albumpath, util.displayable_path(filename)
