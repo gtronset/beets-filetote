@@ -103,10 +103,10 @@ class FiletotePlugin(BeetsPlugin):
         self.register_listener("import_begin", self._register_session_settings)
         self.register_listener("cli_exit", self.process_events)
 
-    def _register_session_settings(self, session):  # type: ignore[no-untyped-def]
+    def _register_session_settings(self, beets_session):  # type: ignore[no-untyped-def]
         """
         Certain settings are only available and/or finalized once the
-        import session begins.
+        Beets import session begins.
 
         This also augments the file type list of what is considered a music
         file or media, since MediaFile.TYPES isn't fundamentally a complete
@@ -125,7 +125,7 @@ class FiletotePlugin(BeetsPlugin):
             BEETS_FILE_TYPES.update({"m4b": "M4B"})
 
         self.operation = self._operation_type()
-        self.paths = os.path.expanduser(session.paths[0])
+        self.paths = os.path.expanduser(beets_session.paths[0])
 
     def _operation_type(self) -> MoveOperation:
         """Returns the file manipulations type."""
