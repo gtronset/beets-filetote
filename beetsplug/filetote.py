@@ -1,10 +1,10 @@
 """beets-filetote plugin for beets."""
 import filecmp
 import os
-from dataclasses import asdict, dataclass, replace
+from dataclasses import asdict, dataclass
 from re import match as re_match
 from re import sub as re_sub
-from typing import Any, List, Optional
+from typing import Any, List, Optional, Union
 
 from beets import config, util
 from beets.library import DefaultTemplateFunctions, Item
@@ -45,42 +45,47 @@ class FiletoteItemCollection:
     source_path: str
 
 
+@dataclass
+class FiletoteConfig:
+    """Configuration settings for FileTote Item."""
+
+    operation: Optional[MoveOperation] = None
+    beets_lib = None
+    extensions: Union[str, list] = ".*"
+    filenames: Union[str, list] = ""
+    exclude: Union[str, list] = ""
+    print_ignored: bool = False
+    pairing: bool = False
+    pairing_only: bool = False
+
+
 class FiletotePlugin(BeetsPlugin):
     """Plugin main class. Eventually, should encompass additional features as
     described in https://github.com/beetbox/beets/wiki/Attachments."""
 
-    # pylint: disable=too-many-instance-attributes
     # pylint: disable=fixme
     def __init__(self) -> None:
         super().__init__()
 
-        self.config.add(
-            {
-                "extensions": ".*",
-                "filenames": "",
-                "exclude": "",
-                "print_ignored": False,
-                "pairing": False,
-                "pairing_only": False,
-            }
-        )
-
-        self.operation = None
+        # Set default plugin config settings
+        self.config.add(asdict(FiletoteConfig()))
 
         self._process_queue: List[FiletoteItemCollection] = []
         self._shared_artifacts: dict = {}
         self._dirs_seen: List[str] = []
 
-        self.extensions = self.config["extensions"].as_str_seq()
-        self.filenames = self.config["filenames"].as_str_seq()
-        self.exclude = self.config["exclude"].as_str_seq()
-        self.print_ignored = self.config["print_ignored"].get()
-        self.pairing = self.config["pairing"].get()
-        self.pairing_only = self.config["pairing_only"].get()
+        self.filetote: FiletoteConfig = FiletoteConfig(
+            operation=None,
+            extensions=self.config["extensions"].as_str_seq(),
+            filenames=self.config["filenames"].as_str_seq(),
+            exclude=self.config["exclude"].as_str_seq(),
+            print_ignored=self.config["print_ignored"].get(),
+            pairing=self.config["pairing"].get(),
+            pairing_only=self.config["pairing_only"].get(),
+        )
 
-        queries = ["ext:", "filename:", "paired_ext:"]
+        queries: List[str] = ["ext:", "filename:", "paired_ext:"]
 
-        self.beets_lib = None
         self.paths = None
         self.path_formats = [
             path_format
@@ -89,7 +94,7 @@ class FiletotePlugin(BeetsPlugin):
             if (path_format[0].startswith(query))
         ]
 
-        move_events = [
+        move_events: List[str] = [
             "item_moved",
             "item_copied",
             "item_linked",
@@ -124,7 +129,7 @@ class FiletotePlugin(BeetsPlugin):
         if "audible" in config["plugins"].get():
             BEETS_FILE_TYPES.update({"m4b": "M4B"})
 
-        self.operation = self._operation_type()
+        setattr(self.filetote, "operation", self._operation_type())
         self.paths = os.path.expanduser(session.paths[0])
 
     def _operation_type(self) -> MoveOperation:
@@ -161,7 +166,7 @@ class FiletotePlugin(BeetsPlugin):
         """
 
         file_name_no_ext = util.displayable_path(os.path.splitext(filename)[0])
-        mapping = replace(mapping, old_filename=file_name_no_ext)
+        setattr(mapping, "old_filename", file_name_no_ext)
 
         full_filename = util.displayable_path(filename)
         file_ext = util.displayable_path(os.path.splitext(filename)[1])
@@ -223,17 +228,10 @@ class FiletotePlugin(BeetsPlugin):
 
         return file_path
 
-    # TODO: may be better to use FormattedMapping class from beets/dbcore/db.py
     def _get_formatted(self, value: Any, for_path: bool = False):
         """Replace path separators in value
         - ripped from beets/dbcore/db.py
         """
-        # sep_repl = config["path_sep_replace"].as_str()
-        # for sep in (os.path.sep, os.path.altsep):
-        #     if sep:
-        #         value = value.replace(sep, sep_repl)
-
-        # return value
 
         if isinstance(value, bytes):
             value = value.decode("utf-8", "ignore")
@@ -306,7 +304,7 @@ class FiletotePlugin(BeetsPlugin):
         if source_path in self._dirs_seen:
             # Check to see if "pairing" is enabled and, if so, if there are
             # artifacts to look at
-            if self.pairing and self._shared_artifacts[source_path]:
+            if self.filetote.pairing and self._shared_artifacts[source_path]:
                 # Iterate through shared artifacts to find paired matches
                 for filepath in self._shared_artifacts[source_path]:
                     file_name, _file_ext = os.path.splitext(
@@ -369,11 +367,13 @@ class FiletotePlugin(BeetsPlugin):
                 if self._is_beets_file_type(file_ext):
                     continue
 
-                if not self.pairing:
+                if not self.filetote.pairing:
                     queue_files.append(
                         FiletoteItem(path=source_file, paired=False)
                     )
-                elif self.pairing and file_name == item_source_filename:
+                elif (
+                    self.filetote.pairing and file_name == item_source_filename
+                ):
                     queue_files.append(
                         FiletoteItem(path=source_file, paired=True)
                     )
@@ -397,7 +397,7 @@ class FiletotePlugin(BeetsPlugin):
         manipuation of the extra files and artificats.
         """
         # Ensure destination library settings are accessible
-        self.beets_lib = lib
+        setattr(self.filetote, "beets_lib", lib)
 
         for artifact_collection in self._process_queue:
             artifact_collection: FiletoteItemCollection
@@ -406,7 +406,7 @@ class FiletotePlugin(BeetsPlugin):
 
             source_path = artifact_collection.source_path
 
-            if not self.pairing_only:
+            if not self.filetote.pairing_only:
                 for shared_artifact in self._shared_artifacts[source_path]:
                     artifacts.append(
                         FiletoteItem(path=shared_artifact, paired=False)
@@ -445,7 +445,7 @@ class FiletotePlugin(BeetsPlugin):
                 continue
 
             # Skip if filename is explicitly in `exclude`
-            if util.displayable_path(filename) in self.exclude:
+            if util.displayable_path(filename) in self.filetote.exclude:
                 ignored_files.append(source_file)
                 continue
 
@@ -454,9 +454,11 @@ class FiletotePlugin(BeetsPlugin):
             # - filenames not explicitly in `filenames`
             file_ext = os.path.splitext(filename)[1]
             if (
-                ".*" not in self.extensions
-                and util.displayable_path(file_ext) not in self.extensions
-                and util.displayable_path(filename) not in self.filenames
+                ".*" not in self.filetote.extensions
+                and util.displayable_path(file_ext)
+                not in self.filetote.extensions
+                and util.displayable_path(filename)
+                not in self.filetote.filenames
             ):
                 ignored_files.append(source_file)
                 continue
@@ -479,7 +481,7 @@ class FiletotePlugin(BeetsPlugin):
     def print_ignored_files(self, ignored_files: list):
         """If enabled in config, output ignored files to beets logs."""
 
-        if self.print_ignored and ignored_files:
+        if self.filetote.print_ignored and ignored_files:
             self._log.warning("Ignored files:")
             for filename in ignored_files:
                 self._log.warning("   {0}", os.path.basename(filename))
@@ -500,7 +502,7 @@ class FiletotePlugin(BeetsPlugin):
 
         source_path = os.path.dirname(source_file)
 
-        library_dir = self.beets_lib.directory
+        library_dir = self.filetote.beets_lib.directory
 
         root_path = None
 
@@ -511,17 +513,17 @@ class FiletotePlugin(BeetsPlugin):
             root_path = self.paths
             reimport = True
 
-        operation_display = self.operation
+        operation = self.filetote.operation
 
         if reimport:
-            operation_display = "REIMPORT"
+            operation = "REIMPORT"
 
         self._log.info(
-            f"{operation_display}-ing artifact:"
+            f"{operation}-ing artifact:"
             f" {os.path.basename(util.displayable_path(dest_file))}"
         )
 
-        if reimport or self.operation == MoveOperation.MOVE:
+        if reimport or operation == MoveOperation.MOVE:
             util.move(source_file, dest_file)
 
             util.prune_dirs(
@@ -529,15 +531,15 @@ class FiletotePlugin(BeetsPlugin):
                 root=root_path,
                 clutter=config["clutter"].as_str_seq(),
             )
-        elif self.operation == MoveOperation.COPY:
+        elif operation == MoveOperation.COPY:
             util.copy(source_file, dest_file)
-        elif self.operation == MoveOperation.LINK:
+        elif operation == MoveOperation.LINK:
             util.link(source_file, dest_file)
-        elif self.operation == MoveOperation.HARDLINK:
+        elif operation == MoveOperation.HARDLINK:
             util.hardlink(source_file, dest_file)
-        elif self.operation == MoveOperation.REFLINK:
+        elif operation == MoveOperation.REFLINK:
             util.reflink(source_file, dest_file, fallback=False)
-        elif self.operation == MoveOperation.REFLINK_AUTO:
+        elif operation == MoveOperation.REFLINK_AUTO:
             util.reflink(source_file, dest_file, fallback=True)
         else:
-            assert False, f"unknown MoveOperation {self.operation}"
+            assert False, f"unknown MoveOperation {operation}"
