@@ -2,10 +2,12 @@
 import filecmp
 import os
 from dataclasses import asdict, dataclass, replace
-from typing import List, Optional
+from re import match as re_match
+from re import sub as re_sub
+from typing import Any, List, Optional
 
 from beets import config, util
-from beets.library import DefaultTemplateFunctions
+from beets.library import DefaultTemplateFunctions, Item
 from beets.plugins import BeetsPlugin
 from beets.ui import get_path_formats
 from beets.util import MoveOperation
@@ -222,24 +224,45 @@ class FiletotePlugin(BeetsPlugin):
         return file_path
 
     # TODO: may be better to use FormattedMapping class from beets/dbcore/db.py
-    def _get_formatted(self, value):
+    def _get_formatted(self, value: Any, for_path: bool = False):
         """Replace path separators in value
         - ripped from beets/dbcore/db.py
         """
-        sep_repl = config["path_sep_replace"].as_str()
-        for sep in (os.path.sep, os.path.altsep):
-            if sep:
-                value = value.replace(sep, sep_repl)
+        # sep_repl = config["path_sep_replace"].as_str()
+        # for sep in (os.path.sep, os.path.altsep):
+        #     if sep:
+        #         value = value.replace(sep, sep_repl)
+
+        # return value
+
+        if isinstance(value, bytes):
+            value = value.decode("utf-8", "ignore")
+
+        if for_path:
+            sep_repl = config["path_sep_replace"].as_str()
+            sep_drive = config["drive_sep_replace"].as_str()
+
+            if re_match(r"^\w:", value):
+                value = re_sub(r"(?<=^\w):", sep_drive, value)
+
+            for sep in (os.path.sep, os.path.altsep):
+                if sep:
+                    value = value.replace(sep, sep_repl)
 
         return value
 
-    def _generate_mapping(self, item, destination: bytes) -> FiletoteMapping:
-        """Creates a mapping of usable path values for renaming."""
+    def _generate_mapping(
+        self, item: Item, destination: bytes
+    ) -> FiletoteMapping:
+        """Creates a mapping of usable path values for renaming. Takes in an
+        Item (see https://github.com/beetbox/beets/blob/master/beets/library.py#L456).
+        """
         mapping = {
             "artist": item.artist or "None",
             "albumartist": item.albumartist or "None",
             "album": item.album or "None",
         }
+
         for key in mapping:
             mapping[key] = self._get_formatted(mapping[key])
 
@@ -249,13 +272,17 @@ class FiletotePlugin(BeetsPlugin):
         # TODO: Retool to utilize the OS's path separator
         # pathsep = config["path_sep_replace"].get(str)
         strpath_old = util.displayable_path(item.path)
-        filename_old, _fileext = os.path.splitext(os.path.basename(strpath_old))
+        medianame_old, _mediaext_old = os.path.splitext(
+            os.path.basename(strpath_old)
+        )
 
         strpath_new = util.displayable_path(destination)
-        filename_new = os.path.splitext(os.path.basename(strpath_new))[0]
+        medianame_new, _mediaext_new = os.path.splitext(
+            os.path.basename(strpath_new)
+        )
 
-        mapping["medianame_old"] = filename_old
-        mapping["medianame_new"] = filename_new
+        mapping["medianame_old"] = medianame_old
+        mapping["medianame_new"] = medianame_new
 
         # return mapping
         return FiletoteMapping(
@@ -267,7 +294,9 @@ class FiletotePlugin(BeetsPlugin):
             medianame_new=mapping["medianame_new"],
         )
 
-    def collect_artifacts(self, item, source, destination):
+    def collect_artifacts(
+        self, item: Item, source: str, destination: bytes
+    ) -> None:
         """Creates lists of the various extra files and artificats for processing.
         """
         # pylint: disable=too-many-locals
