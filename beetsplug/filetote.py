@@ -312,6 +312,7 @@ class FiletotePlugin(BeetsPlugin):
                     file_name, _file_ext = os.path.splitext(
                         os.path.basename(filepath)
                     )
+                    # If the names match, it's a "pair"
                     if file_name == item_source_filename:
                         queue_files.append(
                             FiletoteItem(path=filepath, paired=True)
@@ -334,6 +335,8 @@ class FiletotePlugin(BeetsPlugin):
         return False
 
     def _is_beets_file_type(self, file_ext: str) -> bool:
+        """Checks if the provided file extension is a music file/track
+        (i.e., already handles by Beets)."""
         return (
             len(file_ext) > 1
             and util.displayable_path(file_ext)[1:] in BEETS_FILE_TYPES
@@ -393,10 +396,13 @@ class FiletotePlugin(BeetsPlugin):
         """
         # Ensure destination library settings are accessible
         self.lib = lib
-        for item in self._process_queue:
-            artifacts: List[FiletoteItem] = item.files
 
-            source_path = item.source_path
+        for artifact_collection in self._process_queue:
+            artifact_collection: FiletoteItemCollection
+
+            artifacts: List[FiletoteItem] = artifact_collection.files
+
+            source_path = artifact_collection.source_path
 
             if not self.pairing_only:
                 for shared_artifact in self._shared_artifacts[source_path]:
@@ -406,22 +412,22 @@ class FiletotePlugin(BeetsPlugin):
 
             self._shared_artifacts[source_path] = []
 
-            self.process_artifacts(artifacts, item.mapping)
+            self.process_artifacts(artifacts, artifact_collection.mapping)
 
     def process_artifacts(
         self,
-        source_files: List[FiletoteItem],
+        source_artifacts: List[FiletoteItem],
         mapping: FiletoteMapping,
     ):
         """
         Processes and prepares extra files / artifacts for subsequent manipulation.
         """
-        if not source_files:
+        if not source_artifacts:
             return
 
         ignored_files = []
 
-        for artifact in source_files:
+        for artifact in source_artifacts:
             source_file = artifact.path
 
             source_path = os.path.dirname(source_file)
