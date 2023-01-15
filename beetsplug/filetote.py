@@ -294,16 +294,13 @@ class FiletotePlugin(BeetsPlugin):
             medianame_new=mapping["medianame_new"],
         )
 
-    def collect_artifacts(
+    def _paired_files_collected(
         self, item: Item, source: str, destination: bytes
-    ) -> None:
-        """Creates lists of the various extra files and artificats for processing.
-        """
-        # pylint: disable=too-many-locals
-        item_source_filename = os.path.splitext(os.path.basename(source))[0]
-        source_path = os.path.dirname(source)
+    ) -> bool:
+        item_source_filename, _ext = os.path.splitext(os.path.basename(source))
+        source_path: str = os.path.dirname(source)
 
-        queue_files = []
+        queue_files: list[FiletoteItem] = []
 
         # Check if this path has already been processed
         if source_path in self._dirs_seen:
@@ -312,7 +309,7 @@ class FiletotePlugin(BeetsPlugin):
             if self.pairing and self._shared_artifacts[source_path]:
                 # Iterate through shared artifacts to find paired matches
                 for filepath in self._shared_artifacts[source_path]:
-                    file_name, file_ext = os.path.splitext(
+                    file_name, _file_ext = os.path.splitext(
                         os.path.basename(filepath)
                     )
                     if file_name == item_source_filename:
@@ -325,18 +322,34 @@ class FiletotePlugin(BeetsPlugin):
                         self._shared_artifacts[source_path].remove(filepath)
 
                 if queue_files:
-                    self._process_queue.extend(
-                        [
-                            FiletoteItemCollection(
-                                files=queue_files,
-                                mapping=self._generate_mapping(
-                                    item, destination
-                                ),
-                                source_path=source_path,
-                            )
-                        ]
+                    self._process_queue.append(
+                        FiletoteItemCollection(
+                            files=queue_files,
+                            mapping=self._generate_mapping(item, destination),
+                            source_path=source_path,
+                        )
                     )
+            return True
 
+        return False
+
+    def _is_beets_file_type(self, file_ext: str) -> bool:
+        return (
+            len(file_ext) > 1
+            and util.displayable_path(file_ext)[1:] in BEETS_FILE_TYPES
+        )
+
+    def collect_artifacts(
+        self, item: Item, source: str, destination: bytes
+    ) -> None:
+        """Creates lists of the various extra files and artificats for processing.
+        """
+        item_source_filename = os.path.splitext(os.path.basename(source))[0]
+        source_path = os.path.dirname(source)
+
+        queue_files: list[FiletoteItem] = []
+
+        if self._paired_files_collected(item, source, destination):
             return
 
         non_handled_files = []
@@ -345,13 +358,10 @@ class FiletotePlugin(BeetsPlugin):
         ):
             for filename in files:
                 source_file = os.path.join(root, filename)
+                file_name, file_ext = os.path.splitext(filename)
 
                 # Skip any files extensions handled by beets
-                file_name, file_ext = os.path.splitext(filename)
-                if (
-                    len(file_ext) > 1
-                    and util.displayable_path(file_ext)[1:] in BEETS_FILE_TYPES
-                ):
+                if self._is_beets_file_type(file_ext):
                     continue
 
                 if not self.pairing:
@@ -365,16 +375,14 @@ class FiletotePlugin(BeetsPlugin):
                 else:
                     non_handled_files.append(source_file)
 
-        self._process_queue.extend(
-            [
-                FiletoteItemCollection(
-                    files=queue_files,
-                    mapping=self._generate_mapping(item, destination),
-                    source_path=source_path,
-                )
-            ]
+        self._process_queue.append(
+            FiletoteItemCollection(
+                files=queue_files,
+                mapping=self._generate_mapping(item, destination),
+                source_path=source_path,
+            )
         )
-        self._dirs_seen.extend([source_path])
+        self._dirs_seen.append(source_path)
 
         self._shared_artifacts[source_path] = non_handled_files
 
@@ -392,8 +400,8 @@ class FiletotePlugin(BeetsPlugin):
 
             if not self.pairing_only:
                 for shared_artifact in self._shared_artifacts[source_path]:
-                    artifacts.extend(
-                        [FiletoteItem(path=shared_artifact, paired=False)]
+                    artifacts.append(
+                        FiletoteItem(path=shared_artifact, paired=False)
                     )
 
             self._shared_artifacts[source_path] = []
