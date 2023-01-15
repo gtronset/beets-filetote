@@ -103,7 +103,7 @@ class FiletotePlugin(BeetsPlugin):
         self.register_listener("import_begin", self._register_session_settings)
         self.register_listener("cli_exit", self.process_events)
 
-    def _register_session_settings(self, beets_session):  # type: ignore[no-untyped-def]
+    def _register_session_settings(self, session):  # type: ignore[no-untyped-def]
         """
         Certain settings are only available and/or finalized once the
         Beets import session begins.
@@ -125,7 +125,7 @@ class FiletotePlugin(BeetsPlugin):
             BEETS_FILE_TYPES.update({"m4b": "M4B"})
 
         self.operation = self._operation_type()
-        self.paths = os.path.expanduser(beets_session.paths[0])
+        self.paths = os.path.expanduser(session.paths[0])
 
     def _operation_type(self) -> MoveOperation:
         """Returns the file manipulations type."""
@@ -345,7 +345,7 @@ class FiletotePlugin(BeetsPlugin):
         )
 
     def collect_artifacts(
-        self, beets_item: Item, source: str, destination: bytes
+        self, item: Item, source: str, destination: bytes
     ) -> None:
         """Creates lists of the various extra files and artificats for processing.
         """
@@ -354,7 +354,7 @@ class FiletotePlugin(BeetsPlugin):
 
         queue_files: list[FiletoteItem] = []
 
-        if self._paired_files_collected(beets_item, source, destination):
+        if self._paired_files_collected(item, source, destination):
             return
 
         non_handled_files = []
@@ -383,7 +383,7 @@ class FiletotePlugin(BeetsPlugin):
         self._process_queue.append(
             FiletoteItemCollection(
                 files=queue_files,
-                mapping=self._generate_mapping(beets_item, destination),
+                mapping=self._generate_mapping(item, destination),
                 source_path=source_path,
             )
         )
@@ -391,13 +391,13 @@ class FiletotePlugin(BeetsPlugin):
 
         self._shared_artifacts[source_path] = non_handled_files
 
-    def process_events(self, beets_lib):
+    def process_events(self, lib):
         """
         Triggered by the CLI exit event, which itself triggers the processing and
         manipuation of the extra files and artificats.
         """
         # Ensure destination library settings are accessible
-        self.beets_lib = beets_lib
+        self.beets_lib = lib
 
         for artifact_collection in self._process_queue:
             artifact_collection: FiletoteItemCollection
