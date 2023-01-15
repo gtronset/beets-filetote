@@ -80,7 +80,7 @@ class FiletotePlugin(BeetsPlugin):
 
         queries = ["ext:", "filename:", "paired_ext:"]
 
-        self.lib = None
+        self.beets_lib = None
         self.paths = None
         self.path_formats = [
             path_format
@@ -391,13 +391,13 @@ class FiletotePlugin(BeetsPlugin):
 
         self._shared_artifacts[source_path] = non_handled_files
 
-    def process_events(self, lib):
+    def process_events(self, beets_lib):
         """
         Triggered by the CLI exit event, which itself triggers the processing and
         manipuation of the extra files and artificats.
         """
         # Ensure destination library settings are accessible
-        self.lib = lib
+        self.beets_lib = beets_lib
 
         for artifact_collection in self._process_queue:
             artifact_collection: FiletoteItemCollection
@@ -500,7 +500,7 @@ class FiletotePlugin(BeetsPlugin):
 
         source_path = os.path.dirname(source_file)
 
-        library_dir = self.lib.directory
+        library_dir = self.beets_lib.directory
 
         root_path = None
 
