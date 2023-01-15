@@ -252,15 +252,15 @@ class FiletotePlugin(BeetsPlugin):
         return value
 
     def _generate_mapping(
-        self, item: Item, destination: bytes
+        self, beets_item: Item, destination: bytes
     ) -> FiletoteMapping:
         """Creates a mapping of usable path values for renaming. Takes in an
         Item (see https://github.com/beetbox/beets/blob/master/beets/library.py#L456).
         """
         mapping = {
-            "artist": item.artist or "None",
-            "albumartist": item.albumartist or "None",
-            "album": item.album or "None",
+            "artist": beets_item.artist or "None",
+            "albumartist": beets_item.albumartist or "None",
+            "album": beets_item.album or "None",
         }
 
         for key in mapping:
@@ -271,7 +271,7 @@ class FiletotePlugin(BeetsPlugin):
 
         # TODO: Retool to utilize the OS's path separator
         # pathsep = config["path_sep_replace"].get(str)
-        strpath_old = util.displayable_path(item.path)
+        strpath_old = util.displayable_path(beets_item.path)
         medianame_old, _mediaext_old = os.path.splitext(
             os.path.basename(strpath_old)
         )
@@ -295,7 +295,7 @@ class FiletotePlugin(BeetsPlugin):
         )
 
     def _paired_files_collected(
-        self, item: Item, source: str, destination: bytes
+        self, beets_item: Item, source: str, destination: bytes
     ) -> bool:
         item_source_filename, _ext = os.path.splitext(os.path.basename(source))
         source_path: str = os.path.dirname(source)
@@ -326,7 +326,9 @@ class FiletotePlugin(BeetsPlugin):
                     self._process_queue.append(
                         FiletoteItemCollection(
                             files=queue_files,
-                            mapping=self._generate_mapping(item, destination),
+                            mapping=self._generate_mapping(
+                                beets_item, destination
+                            ),
                             source_path=source_path,
                         )
                     )
@@ -343,7 +345,7 @@ class FiletotePlugin(BeetsPlugin):
         )
 
     def collect_artifacts(
-        self, item: Item, source: str, destination: bytes
+        self, beets_item: Item, source: str, destination: bytes
     ) -> None:
         """Creates lists of the various extra files and artificats for processing.
         """
@@ -352,7 +354,7 @@ class FiletotePlugin(BeetsPlugin):
 
         queue_files: list[FiletoteItem] = []
 
-        if self._paired_files_collected(item, source, destination):
+        if self._paired_files_collected(beets_item, source, destination):
             return
 
         non_handled_files = []
@@ -381,7 +383,7 @@ class FiletotePlugin(BeetsPlugin):
         self._process_queue.append(
             FiletoteItemCollection(
                 files=queue_files,
-                mapping=self._generate_mapping(item, destination),
+                mapping=self._generate_mapping(beets_item, destination),
                 source_path=source_path,
             )
         )
