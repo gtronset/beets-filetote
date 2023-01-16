@@ -53,6 +53,10 @@ class FiletoteSessionData:
     beets_lib = None
     import_path: Optional[bytes] = None
 
+    def adjust(self, attr: str, value: Any) -> None:
+        """Adjust provided attribute of class with provided value."""
+        setattr(self, attr, value)
+
 
 @dataclass
 class FiletoteConfig:
@@ -140,7 +144,8 @@ class FiletotePlugin(BeetsPlugin):
         if "audible" in config["plugins"].get():
             BEETS_FILE_TYPES.update({"m4b": "M4B"})
 
-        setattr(self.filetote.session, "operation", self._operation_type())
+        self.filetote.session.adjust("operation", self._operation_type())
+        # setattr(self.filetote.session, "operation", self._operation_type())
         self.filetote.session.import_path = os.path.expanduser(session.paths[0])
 
     def _operation_type(self) -> MoveOperation:
@@ -425,7 +430,8 @@ class FiletotePlugin(BeetsPlugin):
         manipuation of the extra files and artificats.
         """
         # Ensure destination library settings are accessible
-        setattr(self.filetote.session, "beets_lib", lib)
+        self.filetote.session.adjust("beets_lib", lib)
+        # setattr(self.filetote.session, "beets_lib", lib)
 
         for artifact_collection in self._process_queue:
             artifact_collection: FiletoteItemCollection
