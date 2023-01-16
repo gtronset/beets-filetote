@@ -46,11 +46,19 @@ class FiletoteItemCollection:
 
 
 @dataclass
-class FiletoteConfig:
+class FiletoteSessionData:
     """Configuration settings for FileTote Item."""
 
     operation: Optional[MoveOperation] = None
     beets_lib = None
+    import_path: Optional[bytes] = None
+
+
+@dataclass
+class FiletoteConfig:
+    """Configuration settings for FileTote Item."""
+
+    session: FiletoteSessionData = FiletoteSessionData()
     extensions: Union[str, list] = ".*"
     filenames: Union[str, list] = ""
     exclude: Union[str, list] = ""
@@ -70,12 +78,7 @@ class FiletotePlugin(BeetsPlugin):
         # Set default plugin config settings
         self.config.add(asdict(FiletoteConfig()))
 
-        self._process_queue: List[FiletoteItemCollection] = []
-        self._shared_artifacts: dict = {}
-        self._dirs_seen: List[str] = []
-
         self.filetote: FiletoteConfig = FiletoteConfig(
-            operation=None,
             extensions=self.config["extensions"].as_str_seq(),
             filenames=self.config["filenames"].as_str_seq(),
             exclude=self.config["exclude"].as_str_seq(),
@@ -86,13 +89,12 @@ class FiletotePlugin(BeetsPlugin):
 
         queries: List[str] = ["ext:", "filename:", "paired_ext:"]
 
-        self.paths = None
-        self.path_formats = [
-            path_format
-            for path_format in get_path_formats()
-            for query in queries
-            if (path_format[0].startswith(query))
-        ]
+        self._path_formats: List[tuple] = self._get_filetote_path_formats(
+            queries
+        )
+        self._process_queue: List[FiletoteItemCollection] = []
+        self._shared_artifacts: dict = {}
+        self._dirs_seen: List[str] = []
 
         move_events: List[str] = [
             "item_moved",
@@ -107,6 +109,15 @@ class FiletotePlugin(BeetsPlugin):
 
         self.register_listener("import_begin", self._register_session_settings)
         self.register_listener("cli_exit", self.process_events)
+
+    def _get_filetote_path_formats(self, queries: List[str]) -> List[tuple]:
+        path_formats = []
+
+        for path_format in get_path_formats():
+            for query in queries:
+                if path_format[0].startswith(query):
+                    path_formats.append(path_format)
+        return path_formats
 
     def _register_session_settings(self, session):  # type: ignore[no-untyped-def]
         """
@@ -129,8 +140,8 @@ class FiletotePlugin(BeetsPlugin):
         if "audible" in config["plugins"].get():
             BEETS_FILE_TYPES.update({"m4b": "M4B"})
 
-        setattr(self.filetote, "operation", self._operation_type())
-        self.paths = os.path.expanduser(session.paths[0])
+        setattr(self.filetote.session, "operation", self._operation_type())
+        self.filetote.session.import_path = os.path.expanduser(session.paths[0])
 
     def _operation_type(self) -> MoveOperation:
         """Returns the file manipulations type."""
@@ -174,7 +185,7 @@ class FiletotePlugin(BeetsPlugin):
         selected_path_query: Optional[str] = None
         selected_path_format: Optional[str] = None
 
-        for query, path_format in self.path_formats:
+        for query, path_format in self._path_formats:
             ext_len = len("ext:")
             filename_len = len("filename:")
             paired_ext_len = len("paired_ext:")
@@ -397,7 +408,7 @@ class FiletotePlugin(BeetsPlugin):
         manipuation of the extra files and artificats.
         """
         # Ensure destination library settings are accessible
-        setattr(self.filetote, "beets_lib", lib)
+        setattr(self.filetote.session, "beets_lib", lib)
 
         for artifact_collection in self._process_queue:
             artifact_collection: FiletoteItemCollection
@@ -502,18 +513,20 @@ class FiletotePlugin(BeetsPlugin):
 
         source_path = os.path.dirname(source_file)
 
-        library_dir = self.filetote.beets_lib.directory
+        library_dir = self.filetote.session.beets_lib.directory
 
         root_path = None
 
-        if self.paths == library_dir:
-            root_path = os.path.dirname(self.paths)
+        import_path = self.filetote.session.import_path
+
+        if import_path == library_dir:
+            root_path = os.path.dirname(import_path)
             reimport = True
-        elif library_dir in util.ancestry(self.paths):
-            root_path = self.paths
+        elif library_dir in util.ancestry(import_path):
+            root_path = import_path
             reimport = True
 
-        operation = self.filetote.operation
+        operation = self.filetote.session.operation
 
         if reimport:
             operation = "REIMPORT"
