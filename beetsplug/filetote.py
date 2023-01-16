@@ -62,13 +62,16 @@ class FiletoteSessionData:
 class FiletoteConfig:
     """Configuration settings for FileTote Item."""
 
-    session: FiletoteSessionData = FiletoteSessionData()
+    session: Union[FiletoteSessionData, None] = None
     extensions: Union[str, list] = ".*"
     filenames: Union[str, list] = ""
     exclude: Union[str, list] = ""
     print_ignored: bool = False
     pairing: bool = False
     pairing_only: bool = False
+
+    # def __post_init__(self):
+    #    self.session = FiletoteSessionData()
 
 
 class FiletotePlugin(BeetsPlugin):
@@ -83,6 +86,7 @@ class FiletotePlugin(BeetsPlugin):
         self.config.add(asdict(FiletoteConfig()))
 
         self.filetote: FiletoteConfig = FiletoteConfig(
+            session=FiletoteSessionData(),
             extensions=self.config["extensions"].as_str_seq(),
             filenames=self.config["filenames"].as_str_seq(),
             exclude=self.config["exclude"].as_str_seq(),
