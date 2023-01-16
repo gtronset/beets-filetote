@@ -161,26 +161,10 @@ class FiletotePlugin(BeetsPlugin):
 
         return operation
 
-    def _destination(
-        self,
-        filename: str,
-        mapping: FiletoteMapping,
-        paired: bool = False,
-    ) -> str:
-        # pylint: disable=too-many-locals
-        """Returns a destination path a file should be moved to. The filename
-        is unique to ensure files aren't overwritten. This also checks the
-        config for path formats based on file extension allowing the use of
-        beets' template functions. If no path formats are found for the file
-        extension the original filename is used with the album path.
-            - ripped from beets/library.py
-        """
-
-        file_name_no_ext = util.displayable_path(os.path.splitext(filename)[0])
-        setattr(mapping, "old_filename", file_name_no_ext)
-
+    def _get_path_query_format_match(
+        self, filename: str, file_ext: str, paired: bool
+    ) -> tuple:
         full_filename = util.displayable_path(filename)
-        file_ext = util.displayable_path(os.path.splitext(filename)[1])
 
         selected_path_query: Optional[str] = None
         selected_path_format: Optional[str] = None
@@ -215,6 +199,31 @@ class FiletotePlugin(BeetsPlugin):
                 selected_path_query = "filename:"
                 selected_path_format = path_format
 
+        return (selected_path_query, selected_path_format)
+
+    def _destination(
+        self,
+        filename: str,
+        mapping: FiletoteMapping,
+        paired: bool = False,
+    ) -> str:
+        """Returns a destination path a file should be moved to. The filename
+        is unique to ensure files aren't overwritten. This also checks the
+        config for path formats based on file extension allowing the use of
+        beets' template functions. If no path formats are found for the file
+        extension the original filename is used with the album path.
+        """
+
+        file_name_no_ext = util.displayable_path(os.path.splitext(filename)[0])
+        setattr(mapping, "old_filename", file_name_no_ext)
+
+        file_ext = util.displayable_path(os.path.splitext(filename)[1])
+
+        (
+            selected_path_query,
+            selected_path_format,
+        ) = self._get_path_query_format_match(filename, file_ext, paired)
+
         if not selected_path_query:
             # No query matched; use original filename
             file_path = os.path.join(
@@ -222,10 +231,7 @@ class FiletotePlugin(BeetsPlugin):
             )
             return file_path
 
-        if isinstance(selected_path_format, Template):
-            subpath_tmpl = selected_path_format
-        else:
-            subpath_tmpl = Template(selected_path_format)
+        subpath_tmpl = self._templatize_path_format(selected_path_format)
 
         # Get template funcs and evaluate against mapping
         funcs = DefaultTemplateFunctions().functions()
@@ -238,6 +244,17 @@ class FiletotePlugin(BeetsPlugin):
         file_path = os.path.join(dirname, util.displayable_path(filename))
 
         return file_path
+
+    def _templatize_path_format(
+        self, path_format: Union[str, Template]
+    ) -> Template:
+        """Ensures that the path format is a Beets Template."""
+        if isinstance(path_format, Template):
+            subpath_tmpl = path_format
+        else:
+            subpath_tmpl = Template(path_format)
+
+        return subpath_tmpl
 
     def _get_formatted(self, value: Any, for_path: bool = False):
         """Replace path separators in value
