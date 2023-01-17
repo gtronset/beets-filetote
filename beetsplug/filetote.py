@@ -2,11 +2,9 @@
 import filecmp
 import os
 from dataclasses import asdict, dataclass
-from re import match as re_match
-from re import sub as re_sub
-from typing import Any, List, Optional, Union
+from typing import Any, List, Literal, Optional, Union
 
-from beets import config, util
+from beets import config, dbcore, util
 from beets.library import DefaultTemplateFunctions, Item
 from beets.plugins import BeetsPlugin
 from beets.ui import get_path_formats
@@ -15,17 +13,65 @@ from beets.util.functemplate import Template
 from mediafile import TYPES as BEETS_FILE_TYPES
 
 
-@dataclass
-class FiletoteMapping:
-    """Path and nameing Mapping for FileTote Items."""
+class FiletoteMappingModel(dbcore.db.Model):
+    """Model for a FormattedFiletoteMapping."""
 
-    artist: str
-    albumartist: str
-    album: str
-    albumpath: str
-    medianame_old: str
-    medianame_new: str
-    old_filename: Optional[str] = None
+    _fields = {
+        "artist": dbcore.types.STRING,
+        "albumartist": dbcore.types.STRING,
+        "album": dbcore.types.STRING,
+        "albumpath": dbcore.types.STRING,
+        "medianame_old": dbcore.types.STRING,
+        "medianame_new": dbcore.types.STRING,
+        "old_filename": dbcore.types.STRING,
+    }
+
+    def set(self, key, value):
+        """Get the formatted version of model[key] as string."""
+        return super().__setitem__(key, value)
+
+    @classmethod
+    def _getters(cls):
+        """Returnblank for getter functions."""
+        return {}
+
+    def _template_funcs(self):
+        """Return blank for template functions."""
+        return {}
+
+
+class FiletoteFormattedMapping(dbcore.db.FormattedMapping):
+    """
+    Formatted Mapping that does not replace path separators for certain keys
+    (e.g., albumpath).
+    """
+
+    ALL_KEYS: Literal["*"] = "*"
+
+    def __init__(
+        self,
+        model: FiletoteMappingModel,
+        included_keys: Union[Literal["*"], list] = ALL_KEYS,
+        for_path: bool = False,
+        whitelist_replace: Optional[List[str]] = None,
+    ):
+        super().__init__(model, included_keys, for_path)
+        if whitelist_replace is None:
+            whitelist_replace = []
+        self.whitelist_replace = whitelist_replace
+
+    def __getitem__(self, key):
+        """
+        Get the formatted version of model[key] as string. Any value
+        provided in the `whitelist_replace` list will not have the path
+        separator replaced.
+        """
+        if key in self.whitelist_replace:
+            value = self.model._type(key).format(self.model.get(key))
+            if isinstance(value, bytes):
+                value = value.decode("utf-8", "ignore")
+            return value
+        return super().__getitem__(key)
 
 
 @dataclass
@@ -41,7 +87,7 @@ class FiletoteItemCollection:
     """An individual FileTote Item collection for processing."""
 
     files: List[FiletoteItem]
-    mapping: FiletoteMapping
+    mapping: FiletoteMappingModel
     source_path: str
 
 
@@ -63,9 +109,9 @@ class FiletoteConfig:
     """Configuration settings for FileTote Item."""
 
     session: Union[FiletoteSessionData, None] = None
-    extensions: Union[str, list] = ".*"
-    filenames: Union[str, list] = ""
-    exclude: Union[str, list] = ""
+    extensions: Union[Literal[".*"], list] = ".*"
+    filenames: Union[Literal[""], list] = ""
+    exclude: Union[Literal[""], list] = ""
     print_ignored: bool = False
     pairing: bool = False
     pairing_only: bool = False
@@ -78,7 +124,6 @@ class FiletotePlugin(BeetsPlugin):
     """Plugin main class. Eventually, should encompass additional features as
     described in https://github.com/beetbox/beets/wiki/Attachments."""
 
-    # pylint: disable=fixme
     def __init__(self) -> None:
         super().__init__()
 
@@ -149,7 +194,6 @@ class FiletotePlugin(BeetsPlugin):
             BEETS_FILE_TYPES.update({"m4b": "M4B"})
 
         self.filetote.session.adjust("operation", self._operation_type())
-        # setattr(self.filetote.session, "operation", self._operation_type())
         self.filetote.session.import_path = os.path.expanduser(session.paths[0])
 
     def _operation_type(self) -> MoveOperation:
@@ -213,7 +257,7 @@ class FiletotePlugin(BeetsPlugin):
     def _destination(
         self,
         filename: str,
-        mapping: FiletoteMapping,
+        mapping: FiletoteMappingModel,
         paired: bool = False,
     ) -> str:
         """Returns a destination path a file should be moved to. The filename
@@ -224,7 +268,11 @@ class FiletotePlugin(BeetsPlugin):
         """
 
         file_name_no_ext = util.displayable_path(os.path.splitext(filename)[0])
-        setattr(mapping, "old_filename", file_name_no_ext)
+        mapping.set("old_filename", file_name_no_ext)
+
+        mapping_formatted = FiletoteFormattedMapping(
+            mapping, for_path=True, whitelist_replace=["albumpath"]
+        )
 
         file_ext = util.displayable_path(os.path.splitext(filename)[1])
 
@@ -236,7 +284,8 @@ class FiletotePlugin(BeetsPlugin):
         if not selected_path_query:
             # No query matched; use original filename
             file_path = os.path.join(
-                mapping.albumpath, util.displayable_path(filename)
+                mapping_formatted.get("albumpath"),
+                util.displayable_path(filename),
             )
             return file_path
 
@@ -244,8 +293,7 @@ class FiletotePlugin(BeetsPlugin):
 
         # Get template funcs and evaluate against mapping
         funcs = DefaultTemplateFunctions().functions()
-        mapping_dict = asdict(mapping)
-        file_path = subpath_tmpl.substitute(mapping_dict, funcs) + file_ext
+        file_path = subpath_tmpl.substitute(mapping_formatted, funcs) + file_ext
 
         # Sanitize filename
         filename = util.sanitize_path(os.path.basename(file_path))
@@ -265,69 +313,31 @@ class FiletotePlugin(BeetsPlugin):
 
         return subpath_tmpl
 
-    def _get_formatted(self, value: Any, for_path: bool = False):
-        """Replace path separators in value
-        - ripped from beets/dbcore/db.py
-        """
-
-        if isinstance(value, bytes):
-            value = value.decode("utf-8", "ignore")
-
-        if for_path:
-            sep_repl = config["path_sep_replace"].as_str()
-            sep_drive = config["drive_sep_replace"].as_str()
-
-            if re_match(r"^\w:", value):
-                value = re_sub(r"(?<=^\w):", sep_drive, value)
-
-            for sep in (os.path.sep, os.path.altsep):
-                if sep:
-                    value = value.replace(sep, sep_repl)
-
-        return value
-
     def _generate_mapping(
         self, beets_item: Item, destination: bytes
-    ) -> FiletoteMapping:
+    ) -> FiletoteMappingModel:
         """Creates a mapping of usable path values for renaming. Takes in an
         Item (see https://github.com/beetbox/beets/blob/master/beets/library.py#L456).
         """
-        mapping = {
+
+        album_path = os.path.dirname(destination)
+
+        strpath_old = util.displayable_path(beets_item.path)
+        medianame_old, _ = os.path.splitext(os.path.basename(strpath_old))
+
+        strpath_new = util.displayable_path(destination)
+        medianame_new, _ = os.path.splitext(os.path.basename(strpath_new))
+
+        mapping_meta = {
             "artist": beets_item.artist or "None",
             "albumartist": beets_item.albumartist or "None",
             "album": beets_item.album or "None",
+            "albumpath": util.displayable_path(album_path),
+            "medianame_old": medianame_old,
+            "medianame_new": medianame_new,
         }
 
-        for key in mapping:
-            mapping[key] = self._get_formatted(mapping[key])
-
-        album_path = os.path.dirname(destination)
-        mapping["albumpath"] = util.displayable_path(album_path)
-
-        # TODO: Retool to utilize the OS's path separator
-        # pathsep = config["path_sep_replace"].get(str)
-        strpath_old = util.displayable_path(beets_item.path)
-        medianame_old, _mediaext_old = os.path.splitext(
-            os.path.basename(strpath_old)
-        )
-
-        strpath_new = util.displayable_path(destination)
-        medianame_new, _mediaext_new = os.path.splitext(
-            os.path.basename(strpath_new)
-        )
-
-        mapping["medianame_old"] = medianame_old
-        mapping["medianame_new"] = medianame_new
-
-        # return mapping
-        return FiletoteMapping(
-            artist=mapping["artist"],
-            albumartist=mapping["albumartist"],
-            album=mapping["album"],
-            albumpath=mapping["albumpath"],
-            medianame_old=mapping["medianame_old"],
-            medianame_new=mapping["medianame_new"],
-        )
+        return FiletoteMappingModel(**mapping_meta)
 
     def _paired_files_collected(
         self, beets_item: Item, source: str, destination: bytes
@@ -435,7 +445,6 @@ class FiletotePlugin(BeetsPlugin):
         """
         # Ensure destination library settings are accessible
         self.filetote.session.adjust("beets_lib", lib)
-        # setattr(self.filetote.session, "beets_lib", lib)
 
         for artifact_collection in self._process_queue:
             artifact_collection: FiletoteItemCollection
@@ -457,7 +466,7 @@ class FiletotePlugin(BeetsPlugin):
     def process_artifacts(
         self,
         source_artifacts: List[FiletoteItem],
-        mapping: FiletoteMapping,
+        mapping: FiletoteMappingModel,
     ):
         """
         Processes and prepares extra files / artifacts for subsequent manipulation.
