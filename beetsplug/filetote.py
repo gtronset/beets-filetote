@@ -32,16 +32,16 @@ class FiletoteMappingModel(dbcore.db.Model):
         "old_filename": dbcore.types.STRING,
     }
 
-    def set(self, key, value):
+    def set(self, key: str, value: str) -> None:
         """Get the formatted version of model[key] as string."""
         return super().__setitem__(key, value)
 
     @classmethod
-    def _getters(cls):
+    def _getters(cls) -> dict:
         """Returnblank for getter functions."""
         return {}
 
-    def _template_funcs(self):
+    def _template_funcs(self) -> dict:
         """Return blank for template functions."""
         return {}
 
@@ -66,7 +66,7 @@ class FiletoteFormattedMapping(dbcore.db.FormattedMapping):
             whitelist_replace = []
         self.whitelist_replace = whitelist_replace
 
-    def __getitem__(self, key):
+    def __getitem__(self, key: str) -> str:
         """
         Get the formatted version of model[key] as string. Any value
         provided in the `whitelist_replace` list will not have the path
@@ -425,17 +425,17 @@ class FiletotePlugin(BeetsPlugin):
 
         self._shared_artifacts[source_path] = non_handled_files
 
-    def process_events(self, lib):
+    def process_events(self, lib: Any) -> None:
         """
         Triggered by the CLI exit event, which itself triggers the processing and
         manipuation of the extra files and artificats.
         """
         # Ensure destination library settings are accessible
-        self.filetote.session.adjust("beets_lib", lib)
+        if self.filetote.session:
+            self.filetote.session.adjust("beets_lib", lib)
 
+        artifact_collection: FiletoteItemCollection
         for artifact_collection in self._process_queue:
-            artifact_collection: FiletoteItemCollection
-
             artifacts: List[FiletoteItem] = artifact_collection.files
 
             source_path = artifact_collection.source_path
@@ -485,7 +485,7 @@ class FiletotePlugin(BeetsPlugin):
         self,
         source_artifacts: List[FiletoteItem],
         mapping: FiletoteMappingModel,
-    ):
+    ) -> None:
         """
         Processes and prepares extra files / artifacts for subsequent manipulation.
         """
@@ -520,7 +520,7 @@ class FiletotePlugin(BeetsPlugin):
 
         self.print_ignored_files(ignored_files)
 
-    def print_ignored_files(self, ignored_files: list):
+    def print_ignored_files(self, ignored_files: list) -> None:
         """If enabled in config, output ignored files to beets logs."""
 
         if self.filetote.print_ignored and ignored_files:
@@ -528,14 +528,25 @@ class FiletotePlugin(BeetsPlugin):
             for filename in ignored_files:
                 self._log.warning("   {0}", os.path.basename(filename))
 
-    def manipulate_artifact(self, source_file, dest_file):
+    def manipulate_artifact(self, source_file: str, dest_file: str) -> None:
         """Copy, move, link, hardlink or reflink (depending on `operation`)
         the files as well as write metadata.
         NOTE: `operation` should be an instance of `MoveOperation`.
         """
+        # pylint: disable=too-many-branches
 
         if not os.path.exists(source_file):
             # Sanity check for other plugins moving files
+            return
+
+        if self.filetote.session:
+            session = self.filetote.session
+        else:
+            return
+
+        if session.beets_lib:
+            beets_lib = session.beets_lib
+        else:
             return
 
         # In copy and link modes, treat reimports specially: move in-library
@@ -544,11 +555,11 @@ class FiletotePlugin(BeetsPlugin):
 
         source_path = os.path.dirname(source_file)
 
-        library_dir = self.filetote.session.beets_lib.directory
+        library_dir = beets_lib.directory
 
         root_path = None
 
-        import_path = self.filetote.session.import_path
+        import_path = session.import_path
 
         if import_path == library_dir:
             root_path = os.path.dirname(import_path)
@@ -557,7 +568,7 @@ class FiletotePlugin(BeetsPlugin):
             root_path = import_path
             reimport = True
 
-        operation = self.filetote.session.operation
+        operation = session.operation
 
         if reimport:
             operation = "REIMPORT"
@@ -567,7 +578,7 @@ class FiletotePlugin(BeetsPlugin):
             f" {os.path.basename(util.displayable_path(dest_file))}"
         )
 
-        if reimport or operation == MoveOperation.MOVE:
+        if operation in [MoveOperation.MOVE, "REIMPORT"]:
             util.move(source_file, dest_file)
 
             util.prune_dirs(
