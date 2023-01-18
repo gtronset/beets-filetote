@@ -448,6 +448,39 @@ class FiletotePlugin(BeetsPlugin):
 
             self.process_artifacts(artifacts, artifact_collection.mapping)
 
+    def _is_ignorable_file_check(
+        self, source_file: str, filename: str, dest_file: str
+    ) -> tuple[bool, Optional[str]]:
+        """
+        Compares the artifact/file to certain checks to see if it should be ignored
+        or skipped.
+        """
+
+        # Skip/ignore as another plugin or beets has already moved this file
+        if not os.path.exists(source_file):
+            return (True, source_file)
+
+        # Skip if filename is explicitly in `exclude`
+        if util.displayable_path(filename) in self.filetote.exclude:
+            return (True, source_file)
+
+        # Skip:
+        # - extensions not allowed in `extensions`
+        # - filenames not explicitly in `filenames`
+        file_ext = os.path.splitext(filename)[1]
+        if (
+            ".*" not in self.filetote.extensions
+            and util.displayable_path(file_ext) not in self.filetote.extensions
+            and util.displayable_path(filename) not in self.filetote.filenames
+        ):
+            return (True, source_file)
+
+        # Skip file if it already exists in dest
+        if os.path.exists(dest_file) and filecmp.cmp(source_file, dest_file):
+            return (True, source_file)
+
+        return (False, None)
+
     def process_artifacts(
         self,
         source_artifacts: List[FiletoteItem],
@@ -471,31 +504,12 @@ class FiletotePlugin(BeetsPlugin):
 
             dest_file = self._destination(filename, mapping, artifact.paired)
 
-            # Skip as another plugin or beets has already moved this file
-            if not os.path.exists(source_file):
-                ignored_files.append(source_file)
-                continue
+            is_ignorable, ignore_filename = self._is_ignorable_file_check(
+                source_file=source_file, filename=filename, dest_file=dest_file
+            )
 
-            # Skip if filename is explicitly in `exclude`
-            if util.displayable_path(filename) in self.filetote.exclude:
-                ignored_files.append(source_file)
-                continue
-
-            # Skip:
-            # - extensions not allowed in `extensions`
-            # - filenames not explicitly in `filenames`
-            file_ext = os.path.splitext(filename)[1]
-            if (
-                ".*" not in self.filetote.extensions
-                and util.displayable_path(file_ext) not in self.filetote.extensions
-                and util.displayable_path(filename) not in self.filetote.filenames
-            ):
-                ignored_files.append(source_file)
-                continue
-
-            # Skip file if it already exists in dest
-            if os.path.exists(dest_file) and filecmp.cmp(source_file, dest_file):
-                ignored_files.append(source_file)
+            if is_ignorable:
+                ignored_files.append(ignore_filename)
                 continue
 
             dest_file = util.unique_path(dest_file)
