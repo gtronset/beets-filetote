@@ -2,7 +2,8 @@
 import filecmp
 import os
 from dataclasses import asdict, dataclass
-from typing import Any, List, Literal, Optional, Union
+from sys import version_info
+from typing import Any, List, Optional, Union
 
 from beets import config, dbcore, util
 from beets.library import DefaultTemplateFunctions, Item
@@ -11,6 +12,11 @@ from beets.ui import get_path_formats
 from beets.util import MoveOperation
 from beets.util.functemplate import Template
 from mediafile import TYPES as BEETS_FILE_TYPES
+
+if version_info >= (3, 8):
+    from typing import Literal
+else:
+    from typing_extensions import Literal  # type: ignore # pylint: disable=import-error
 
 
 class FiletoteMappingModel(dbcore.db.Model):
