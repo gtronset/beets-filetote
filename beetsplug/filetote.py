@@ -3,7 +3,7 @@ import filecmp
 import os
 from dataclasses import asdict, dataclass
 from sys import version_info
-from typing import Any, List, Optional, Union
+from typing import Any, List, Optional, Tuple, Union
 
 from beets import config, dbcore, util
 from beets.library import DefaultTemplateFunctions, Item
@@ -450,7 +450,7 @@ class FiletotePlugin(BeetsPlugin):
 
     def _is_ignorable_file_check(
         self, source_file: str, filename: str, dest_file: str
-    ) -> tuple[bool, Optional[str]]:
+    ) -> Tuple[bool, Optional[str]]:
         """
         Compares the artifact/file to certain checks to see if it should be ignored
         or skipped.
