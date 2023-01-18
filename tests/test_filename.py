@@ -100,9 +100,7 @@ class FiletoteFilename(FiletoteTestCase):
         self.assert_in_lib_dir(
             b"Tag Artist",
             b"Album_ Subtitle",
-            beets.util.bytestring_path(
-                "Album_ Subtitle - CoolName_ Album&Tag.log"
-            ),
+            beets.util.bytestring_path("Album_ Subtitle - CoolName_ Album&Tag.log"),
         )
 
     def test_import_dir_with_illegal_character_in_album_name(self):

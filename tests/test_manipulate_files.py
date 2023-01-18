@@ -52,9 +52,7 @@ class FiletoteManipulateFiles(FiletoteTestCase):
 
         self.assert_islink(b"Tag Artist", b"Tag Album", b"newname.file")
 
-        self.assert_equal_path(
-            util.bytestring_path(os.readlink(new_path)), old_path
-        )
+        self.assert_equal_path(util.bytestring_path(os.readlink(new_path)), old_path)
 
     @pytest.mark.skipif(not _common.HAVE_HARDLINK, reason="need hardlinks")
     def test_import_hardlink_files(self):

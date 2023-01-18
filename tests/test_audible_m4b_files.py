@@ -25,9 +25,7 @@ class FiletoteM4BFilesIgnoredTest(FiletoteTestCase):
     def test_expanded_music_file_types_are_ignored(self):
         """Ensure that `.m4b` file types are ignored by Filetote."""
 
-        self._create_flat_import_dir(
-            media_files=[MediaSetup(file_type="m4b", count=1)]
-        )
+        self._create_flat_import_dir(media_files=[MediaSetup(file_type="m4b", count=1)])
         self._setup_import_session(autotag=False)
 
         config["filetote"]["extensions"] = ".*"

@@ -21,9 +21,7 @@ from beetsplug import (  # type: ignore[attr-defined] # pylint: disable=no-name-
 )
 from tests import _common
 
-beetsplug.__path__ = [
-    os.path.abspath(os.path.join(__file__, "..", "..", "beetsplug"))
-]
+beetsplug.__path__ = [os.path.abspath(os.path.join(__file__, "..", "..", "beetsplug"))]
 
 log = logging.getLogger("beets")
 
@@ -292,14 +290,10 @@ class FiletoteTestCase(_common.TestCase):
 
             if generate_pair:
                 # Create paired artifact
-                self._create_file(
-                    album_path, f"{trackname}.lrc".encode("utf-8")
-                )
+                self._create_file(album_path, f"{trackname}.lrc".encode("utf-8"))
         return media_list
 
-    def _create_medium(
-        self, path, resource_name, media_meta: MediaMeta = MediaMeta()
-    ):
+    def _create_medium(self, path, resource_name, media_meta: MediaMeta = MediaMeta()):
         """
         Creates and saves a media file object located at path using resource_name
         from the beets test resources directory as initial data
