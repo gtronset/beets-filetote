@@ -295,7 +295,11 @@ class FiletotePlugin(BeetsPlugin):
         )
 
     def collect_artifacts(self, item: Item, source: str, destination: bytes) -> None:
-        """Creates lists of the various extra files and artificats for processing."""
+        """
+        Creates lists of the various extra files and artificats for processing.
+        Since beets passes through the arguments, it's explicitly setting the Item to
+        the `item` argument (as it does with the others).
+        """
         item_source_filename = os.path.splitext(os.path.basename(source))[0]
         source_path = os.path.dirname(source)
 
