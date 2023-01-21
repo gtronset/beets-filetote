@@ -240,9 +240,21 @@ class FiletotePlugin(BeetsPlugin):
 
         return FiletoteMappingModel(**mapping_meta)
 
-    def _has_paired_artifacts(
+    def _has_shared_path(self, source: str) -> bool:
+        """
+        Detects is a shared path is available for use in processeing paired artifacts.
+        """
+        source_path: str = os.path.dirname(source)
+
+        # Check if this path has already been processed
+        if source_path in self._dirs_seen:
+            return True
+
+        return False
+
+    def _collect_paired_artifacts(
         self, beets_item: Item, source: str, destination: bytes
-    ) -> bool:
+    ) -> None:
         """
         When file "pairing" is enabled, this function looks through available
         artifacts for potential matching pairs. When found, it processes the artifacts
@@ -254,37 +266,32 @@ class FiletotePlugin(BeetsPlugin):
 
         queue_artifacts: list[FiletoteArtifact] = []
 
-        # Check if this path has already been processed
-        if source_path in self._dirs_seen:
-            # Check to see if "pairing" is enabled and, if so, if there are
-            # artifacts to look at
-            if self.filetote.pairing and self._shared_artifacts[source_path]:
-                # Iterate through shared artifacts to find paired matches
-                for artifact_path in self._shared_artifacts[source_path]:
-                    artifact_filename, _file_ext = os.path.splitext(
-                        os.path.basename(artifact_path)
+        # Check to see if "pairing" is enabled and, if so, if there are
+        # artifacts to look at
+        if self.filetote.pairing and self._shared_artifacts[source_path]:
+            # Iterate through shared artifacts to find paired matches
+            for artifact_path in self._shared_artifacts[source_path]:
+                artifact_filename, _file_ext = os.path.splitext(
+                    os.path.basename(artifact_path)
+                )
+                # If the names match, it's a "pair"
+                if artifact_filename == item_source_filename:
+                    queue_artifacts.append(
+                        FiletoteArtifact(path=artifact_path, paired=True)
                     )
-                    # If the names match, it's a "pair"
-                    if artifact_filename == item_source_filename:
-                        queue_artifacts.append(
-                            FiletoteArtifact(path=artifact_path, paired=True)
-                        )
 
-                        # Remove from shared artifacts, as the item-move will
-                        # handle this file.
-                        self._shared_artifacts[source_path].remove(artifact_path)
+                    # Remove from shared artifacts, as the item-move will
+                    # handle this file.
+                    self._shared_artifacts[source_path].remove(artifact_path)
 
-                if queue_artifacts:
-                    self._process_queue.append(
-                        FiletoteArtifactCollection(
-                            artifacts=queue_artifacts,
-                            mapping=self._generate_mapping(beets_item, destination),
-                            source_path=source_path,
-                        )
+            if queue_artifacts:
+                self._process_queue.append(
+                    FiletoteArtifactCollection(
+                        artifacts=queue_artifacts,
+                        mapping=self._generate_mapping(beets_item, destination),
+                        source_path=source_path,
                     )
-            return True
-
-        return False
+                )
 
     def _is_beets_file_type(self, file_ext: str) -> bool:
         """Checks if the provided file extension is a music file/track
@@ -305,7 +312,8 @@ class FiletotePlugin(BeetsPlugin):
 
         queue_files: list[FiletoteArtifact] = []
 
-        if self._has_paired_artifacts(item, source, destination):
+        if self._has_shared_path(source):
+            self._collect_paired_artifacts(item, source, destination)
             return
 
         non_handled_files = []
