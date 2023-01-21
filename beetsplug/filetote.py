@@ -123,9 +123,9 @@ class FiletotePlugin(BeetsPlugin):
         selected_path_format: Optional[str] = None
 
         for query, path_format in self._path_formats:
-            ext_len = len("ext:")
-            filename_len = len("filename:")
-            paired_ext_len = len("paired_ext:")
+            ext_len: int = len("ext:")
+            filename_len: int = len("filename:")
+            paired_ext_len: int = len("paired_ext:")
 
             if (
                 paired
@@ -441,6 +441,7 @@ class FiletotePlugin(BeetsPlugin):
             # Sanity check for other plugins moving files
             return
 
+        # Sanity check to ensure session and lib are set; makes mypy happy
         if self.filetote.session:
             session = self.filetote.session
         else:
