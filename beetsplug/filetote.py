@@ -1,8 +1,7 @@
 """beets-filetote plugin for beets."""
 import filecmp
 import os
-from dataclasses import asdict, dataclass
-from sys import version_info
+from dataclasses import asdict
 from typing import Any, List, Optional, Tuple, Union
 
 from beets import config, util
@@ -13,58 +12,13 @@ from beets.util import MoveOperation
 from beets.util.functemplate import Template
 from mediafile import TYPES as BEETS_FILE_TYPES
 
+from .filetote_dataclasses import (
+    FiletoteConfig,
+    FiletoteItem,
+    FiletoteItemCollection,
+    FiletoteSessionData,
+)
 from .mapping_model import FiletoteMappingFormatted, FiletoteMappingModel
-
-if version_info >= (3, 8):
-    from typing import Literal
-else:
-    from typing_extensions import Literal  # type: ignore # pylint: disable=import-error
-
-
-@dataclass
-class FiletoteItem:
-    """An individual FileTote Item for processing."""
-
-    path: str
-    paired: bool
-
-
-@dataclass
-class FiletoteItemCollection:
-    """An individual FileTote Item collection for processing."""
-
-    files: List[FiletoteItem]
-    mapping: FiletoteMappingModel
-    source_path: str
-
-
-@dataclass
-class FiletoteSessionData:
-    """Configuration settings for FileTote Item."""
-
-    operation: Optional[MoveOperation] = None
-    beets_lib = None
-    import_path: Optional[bytes] = None
-
-    def adjust(self, attr: str, value: Any) -> None:
-        """Adjust provided attribute of class with provided value."""
-        setattr(self, attr, value)
-
-
-@dataclass
-class FiletoteConfig:
-    """Configuration settings for FileTote Item."""
-
-    session: Union[FiletoteSessionData, None] = None
-    extensions: Union[Literal[".*"], list] = ".*"
-    filenames: Union[Literal[""], list] = ""
-    exclude: Union[Literal[""], list] = ""
-    print_ignored: bool = False
-    pairing: bool = False
-    pairing_only: bool = False
-
-    # def __post_init__(self):
-    #    self.session = FiletoteSessionData()
 
 
 class FiletotePlugin(BeetsPlugin):
@@ -286,6 +240,12 @@ class FiletotePlugin(BeetsPlugin):
     def _paired_files_collected(
         self, beets_item: Item, source: str, destination: bytes
     ) -> bool:
+        """
+        When file "pairing" is enabled, this function looks through available
+        artifacts for potential matching pairs. When found, it processes the artifacts
+        to be handled specifically as a "pair".
+        """
+
         item_source_filename, _ext = os.path.splitext(os.path.basename(source))
         source_path: str = os.path.dirname(source)
 
