@@ -1,6 +1,4 @@
 """beets-filetote plugin for beets."""
-from __future__ import annotations
-
 import filecmp
 import os
 from dataclasses import asdict
@@ -78,7 +76,7 @@ class FiletotePlugin(BeetsPlugin):
                     path_formats.append(path_format)
         return path_formats
 
-    def _register_session_settings(self, session: ImportSession):
+    def _register_session_settings(self, session: "ImportSession"):
         """
         Certain settings are only available and/or finalized once the
         Beets import session begins.
@@ -223,7 +221,7 @@ class FiletotePlugin(BeetsPlugin):
         return subpath_tmpl
 
     def _generate_mapping(
-        self, beets_item: Item, destination: bytes
+        self, beets_item: "Item", destination: bytes
     ) -> FiletoteMappingModel:
         """Creates a mapping of usable path values for renaming. Takes in an
         Item (see https://github.com/beetbox/beets/blob/master/beets/library.py#L456).
@@ -261,7 +259,7 @@ class FiletotePlugin(BeetsPlugin):
         return False
 
     def _collect_paired_artifacts(
-        self, beets_item: Item, source: str, destination: bytes
+        self, beets_item: "Item", source: str, destination: bytes
     ) -> None:
         """
         When file "pairing" is enabled, this function looks through available
@@ -309,7 +307,7 @@ class FiletotePlugin(BeetsPlugin):
             and util.displayable_path(file_ext)[1:] in BEETS_FILE_TYPES
         )
 
-    def collect_artifacts(self, item: Item, source: str, destination: bytes) -> None:
+    def collect_artifacts(self, item: "Item", source: str, destination: bytes) -> None:
         """
         Creates lists of the various extra files and artificats for processing.
         Since beets passes through the arguments, it's explicitly setting the Item to
@@ -354,7 +352,7 @@ class FiletotePlugin(BeetsPlugin):
 
         self._shared_artifacts[source_path] = non_handled_files
 
-    def process_events(self, lib: Library) -> None:
+    def process_events(self, lib: "Library") -> None:
         """
         Triggered by the CLI exit event, which itself triggers the processing and
         manipuation of the extra files and artificats.
