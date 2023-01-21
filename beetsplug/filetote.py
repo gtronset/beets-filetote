@@ -240,7 +240,7 @@ class FiletotePlugin(BeetsPlugin):
 
         return FiletoteMappingModel(**mapping_meta)
 
-    def _paired_artifacts_collected(
+    def _has_paired_artifacts(
         self, beets_item: Item, source: str, destination: bytes
     ) -> bool:
         """
@@ -305,7 +305,7 @@ class FiletotePlugin(BeetsPlugin):
 
         queue_files: list[FiletoteArtifact] = []
 
-        if self._paired_artifacts_collected(item, source, destination):
+        if self._has_paired_artifacts(item, source, destination):
             return
 
         non_handled_files = []
