@@ -5,6 +5,7 @@ from dataclasses import dataclass
 from sys import version_info
 from typing import Any, List, Optional, Union
 
+from beets.library import Library
 from beets.util import MoveOperation
 
 from .mapping_model import FiletoteMappingModel
@@ -37,7 +38,7 @@ class FiletoteSessionData:
     """Configuration settings for FileTote Item."""
 
     operation: Optional[MoveOperation] = None
-    beets_lib = None
+    beets_lib: Optional[Library] = None
     import_path: Optional[bytes] = None
 
     def adjust(self, attr: str, value: Any) -> None:

@@ -1,11 +1,13 @@
 """beets-filetote plugin for beets."""
+from __future__ import annotations
+
 import filecmp
 import os
 from dataclasses import asdict
-from typing import Any, List, Optional, Tuple, Union
+from typing import TYPE_CHECKING, List, Optional, Tuple, Union
 
 from beets import config, util
-from beets.library import DefaultTemplateFunctions, Item
+from beets.library import DefaultTemplateFunctions
 from beets.plugins import BeetsPlugin
 from beets.ui import get_path_formats
 from beets.util import MoveOperation
@@ -19,6 +21,10 @@ from .filetote_dataclasses import (
     FiletoteSessionData,
 )
 from .mapping_model import FiletoteMappingFormatted, FiletoteMappingModel
+
+if TYPE_CHECKING:
+    from beets.importer import ImportSession
+    from beets.library import Item, Library
 
 
 class FiletotePlugin(BeetsPlugin):
@@ -72,7 +78,7 @@ class FiletotePlugin(BeetsPlugin):
                     path_formats.append(path_format)
         return path_formats
 
-    def _register_session_settings(self, session):  # type: ignore[no-untyped-def]
+    def _register_session_settings(self, session: ImportSession):
         """
         Certain settings are only available and/or finalized once the
         Beets import session begins.
@@ -93,8 +99,10 @@ class FiletotePlugin(BeetsPlugin):
         if "audible" in config["plugins"].get():
             BEETS_FILE_TYPES.update({"m4b": "M4B"})
 
-        self.filetote.session.adjust("operation", self._operation_type())
-        self.filetote.session.import_path = os.path.expanduser(session.paths[0])
+        if self.filetote.session:
+            # Sanity check that the Filetote Session is available; make pylint happy
+            self.filetote.session.adjust("operation", self._operation_type())
+            self.filetote.session.import_path = os.path.expanduser(session.paths[0])
 
     def _operation_type(self) -> MoveOperation:
         """Returns the file manipulations type."""
@@ -346,7 +354,7 @@ class FiletotePlugin(BeetsPlugin):
 
         self._shared_artifacts[source_path] = non_handled_files
 
-    def process_events(self, lib: Any) -> None:
+    def process_events(self, lib: Library) -> None:
         """
         Triggered by the CLI exit event, which itself triggers the processing and
         manipuation of the extra files and artificats.
