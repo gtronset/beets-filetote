@@ -16,18 +16,18 @@ else:
 
 
 @dataclass
-class FiletoteItem:
-    """An individual FileTote Item for processing."""
+class FiletoteArtifact:
+    """An individual FileTote Artifact item for processing."""
 
     path: str
     paired: bool
 
 
 @dataclass
-class FiletoteItemCollection:
+class FiletoteArtifactCollection:
     """An individual FileTote Item collection for processing."""
 
-    files: List[FiletoteItem]
+    artifacts: List[FiletoteArtifact]
     mapping: FiletoteMappingModel
     source_path: str
 
