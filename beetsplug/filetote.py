@@ -371,7 +371,7 @@ class FiletotePlugin(BeetsPlugin):
 
             self.process_artifacts(artifacts, artifact_collection.mapping)
 
-    def _is_ignorable_check(
+    def _is_artifact_ignorable(
         self, artifact_source: str, artifact_filename: str, artifact_dest: str
     ) -> Tuple[bool, Optional[str]]:
         """
@@ -431,7 +431,7 @@ class FiletotePlugin(BeetsPlugin):
                 artifact_filename, mapping, artifact.paired
             )
 
-            is_ignorable, ignore_filename = self._is_ignorable_check(
+            is_ignorable, ignore_filename = self._is_artifact_ignorable(
                 artifact_source=artifact_source,
                 artifact_filename=artifact_filename,
                 artifact_dest=artifact_dest,
