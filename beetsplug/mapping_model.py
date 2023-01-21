@@ -31,11 +31,11 @@ class FiletoteMappingModel(db.Model):
 
     @classmethod
     def _getters(cls) -> dict:
-        """Returnblank for getter functions."""
+        """Return "blank" for getter functions."""
         return {}
 
     def _template_funcs(self) -> dict:
-        """Return blank for template functions."""
+        """Return "blank" for template functions."""
         return {}
 
 
