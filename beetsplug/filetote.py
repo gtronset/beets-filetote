@@ -154,7 +154,7 @@ class FiletotePlugin(BeetsPlugin):
 
         return (selected_path_query, selected_path_format)
 
-    def _destination(
+    def _get_artifact_destination(
         self,
         artifact_filename: str,
         mapping: FiletoteMappingModel,
@@ -419,7 +419,7 @@ class FiletotePlugin(BeetsPlugin):
             # within dir of source_path
             artifact_filename = artifact_source[len(source_path) + 1 :]
 
-            artifact_dest = self._destination(
+            artifact_dest = self._get_artifact_destination(
                 artifact_filename, mapping, artifact.paired
             )
 
