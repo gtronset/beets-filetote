@@ -70,7 +70,7 @@ repos:
           ]
 
   - repo: https://github.com/crate-ci/typos
-    rev: v1.13.7
+    rev: typos-dict-v0.9.14
     hooks:
       - id: typos
         exclude: "(_typos.toml|.gitignore)"
