@@ -63,9 +63,7 @@ class FiletoteFromFlatDirectoryTest(FiletoteTestCase):
         self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"artifact2.file")
 
         self.assert_in_import_dir(b"the_album", b"artifact.file2")
-        self.assert_not_in_lib_dir(
-            b"Tag Artist", b"Tag Album", b"artifact.file2"
-        )
+        self.assert_not_in_lib_dir(b"Tag Artist", b"Tag Album", b"artifact.file2")
 
     def test_exclude_artifacts_matching_configured_exclude(self):
         config["filetote"]["extensions"] = ".file"
@@ -79,9 +77,7 @@ class FiletoteFromFlatDirectoryTest(FiletoteTestCase):
 
         self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"artifact.file")
 
-        self.assert_not_in_lib_dir(
-            b"Tag Artist", b"Tag Album", b"artifact2.file"
-        )
+        self.assert_not_in_lib_dir(b"Tag Artist", b"Tag Album", b"artifact2.file")
         self.assert_not_in_lib_dir(b"Tag Artist", b"Tag Album", b"artifact.nfo")
         self.assert_not_in_lib_dir(b"Tag Artist", b"Tag Album", b"artifact.lrc")
 
@@ -97,9 +93,7 @@ class FiletoteFromFlatDirectoryTest(FiletoteTestCase):
 
         self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"artifact.file")
 
-        self.assert_not_in_lib_dir(
-            b"Tag Artist", b"Tag Album", b"artifact2.file"
-        )
+        self.assert_not_in_lib_dir(b"Tag Artist", b"Tag Album", b"artifact2.file")
         self.assert_not_in_lib_dir(b"Tag Artist", b"Tag Album", b"artifact.nfo")
         self.assert_not_in_lib_dir(b"Tag Artist", b"Tag Album", b"artifact.lrc")
 
@@ -172,15 +166,9 @@ class FiletoteFromFlatDirectoryTest(FiletoteTestCase):
     def test_artifacts_copymove_on_first_media_by_default(self):
         """By default, all eligible files are grabbed with the first item."""
         config["filetote"]["extensions"] = ".file"
-        config["paths"]["ext:file"] = str(
-            "$albumpath/$medianame_old - $old_filename"
-        )
+        config["paths"]["ext:file"] = str("$albumpath/$medianame_old - $old_filename")
 
         self._run_importer()
 
-        self.assert_in_lib_dir(
-            b"Tag Artist", b"Tag Album", b"track_1 - artifact.file"
-        )
-        self.assert_in_lib_dir(
-            b"Tag Artist", b"Tag Album", b"track_1 - artifact2.file"
-        )
+        self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"track_1 - artifact.file")
+        self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"track_1 - artifact2.file")

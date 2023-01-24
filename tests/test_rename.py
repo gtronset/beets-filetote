@@ -100,9 +100,7 @@ class FiletoteRenameTest(FiletoteTestCase):
         config["filetote"]["pairing"] = True
         config["filetote"]["paring_only"] = True
         config["paths"]["paired_ext:lrc"] = str("$albumpath/$medianame_new")
-        config["paths"]["filename:track_1.lrc"] = str(
-            "$albumpath/1 $old_filename"
-        )
+        config["paths"]["filename:track_1.lrc"] = str("$albumpath/1 $old_filename")
 
         self._run_importer()
 
@@ -177,9 +175,7 @@ class FiletoteRenameTest(FiletoteTestCase):
     def test_rename_matching_filename(self):
         """Ensure that `filename` path definitions rename correctly."""
         config["filetote"]["filenames"] = "artifact.file artifact2.file"
-        config["paths"]["filename:artifact.file"] = str(
-            "$albumpath/new-filename"
-        )
+        config["paths"]["filename:artifact.file"] = str("$albumpath/new-filename")
         config["paths"]["filename:artifact2.file"] = str(
             "$albumpath/another-new-filename"
         )
@@ -187,9 +183,7 @@ class FiletoteRenameTest(FiletoteTestCase):
 
         self._run_importer()
 
-        self.assert_in_lib_dir(
-            b"Tag Artist", b"Tag Album", b"new-filename.file"
-        )
+        self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"new-filename.file")
         self.assert_in_lib_dir(
             b"Tag Artist", b"Tag Album", b"another-new-filename.file"
         )
@@ -202,16 +196,12 @@ class FiletoteRenameTest(FiletoteTestCase):
         config["filetote"]["extensions"] = ".file"
         config["filetote"]["filenames"] = "artifact.file"
         config["paths"]["ext:file"] = str("$albumpath/$artist - $old_filename")
-        config["paths"]["filename:artifact.file"] = str(
-            "$albumpath/new-filename"
-        )
+        config["paths"]["filename:artifact.file"] = str("$albumpath/new-filename")
         config["import"]["move"] = True
 
         self._run_importer()
 
-        self.assert_in_lib_dir(
-            b"Tag Artist", b"Tag Album", b"new-filename.file"
-        )
+        self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"new-filename.file")
         self.assert_in_lib_dir(
             b"Tag Artist", b"Tag Album", b"Tag Artist - artifact2.file"
         )
@@ -227,17 +217,13 @@ class FiletoteRenameTest(FiletoteTestCase):
         config["filetote"]["filenames"] = "artifact.file"
         # order of paths matter here; this is the opposite order as
         # `test_rename_prioritizes_filename_over_ext`
-        config["paths"]["filename:artifact.file"] = str(
-            "$albumpath/new-filename"
-        )
+        config["paths"]["filename:artifact.file"] = str("$albumpath/new-filename")
         config["paths"]["ext:file"] = str("$albumpath/$artist - $old_filename")
         config["import"]["move"] = True
 
         self._run_importer()
 
-        self.assert_in_lib_dir(
-            b"Tag Artist", b"Tag Album", b"new-filename.file"
-        )
+        self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"new-filename.file")
         self.assert_in_lib_dir(
             b"Tag Artist", b"Tag Album", b"Tag Artist - artifact2.file"
         )
@@ -251,22 +237,14 @@ class FiletoteRenameTest(FiletoteTestCase):
         config["filetote"]["extensions"] = ".file"
         config["filetote"]["filenames"] = "artifact.file artifact2.file"
         config["paths"]["ext:file"] = str("$albumpath/$artist - $old_filename")
-        config["paths"]["filename:artifact.file"] = str(
-            "$albumpath/new-filename"
-        )
-        config["paths"]["filename:artifact2.file"] = str(
-            "$albumpath/new-filename2"
-        )
+        config["paths"]["filename:artifact.file"] = str("$albumpath/new-filename")
+        config["paths"]["filename:artifact2.file"] = str("$albumpath/new-filename2")
         config["import"]["move"] = True
 
         self._run_importer()
 
-        self.assert_in_lib_dir(
-            b"Tag Artist", b"Tag Album", b"new-filename.file"
-        )
-        self.assert_in_lib_dir(
-            b"Tag Artist", b"Tag Album", b"new-filename2.file"
-        )
+        self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"new-filename.file")
+        self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"new-filename2.file")
 
         self.assert_not_in_import_dir(b"the_album", b"artifact1.file")
         self.assert_not_in_import_dir(b"the_album", b"artifact2.file")

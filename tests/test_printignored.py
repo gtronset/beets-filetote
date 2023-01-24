@@ -18,8 +18,7 @@ class FiletotePrintIgnoredTest(FiletoteTestCase):
         self._setup_import_session(autotag=False)
 
     def test_do_not_print_ignored_by_default(self):
-        """Tests to ensure the default behavior for printing ignored is "disabled".
-        """
+        """Tests to ensure the default behavior for printing ignored is "disabled"."""
         config["filetote"]["extensions"] = ".file"
 
         with capture_log() as logs:

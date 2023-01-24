@@ -64,8 +64,6 @@ class FiletoteMusicFilesIgnoredTest(FiletoteTestCase):
         self._run_importer()
 
         self.assert_not_in_lib_dir(b"Tag Artist", b"Tag Album", b"track_1.m4a")
-        self.assert_not_in_lib_dir(
-            b"Tag Artist", b"Tag Album", b"track_1.alac.m4a"
-        )
+        self.assert_not_in_lib_dir(b"Tag Artist", b"Tag Album", b"track_1.alac.m4a")
         self.assert_not_in_lib_dir(b"Tag Artist", b"Tag Album", b"track_1.wma")
         self.assert_not_in_lib_dir(b"Tag Artist", b"Tag Album", b"track_1.wave")

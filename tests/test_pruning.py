@@ -94,9 +94,7 @@ class FiletotePruningyTest(FiletoteTestCase):
             "default",
             os.path.join("1$artist", "$album", "$title"),
         )
-        self._setup_import_session(
-            autotag=False, import_dir=self.lib_dir, move=True
-        )
+        self._setup_import_session(autotag=False, import_dir=self.lib_dir, move=True)
 
         log.debug("--- second import")
 

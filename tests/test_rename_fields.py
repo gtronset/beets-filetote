@@ -60,9 +60,7 @@ class FiletoteRenameFieldsTest(FiletoteTestCase):
 
         self._run_importer()
 
-        self.assert_in_lib_dir(
-            b"Tag Artist", b"Tag Album", b"Tag Album - newname.file"
-        )
+        self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"Tag Album - newname.file")
 
     def test_rename_field_old_filename(self):
         """Tests that the value of `old_filename` populates in renaming."""

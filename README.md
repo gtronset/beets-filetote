@@ -30,7 +30,7 @@ The development version can be installed from GitHub by using these commands:
 ```sh
 git clone https://github.com/gtronset/beets-filetote.git
 cd beets-filetote
-python setup.py install
+python3 setup.py install
 ```
 
 If you get permission errors, try running it with `sudo`.
@@ -194,17 +194,15 @@ filetote:
 
 ## Thanks
 
-This plugin originally was a fork from [copyartifacts3 (Adrian Sampson)] (no
-longer actively maintained) to expand functionality. `beets-copyartifacts3`
-itself a fork of the archived [copyartifacts (Sami Barakat)].
+This plugin is a hard fork from [beets-copyartifacts (copyartifacts3)] to
+expand functionality and provide on-going maintenance.
 
-Filetote was built on top of the excellent work done by Sami Barakat, Adrian
-Sampson, and the larger community on [beets](http://beets.radbox.org/).
+Thank you to the original work done by Sami Barakat, Adrian Sampson, and the
+larger community on [beets](http://beets.io).
 
 Please report any issues you may have and feel free to contribute.
 
-[copyartifacts3 (adrian sampson)]: https://github.com/adammillerio/beets-copyartifacts
-[copyartifacts (sami barakat)]: https://github.com/sbarakat/beets-copyartifacts
+[beets-copyartifacts (copyartifacts3)]: https://github.com/adammillerio/beets-copyartifacts
 
 ## License
 
