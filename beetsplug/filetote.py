@@ -1,7 +1,6 @@
 """beets-filetote plugin for beets."""
 import filecmp
 import os
-from dataclasses import asdict
 from typing import TYPE_CHECKING, List, Optional, Tuple, Union
 
 from beets import config, util
@@ -33,7 +32,7 @@ class FiletotePlugin(BeetsPlugin):
         super().__init__()
 
         # Set default plugin config settings
-        self.config.add(asdict(FiletoteConfig()))
+        self.config.add(FiletoteConfig().asdict())
 
         self.filetote: FiletoteConfig = FiletoteConfig(
             session=FiletoteSessionData(),

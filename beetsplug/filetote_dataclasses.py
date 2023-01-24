@@ -1,7 +1,7 @@
 """ Dataclasses for Filetote representing Settings/Config-related content along with
 data used in processing extra files/artifacts. """
 
-from dataclasses import dataclass
+from dataclasses import asdict, dataclass
 from sys import version_info
 from typing import Any, List, Optional, Union
 
@@ -57,6 +57,10 @@ class FiletoteConfig:
     print_ignored: bool = False
     pairing: bool = False
     pairing_only: bool = False
+
+    def asdict(self):
+        """Returns a `dict` version of the dataclass."""
+        return asdict(self)
 
     # def __post_init__(self):
     #    self.session = FiletoteSessionData()
