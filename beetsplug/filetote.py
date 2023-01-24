@@ -200,8 +200,11 @@ class FiletotePlugin(BeetsPlugin):
         subpath_tmpl = self._templatize_path_format(selected_path_format)
 
         # Get template funcs and evaluate against mapping
-        funcs = DefaultTemplateFunctions().functions()
-        artifact_path = subpath_tmpl.substitute(mapping_formatted, funcs) + artifact_ext
+        template_functions = DefaultTemplateFunctions().functions()
+        artifact_path = (
+            subpath_tmpl.substitute(mapping_formatted, template_functions)
+            + artifact_ext
+        )
 
         # Sanitize filename
         artifact_filename = util.sanitize_path(os.path.basename(artifact_path))
