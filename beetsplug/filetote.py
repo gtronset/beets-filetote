@@ -245,18 +245,6 @@ class FiletotePlugin(BeetsPlugin):
 
         return FiletoteMappingModel(**mapping_meta)
 
-    def _has_shared_path(self, source: str) -> bool:
-        """
-        Detects is a shared path is available for use in processeing paired artifacts.
-        """
-        source_path: str = os.path.dirname(source)
-
-        # Check if this path has already been processed
-        if source_path in self._dirs_seen:
-            return True
-
-        return False
-
     def _collect_paired_artifacts(
         self, beets_item: "Item", source: str, destination: bytes
     ) -> None:
@@ -317,7 +305,8 @@ class FiletotePlugin(BeetsPlugin):
 
         queue_files: list[FiletoteArtifact] = []
 
-        if self._has_shared_path(source):
+        # Check if this path has not already been processed
+        if source_path in self._dirs_seen:
             self._collect_paired_artifacts(item, source, destination)
             return
 
