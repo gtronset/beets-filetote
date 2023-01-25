@@ -80,13 +80,14 @@ filetote:
     enabled: true
 ```
 
-And target/include only paired files:
+And target/include only paired files, even by extension:
 
 ```yaml
 filetote:
   pairing:
     enabled: true
     pairing_only: true
+    extensions: ".lrc"
 ```
 
 It can also exclude files by name:
@@ -188,10 +189,11 @@ paths:
   filename:cover.jpg: $albumpath/cover
 
 filetote:
-  extensions: .cue .log .jpg .lrc
+  extensions: .cue .log .jpg
   filename: "cover.jpg"
   pairing:
     enabled: true
+    extensions: ".lrc"
   print_ignored: true
 ```
 
@@ -218,6 +220,7 @@ filetote:
   pairing:
     enabled: true
     pairing_only: false
+    extensions: ".lrc"
 ```
 
 Both remain optional and both default to `false`.
