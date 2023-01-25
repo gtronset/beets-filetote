@@ -163,9 +163,10 @@ class FiletotePairingTest(FiletoteTestCase):
             "extensions": ".lrc .kar",
         }
 
-        self._create_file(os.path.join(self.import_dir, b"the_album"), b"track_1.kar")
-        self._create_file(os.path.join(self.import_dir, b"the_album"), b"track_1.lrc")
-        self._create_file(os.path.join(self.import_dir, b"the_album"), b"track_1.jpg")
+        new_files = [b"track_1.kar", b"track_1.lrc", b"track_1.jpg"]
+
+        for filename in new_files:
+            self._create_file(os.path.join(self.import_dir, b"the_album"), filename)
 
         self._run_importer()
 
@@ -190,9 +191,10 @@ class FiletotePairingTest(FiletoteTestCase):
             "extensions": ".lrc",
         }
 
-        self._create_file(os.path.join(self.import_dir, b"the_album"), b"track_1.kar")
-        self._create_file(os.path.join(self.import_dir, b"the_album"), b"track_1.lrc")
-        self._create_file(os.path.join(self.import_dir, b"the_album"), b"track_1.jpg")
+        new_files = [b"track_1.kar", b"track_1.lrc", b"track_1.jpg"]
+
+        for filename in new_files:
+            self._create_file(os.path.join(self.import_dir, b"the_album"), filename)
 
         self._run_importer()
 
