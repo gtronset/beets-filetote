@@ -66,6 +66,6 @@ class FiletoteConfig:
     print_ignored: bool = False
     pairing: FiletotePairingData = field(default_factory=FiletotePairingData)
 
-    def asdict(self):
+    def asdict(self) -> dict:
         """Returns a `dict` version of the dataclass."""
         return asdict(self)
