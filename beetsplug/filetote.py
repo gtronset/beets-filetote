@@ -264,11 +264,14 @@ class FiletotePlugin(BeetsPlugin):
         if self.filetote.pairing.enabled and self._shared_artifacts[source_path]:
             # Iterate through shared artifacts to find paired matches
             for artifact_path in self._shared_artifacts[source_path]:
-                artifact_filename, _file_ext = os.path.splitext(
+                artifact_filename, artifact_ext = os.path.splitext(
                     os.path.basename(artifact_path)
                 )
-                # If the names match, it's a "pair"
-                if artifact_filename == item_source_filename:
+                # If the names match and it's an authorized extension, it's a "pair"
+                if artifact_filename == item_source_filename and (
+                    ".*" in self.filetote.pairing.extensions
+                    or artifact_ext in self.filetote.pairing.extensions
+                ):
                     queue_artifacts.append(
                         FiletoteArtifact(path=artifact_path, paired=True)
                     )
@@ -325,7 +328,12 @@ class FiletotePlugin(BeetsPlugin):
                 if not self.filetote.pairing.enabled:
                     queue_files.append(FiletoteArtifact(path=source_file, paired=False))
                 elif (
-                    self.filetote.pairing.enabled and file_name == item_source_filename
+                    self.filetote.pairing.enabled
+                    and file_name == item_source_filename
+                    and (
+                        ".*" in self.filetote.pairing.extensions
+                        or file_ext.decode("utf-8") in self.filetote.pairing.extensions
+                    )
                 ):
                     queue_files.append(FiletoteArtifact(path=source_file, paired=True))
                 else:

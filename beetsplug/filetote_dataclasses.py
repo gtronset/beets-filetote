@@ -52,7 +52,7 @@ class FiletotePairingData:
 
     enabled: bool = False
     pairing_only: bool = False
-    # paired_extensions: Union[Literal[".*"], list] = ".*"
+    extensions: Union[Literal[".*"], list] = ".*"
 
 
 @dataclass
