@@ -84,8 +84,10 @@ class FiletoteRenameFieldsTest(FiletoteTestCase):
     def test_rename_field_medianame_new(self):
         """Tests that the value of `medianame_new` populates in renaming."""
         config["filetote"]["extensions"] = ".lrc"
-        config["filetote"]["pairing"] = True
-        config["filetote"]["paring_only"] = True
+        config["filetote"]["pairing"] = {
+            "enabled": True,
+            "pairing_only": True,
+        }
         config["paths"]["ext:lrc"] = str("$albumpath/$medianame_new")
 
         self._run_importer()

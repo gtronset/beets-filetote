@@ -33,8 +33,10 @@ class FiletotePairingTest(FiletoteTestCase):
         self._setup_import_session(autotag=False)
 
         config["filetote"]["extensions"] = ".lrc"
-        config["filetote"]["pairing"] = False
-        config["filetote"]["pairing_only"] = True
+        config["filetote"]["pairing"] = {
+            "enabled": False,
+            "pairing_only": True,
+        }
 
         self._run_importer()
 
@@ -46,7 +48,7 @@ class FiletotePairingTest(FiletoteTestCase):
         self._setup_import_session(autotag=False)
 
         config["filetote"]["extensions"] = ".lrc"
-        config["filetote"]["pairing"] = False
+        config["filetote"]["pairing"]["enabled"] = False
 
         self._run_importer()
 
@@ -58,7 +60,7 @@ class FiletotePairingTest(FiletoteTestCase):
         self._setup_import_session(autotag=False)
 
         config["filetote"]["extensions"] = ".lrc"
-        config["filetote"]["pairing"] = True
+        config["filetote"]["pairing"]["enabled"] = True
 
         self._run_importer()
 
@@ -73,7 +75,7 @@ class FiletotePairingTest(FiletoteTestCase):
         self._setup_import_session(autotag=False)
 
         config["filetote"]["extensions"] = ".lrc"
-        config["filetote"]["pairing"] = True
+        config["filetote"]["pairing"]["enabled"] = True
 
         self._run_importer()
 
@@ -86,7 +88,7 @@ class FiletotePairingTest(FiletoteTestCase):
         self._setup_import_session(autotag=False)
 
         config["filetote"]["extensions"] = ".lrc"
-        config["filetote"]["pairing"] = True
+        config["filetote"]["pairing"]["enabled"] = True
 
         self._create_file(os.path.join(self.import_dir, b"the_album"), b"track_1.lrc")
 
@@ -100,8 +102,10 @@ class FiletotePairingTest(FiletoteTestCase):
         self._setup_import_session(autotag=False)
 
         config["filetote"]["extensions"] = ".lrc"
-        config["filetote"]["pairing"] = True
-        config["filetote"]["pairing_only"] = False
+        config["filetote"]["pairing"] = {
+            "enabled": True,
+            "pairing_only": False,
+        }
 
         self._run_importer()
 
@@ -114,8 +118,10 @@ class FiletotePairingTest(FiletoteTestCase):
         self._setup_import_session(autotag=False)
 
         config["filetote"]["extensions"] = ".lrc"
-        config["filetote"]["pairing"] = True
-        config["filetote"]["pairing_only"] = True
+        config["filetote"]["pairing"] = {
+            "enabled": True,
+            "pairing_only": True,
+        }
 
         self._run_importer()
 
@@ -130,8 +136,10 @@ class FiletotePairingTest(FiletoteTestCase):
         self._setup_import_session(autotag=False)
 
         config["filetote"]["extensions"] = ".lrc"
-        config["filetote"]["pairing"] = True
-        config["filetote"]["pairing_only"] = True
+        config["filetote"]["pairing"] = {
+            "enabled": True,
+            "pairing_only": True,
+        }
 
         self._create_file(os.path.join(self.import_dir, b"the_album"), b"track_1.lrc")
 

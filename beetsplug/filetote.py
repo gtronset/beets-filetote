@@ -15,6 +15,7 @@ from .filetote_dataclasses import (
     FiletoteArtifact,
     FiletoteArtifactCollection,
     FiletoteConfig,
+    FiletotePairingData,
     FiletoteSessionData,
 )
 from .mapping_model import FiletoteMappingFormatted, FiletoteMappingModel
@@ -40,8 +41,7 @@ class FiletotePlugin(BeetsPlugin):
             filenames=self.config["filenames"].as_str_seq(),
             exclude=self.config["exclude"].as_str_seq(),
             print_ignored=self.config["print_ignored"].get(),
-            pairing=self.config["pairing"].get(),
-            pairing_only=self.config["pairing_only"].get(),
+            pairing=FiletotePairingData(**self.config["pairing"].get(dict)),
         )
 
         queries: List[str] = ["ext:", "filename:", "paired_ext:"]
@@ -96,10 +96,8 @@ class FiletotePlugin(BeetsPlugin):
         if "audible" in config["plugins"].get():
             BEETS_FILE_TYPES.update({"m4b": "M4B"})
 
-        if self.filetote.session:
-            # Sanity check that the Filetote Session is available; make pylint happy
-            self.filetote.session.adjust("operation", self._operation_type())
-            self.filetote.session.import_path = os.path.expanduser(session.paths[0])
+        self.filetote.session.adjust("operation", self._operation_type())
+        self.filetote.session.import_path = os.path.expanduser(session.paths[0])
 
     def _operation_type(self) -> MoveOperation:
         """Returns the file manipulations type."""
@@ -149,7 +147,6 @@ class FiletotePlugin(BeetsPlugin):
                 if selected_path_query not in ["filename:", "paired_ext:"]:
                     selected_path_query = "ext:"
                     selected_path_format = path_format
-
             elif (
                 query[:filename_len] == "filename:"
                 and full_filename == query[filename_len:]
@@ -264,7 +261,7 @@ class FiletotePlugin(BeetsPlugin):
 
         # Check to see if "pairing" is enabled and, if so, if there are
         # artifacts to look at
-        if self.filetote.pairing and self._shared_artifacts[source_path]:
+        if self.filetote.pairing.enabled and self._shared_artifacts[source_path]:
             # Iterate through shared artifacts to find paired matches
             for artifact_path in self._shared_artifacts[source_path]:
                 artifact_filename, _file_ext = os.path.splitext(
@@ -325,9 +322,11 @@ class FiletotePlugin(BeetsPlugin):
                 if self._is_beets_file_type(file_ext):
                     continue
 
-                if not self.filetote.pairing:
+                if not self.filetote.pairing.enabled:
                     queue_files.append(FiletoteArtifact(path=source_file, paired=False))
-                elif self.filetote.pairing and file_name == item_source_filename:
+                elif (
+                    self.filetote.pairing.enabled and file_name == item_source_filename
+                ):
                     queue_files.append(FiletoteArtifact(path=source_file, paired=True))
                 else:
                     non_handled_files.append(source_file)
@@ -349,8 +348,7 @@ class FiletotePlugin(BeetsPlugin):
         manipuation of the extra files and artificats.
         """
         # Ensure destination library settings are accessible
-        if self.filetote.session:
-            self.filetote.session.adjust("beets_lib", lib)
+        self.filetote.session.adjust("beets_lib", lib)
 
         artifact_collection: FiletoteArtifactCollection
         for artifact_collection in self._process_queue:
@@ -358,7 +356,7 @@ class FiletotePlugin(BeetsPlugin):
 
             source_path = artifact_collection.source_path
 
-            if not self.filetote.pairing_only:
+            if not self.filetote.pairing.pairing_only:
                 for shared_artifact in self._shared_artifacts[source_path]:
                     artifacts.append(
                         FiletoteArtifact(path=shared_artifact, paired=False)
@@ -466,28 +464,21 @@ class FiletotePlugin(BeetsPlugin):
             # Sanity check for other plugins moving files
             return
 
-        # Sanity check to ensure session and lib are set; makes mypy happy
-        if self.filetote.session:
-            session = self.filetote.session
-        else:
-            return
-
-        if session.beets_lib:
-            beets_lib = session.beets_lib
-        else:
-            return
-
         # In copy and link modes, treat reimports specially: move in-library
         # files. (Out-of-library files are copied/moved as usual).
         reimport = False
 
         source_path = os.path.dirname(artifact_source)
 
-        library_dir = beets_lib.directory
+        # Sanity check for pylint in cases where beets_lib is None
+        if not self.filetote.session.beets_lib:
+            return
+
+        library_dir = self.filetote.session.beets_lib.directory
 
         root_path = None
 
-        import_path = session.import_path
+        import_path = self.filetote.session.import_path
 
         if import_path == library_dir:
             root_path = os.path.dirname(import_path)
@@ -496,7 +487,7 @@ class FiletotePlugin(BeetsPlugin):
             root_path = import_path
             reimport = True
 
-        operation = session.operation
+        operation = self.filetote.session.operation
 
         if reimport:
             operation = "REIMPORT"
