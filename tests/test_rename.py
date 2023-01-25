@@ -93,6 +93,7 @@ class FiletoteRenameTest(FiletoteTestCase):
     def test_rename_filename_is_prioritized_over_paired_ext(self):
         """Tests that filename path definitions supersede `paired` ones when there's
         a collision."""
+        config["filetote"]["extensions"] = ".lrc"
         config["filetote"]["pairing"]["enabled"] = True
         config["paths"]["paired_ext:lrc"] = str("$albumpath/$medianame_new")
         config["paths"]["filename:track_1.lrc"] = str("$albumpath/1 $old_filename")
