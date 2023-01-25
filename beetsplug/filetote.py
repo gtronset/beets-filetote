@@ -332,7 +332,8 @@ class FiletotePlugin(BeetsPlugin):
                     and file_name == item_source_filename
                     and (
                         ".*" in self.filetote.pairing.extensions
-                        or file_ext.decode("utf-8") in self.filetote.pairing.extensions
+                        or util.displayable_path(file_ext)
+                        in self.filetote.pairing.extensions
                     )
                 ):
                     queue_files.append(FiletoteArtifact(path=source_file, paired=True))
@@ -375,7 +376,11 @@ class FiletotePlugin(BeetsPlugin):
             self.process_artifacts(artifacts, artifact_collection.mapping)
 
     def _is_artifact_ignorable(
-        self, artifact_source: str, artifact_filename: str, artifact_dest: str
+        self,
+        artifact_source: str,
+        artifact_filename: str,
+        artifact_dest: str,
+        artifact_paired: bool,
     ) -> Tuple[bool, Optional[str]]:
         """
         Compares the artifact/file to certain checks to see if it should be ignored
@@ -398,6 +403,14 @@ class FiletotePlugin(BeetsPlugin):
             ".*" not in self.filetote.extensions
             and util.displayable_path(artifact_file_ext) not in self.filetote.extensions
             and util.displayable_path(artifact_filename) not in self.filetote.filenames
+            and not (
+                artifact_paired
+                and (
+                    ".*" in self.filetote.pairing.extensions
+                    or util.displayable_path(artifact_file_ext)
+                    in self.filetote.pairing.extensions
+                )
+            )
         ):
             return (True, artifact_source)
 
@@ -438,6 +451,7 @@ class FiletotePlugin(BeetsPlugin):
                 artifact_source=artifact_source,
                 artifact_filename=artifact_filename,
                 artifact_dest=artifact_dest,
+                artifact_paired=artifact.paired,
             )
 
             if is_ignorable:
@@ -466,7 +480,6 @@ class FiletotePlugin(BeetsPlugin):
         the artifacts (as well as write metadata).
         NOTE: `operation` should be an instance of `MoveOperation`.
         """
-        # pylint: disable=too-many-branches
 
         if not os.path.exists(artifact_source):
             # Sanity check for other plugins moving files

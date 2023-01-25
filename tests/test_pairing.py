@@ -176,3 +176,30 @@ class FiletotePairingTest(FiletoteTestCase):
         self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"track_1.kar")
         self.assert_not_in_lib_dir(b"Tag Artist", b"Tag Album", b"track_1.jpg")
         self.assert_not_in_lib_dir(b"Tag Artist", b"Tag Album", b"artifact.lrc")
+
+    def test_pairing_extensions_are_addative_to_toplevel_extensions(self):
+        self._create_flat_import_dir(
+            media_files=[MediaSetup(count=2, generate_pair=False)]
+        )
+        self._setup_import_session(autotag=False)
+
+        config["filetote"]["extensions"] = ".jpg"
+
+        config["filetote"]["pairing"] = {
+            "enabled": True,
+            "extensions": ".lrc",
+        }
+
+        self._create_file(os.path.join(self.import_dir, b"the_album"), b"track_1.kar")
+        self._create_file(os.path.join(self.import_dir, b"the_album"), b"track_1.lrc")
+        self._create_file(os.path.join(self.import_dir, b"the_album"), b"track_1.jpg")
+
+        self._run_importer()
+
+        self.assert_in_import_dir(b"the_album", b"track_1.lrc")
+        self.assert_in_import_dir(b"the_album", b"artifact.lrc")
+
+        self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"track_1.lrc")
+        self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"track_1.jpg")
+        self.assert_not_in_lib_dir(b"Tag Artist", b"Tag Album", b"track_1.kar")
+        self.assert_not_in_lib_dir(b"Tag Artist", b"Tag Album", b"artifact.lrc")
