@@ -268,9 +268,9 @@ class FiletotePlugin(BeetsPlugin):
                     os.path.basename(artifact_path)
                 )
                 # If the names match and it's an authorized extension, it's a "pair"
-                if artifact_filename == item_source_filename and (
-                    ".*" in self.filetote.pairing.extensions
-                    or artifact_ext in self.filetote.pairing.extensions
+                if (
+                    artifact_filename == item_source_filename
+                    and self._is_valid_paired_extension(artifact_ext)
                 ):
                     queue_artifacts.append(
                         FiletoteArtifact(path=artifact_path, paired=True)
@@ -330,11 +330,7 @@ class FiletotePlugin(BeetsPlugin):
                 elif (
                     self.filetote.pairing.enabled
                     and file_name == item_source_filename
-                    and (
-                        ".*" in self.filetote.pairing.extensions
-                        or util.displayable_path(file_ext)
-                        in self.filetote.pairing.extensions
-                    )
+                    and self._is_valid_paired_extension(file_ext)
                 ):
                     queue_files.append(FiletoteArtifact(path=source_file, paired=True))
                 else:
@@ -375,6 +371,13 @@ class FiletotePlugin(BeetsPlugin):
 
             self.process_artifacts(artifacts, artifact_collection.mapping)
 
+    def _is_valid_paired_extension(self, artifact_file_ext: Union[str, bytes]) -> bool:
+        return (
+            ".*" in self.filetote.pairing.extensions
+            or util.displayable_path(artifact_file_ext)
+            in self.filetote.pairing.extensions
+        )
+
     def _is_artifact_ignorable(
         self,
         artifact_source: str,
@@ -404,12 +407,7 @@ class FiletotePlugin(BeetsPlugin):
             and util.displayable_path(artifact_file_ext) not in self.filetote.extensions
             and util.displayable_path(artifact_filename) not in self.filetote.filenames
             and not (
-                artifact_paired
-                and (
-                    ".*" in self.filetote.pairing.extensions
-                    or util.displayable_path(artifact_file_ext)
-                    in self.filetote.pairing.extensions
-                )
+                artifact_paired and self._is_valid_paired_extension(artifact_file_ext)
             )
         ):
             return (True, artifact_source)
