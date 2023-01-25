@@ -80,7 +80,8 @@ filetote:
     enabled: true
 ```
 
-And target/include only paired files, even by extension:
+You can specify pairing to happen to certain extensions, and even
+target/include only paired files:
 
 ```yaml
 filetote:

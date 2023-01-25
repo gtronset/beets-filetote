@@ -69,3 +69,11 @@ class FiletoteConfig:
     def asdict(self) -> dict:
         """Returns a `dict` version of the dataclass."""
         return asdict(self)
+
+    def adjust(self, attr: str, value: Any) -> None:
+        """Adjust provided attribute of class with provided value. For the `pairing`
+        property, use the `FiletotePairingData` dataclass and expand the incoming dict
+        to arguments."""
+        if attr == "pairing":
+            value = FiletotePairingData(**value)
+        setattr(self, attr, value)

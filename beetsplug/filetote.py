@@ -15,8 +15,6 @@ from .filetote_dataclasses import (
     FiletoteArtifact,
     FiletoteArtifactCollection,
     FiletoteConfig,
-    FiletotePairingData,
-    FiletoteSessionData,
 )
 from .mapping_model import FiletoteMappingFormatted, FiletoteMappingModel
 
@@ -36,13 +34,13 @@ class FiletotePlugin(BeetsPlugin):
         self.config.add(FiletoteConfig().asdict())
 
         self.filetote: FiletoteConfig = FiletoteConfig(
-            session=FiletoteSessionData(),
             extensions=self.config["extensions"].as_str_seq(),
             filenames=self.config["filenames"].as_str_seq(),
             exclude=self.config["exclude"].as_str_seq(),
             print_ignored=self.config["print_ignored"].get(),
-            pairing=FiletotePairingData(**self.config["pairing"].get(dict)),
         )
+
+        self.filetote.adjust("pairing", self.config["pairing"].get(dict))
 
         queries: List[str] = ["ext:", "filename:", "paired_ext:"]
 
@@ -75,7 +73,7 @@ class FiletotePlugin(BeetsPlugin):
                     path_formats.append(path_format)
         return path_formats
 
-    def _register_session_settings(self, session: "ImportSession"):
+    def _register_session_settings(self, session: "ImportSession") -> None:
         """
         Certain settings are only available and/or finalized once the
         Beets import session begins.
@@ -267,7 +265,7 @@ class FiletotePlugin(BeetsPlugin):
                 artifact_filename, artifact_ext = os.path.splitext(
                     os.path.basename(artifact_path)
                 )
-                # If the names match and it's an authorized extension, it's a "pair"
+                # If the names match and it's an valid extension, it's a "pair"
                 if (
                     artifact_filename == item_source_filename
                     and self._is_valid_paired_extension(artifact_ext)
