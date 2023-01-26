@@ -9,6 +9,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Add tox command for doing black changes <https://github.com/gtronset/beets-filetote/pull/48>
+- Add mypy <https://github.com/gtronset/beets-filetote/pull/49>
+- Allow paired files to be by ext <https://github.com/gtronset/beets-filetote/pull/54>
+
+### Changed
+
+- Misc. Refactors to Filetote <https://github.com/gtronset/beets-filetote/pull/51>
+
 ## [0.3.3] - 2022-01-08
 
 ### Fixed

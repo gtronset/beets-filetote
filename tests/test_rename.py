@@ -51,8 +51,7 @@ class FiletoteRenameTest(FiletoteTestCase):
     def test_rename_paired_ext(self):
         """Tests that the value of `medianame_new` populates in renaming."""
         config["filetote"]["extensions"] = ".lrc"
-        config["filetote"]["pairing"] = True
-        config["filetote"]["paring_only"] = True
+        config["filetote"]["pairing"]["enabled"] = True
         config["paths"]["paired_ext:lrc"] = str("$albumpath/$medianame_new")
 
         self._run_importer()
@@ -65,8 +64,7 @@ class FiletoteRenameTest(FiletoteTestCase):
     def test_rename_paired_ext_does_not_conflict_with_ext(self):
         """Tests that paired path definitions work alongside `ext` ones."""
         config["filetote"]["extensions"] = ".lrc"
-        config["filetote"]["pairing"] = True
-        config["filetote"]["paring_only"] = True
+        config["filetote"]["pairing"]["enabled"] = True
         config["paths"]["ext:lrc"] = str("$albumpath/1 $old_filename")
         config["paths"]["paired_ext:lrc"] = str("$albumpath/$medianame_new")
 
@@ -81,8 +79,7 @@ class FiletoteRenameTest(FiletoteTestCase):
         """Tests that paired path definitions supersede `ext` ones when there's
         a collision."""
         config["filetote"]["extensions"] = ".lrc"
-        config["filetote"]["pairing"] = True
-        config["filetote"]["paring_only"] = True
+        config["filetote"]["pairing"]["enabled"] = True
         config["paths"]["paired_ext:lrc"] = str("$albumpath/$medianame_new")
         config["paths"]["ext:lrc"] = str("$albumpath/1 $old_filename")
 
@@ -97,8 +94,7 @@ class FiletoteRenameTest(FiletoteTestCase):
         """Tests that filename path definitions supersede `paired` ones when there's
         a collision."""
         config["filetote"]["extensions"] = ".lrc"
-        config["filetote"]["pairing"] = True
-        config["filetote"]["paring_only"] = True
+        config["filetote"]["pairing"]["enabled"] = True
         config["paths"]["paired_ext:lrc"] = str("$albumpath/$medianame_new")
         config["paths"]["filename:track_1.lrc"] = str("$albumpath/1 $old_filename")
 

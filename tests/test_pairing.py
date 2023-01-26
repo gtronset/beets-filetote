@@ -33,8 +33,10 @@ class FiletotePairingTest(FiletoteTestCase):
         self._setup_import_session(autotag=False)
 
         config["filetote"]["extensions"] = ".lrc"
-        config["filetote"]["pairing"] = False
-        config["filetote"]["pairing_only"] = True
+        config["filetote"]["pairing"] = {
+            "enabled": False,
+            "pairing_only": True,
+        }
 
         self._run_importer()
 
@@ -46,7 +48,7 @@ class FiletotePairingTest(FiletoteTestCase):
         self._setup_import_session(autotag=False)
 
         config["filetote"]["extensions"] = ".lrc"
-        config["filetote"]["pairing"] = False
+        config["filetote"]["pairing"]["enabled"] = False
 
         self._run_importer()
 
@@ -58,7 +60,7 @@ class FiletotePairingTest(FiletoteTestCase):
         self._setup_import_session(autotag=False)
 
         config["filetote"]["extensions"] = ".lrc"
-        config["filetote"]["pairing"] = True
+        config["filetote"]["pairing"]["enabled"] = True
 
         self._run_importer()
 
@@ -73,7 +75,7 @@ class FiletotePairingTest(FiletoteTestCase):
         self._setup_import_session(autotag=False)
 
         config["filetote"]["extensions"] = ".lrc"
-        config["filetote"]["pairing"] = True
+        config["filetote"]["pairing"]["enabled"] = True
 
         self._run_importer()
 
@@ -86,7 +88,7 @@ class FiletotePairingTest(FiletoteTestCase):
         self._setup_import_session(autotag=False)
 
         config["filetote"]["extensions"] = ".lrc"
-        config["filetote"]["pairing"] = True
+        config["filetote"]["pairing"]["enabled"] = True
 
         self._create_file(os.path.join(self.import_dir, b"the_album"), b"track_1.lrc")
 
@@ -100,8 +102,10 @@ class FiletotePairingTest(FiletoteTestCase):
         self._setup_import_session(autotag=False)
 
         config["filetote"]["extensions"] = ".lrc"
-        config["filetote"]["pairing"] = True
-        config["filetote"]["pairing_only"] = False
+        config["filetote"]["pairing"] = {
+            "enabled": True,
+            "pairing_only": False,
+        }
 
         self._run_importer()
 
@@ -114,8 +118,10 @@ class FiletotePairingTest(FiletoteTestCase):
         self._setup_import_session(autotag=False)
 
         config["filetote"]["extensions"] = ".lrc"
-        config["filetote"]["pairing"] = True
-        config["filetote"]["pairing_only"] = True
+        config["filetote"]["pairing"] = {
+            "enabled": True,
+            "pairing_only": True,
+        }
 
         self._run_importer()
 
@@ -130,8 +136,10 @@ class FiletotePairingTest(FiletoteTestCase):
         self._setup_import_session(autotag=False)
 
         config["filetote"]["extensions"] = ".lrc"
-        config["filetote"]["pairing"] = True
-        config["filetote"]["pairing_only"] = True
+        config["filetote"]["pairing"] = {
+            "enabled": True,
+            "pairing_only": True,
+        }
 
         self._create_file(os.path.join(self.import_dir, b"the_album"), b"track_1.lrc")
 
@@ -141,4 +149,59 @@ class FiletotePairingTest(FiletoteTestCase):
         self.assert_in_import_dir(b"the_album", b"artifact.lrc")
 
         self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"track_1.lrc")
+        self.assert_not_in_lib_dir(b"Tag Artist", b"Tag Album", b"artifact.lrc")
+
+    def test_pairing_extensions(self):
+        self._create_flat_import_dir(
+            media_files=[MediaSetup(count=2, generate_pair=False)]
+        )
+        self._setup_import_session(autotag=False)
+
+        config["filetote"]["pairing"] = {
+            "enabled": True,
+            "pairing_only": True,
+            "extensions": ".lrc .kar",
+        }
+
+        new_files = [b"track_1.kar", b"track_1.lrc", b"track_1.jpg"]
+
+        for filename in new_files:
+            self._create_file(os.path.join(self.import_dir, b"the_album"), filename)
+
+        self._run_importer()
+
+        self.assert_in_import_dir(b"the_album", b"track_1.lrc")
+        self.assert_in_import_dir(b"the_album", b"artifact.lrc")
+
+        self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"track_1.lrc")
+        self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"track_1.kar")
+        self.assert_not_in_lib_dir(b"Tag Artist", b"Tag Album", b"track_1.jpg")
+        self.assert_not_in_lib_dir(b"Tag Artist", b"Tag Album", b"artifact.lrc")
+
+    def test_pairing_extensions_are_addative_to_toplevel_extensions(self):
+        self._create_flat_import_dir(
+            media_files=[MediaSetup(count=2, generate_pair=False)]
+        )
+        self._setup_import_session(autotag=False)
+
+        config["filetote"]["extensions"] = ".jpg"
+
+        config["filetote"]["pairing"] = {
+            "enabled": True,
+            "extensions": ".lrc",
+        }
+
+        new_files = [b"track_1.kar", b"track_1.lrc", b"track_1.jpg"]
+
+        for filename in new_files:
+            self._create_file(os.path.join(self.import_dir, b"the_album"), filename)
+
+        self._run_importer()
+
+        self.assert_in_import_dir(b"the_album", b"track_1.lrc")
+        self.assert_in_import_dir(b"the_album", b"artifact.lrc")
+
+        self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"track_1.lrc")
+        self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"track_1.jpg")
+        self.assert_not_in_lib_dir(b"Tag Artist", b"Tag Album", b"track_1.kar")
         self.assert_not_in_lib_dir(b"Tag Artist", b"Tag Album", b"artifact.lrc")

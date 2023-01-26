@@ -76,15 +76,19 @@ It can look for and target "pairs" (files having the same name as a matching or
 
 ```yaml
 filetote:
-  pairing: True
+  pairing:
+    enabled: true
 ```
 
-And target/include only paired files:
+You can specify pairing to happen to certain extensions, and even
+target/include only paired files:
 
 ```yaml
 filetote:
-  pairing: True
-  pairing_only: True
+  pairing:
+    enabled: true
+    pairing_only: true
+    extensions: ".lrc"
 ```
 
 It can also exclude files by name:
@@ -98,7 +102,7 @@ And print what got left:
 
 ```yaml
 filetote:
-  print_ignored: yes
+  print_ignored: true
 ```
 
 `exclude`-d files take precedence over other matching, meaning exclude will
@@ -186,11 +190,41 @@ paths:
   filename:cover.jpg: $albumpath/cover
 
 filetote:
-  extensions: .cue .log .jpg .lrc
+  extensions: .cue .log .jpg
   filename: "cover.jpg"
-  pairing: True
-  print_ignored: yes
+  pairing:
+    enabled: true
+    extensions: ".lrc"
+  print_ignored: true
 ```
+
+## Version Upgrade Instructions
+
+Certain versoins require changes to configurations as upgrades occur. Please
+see below for specific steps for each version.
+
+### 0.4.0
+
+`pairing` has been converted from a boolean to an object with other
+like-config. Take the following config:
+
+```yaml
+filetote:
+  pairing: true
+  pairing_only: false
+```
+
+These will both now be represented as individual settings within `pairing`:
+
+```yaml
+filetote:
+  pairing:
+    enabled: true
+    pairing_only: false
+    extensions: ".lrc"
+```
+
+Both remain optional and both default to `false`.
 
 ## Thanks
 
@@ -207,8 +241,6 @@ Please report any issues you may have and feel free to contribute.
 ## License
 
 Copyright (c) 2022 Gavin Tronset
-Copyright (c) 2020 Adam Miller
-Copyright (c) 2015-2017 Sami Barakat
 
 Licensed under the [MIT license][license link].
 
