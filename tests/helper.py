@@ -6,7 +6,7 @@ import shutil
 from contextlib import contextmanager
 from dataclasses import dataclass
 from enum import Enum
-from typing import Optional
+from typing import List, Optional
 
 import mediafile
 from beets import config, importer, library, plugins, util
@@ -196,7 +196,7 @@ class FiletoteTestCase(_common.TestCase):
         ) as file_handle:
             file_handle.close()
 
-    def _create_flat_import_dir(self, media_files: Optional[list[MediaSetup]] = None):
+    def _create_flat_import_dir(self, media_files: Optional[List[MediaSetup]] = None):
         """
         Creates a directory with media files and artifacts.
         Sets ``self.import_dir`` to the path of the directory. Also sets
