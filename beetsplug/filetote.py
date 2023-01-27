@@ -533,4 +533,4 @@ class FiletotePlugin(BeetsPlugin):
         elif operation == MoveOperation.REFLINK_AUTO:
             util.reflink(artifact_source, artifact_dest, fallback=True)
         else:
-            assert False, f"unknown MoveOperation {operation}"
+            raise AssertionError(f"unknown MoveOperation {operation}")

@@ -119,8 +119,8 @@ class FiletoteTestCase(_common.TestCase):
         self._media_count: Optional[int] = None
         self._pairs_count: Optional[int] = None
 
-        self.import_dir = None
-        self.import_media = None
+        self.import_dir: Optional[bytes] = None
+        self.import_media: Optional[list] = None
         self.importer = None
         self.paths = None
 
@@ -196,12 +196,7 @@ class FiletoteTestCase(_common.TestCase):
         ) as file_handle:
             file_handle.close()
 
-    def _create_flat_import_dir(
-        self, media_files=[MediaSetup()]
-    ):  # pylint: disable=dangerous-default-value
-        # Pylint doesn't recognize the dataclass as a value, instead sees an empty
-        # list
-
+    def _create_flat_import_dir(self, media_files: Optional[list[MediaSetup]] = None):
         """
         Creates a directory with media files and artifacts.
         Sets ``self.import_dir`` to the path of the directory. Also sets
@@ -222,7 +217,14 @@ class FiletoteTestCase(_common.TestCase):
                     track_2.lrc
                     track_3.lrc
         """
+
+        if media_files is None:
+            media_files = [MediaSetup()]
+
         self._set_import_dir()
+
+        if self.import_dir is None:
+            return
 
         album_path = os.path.join(self.import_dir, b"the_album")
         os.makedirs(album_path)
@@ -293,11 +295,16 @@ class FiletoteTestCase(_common.TestCase):
                 self._create_file(album_path, f"{trackname}.lrc".encode("utf-8"))
         return media_list
 
-    def _create_medium(self, path, resource_name, media_meta: MediaMeta = MediaMeta()):
+    def _create_medium(
+        self, path, resource_name, media_meta: Optional[MediaMeta] = None
+    ):
         """
         Creates and saves a media file object located at path using resource_name
         from the beets test resources directory as initial data
         """
+
+        if media_meta is None:
+            media_meta = MediaMeta()
 
         resource_path = os.path.join(_common.RSRC, resource_name)
 
