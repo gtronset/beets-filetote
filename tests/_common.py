@@ -55,7 +55,7 @@ class AssertionsMixin:
 
 # A test harness for all beets tests.
 # Provides temporary, isolated configuration.
-class TestCase(unittest.TestCase, AssertionsMixin):
+class TestCase(unittest.TestCase):
     """A unittest.TestCase subclass that saves and restores beets'
     global configuration. This allows tests to make temporary
     modifications that will then be automatically removed when the test

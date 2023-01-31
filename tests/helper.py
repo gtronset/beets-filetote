@@ -95,7 +95,71 @@ RSRC_TYPES = {
 }
 
 
-class FiletoteTestCase(_common.TestCase):
+class Assertions(_common.AssertionsMixin):
+    """Helper assertions for testing."""
+
+    def __init__(self):
+        self.lib_dir: Optional[bytes] = None
+        self.import_dir: Optional[bytes] = None
+
+    def assert_in_lib_dir(self, *segments):
+        """
+        Join the ``segments`` and assert that this path exists in the library
+        directory
+        """
+        self.assert_exists(os.path.join(self.lib_dir, *segments))
+
+    def assert_not_in_lib_dir(self, *segments):
+        """
+        Join the ``segments`` and assert that this path does not exist in
+        the library directory
+        """
+        self.assert_does_not_exist(os.path.join(self.lib_dir, *segments))
+
+    def assert_import_dir_exists(self, import_dir=None):
+        """
+        Join the ``segments`` and assert that this path exists in the import
+        directory
+        """
+        directory = import_dir or self.import_dir
+        self.assert_exists(directory)
+
+    def assert_in_import_dir(self, *segments):
+        """
+        Join the ``segments`` and assert that this path exists in the import
+        directory
+        """
+        self.assert_exists(os.path.join(self.import_dir, *segments))
+
+    def assert_not_in_import_dir(self, *segments):
+        """
+        Join the ``segments`` and assert that this path does not exist in
+        the library directory
+        """
+        self.assert_does_not_exist(os.path.join(self.import_dir, *segments))
+
+    def assert_islink(self, *segments):
+        """
+        Join the ``segments`` with the `lib_dir` and assert that this path is a link
+        """
+        self.TEST.assertTrue(os.path.islink(os.path.join(self.lib_dir, *segments)))
+
+    def assert_equal_path(self, path_a, path_b):
+        """Check that two paths are equal."""
+        self.TEST.assertEqual(
+            util.normpath(path_a),
+            util.normpath(path_b),
+            f"paths are not equal: {path_a!r} and {path_b!r}",
+        )
+
+    def assert_number_of_files_in_dir(self, count, *segments):
+        """
+        Assert that there are ``count`` files in path formed by joining ``segments``
+        """
+        self.TEST.assertEqual(len(list(os.listdir(os.path.join(*segments)))), count)
+
+
+class FiletoteTestCase(_common.TestCase, Assertions):
     # pylint: disable=too-many-instance-attributes
     # pylint: disable=protected-access
     # pylint: disable=logging-fstring-interpolation
@@ -405,62 +469,6 @@ class FiletoteTestCase(_common.TestCase):
             subindent = self._indenter(level + 1)
             for filename in files:
                 log.debug(f"{subindent}{filename}")
-
-    def assert_in_lib_dir(self, *segments):
-        """
-        Join the ``segments`` and assert that this path exists in the library
-        directory
-        """
-        self.assert_exists(os.path.join(self.lib_dir, *segments))
-
-    def assert_not_in_lib_dir(self, *segments):
-        """
-        Join the ``segments`` and assert that this path does not exist in
-        the library directory
-        """
-        self.assert_does_not_exist(os.path.join(self.lib_dir, *segments))
-
-    def assert_import_dir_exists(self, import_dir=None):
-        """
-        Join the ``segments`` and assert that this path exists in the import
-        directory
-        """
-        directory = import_dir or self.import_dir
-        self.assert_exists(directory)
-
-    def assert_in_import_dir(self, *segments):
-        """
-        Join the ``segments`` and assert that this path exists in the import
-        directory
-        """
-        self.assert_exists(os.path.join(self.import_dir, *segments))
-
-    def assert_not_in_import_dir(self, *segments):
-        """
-        Join the ``segments`` and assert that this path does not exist in
-        the library directory
-        """
-        self.assert_does_not_exist(os.path.join(self.import_dir, *segments))
-
-    def assert_islink(self, *segments):
-        """
-        Join the ``segments`` with the `lib_dir` and assert that this path is a link
-        """
-        self.assertTrue(os.path.islink(os.path.join(self.lib_dir, *segments)))
-
-    def assert_equal_path(self, path_a, path_b):
-        """Check that two paths are equal."""
-        self.assertEqual(
-            util.normpath(path_a),
-            util.normpath(path_b),
-            f"paths are not equal: {path_a!r} and {path_b!r}",
-        )
-
-    def assert_number_of_files_in_dir(self, count, *segments):
-        """
-        Assert that there are ``count`` files in path formed by joining ``segments``
-        """
-        self.assertEqual(len(list(os.listdir(os.path.join(*segments)))), count)
 
 
 class TestImportSession(importer.ImportSession):
