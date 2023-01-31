@@ -4,14 +4,14 @@ import logging
 import os
 import shutil
 from contextlib import contextmanager
-from dataclasses import dataclass
+from dataclasses import asdict, dataclass
 from enum import Enum
-from typing import List, Optional
+from typing import List, Literal, Optional
 
-import mediafile
 from beets import config, importer, library, plugins, util
+from mediafile import MediaFile
 
-# Make sure the development versions of the plugins are used
+# Make sure the local versions of the plugins are used
 import beetsplug  # noqa: E402
 
 # pylint & mypy don't recognize `audible` as an extended module. Also pleases Flake8
@@ -51,13 +51,17 @@ def capture_log(logger="beets"):
 
 @dataclass
 class MediaMeta:
+    # pylint: disable=too-many-instance-attributes
     """Metadata for created media files."""
 
     artist: str = "Tag Artist"
     album: str = "Tag Album"
     albumartist: str = "Tag Album Artist"
-    track_name: str = "Tag Title 1"
-    track_number: str = "1"
+    title: str = "Tag Title 1"
+    track: str = "1"
+    mb_trackid: None = None
+    mb_albumid: None = None
+    comp: None = None
 
 
 @dataclass
@@ -108,9 +112,11 @@ class FiletoteTestCase(_common.TestCase):
         if audible_plugin:
             plugins._classes = set([audible.Audible, filetote.FiletotePlugin])
             config["plugins"] = ["audible", "filetote"]
+            plugins.load_plugins(["audible", "filetote"])
         else:
             plugins._classes = set([filetote.FiletotePlugin])
             config["plugins"] = ["filetote"]
+            plugins.load_plugins(["filetote"])
 
         self._setup_library()
 
@@ -121,13 +127,31 @@ class FiletoteTestCase(_common.TestCase):
 
         self.import_dir: Optional[bytes] = None
         self.import_media: Optional[list] = None
-        self.importer = None
-        self.paths = None
+        self.importer: Optional[TestImportSession] = None
+        self.paths: Optional[bytes] = None
 
         # Install the DummyIO to capture anything directed to stdout
         self.in_out.install()
 
-    def _run_importer(self, operation_option=None):
+    def unload_plugins(self):
+        """Unload all plugins and remove the from the configuration."""
+        config["plugins"] = []
+        # plugins._classes = set()
+        # plugins._instances = {}
+
+        if plugins._instances:
+            classes = list(plugins._classes)
+
+            # In case Audible is included, iterate through each plugin class.
+            for plugin_class in classes:
+                # Unregister listeners
+                for event in plugin_class.listeners:
+                    del plugin_class.listeners[event][0]
+
+                # Delete the plugin instance so a new one gets created for each test
+                del plugins._instances[plugin_class]
+
+    def _run_importer(self, operation_option: Literal["copy", "move", None] = None):
         """
         Create an instance of the plugin, run the importer, and
         remove/unregister the plugin instance so a new instance can
@@ -147,26 +171,16 @@ class FiletoteTestCase(_common.TestCase):
             config["import"]["copy"] = False
             config["import"]["move"] = True
 
-        # Exercise
         # Run the importer
+        if not self.importer:
+            return
         self.importer.run()
+
         # Fake the occurrence of the cli_exit event
         plugins.send("cli_exit", lib=self.lib)
 
         # Teardown
-        if plugins._instances:
-            classes = list(plugins._classes)
-
-            # In case Audible is included, iterate through each plugin class.
-            for plugin_class in classes:
-                # Unregister listeners
-                for event in plugin_class.listeners:
-                    del plugin_class.listeners[event][0]
-
-                # Delete the plugin instance so a new one gets created for each test
-                del plugins._instances[plugin_class]
-
-            config["plugins"] = []
+        self.unload_plugins()
 
         log.debug("--- library structure")
         self._list_files(self.lib_dir)
@@ -230,10 +244,15 @@ class FiletoteTestCase(_common.TestCase):
         os.makedirs(album_path)
 
         # Create artifacts
-        self._create_file(album_path, b"artifact.file")
-        self._create_file(album_path, b"artifact2.file")
-        self._create_file(album_path, b"artifact.nfo")
-        self._create_file(album_path, b"artifact.lrc")
+        artifacts = [
+            b"artifact.file",
+            b"artifact2.file",
+            b"artifact.nfo",
+            b"artifact.lrc",
+        ]
+
+        for artifact in artifacts:
+            self._create_file(album_path, artifact)
 
         media_file_count = 0
 
@@ -259,19 +278,19 @@ class FiletoteTestCase(_common.TestCase):
         log.debug("--- import directory created")
         self._list_files(self.import_dir)
 
-    def _get_rsrc_from_file_type(self, filetype):
+    def _get_rsrc_from_file_type(self, filetype: str) -> bytes:
         """Gets the actual file matching extension if available, otherwise
         default to MP3."""
         return RSRC_TYPES.get(filetype, RSRC_TYPES["mp3"])
 
     def _generate_paired_media_list(
         self, album_path, file_type="mp3", count=3, generate_pair=True
-    ):
+    ) -> List[MediaFile]:
         """
         Generates the desired number of media files and corresponding
         "paired" artifacts.
         """
-        media_list = []
+        media_list: List[MediaFile] = []
 
         while count > 0:
             trackname = f"track_{count}"
@@ -283,8 +302,8 @@ class FiletoteTestCase(_common.TestCase):
                     ),
                     resource_name=self._get_rsrc_from_file_type(file_type),
                     media_meta=MediaMeta(
-                        track_name=f"Tag Title {count}",
-                        track_number=count,
+                        title=f"Tag Title {count}",
+                        track=count,
                     ),
                 )
             )
@@ -296,8 +315,8 @@ class FiletoteTestCase(_common.TestCase):
         return media_list
 
     def _create_medium(
-        self, path, resource_name, media_meta: Optional[MediaMeta] = None
-    ):
+        self, path: bytes, resource_name: bytes, media_meta: Optional[MediaMeta] = None
+    ) -> MediaFile:
         """
         Creates and saves a media file object located at path using resource_name
         from the beets test resources directory as initial data
@@ -306,25 +325,13 @@ class FiletoteTestCase(_common.TestCase):
         if media_meta is None:
             media_meta = MediaMeta()
 
+        # Copy media file
         resource_path = os.path.join(_common.RSRC, resource_name)
 
-        metadata = {
-            "artist": media_meta.artist,
-            "album": media_meta.album,
-            "albumartist": media_meta.albumartist,
-            "mb_trackid": None,
-            "mb_albumid": None,
-            "comp": None,
-        }
-
-        # Copy media file
         shutil.copy(resource_path, path)
-        medium = mediafile.MediaFile(path)
+        medium = MediaFile(path)
 
-        # Set metadata
-        metadata["track"] = media_meta.track_number
-        metadata["title"] = media_meta.track_name
-        for item, value in metadata.items():
+        for item, value in asdict(media_meta).items():
             setattr(medium, item, value)
         medium.save()
 
@@ -358,13 +365,13 @@ class FiletoteTestCase(_common.TestCase):
 
     def _setup_import_session(
         self,
-        import_dir=None,
-        delete=False,
-        threaded=False,
-        copy=True,
-        singletons=False,
-        move=False,
-        autotag=True,
+        import_dir: Optional[bytes] = None,
+        delete: bool = False,
+        threaded: bool = False,
+        copy: bool = True,
+        singletons: bool = False,
+        move: bool = False,
+        autotag: bool = True,
     ):
         # pylint: disable=too-many-arguments
 
@@ -386,7 +393,7 @@ class FiletoteTestCase(_common.TestCase):
             query=None,
         )
 
-    def _indenter(self, indent_level):
+    def _indenter(self, indent_level: int) -> str:
         return " " * 4 * (indent_level)
 
     def _list_files(self, startpath):

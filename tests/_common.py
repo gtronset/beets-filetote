@@ -1,16 +1,13 @@
 """Setup for tests for the beets-filetote plugin."""
 
-# pylint: disable=missing-function-docstring
-
 import os
 import shutil
 import sys
 import tempfile
 import unittest
 
-import beets
 import reflink
-from beets import logging, util
+from beets import config, logging, util
 
 # Test resources path.
 RSRC = util.bytestring_path(os.path.join(os.path.dirname(__file__), "rsrc"))
@@ -28,25 +25,28 @@ HAVE_HARDLINK = PLATFORM != "win32"
 HAVE_REFLINK = reflink.supported_at(tempfile.gettempdir())
 
 
-class Assertions:
-    # pylint: disable=no-member
+class AssertionsMixin:
     """A mixin with additional unit test assertions."""
 
-    def assert_exists(self, path):  # noqa
-        self.assertTrue(
+    TEST = unittest.TestCase()
+
+    def assert_exists(self, path):
+        """Assertion that a file exists."""
+        self.TEST.assertTrue(
             os.path.exists(util.syspath(path)),
             f"file does not exist: {path!r}",
         )
 
-    def assert_does_not_exist(self, path):  # noqa
-        self.assertFalse(
+    def assert_does_not_exist(self, path):
+        """Assertion that a file does not exists."""
+        self.TEST.assertFalse(
             os.path.exists(util.syspath(path)),
             f"file exists: {path!r}",
         )
 
     def assert_equal_path(self, path_a, path_b):
         """Check that two paths are equal."""
-        self.assertEqual(
+        self.TEST.assertEqual(
             util.normpath(path_a),
             util.normpath(path_b),
             f"paths are not equal: {path_a!r} and {path_b!r}",
@@ -55,7 +55,7 @@ class Assertions:
 
 # A test harness for all beets tests.
 # Provides temporary, isolated configuration.
-class TestCase(unittest.TestCase, Assertions):
+class TestCase(unittest.TestCase, AssertionsMixin):
     """A unittest.TestCase subclass that saves and restores beets'
     global configuration. This allows tests to make temporary
     modifications that will then be automatically removed when the test
@@ -65,22 +65,18 @@ class TestCase(unittest.TestCase, Assertions):
 
     def setUp(self):
         # A "clean" source list including only the defaults.
-        beets.config.sources = []
-        beets.config.read(user=False, defaults=True)
+        config.sources = []
+        config.read(user=False, defaults=True)
 
         # Direct paths to a temporary directory. Tests can also use this
         # temporary directory.
         self.temp_dir = util.bytestring_path(tempfile.mkdtemp())
 
-        beets.config["statefile"] = util.py3_path(
+        config["statefile"] = util.py3_path(
             os.path.join(self.temp_dir, b"state.pickle")
         )
-        beets.config["library"] = util.py3_path(
-            os.path.join(self.temp_dir, b"library.db")
-        )
-        beets.config["directory"] = util.py3_path(
-            os.path.join(self.temp_dir, b"libdir")
-        )
+        config["library"] = util.py3_path(os.path.join(self.temp_dir, b"library.db"))
+        config["directory"] = util.py3_path(os.path.join(self.temp_dir, b"libdir"))
 
         # Set $HOME, which is used by confit's `config_dir()` to create
         # directories.
@@ -91,7 +87,7 @@ class TestCase(unittest.TestCase, Assertions):
         self.in_out = DummyIO()
 
     def tearDown(self):
-        # pylint: disable=protected-access, no-member
+        # pylint: disable=no-member, protected-access
         self.lib._close()
 
         if os.path.isdir(self.temp_dir):
@@ -102,8 +98,8 @@ class TestCase(unittest.TestCase, Assertions):
             os.environ["HOME"] = self._old_home
         self.in_out.restore()
 
-        beets.config.clear()
-        beets.config._materialized = False
+        config.clear()
+        config._materialized = False
 
 
 # Mock I/O.
@@ -131,15 +127,19 @@ class DummyOut:
         self.buf = []
 
     def write(self, buf_item):
+        """Writes to buffer"""
         self.buf.append(buf_item)
 
     def get(self):
+        """Get from buffer"""
         return "".join(self.buf)
 
     def flush(self):
+        """Flushes/clears output."""
         self.clear()
 
     def clear(self):
+        """Resets buffer."""
         self.buf = []
 
 
@@ -154,9 +154,11 @@ class DummyIn:
         self.out = out
 
     def add(self, buf_item):
+        """Add buffer input"""
         self.buf.append(buf_item + "\n")
 
     def readline(self):
+        """Reads buffer line"""
         if not self.buf:
             if self.out:
                 raise InputException(self.out.get())
@@ -174,20 +176,25 @@ class DummyIO:
         self.stdin = DummyIn(self.stdout)
 
     def addinput(self, inputs):
+        """Adds IO input."""
         self.stdin.add(inputs)
 
     def getoutput(self):
+        """Gets IO output."""
         res = self.stdout.get()
         self.stdout.clear()
         return res
 
     def readcount(self):
+        """Reads from stdin"""
         return self.stdin.reads
 
     def install(self):
+        """Setup stdin and stdout"""
         sys.stdin = self.stdin
         sys.stdout = self.stdout
 
     def restore(self):
+        """Restores/reset both stdin and stdout"""
         sys.stdin = sys.__stdin__
         sys.stdout = sys.__stdout__
