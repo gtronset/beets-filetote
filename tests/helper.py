@@ -159,10 +159,39 @@ class Assertions(_common.AssertionsMixin):
         self.TEST.assertEqual(len(list(os.listdir(os.path.join(*segments)))), count)
 
 
-class FiletoteTestCase(_common.TestCase, Assertions):
+class HelperUtils:
+    """Helpful utilities for testing the plugin's actions."""
+
+    def _log_indenter(self, indent_level: int) -> str:
+        return " " * 4 * (indent_level)
+
+    def create_file(self, album_path, filename):
+        """Creates a file in a specific location."""
+        with open(
+            os.path.join(album_path, filename), mode="a", encoding="utf-8"
+        ) as file_handle:
+            file_handle.close()
+
+    def list_files(self, startpath):
+        """Provide a formatted list of files, directories, and their contents in logs.
+        """
+        path = startpath.decode("utf8")
+        for root, _dirs, files in os.walk(path):
+            level = root.replace(path, "").count(os.sep)
+            indent = self._log_indenter(level)
+            log.debug("%s%s/", indent, os.path.basename(root))
+            subindent = self._log_indenter(level + 1)
+            for filename in files:
+                log.debug("%s%s", subindent, filename)
+
+    def get_rsrc_from_file_type(self, filetype: str) -> bytes:
+        """Gets the actual file matching extension if available, otherwise
+        default to MP3."""
+        return RSRC_TYPES.get(filetype, RSRC_TYPES["mp3"])
+
+
+class FiletoteTestCase(_common.TestCase, Assertions, HelperUtils):
     # pylint: disable=too-many-instance-attributes
-    # pylint: disable=protected-access
-    # pylint: disable=logging-fstring-interpolation
     """
     Provides common setup and teardown, a convenience method for exercising the
     plugin/importer, tools to setup a library, a directory containing files
@@ -173,16 +202,11 @@ class FiletoteTestCase(_common.TestCase, Assertions):
     def setUp(self, audible_plugin: bool = False):
         super().setUp()
 
-        if audible_plugin:
-            plugins._classes = set([audible.Audible, filetote.FiletotePlugin])
-            config["plugins"] = ["audible", "filetote"]
-            plugins.load_plugins(["audible", "filetote"])
-        else:
-            plugins._classes = set([filetote.FiletotePlugin])
-            config["plugins"] = ["filetote"]
-            plugins.load_plugins(["filetote"])
+        self.load_plugins(audible_plugin)
 
-        self._setup_library()
+        self.lib_dir = os.path.join(self.temp_dir, b"testlib_dir")
+
+        self.lib: library.Library = self._create_library(self.lib_dir)
 
         self.rsrc_mp3: bytes = b"full.mp3"
 
@@ -197,7 +221,42 @@ class FiletoteTestCase(_common.TestCase, Assertions):
         # Install the DummyIO to capture anything directed to stdout
         self.in_out.install()
 
+    def _create_library(self, lib_dir: bytes):
+        lib_db = os.path.join(self.temp_dir, b"testlib.blb")
+
+        os.mkdir(lib_dir)
+
+        lib = library.Library(lib_db)
+        lib.directory = lib_dir
+
+        lib.path_formats = [
+            ("default", os.path.join("$artist", "$album", "$title")),
+            ("singleton:true", os.path.join("singletons", "$title")),
+            ("comp:true", os.path.join("compilations", "$album", "$title")),
+        ]
+
+        return lib
+
+    def tearDown(self):
+        # pylint: disable=protected-access
+        super().tearDown()
+
+        self.lib._close()
+
+    def load_plugins(self, audible_plugin: bool):
+        # pylint: disable=protected-access
+        """Loads and sets up the plugin(s) for the test module."""
+        if audible_plugin:
+            plugins._classes = set([audible.Audible, filetote.FiletotePlugin])
+            config["plugins"] = ["audible", "filetote"]
+            plugins.load_plugins(["audible", "filetote"])
+        else:
+            plugins._classes = set([filetote.FiletotePlugin])
+            config["plugins"] = ["filetote"]
+            plugins.load_plugins(["filetote"])
+
     def unload_plugins(self):
+        # pylint: disable=protected-access
         """Unload all plugins and remove the from the configuration."""
         config["plugins"] = []
         # plugins._classes = set()
@@ -243,36 +302,14 @@ class FiletoteTestCase(_common.TestCase, Assertions):
         # Fake the occurrence of the cli_exit event
         plugins.send("cli_exit", lib=self.lib)
 
-        # Teardown
+        # Teardown Plugins
         self.unload_plugins()
 
         log.debug("--- library structure")
-        self._list_files(self.lib_dir)
+        self.list_files(self.lib_dir)
 
         log.debug("--- source structure after import")
-        self._list_files(self.paths)
-
-    def _setup_library(self):
-        self.lib_db = os.path.join(self.temp_dir, b"testlib.blb")
-        self.lib_dir = os.path.join(self.temp_dir, b"testlib_dir")
-
-        os.mkdir(self.lib_dir)
-
-        self.lib = library.Library(self.lib_db)
-        self.lib.directory = self.lib_dir
-
-        self.lib.path_formats = [
-            ("default", os.path.join("$artist", "$album", "$title")),
-            ("singleton:true", os.path.join("singletons", "$title")),
-            ("comp:true", os.path.join("compilations", "$album", "$title")),
-        ]
-
-    def _create_file(self, album_path, filename):
-        """Creates a file in a specific location."""
-        with open(
-            os.path.join(album_path, filename), mode="a", encoding="utf-8"
-        ) as file_handle:
-            file_handle.close()
+        self.list_files(self.paths)
 
     def _create_flat_import_dir(self, media_files: Optional[List[MediaSetup]] = None):
         """
@@ -316,7 +353,7 @@ class FiletoteTestCase(_common.TestCase, Assertions):
         ]
 
         for artifact in artifacts:
-            self._create_file(album_path, artifact)
+            self.create_file(album_path, artifact)
 
         media_file_count = 0
 
@@ -340,12 +377,7 @@ class FiletoteTestCase(_common.TestCase, Assertions):
         self.import_media = media_list
 
         log.debug("--- import directory created")
-        self._list_files(self.import_dir)
-
-    def _get_rsrc_from_file_type(self, filetype: str) -> bytes:
-        """Gets the actual file matching extension if available, otherwise
-        default to MP3."""
-        return RSRC_TYPES.get(filetype, RSRC_TYPES["mp3"])
+        self.list_files(self.import_dir)
 
     def _generate_paired_media_list(
         self, album_path, file_type="mp3", count=3, generate_pair=True
@@ -364,7 +396,7 @@ class FiletoteTestCase(_common.TestCase, Assertions):
                         album_path,
                         f"{trackname}.{file_type}".encode("utf-8"),
                     ),
-                    resource_name=self._get_rsrc_from_file_type(file_type),
+                    resource_name=self.get_rsrc_from_file_type(file_type),
                     media_meta=MediaMeta(
                         title=f"Tag Title {count}",
                         track=count,
@@ -375,7 +407,7 @@ class FiletoteTestCase(_common.TestCase, Assertions):
 
             if generate_pair:
                 # Create paired artifact
-                self._create_file(album_path, f"{trackname}.lrc".encode("utf-8"))
+                self.create_file(album_path, f"{trackname}.lrc".encode("utf-8"))
         return media_list
 
     def _create_medium(
@@ -456,19 +488,6 @@ class FiletoteTestCase(_common.TestCase, Assertions):
             paths=[import_dir or self.import_dir],
             query=None,
         )
-
-    def _indenter(self, indent_level: int) -> str:
-        return " " * 4 * (indent_level)
-
-    def _list_files(self, startpath):
-        path = startpath.decode("utf8")
-        for root, _dirs, files in os.walk(path):
-            level = root.replace(path, "").count(os.sep)
-            indent = self._indenter(level)
-            log.debug(f"{indent}{os.path.basename(root)}/")
-            subindent = self._indenter(level + 1)
-            for filename in files:
-                log.debug(f"{subindent}{filename}")
 
 
 class TestImportSession(importer.ImportSession):

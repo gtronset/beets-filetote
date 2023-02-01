@@ -87,9 +87,6 @@ class TestCase(unittest.TestCase):
         self.in_out = DummyIO()
 
     def tearDown(self):
-        # pylint: disable=no-member, protected-access
-        self.lib._close()
-
         if os.path.isdir(self.temp_dir):
             shutil.rmtree(self.temp_dir)
         if self._old_home is None:
@@ -99,7 +96,6 @@ class TestCase(unittest.TestCase):
         self.in_out.restore()
 
         config.clear()
-        config._materialized = False
 
 
 # Mock I/O.

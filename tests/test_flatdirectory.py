@@ -49,9 +49,7 @@ class FiletoteFromFlatDirectoryTest(FiletoteTestCase):
     def test_exact_matching_configured_extension(self):
         config["filetote"]["extensions"] = ".file"
 
-        self._create_file(
-            os.path.join(self.import_dir, b"the_album"), b"artifact.file2"
-        )
+        self.create_file(os.path.join(self.import_dir, b"the_album"), b"artifact.file2")
 
         self._run_importer()
 
