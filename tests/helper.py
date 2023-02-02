@@ -6,7 +6,8 @@ import shutil
 from contextlib import contextmanager
 from dataclasses import asdict, dataclass
 from enum import Enum
-from typing import List, Literal, Optional
+from sys import version_info
+from typing import List, Optional
 
 from beets import config, importer, library, plugins, util
 from mediafile import MediaFile
@@ -20,6 +21,11 @@ from beetsplug import (  # type: ignore[attr-defined] # pylint: disable=no-name-
     filetote,
 )
 from tests import _common
+
+if version_info >= (3, 8):
+    from typing import Literal
+else:
+    from typing_extensions import Literal  # type: ignore # pylint: disable=import-error
 
 beetsplug.__path__ = [os.path.abspath(os.path.join(__file__, "..", "..", "beetsplug"))]
 
