@@ -179,7 +179,8 @@ class HelperUtils:
             file_handle.close()
 
     def list_files(self, startpath):
-        """Provide a formatted list of files, directories, and their contents in logs.
+        """
+        Provide a formatted list of files, directories, and their contents in logs.
         """
         path = startpath.decode("utf8")
         for root, _dirs, files in os.walk(path):
