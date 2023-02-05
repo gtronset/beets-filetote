@@ -17,7 +17,7 @@ repos:
         args: ["--maxkb=500"]
 
   - repo: https://github.com/psf/black
-    rev: 22.12.0
+    rev: 23.1.0
     hooks:
     - id: black
 
@@ -72,7 +72,7 @@ repos:
           ]
 
   - repo: https://github.com/crate-ci/typos
-    rev: v1.13.9
+    rev: typos-dict-v0.9.16
     hooks:
       - id: typos
         exclude: "(_typos.toml|.gitignore)"
