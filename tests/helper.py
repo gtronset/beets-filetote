@@ -185,11 +185,15 @@ class HelperUtils:
         path = startpath.decode("utf8")
         for root, _dirs, files in os.walk(path):
             level = root.replace(path, "").count(os.sep)
+
             indent = self._log_indenter(level)
-            log.debug("%s%s/", indent, os.path.basename(root))
+            log_string = f"{indent}{os.path.basename(root)}/"
+            log.debug(log_string)
+
             subindent = self._log_indenter(level + 1)
             for filename in files:
-                log.debug("%s%s", subindent, filename)
+                sub_log_string = f"{subindent}{filename}"
+                log.debug(sub_log_string)
 
     def get_rsrc_from_file_type(self, filetype: str) -> bytes:
         """Gets the actual file matching extension if available, otherwise
@@ -246,9 +250,9 @@ class FiletoteTestCase(_common.TestCase, Assertions, HelperUtils):
 
     def tearDown(self):
         # pylint: disable=protected-access
-        super().tearDown()
-
         self.lib._close()
+        super().tearDown()
+        log.debug("================")
 
     def load_plugins(self, audible_plugin: bool):
         # pylint: disable=protected-access

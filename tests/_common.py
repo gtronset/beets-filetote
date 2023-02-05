@@ -88,7 +88,7 @@ class TestCase(unittest.TestCase):
 
     def tearDown(self):
         # pylint: disable=protected-access,no-member
-        self.lib._close()
+        # self.lib._close()
 
         if os.path.isdir(self.temp_dir):
             shutil.rmtree(self.temp_dir)
@@ -99,6 +99,7 @@ class TestCase(unittest.TestCase):
         self.in_out.restore()
 
         config.clear()
+        log.debug("===#############===")
 
 
 # Mock I/O.
