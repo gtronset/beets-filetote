@@ -148,11 +148,13 @@ class Assertions(_common.AssertionsMixin):
         """
         Join the ``segments`` with the `lib_dir` and assert that this path is a link
         """
-        self.TEST.assertTrue(os.path.islink(os.path.join(self.lib_dir, *segments)))
+        self.assertions.assertTrue(
+            os.path.islink(os.path.join(self.lib_dir, *segments))
+        )
 
     def assert_equal_path(self, path_a, path_b):
         """Check that two paths are equal."""
-        self.TEST.assertEqual(
+        self.assertions.assertEqual(
             util.normpath(path_a),
             util.normpath(path_b),
             f"paths are not equal: {path_a!r} and {path_b!r}",
@@ -162,7 +164,9 @@ class Assertions(_common.AssertionsMixin):
         """
         Assert that there are ``count`` files in path formed by joining ``segments``
         """
-        self.TEST.assertEqual(len(list(os.listdir(os.path.join(*segments)))), count)
+        self.assertions.assertEqual(
+            len(list(os.listdir(os.path.join(*segments)))), count
+        )
 
 
 class HelperUtils:

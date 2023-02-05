@@ -28,25 +28,25 @@ HAVE_REFLINK = reflink.supported_at(tempfile.gettempdir())
 class AssertionsMixin:
     """A mixin with additional unit test assertions."""
 
-    TEST = unittest.TestCase()
+    assertions = unittest.TestCase()
 
     def assert_exists(self, path):
         """Assertion that a file exists."""
-        self.TEST.assertTrue(
+        self.assertions.assertTrue(
             os.path.exists(util.syspath(path)),
             f"file does not exist: {path!r}",
         )
 
     def assert_does_not_exist(self, path):
         """Assertion that a file does not exists."""
-        self.TEST.assertFalse(
+        self.assertions.assertFalse(
             os.path.exists(util.syspath(path)),
             f"file exists: {path!r}",
         )
 
     def assert_equal_path(self, path_a, path_b):
         """Check that two paths are equal."""
-        self.TEST.assertEqual(
+        self.assertions.assertEqual(
             util.normpath(path_a),
             util.normpath(path_b),
             f"paths are not equal: {path_a!r} and {path_b!r}",
