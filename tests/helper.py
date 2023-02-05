@@ -252,7 +252,6 @@ class FiletoteTestCase(_common.TestCase, Assertions, HelperUtils):
         # pylint: disable=protected-access
         self.lib._close()
         super().tearDown()
-        log.debug("================")
 
     def load_plugins(self, audible_plugin: bool):
         # pylint: disable=protected-access
