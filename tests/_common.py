@@ -5,6 +5,7 @@ import shutil
 import sys
 import tempfile
 import unittest
+from typing import List, Optional
 
 import reflink
 from beets import config, logging, util
@@ -30,21 +31,21 @@ class AssertionsMixin:
 
     assertions = unittest.TestCase()
 
-    def assert_exists(self, path):
+    def assert_exists(self, path: bytes) -> None:
         """Assertion that a file exists."""
         self.assertions.assertTrue(
             os.path.exists(util.syspath(path)),
             f"file does not exist: {path!r}",
         )
 
-    def assert_does_not_exist(self, path):
+    def assert_does_not_exist(self, path: bytes) -> None:
         """Assertion that a file does not exists."""
         self.assertions.assertFalse(
             os.path.exists(util.syspath(path)),
             f"file exists: {path!r}",
         )
 
-    def assert_equal_path(self, path_a, path_b):
+    def assert_equal_path(self, path_a: bytes, path_b: bytes) -> None:
         """Check that two paths are equal."""
         self.assertions.assertEqual(
             util.normpath(path_a),
@@ -63,7 +64,7 @@ class TestCase(unittest.TestCase):
     temporary directory, and a DummyIO.
     """
 
-    def setUp(self):
+    def setUp(self) -> None:
         # A "clean" source list including only the defaults.
         config.sources = []
         config.read(user=False, defaults=True)
@@ -86,7 +87,7 @@ class TestCase(unittest.TestCase):
         # Initialize, but don't install, a DummyIO.
         self.in_out = DummyIO()
 
-    def tearDown(self):
+    def tearDown(self) -> None:
         if os.path.isdir(self.temp_dir):
             shutil.rmtree(self.temp_dir)
         if self._old_home is None:
@@ -104,10 +105,10 @@ class TestCase(unittest.TestCase):
 class InputException(Exception):
     """Provides handling of input exceptions."""
 
-    def __init__(self, output=None):
+    def __init__(self, output: Optional[str] = None) -> None:
         self.output = output
 
-    def __str__(self):
+    def __str__(self) -> str:
         msg = "Attempt to read with no input provided."
         if self.output is not None:
             msg += f" Output: {self.output!r}"
@@ -119,22 +120,22 @@ class DummyOut:
 
     encoding = "utf-8"
 
-    def __init__(self):
-        self.buf = []
+    def __init__(self) -> None:
+        self.buf: List[str] = []
 
-    def write(self, buf_item):
+    def write(self, buf_item: str) -> None:
         """Writes to buffer"""
         self.buf.append(buf_item)
 
-    def get(self):
+    def get(self) -> str:
         """Get from buffer"""
         return "".join(self.buf)
 
-    def flush(self):
+    def flush(self) -> None:
         """Flushes/clears output."""
         self.clear()
 
-    def clear(self):
+    def clear(self) -> None:
         """Resets buffer."""
         self.buf = []
 
@@ -144,16 +145,16 @@ class DummyIn:
 
     encoding = "utf-8"
 
-    def __init__(self, out=None):
-        self.buf = []
-        self.reads = 0
-        self.out = out
+    def __init__(self, out: Optional[DummyOut] = None) -> None:
+        self.buf: List[str] = []
+        self.reads: int = 0
+        self.out: Optional[DummyOut] = out
 
-    def add(self, buf_item):
+    def add(self, buf_item: str) -> None:
         """Add buffer input"""
         self.buf.append(buf_item + "\n")
 
-    def readline(self):
+    def readline(self) -> str:
         """Reads buffer line"""
         if not self.buf:
             if self.out:
@@ -167,30 +168,30 @@ class DummyIn:
 class DummyIO:
     """Mocks input and output streams for testing UI code."""
 
-    def __init__(self):
-        self.stdout = DummyOut()
-        self.stdin = DummyIn(self.stdout)
+    def __init__(self) -> None:
+        self.stdout: DummyOut = DummyOut()
+        self.stdin: DummyIn = DummyIn(self.stdout)
 
-    def addinput(self, inputs):
+    def addinput(self, inputs: str) -> None:
         """Adds IO input."""
         self.stdin.add(inputs)
 
-    def getoutput(self):
+    def getoutput(self) -> str:
         """Gets IO output."""
         res = self.stdout.get()
         self.stdout.clear()
         return res
 
-    def readcount(self):
+    def readcount(self) -> int:
         """Reads from stdin"""
         return self.stdin.reads
 
-    def install(self):
+    def install(self) -> None:
         """Setup stdin and stdout"""
-        sys.stdin = self.stdin
-        sys.stdout = self.stdout
+        sys.stdin = self.stdin  # type: ignore[assignment]
+        sys.stdout = self.stdout  # type: ignore[assignment]
 
-    def restore(self):
+    def restore(self) -> None:
         """Restores/reset both stdin and stdout"""
         sys.stdin = sys.__stdin__
         sys.stdout = sys.__stdout__

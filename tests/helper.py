@@ -5,7 +5,6 @@ import os
 import shutil
 from contextlib import contextmanager
 from dataclasses import asdict, dataclass
-from enum import Enum
 from sys import version_info
 from typing import List, Optional
 
@@ -35,16 +34,16 @@ log = logging.getLogger("beets")
 class LogCapture(logging.Handler):
     """Provides the ability to capture logs within tests."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         logging.Handler.__init__(self)
-        self.messages = []
+        self.messages: list = []
 
-    def emit(self, record):
+    def emit(self, record) -> None:
         self.messages.append(str(record.msg))
 
 
 @contextmanager
-def capture_log(logger="beets"):
+def capture_log(logger: str = "beets"):
     """Adds handler to capture beets' logs."""
     capture = LogCapture()
     logs = logging.getLogger(logger)
@@ -104,55 +103,61 @@ RSRC_TYPES = {
 class Assertions(_common.AssertionsMixin):
     """Helper assertions for testing."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.lib_dir: Optional[bytes] = None
         self.import_dir: Optional[bytes] = None
 
-    def assert_in_lib_dir(self, *segments):
+    def assert_in_lib_dir(self, *segments: bytes) -> None:
         """
         Join the ``segments`` and assert that this path exists in the library
         directory
         """
-        self.assert_exists(os.path.join(self.lib_dir, *segments))
+        if self.lib_dir:
+            self.assert_exists(os.path.join(self.lib_dir, *segments))
 
-    def assert_not_in_lib_dir(self, *segments):
+    def assert_not_in_lib_dir(self, *segments: bytes) -> None:
         """
         Join the ``segments`` and assert that this path does not exist in
         the library directory
         """
-        self.assert_does_not_exist(os.path.join(self.lib_dir, *segments))
+        if self.lib_dir:
+            self.assert_does_not_exist(os.path.join(self.lib_dir, *segments))
 
-    def assert_import_dir_exists(self, import_dir=None):
+    def assert_import_dir_exists(self, import_dir: Optional[bytes] = None) -> None:
         """
         Join the ``segments`` and assert that this path exists in the import
         directory
         """
         directory = import_dir or self.import_dir
-        self.assert_exists(directory)
+        if directory:
+            self.assert_exists(directory)
 
-    def assert_in_import_dir(self, *segments):
+    def assert_in_import_dir(self, *segments: bytes) -> None:
         """
         Join the ``segments`` and assert that this path exists in the import
         directory
         """
-        self.assert_exists(os.path.join(self.import_dir, *segments))
+        if self.import_dir:
+            self.assert_exists(os.path.join(self.import_dir, *segments))
 
-    def assert_not_in_import_dir(self, *segments):
+    def assert_not_in_import_dir(self, *segments: bytes) -> None:
         """
         Join the ``segments`` and assert that this path does not exist in
         the library directory
         """
-        self.assert_does_not_exist(os.path.join(self.import_dir, *segments))
+        if self.import_dir:
+            self.assert_does_not_exist(os.path.join(self.import_dir, *segments))
 
-    def assert_islink(self, *segments):
+    def assert_islink(self, *segments: bytes) -> None:
         """
         Join the ``segments`` with the `lib_dir` and assert that this path is a link
         """
-        self.assertions.assertTrue(
-            os.path.islink(os.path.join(self.lib_dir, *segments))
-        )
+        if self.lib_dir:
+            self.assertions.assertTrue(
+                os.path.islink(os.path.join(self.lib_dir, *segments))
+            )
 
-    def assert_equal_path(self, path_a, path_b):
+    def assert_equal_path(self, path_a: bytes, path_b: bytes) -> None:
         """Check that two paths are equal."""
         self.assertions.assertEqual(
             util.normpath(path_a),
@@ -160,7 +165,7 @@ class Assertions(_common.AssertionsMixin):
             f"paths are not equal: {path_a!r} and {path_b!r}",
         )
 
-    def assert_number_of_files_in_dir(self, count, *segments):
+    def assert_number_of_files_in_dir(self, count: int, *segments: bytes) -> None:
         """
         Assert that there are ``count`` files in path formed by joining ``segments``
         """
@@ -175,14 +180,14 @@ class HelperUtils:
     def _log_indenter(self, indent_level: int) -> str:
         return " " * 4 * (indent_level)
 
-    def create_file(self, album_path, filename):
+    def create_file(self, album_path: bytes, filename: bytes) -> None:
         """Creates a file in a specific location."""
         with open(
             os.path.join(album_path, filename), mode="a", encoding="utf-8"
         ) as file_handle:
             file_handle.close()
 
-    def list_files(self, startpath):
+    def list_files(self, startpath: bytes) -> None:
         """
         Provide a formatted list of files, directories, and their contents in logs.
         """
@@ -214,12 +219,12 @@ class FiletoteTestCase(_common.TestCase, Assertions, HelperUtils):
     for the autotagging library and assertions helpers.
     """
 
-    def setUp(self, audible_plugin: bool = False):
+    def setUp(self, audible_plugin: bool = False) -> None:
         super().setUp()
 
         self.load_plugins(audible_plugin)
 
-        self.lib_dir = os.path.join(self.temp_dir, b"testlib_dir")
+        self.lib_dir: bytes = os.path.join(self.temp_dir, b"testlib_dir")
 
         self.lib: library.Library = self._create_library(self.lib_dir)
 
@@ -230,13 +235,13 @@ class FiletoteTestCase(_common.TestCase, Assertions, HelperUtils):
 
         self.import_dir: Optional[bytes] = None
         self.import_media: Optional[list] = None
-        self.importer: Optional[TestImportSession] = None
+        self.importer: Optional[importer.ImportSession] = None
         self.paths: Optional[bytes] = None
 
         # Install the DummyIO to capture anything directed to stdout
         self.in_out.install()
 
-    def _create_library(self, lib_dir: bytes):
+    def _create_library(self, lib_dir: bytes) -> library.Library:
         lib_db = os.path.join(self.temp_dir, b"testlib.blb")
 
         os.mkdir(lib_dir)
@@ -252,12 +257,12 @@ class FiletoteTestCase(_common.TestCase, Assertions, HelperUtils):
 
         return lib
 
-    def tearDown(self):
+    def tearDown(self) -> None:
         # pylint: disable=protected-access
         self.lib._close()
         super().tearDown()
 
-    def load_plugins(self, audible_plugin: bool):
+    def load_plugins(self, audible_plugin: bool) -> None:
         # pylint: disable=protected-access
         """Loads and sets up the plugin(s) for the test module."""
         if audible_plugin:
@@ -269,7 +274,7 @@ class FiletoteTestCase(_common.TestCase, Assertions, HelperUtils):
             config["plugins"] = ["filetote"]
             plugins.load_plugins(["filetote"])
 
-    def unload_plugins(self):
+    def unload_plugins(self) -> None:
         # pylint: disable=protected-access
         """Unload all plugins and remove the from the configuration."""
         config["plugins"] = []
@@ -288,7 +293,9 @@ class FiletoteTestCase(_common.TestCase, Assertions, HelperUtils):
                 # Delete the plugin instance so a new one gets created for each test
                 del plugins._instances[plugin_class]
 
-    def _run_importer(self, operation_option: Literal["copy", "move", None] = None):
+    def _run_importer(
+        self, operation_option: Literal["copy", "move", None] = None
+    ) -> None:
         """
         Create an instance of the plugin, run the importer, and
         remove/unregister the plugin instance so a new instance can
@@ -322,10 +329,13 @@ class FiletoteTestCase(_common.TestCase, Assertions, HelperUtils):
         log.debug("--- library structure")
         self.list_files(self.lib_dir)
 
-        log.debug("--- source structure after import")
-        self.list_files(self.paths)
+        if self.paths:
+            log.debug("--- source structure after import")
+            self.list_files(self.paths)
 
-    def _create_flat_import_dir(self, media_files: Optional[List[MediaSetup]] = None):
+    def _create_flat_import_dir(
+        self, media_files: Optional[List[MediaSetup]] = None
+    ) -> None:
         """
         Creates a directory with media files and artifacts.
         Sets ``self.import_dir`` to the path of the directory. Also sets
@@ -394,7 +404,11 @@ class FiletoteTestCase(_common.TestCase, Assertions, HelperUtils):
         self.list_files(self.import_dir)
 
     def _generate_paired_media_list(
-        self, album_path, file_type="mp3", count=3, generate_pair=True
+        self,
+        album_path: bytes,
+        file_type: str = "mp3",
+        count: int = 3,
+        generate_pair: bool = True,
     ) -> List[MediaFile]:
         """
         Generates the desired number of media files and corresponding
@@ -413,7 +427,7 @@ class FiletoteTestCase(_common.TestCase, Assertions, HelperUtils):
                     resource_name=self.get_rsrc_from_file_type(file_type),
                     media_meta=MediaMeta(
                         title=f"Tag Title {count}",
-                        track=count,
+                        track=str(count),
                     ),
                 )
             )
@@ -447,7 +461,7 @@ class FiletoteTestCase(_common.TestCase, Assertions, HelperUtils):
 
         return medium
 
-    def _set_import_dir(self):
+    def _set_import_dir(self) -> None:
         """
         Sets the import_dir and ensures that it is empty.
         """
@@ -456,7 +470,7 @@ class FiletoteTestCase(_common.TestCase, Assertions, HelperUtils):
             shutil.rmtree(self.import_dir)
         self.import_dir = os.path.join(self.temp_dir, b"testsrc_dir")
 
-    def _create_nested_import_dir(self):
+    def _create_nested_import_dir(self) -> None:
         """
         Creates a directory with media files and artifacts nested in subdirectories.
         Sets ``self.import_dir`` to the path of the directory. Also sets
@@ -482,7 +496,7 @@ class FiletoteTestCase(_common.TestCase, Assertions, HelperUtils):
         singletons: bool = False,
         move: bool = False,
         autotag: bool = True,
-    ):
+    ) -> None:
         # pylint: disable=too-many-arguments
 
         config["import"]["copy"] = copy
@@ -496,82 +510,9 @@ class FiletoteTestCase(_common.TestCase, Assertions, HelperUtils):
 
         self.paths = import_dir or self.import_dir
 
-        self.importer = TestImportSession(
+        self.importer = importer.ImportSession(
             self.lib,
             loghandler=None,
             paths=[import_dir or self.import_dir],
             query=None,
         )
-
-
-class TestImportSession(importer.ImportSession):
-    # pylint: disable=abstract-method
-    """ImportSession that can be controlled programaticaly.
-
-    >>> lib = Library(':memory:')
-    >>> importer = TestImportSession(lib, paths=['/path/to/import'])
-    >>> importer.add_choice(importer.action.SKIP)
-    >>> importer.add_choice(importer.action.ASIS)
-    >>> importer.default_choice = importer.action.APPLY
-    >>> importer.run()
-
-    This imports ``/path/to/import`` into `lib`. It skips the first
-    album and imports thesecond one with metadata from the tags. For the
-    remaining albums, the metadata from the autotagger will be applied.
-    """
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self._choices = []
-        self._resolutions = []
-
-    default_choice = importer.action.APPLY
-
-    def add_choice(self, choice):
-        """Adds choice in import."""
-        self._choices.append(choice)
-
-    def clear_choices(self):
-        """Clears choices in import."""
-        self._choices = []
-
-    def choose_match(self, task):
-        """Automatically choose a match in import."""
-        try:
-            choice = self._choices.pop(0)
-        except IndexError:
-            choice = self.default_choice
-
-        result = choice
-
-        if choice == importer.action.APPLY:
-            result = task.candidates[0]
-
-        if isinstance(choice, int):
-            result = task.candidates[choice - 1]
-
-        return result
-
-    choose_item = choose_match
-
-    Resolution = Enum("Resolution", "REMOVE SKIP KEEPBOTH")
-
-    default_resolution = "REMOVE"
-
-    def add_resolution(self, resolution):
-        """Adds image? resolution."""
-        # pylint: disable=isinstance-second-argument-not-valid-type
-        assert isinstance(resolution, self.Resolution)
-        self._resolutions.append(resolution)
-
-    def resolve_duplicate(self, task, found_duplicates):
-        """If detected, resolves duplicates."""
-        try:
-            res = self._resolutions.pop(0)
-        except IndexError:
-            res = self.default_resolution
-
-        if res == self.Resolution.SKIP:
-            task.set_choice(importer.action.SKIP)
-        elif res == self.Resolution.REMOVE:
-            task.should_remove_duplicates = True
