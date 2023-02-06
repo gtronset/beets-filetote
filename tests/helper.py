@@ -38,7 +38,7 @@ class LogCapture(logging.Handler):
         logging.Handler.__init__(self)
         self.messages: list = []
 
-    def emit(self, record) -> None:
+    def emit(self, record: logging.LogRecord) -> None:
         self.messages.append(str(record.msg))
 
 
