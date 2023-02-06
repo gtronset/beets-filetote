@@ -6,7 +6,7 @@ import shutil
 from contextlib import contextmanager
 from dataclasses import asdict, dataclass
 from sys import version_info
-from typing import List, Optional
+from typing import Iterator, List, Optional
 
 from beets import config, importer, library, plugins, util
 from mediafile import MediaFile
@@ -43,7 +43,7 @@ class LogCapture(logging.Handler):
 
 
 @contextmanager
-def capture_log(logger: str = "beets"):
+def capture_log(logger: str = "beets") -> Iterator[list]:
     """Adds handler to capture beets' logs."""
     capture = LogCapture()
     logs = logging.getLogger(logger)
