@@ -36,14 +36,14 @@ class LogCapture(logging.Handler):
 
     def __init__(self) -> None:
         logging.Handler.__init__(self)
-        self.messages: list = []
+        self.messages: List[str] = []
 
     def emit(self, record: logging.LogRecord) -> None:
         self.messages.append(str(record.msg))
 
 
 @contextmanager
-def capture_log(logger: str = "beets") -> Iterator[list]:
+def capture_log(logger: str = "beets") -> Iterator[List[str]]:
     """Adds handler to capture beets' logs."""
     capture = LogCapture()
     logs = logging.getLogger(logger)
@@ -234,7 +234,7 @@ class FiletoteTestCase(_common.TestCase, Assertions, HelperUtils):
         self._pairs_count: Optional[int] = None
 
         self.import_dir: Optional[bytes] = None
-        self.import_media: Optional[list] = None
+        self.import_media: Optional[List[MediaFile]] = None
         self.importer: Optional[importer.ImportSession] = None
         self.paths: Optional[bytes] = None
 
@@ -381,7 +381,7 @@ class FiletoteTestCase(_common.TestCase, Assertions, HelperUtils):
 
         media_file_count = 0
 
-        media_list = []
+        media_list: List[MediaFile] = []
 
         for media_file in media_files:
             media_file_count += media_file.count

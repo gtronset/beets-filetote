@@ -64,3 +64,5 @@ output-format = 'colorized'
 [tool.mypy]
 # FIXME: Would be better to write stubs. For now, silence errors
 ignore_missing_imports = true
+strict=true
+pretty=true
