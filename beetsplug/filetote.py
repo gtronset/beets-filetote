@@ -190,7 +190,7 @@ class FiletotePlugin(BeetsPlugin):
                 mapping_formatted.get("albumpath"),
                 util.displayable_path(artifact_filename),
             )
-            return artifact_path
+            return str(artifact_path)
 
         subpath_tmpl = self._templatize_path_format(selected_path_format)
 
@@ -206,7 +206,7 @@ class FiletotePlugin(BeetsPlugin):
         dirname = os.path.dirname(artifact_path)
         artifact_path = os.path.join(dirname, util.displayable_path(artifact_filename))
 
-        return artifact_path
+        return str(artifact_path)
 
     def _templatize_path_format(self, path_format: Union[str, Template]) -> Template:
         """Ensures that the path format is a Beets Template."""

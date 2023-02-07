@@ -27,7 +27,7 @@ class FiletoteMappingModel(db.Model):
 
     def set(self, key: str, value: str) -> None:
         """Get the formatted version of model[key] as string."""
-        return super().__setitem__(key, value)
+        super().__setitem__(key, value)
 
     @classmethod
     def _getters(cls) -> dict:
@@ -69,5 +69,5 @@ class FiletoteMappingFormatted(db.FormattedMapping):
             value = self.model._type(key).format(self.model.get(key))
             if isinstance(value, bytes):
                 value = value.decode("utf-8", "ignore")
-            return value
-        return super().__getitem__(key)
+            return str(value)
+        return str(super().__getitem__(key))
