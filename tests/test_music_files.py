@@ -16,7 +16,7 @@ class FiletoteMusicFilesIgnoredTest(FiletoteTestCase):
     music files as defined by MediaFile's TYPES and expanded list.
     """
 
-    def test_default_music_file_types_are_ignored(self):
+    def test_default_music_file_types_are_ignored(self) -> None:
         """Ensure that mediafile types are ignored by Filetote."""
 
         media_file_list = []
@@ -45,7 +45,7 @@ class FiletoteMusicFilesIgnoredTest(FiletoteTestCase):
         self.assert_not_in_lib_dir(b"Tag Artist", b"Tag Album", b"track_1.wav")
         self.assert_not_in_lib_dir(b"Tag Artist", b"Tag Album", b"track_1.wv")
 
-    def test_expanded_music_file_types_are_ignored(self):
+    def test_expanded_music_file_types_are_ignored(self) -> None:
         """Ensure that `.m4a`, `.alac.m4a`, `.wma`, and `.wave` file types are
         ignored by Filetote."""
 

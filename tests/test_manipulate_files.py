@@ -18,15 +18,17 @@ class FiletoteManipulateFiles(FiletoteTestCase):
     Tests to check that Filetote manipulates files using the correct operation.
     """
 
-    def setUp(self, audible_plugin=False):
+    def setUp(self, audible_plugin: bool = False) -> None:
         """Provides shared setup for tests."""
         super().setUp()
 
         self._create_flat_import_dir()
         self._setup_import_session(autotag=False, copy=False)
 
-    @pytest.mark.skipif(not _common.HAVE_SYMLINK, reason="need symlinks")
-    def test_import_symlink_files(self):
+    @pytest.mark.skipif(
+        not _common.HAVE_SYMLINK, reason="need symlinks"
+    )  # type:ignore[misc]
+    def test_import_symlink_files(self) -> None:
         """Tests that the `symlink` operation correctly symlinks files."""
         config["filetote"]["extensions"] = ".file"
         config["paths"]["ext:file"] = str("$albumpath/newname")
@@ -54,8 +56,10 @@ class FiletoteManipulateFiles(FiletoteTestCase):
 
         self.assert_equal_path(util.bytestring_path(os.readlink(new_path)), old_path)
 
-    @pytest.mark.skipif(not _common.HAVE_HARDLINK, reason="need hardlinks")
-    def test_import_hardlink_files(self):
+    @pytest.mark.skipif(
+        not _common.HAVE_HARDLINK, reason="need hardlinks"
+    )  # type:ignore[misc]
+    def test_import_hardlink_files(self) -> None:
         """Tests that the `hardlink` operation correctly hardlinks files."""
 
         config["filetote"]["extensions"] = ".file"
@@ -87,8 +91,10 @@ class FiletoteManipulateFiles(FiletoteTestCase):
             == (stat_new_path[stat.ST_INO], stat_new_path[stat.ST_DEV])
         )
 
-    @pytest.mark.skipif(not _common.HAVE_REFLINK, reason="need reflinks")
-    def test_import_reflink_files(self):
+    @pytest.mark.skipif(
+        not _common.HAVE_REFLINK, reason="need reflinks"
+    )  # type:ignore[misc]
+    def test_import_reflink_files(self) -> None:
         """Tests that the `reflink` operation correctly links files."""
 
         config["filetote"]["extensions"] = ".file"

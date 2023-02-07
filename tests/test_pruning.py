@@ -18,14 +18,14 @@ class FiletotePruningyTest(FiletoteTestCase):
     it moves artifact files.
     """
 
-    def setUp(self, audible_plugin=False):
+    def setUp(self, audible_plugin: bool = False) -> None:
         """Provides shared setup for tests."""
         super().setUp()
 
         self._create_flat_import_dir()
         self._setup_import_session(autotag=False, move=True)
 
-    def test_prune_import_directory_when_emptied(self):
+    def test_prune_import_directory_when_emptied(self) -> None:
         """
         Check that plugin does not interfere with normal
         pruning of emptied import directories.
@@ -37,7 +37,7 @@ class FiletotePruningyTest(FiletoteTestCase):
         self.assert_import_dir_exists()
         self.assert_not_in_import_dir(b"the_album")
 
-    def test_prune_import_subdirectory_only_not_above(self):
+    def test_prune_import_subdirectory_only_not_above(self) -> None:
         """
         Check that plugin only prunes nested folder when specified.
         """
@@ -52,7 +52,7 @@ class FiletotePruningyTest(FiletoteTestCase):
         self.assert_import_dir_exists(self.import_dir)
         self.assert_not_in_import_dir(b"the_album")
 
-    def test_prune_import_expands_user_import_path(self):
+    def test_prune_import_expands_user_import_path(self) -> None:
         """
         Check that plugin prunes and converts/expands the user parts of path if
         present.
@@ -68,7 +68,7 @@ class FiletotePruningyTest(FiletoteTestCase):
         self.assert_import_dir_exists(self.import_dir)
         self.assert_not_in_import_dir(b"the_album")
 
-    def test_prune_reimport(self):
+    def test_prune_reimport(self) -> None:
         """
         Check that plugin prunes to the root of the library when reimporting
         from library.

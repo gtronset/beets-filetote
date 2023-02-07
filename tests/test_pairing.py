@@ -17,7 +17,7 @@ class FiletotePairingTest(FiletoteTestCase):
     Tests to check that Filetote handles "pairs" of files.
     """
 
-    def test_pairing_default_is_disabled(self):
+    def test_pairing_default_is_disabled(self) -> None:
         self._create_flat_import_dir(media_files=[MediaSetup(count=1)])
         self._setup_import_session(autotag=False)
 
@@ -28,7 +28,7 @@ class FiletotePairingTest(FiletoteTestCase):
         self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"track_1.lrc")
         self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"artifact.lrc")
 
-    def test_pairingonly_requires_pairing_enabled(self):
+    def test_pairingonly_requires_pairing_enabled(self) -> None:
         self._create_flat_import_dir()
         self._setup_import_session(autotag=False)
 
@@ -43,7 +43,7 @@ class FiletotePairingTest(FiletoteTestCase):
         self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"track_1.lrc")
         self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"artifact.lrc")
 
-    def test_pairing_disabled_copies_all_matches(self):
+    def test_pairing_disabled_copies_all_matches(self) -> None:
         self._create_flat_import_dir(media_files=[MediaSetup(count=1)])
         self._setup_import_session(autotag=False)
 
@@ -55,7 +55,7 @@ class FiletotePairingTest(FiletoteTestCase):
         self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"track_1.lrc")
         self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"artifact.lrc")
 
-    def test_pairing_enabled_copies_all_matches(self):
+    def test_pairing_enabled_copies_all_matches(self) -> None:
         self._create_flat_import_dir(media_files=[MediaSetup(count=2)])
         self._setup_import_session(autotag=False)
 
@@ -68,7 +68,7 @@ class FiletotePairingTest(FiletoteTestCase):
         self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"track_2.lrc")
         self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"artifact.lrc")
 
-    def test_pairing_enabled_works_without_pairs(self):
+    def test_pairing_enabled_works_without_pairs(self) -> None:
         self._create_flat_import_dir(
             media_files=[MediaSetup(count=1, generate_pair=False)]
         )
@@ -81,7 +81,7 @@ class FiletotePairingTest(FiletoteTestCase):
 
         self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"artifact.lrc")
 
-    def test_pairing_does_not_require_pairs_for_all_media(self):
+    def test_pairing_does_not_require_pairs_for_all_media(self) -> None:
         self._create_flat_import_dir(
             media_files=[MediaSetup(count=2, generate_pair=False)]
         )
@@ -97,7 +97,7 @@ class FiletotePairingTest(FiletoteTestCase):
         self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"track_1.lrc")
         self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"artifact.lrc")
 
-    def test_pairingonly_disabled_copies_all_matches(self):
+    def test_pairingonly_disabled_copies_all_matches(self) -> None:
         self._create_flat_import_dir(media_files=[MediaSetup(count=2)])
         self._setup_import_session(autotag=False)
 
@@ -113,7 +113,7 @@ class FiletotePairingTest(FiletoteTestCase):
         self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"track_2.lrc")
         self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"artifact.lrc")
 
-    def test_pairingonly_enabled_copies_all_matches(self):
+    def test_pairingonly_enabled_copies_all_matches(self) -> None:
         self._create_flat_import_dir(media_files=[MediaSetup(count=2)])
         self._setup_import_session(autotag=False)
 
@@ -129,7 +129,7 @@ class FiletotePairingTest(FiletoteTestCase):
         self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"track_2.lrc")
         self.assert_not_in_lib_dir(b"Tag Artist", b"Tag Album", b"artifact.lrc")
 
-    def test_pairingonly_does_not_require_pairs_for_all_media(self):
+    def test_pairingonly_does_not_require_pairs_for_all_media(self) -> None:
         self._create_flat_import_dir(
             media_files=[MediaSetup(count=2, generate_pair=False)]
         )
@@ -151,7 +151,7 @@ class FiletotePairingTest(FiletoteTestCase):
         self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"track_1.lrc")
         self.assert_not_in_lib_dir(b"Tag Artist", b"Tag Album", b"artifact.lrc")
 
-    def test_pairing_extensions(self):
+    def test_pairing_extensions(self) -> None:
         self._create_flat_import_dir(
             media_files=[MediaSetup(count=2, generate_pair=False)]
         )
@@ -178,7 +178,7 @@ class FiletotePairingTest(FiletoteTestCase):
         self.assert_not_in_lib_dir(b"Tag Artist", b"Tag Album", b"track_1.jpg")
         self.assert_not_in_lib_dir(b"Tag Artist", b"Tag Album", b"artifact.lrc")
 
-    def test_pairing_extensions_are_addative_to_toplevel_extensions(self):
+    def test_pairing_extensions_are_addative_to_toplevel_extensions(self) -> None:
         self._create_flat_import_dir(
             media_files=[MediaSetup(count=2, generate_pair=False)]
         )

@@ -15,7 +15,7 @@ class FiletoteFilename(FiletoteTestCase):
     Tests to check handling of artifacts with filenames containing unicode characters
     """
 
-    def setUp(self, audible_plugin=False):
+    def setUp(self, audible_plugin: bool = False) -> None:
         """Provides shared setup for tests."""
         super().setUp()
 
@@ -28,7 +28,7 @@ class FiletoteFilename(FiletoteTestCase):
 
         config["filetote"]["extensions"] = ".file"
 
-    def test_import_dir_with_unicode_character_in_artifact_name_copy(self):
+    def test_import_dir_with_unicode_character_in_artifact_name_copy(self) -> None:
         """Tests that unicode characters copy as expected."""
         self.create_file(
             self.album_path, beets.util.bytestring_path("\xe4rtifact.file")
@@ -46,7 +46,7 @@ class FiletoteFilename(FiletoteTestCase):
             beets.util.bytestring_path("\xe4rtifact.file"),
         )
 
-    def test_import_dir_with_unicode_character_in_artifact_name_move(self):
+    def test_import_dir_with_unicode_character_in_artifact_name_move(self) -> None:
         """Tests that unicode characters move as expected."""
 
         config["import"]["move"] = True
@@ -67,10 +67,12 @@ class FiletoteFilename(FiletoteTestCase):
             beets.util.bytestring_path("\xe4rtifact.file"),
         )
 
-    @pytest.mark.skipif(_common.PLATFORM == "win32", reason="win32")
+    @pytest.mark.skipif(
+        _common.PLATFORM == "win32", reason="win32"
+    )  # type:ignore[misc]
     def test_import_with_illegal_character_in_artifact_name_obeys_beets(
         self,
-    ):
+    ) -> None:
         """
         Tests that illegal characters in file name are replaced following beets
         conventions.
@@ -103,7 +105,7 @@ class FiletoteFilename(FiletoteTestCase):
             beets.util.bytestring_path("Album_ Subtitle - CoolName_ Album&Tag.log"),
         )
 
-    def test_import_dir_with_illegal_character_in_album_name(self):
+    def test_import_dir_with_illegal_character_in_album_name(self) -> None:
         """
         Tests that illegal characters in album name are replaced following beets
         conventions.
@@ -115,7 +117,7 @@ class FiletoteFilename(FiletoteTestCase):
         medium = self._create_medium(
             os.path.join(self.album_path, b"track_1.mp3"),
             self.rsrc_mp3,
-            MediaMeta(album=b"Tag Album?"),
+            MediaMeta(album="Tag Album?"),
         )
         self.import_media = [medium]
 

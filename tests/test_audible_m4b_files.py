@@ -18,11 +18,11 @@ class FiletoteM4BFilesIgnoredTest(FiletoteTestCase):
     beets-audible plugin is present.
     """
 
-    def setUp(self, audible_plugin=False):
+    def setUp(self, audible_plugin: bool = False) -> None:
         """Provides shared setup for tests."""
         super().setUp(audible_plugin=True)
 
-    def test_expanded_music_file_types_are_ignored(self):
+    def test_expanded_music_file_types_are_ignored(self) -> None:
         """Ensure that `.m4b` file types are ignored by Filetote."""
 
         self._create_flat_import_dir(media_files=[MediaSetup(file_type="m4b", count=1)])

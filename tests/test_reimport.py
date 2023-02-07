@@ -17,7 +17,7 @@ class FiletoteReimportTest(FiletoteTestCase):
     Tests to check that Filetote handles reimports correctly
     """
 
-    def setUp(self, audible_plugin=False):
+    def setUp(self, audible_plugin: bool = False) -> None:
         """
         Setup subsequent import directory of the following structure:
 
@@ -40,7 +40,7 @@ class FiletoteReimportTest(FiletoteTestCase):
         log.debug("--- initial import")
         self._run_importer()
 
-    def test_reimport_artifacts_with_copy(self):
+    def test_reimport_artifacts_with_copy(self) -> None:
         """Tests that when reimporting, copying works."""
         # Cause files to relocate (move) when reimported
         self.lib.path_formats[0] = (
@@ -55,7 +55,7 @@ class FiletoteReimportTest(FiletoteTestCase):
         self.assert_not_in_lib_dir(b"Tag Artist", b"Tag Album", b"artifact.file")
         self.assert_in_lib_dir(b"1Tag Artist", b"Tag Album", b"artifact.file")
 
-    def test_reimport_artifacts_with_move(self):
+    def test_reimport_artifacts_with_move(self) -> None:
         """Tests that when reimporting, moving works."""
         # Cause files to relocate when reimported
         self.lib.path_formats[0] = (
@@ -70,7 +70,7 @@ class FiletoteReimportTest(FiletoteTestCase):
         self.assert_not_in_lib_dir(b"Tag Artist", b"Tag Album", b"artifact.file")
         self.assert_in_lib_dir(b"1Tag Artist", b"Tag Album", b"artifact.file")
 
-    def test_prune_empty_directories_with_copy_reimport(self):
+    def test_prune_empty_directories_with_copy_reimport(self) -> None:
         """
         Ensure directories are pruned when reimporting with 'copy'.
         """
@@ -87,7 +87,7 @@ class FiletoteReimportTest(FiletoteTestCase):
         self.assert_not_in_lib_dir(b"Tag Artist", b"Tag Album", b"artifact.file")
         self.assert_in_lib_dir(b"1Tag Artist", b"Tag Album", b"artifact.file")
 
-    def test_do_nothing_when_paths_do_not_change_with_copy_import(self):
+    def test_do_nothing_when_paths_do_not_change_with_copy_import(self) -> None:
         """Tests that when paths are the same (before/after), no action is
         taken for default `copy` action."""
         self._setup_import_session(autotag=False, import_dir=self.lib_dir)
@@ -99,7 +99,7 @@ class FiletoteReimportTest(FiletoteTestCase):
         self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"artifact.file")
         self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"artifact2.file")
 
-    def test_do_nothing_when_paths_do_not_change_with_move_import(self):
+    def test_do_nothing_when_paths_do_not_change_with_move_import(self) -> None:
         """Tests that when paths are the same (before/after), no action is
         taken for default `move` action."""
         self._setup_import_session(autotag=False, import_dir=self.lib_dir, move=True)
@@ -110,7 +110,7 @@ class FiletoteReimportTest(FiletoteTestCase):
         self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"artifact.file")
         self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"artifact2.file")
 
-    def test_rename_with_copy_reimport(self):
+    def test_rename_with_copy_reimport(self) -> None:
         """Tests that renaming during `copy` works even when reimporting."""
         config["paths"]["ext:file"] = str(
             os.path.join("$albumpath", "$artist - $album")
@@ -125,7 +125,7 @@ class FiletoteReimportTest(FiletoteTestCase):
             b"Tag Artist", b"Tag Album", b"Tag Artist - Tag Album.file"
         )
 
-    def test_rename_with_move_reimport(self):
+    def test_rename_with_move_reimport(self) -> None:
         """Tests that renaming during `move` works even when reimporting."""
         config["paths"]["ext:file"] = str(
             os.path.join("$albumpath", "$artist - $album")
@@ -140,7 +140,7 @@ class FiletoteReimportTest(FiletoteTestCase):
             b"Tag Artist", b"Tag Album", b"Tag Artist - Tag Album.file"
         )
 
-    def test_rename_when_paths_do_not_change(self):
+    def test_rename_when_paths_do_not_change(self) -> None:
         """
         This test considers the situation where the path format for a file extension
         is changed and files already in the library are reimported and renamed to
@@ -155,7 +155,7 @@ class FiletoteReimportTest(FiletoteTestCase):
         self.assert_not_in_lib_dir(b"Tag Artist", b"Tag Album", b"artifact.file")
         self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"Tag Album.file")
 
-    def test_multiple_reimport_artifacts_with_move(self):
+    def test_multiple_reimport_artifacts_with_move(self) -> None:
         """Tests that multiple reimports work the same as the initial action or
         a single reimport."""
         # Cause files to relocate when reimported
