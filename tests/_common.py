@@ -1,16 +1,14 @@
 """Setup for tests for the beets-filetote plugin."""
 
-# pylint: disable=missing-function-docstring
-
 import os
 import shutil
 import sys
 import tempfile
 import unittest
+from typing import List, Optional
 
-import beets
 import reflink
-from beets import logging, util
+from beets import config, logging, util
 
 # Test resources path.
 RSRC = util.bytestring_path(os.path.join(os.path.dirname(__file__), "rsrc"))
@@ -28,25 +26,28 @@ HAVE_HARDLINK = PLATFORM != "win32"
 HAVE_REFLINK = reflink.supported_at(tempfile.gettempdir())
 
 
-class Assertions:
-    # pylint: disable=no-member
+class AssertionsMixin:
     """A mixin with additional unit test assertions."""
 
-    def assert_exists(self, path):  # noqa
-        self.assertTrue(
+    assertions = unittest.TestCase()
+
+    def assert_exists(self, path: bytes) -> None:
+        """Assertion that a file exists."""
+        self.assertions.assertTrue(
             os.path.exists(util.syspath(path)),
             f"file does not exist: {path!r}",
         )
 
-    def assert_does_not_exist(self, path):  # noqa
-        self.assertFalse(
+    def assert_does_not_exist(self, path: bytes) -> None:
+        """Assertion that a file does not exists."""
+        self.assertions.assertFalse(
             os.path.exists(util.syspath(path)),
             f"file exists: {path!r}",
         )
 
-    def assert_equal_path(self, path_a, path_b):
+    def assert_equal_path(self, path_a: bytes, path_b: bytes) -> None:
         """Check that two paths are equal."""
-        self.assertEqual(
+        self.assertions.assertEqual(
             util.normpath(path_a),
             util.normpath(path_b),
             f"paths are not equal: {path_a!r} and {path_b!r}",
@@ -55,7 +56,7 @@ class Assertions:
 
 # A test harness for all beets tests.
 # Provides temporary, isolated configuration.
-class TestCase(unittest.TestCase, Assertions):
+class TestCase(unittest.TestCase):
     """A unittest.TestCase subclass that saves and restores beets'
     global configuration. This allows tests to make temporary
     modifications that will then be automatically removed when the test
@@ -63,24 +64,20 @@ class TestCase(unittest.TestCase, Assertions):
     temporary directory, and a DummyIO.
     """
 
-    def setUp(self):
+    def setUp(self) -> None:
         # A "clean" source list including only the defaults.
-        beets.config.sources = []
-        beets.config.read(user=False, defaults=True)
+        config.sources = []
+        config.read(user=False, defaults=True)
 
         # Direct paths to a temporary directory. Tests can also use this
         # temporary directory.
         self.temp_dir = util.bytestring_path(tempfile.mkdtemp())
 
-        beets.config["statefile"] = util.py3_path(
+        config["statefile"] = util.py3_path(
             os.path.join(self.temp_dir, b"state.pickle")
         )
-        beets.config["library"] = util.py3_path(
-            os.path.join(self.temp_dir, b"library.db")
-        )
-        beets.config["directory"] = util.py3_path(
-            os.path.join(self.temp_dir, b"libdir")
-        )
+        config["library"] = util.py3_path(os.path.join(self.temp_dir, b"library.db"))
+        config["directory"] = util.py3_path(os.path.join(self.temp_dir, b"libdir"))
 
         # Set $HOME, which is used by confit's `config_dir()` to create
         # directories.
@@ -90,10 +87,7 @@ class TestCase(unittest.TestCase, Assertions):
         # Initialize, but don't install, a DummyIO.
         self.in_out = DummyIO()
 
-    def tearDown(self):
-        # pylint: disable=protected-access, no-member
-        self.lib._close()
-
+    def tearDown(self) -> None:
         if os.path.isdir(self.temp_dir):
             shutil.rmtree(self.temp_dir)
         if self._old_home is None:
@@ -102,8 +96,7 @@ class TestCase(unittest.TestCase, Assertions):
             os.environ["HOME"] = self._old_home
         self.in_out.restore()
 
-        beets.config.clear()
-        beets.config._materialized = False
+        config.clear()
 
 
 # Mock I/O.
@@ -112,10 +105,10 @@ class TestCase(unittest.TestCase, Assertions):
 class InputException(Exception):
     """Provides handling of input exceptions."""
 
-    def __init__(self, output=None):
+    def __init__(self, output: Optional[str] = None) -> None:
         self.output = output
 
-    def __str__(self):
+    def __str__(self) -> str:
         msg = "Attempt to read with no input provided."
         if self.output is not None:
             msg += f" Output: {self.output!r}"
@@ -127,19 +120,23 @@ class DummyOut:
 
     encoding = "utf-8"
 
-    def __init__(self):
-        self.buf = []
+    def __init__(self) -> None:
+        self.buf: List[str] = []
 
-    def write(self, buf_item):
+    def write(self, buf_item: str) -> None:
+        """Writes to buffer"""
         self.buf.append(buf_item)
 
-    def get(self):
+    def get(self) -> str:
+        """Get from buffer"""
         return "".join(self.buf)
 
-    def flush(self):
+    def flush(self) -> None:
+        """Flushes/clears output."""
         self.clear()
 
-    def clear(self):
+    def clear(self) -> None:
+        """Resets buffer."""
         self.buf = []
 
 
@@ -148,15 +145,17 @@ class DummyIn:
 
     encoding = "utf-8"
 
-    def __init__(self, out=None):
-        self.buf = []
-        self.reads = 0
-        self.out = out
+    def __init__(self, out: Optional[DummyOut] = None) -> None:
+        self.buf: List[str] = []
+        self.reads: int = 0
+        self.out: Optional[DummyOut] = out
 
-    def add(self, buf_item):
+    def add(self, buf_item: str) -> None:
+        """Add buffer input"""
         self.buf.append(buf_item + "\n")
 
-    def readline(self):
+    def readline(self) -> str:
+        """Reads buffer line"""
         if not self.buf:
             if self.out:
                 raise InputException(self.out.get())
@@ -169,25 +168,30 @@ class DummyIn:
 class DummyIO:
     """Mocks input and output streams for testing UI code."""
 
-    def __init__(self):
-        self.stdout = DummyOut()
-        self.stdin = DummyIn(self.stdout)
+    def __init__(self) -> None:
+        self.stdout: DummyOut = DummyOut()
+        self.stdin: DummyIn = DummyIn(self.stdout)
 
-    def addinput(self, inputs):
+    def addinput(self, inputs: str) -> None:
+        """Adds IO input."""
         self.stdin.add(inputs)
 
-    def getoutput(self):
+    def getoutput(self) -> str:
+        """Gets IO output."""
         res = self.stdout.get()
         self.stdout.clear()
         return res
 
-    def readcount(self):
+    def readcount(self) -> int:
+        """Reads from stdin"""
         return self.stdin.reads
 
-    def install(self):
-        sys.stdin = self.stdin
-        sys.stdout = self.stdout
+    def install(self) -> None:
+        """Setup stdin and stdout"""
+        sys.stdin = self.stdin  # type: ignore[assignment]
+        sys.stdout = self.stdout  # type: ignore[assignment]
 
-    def restore(self):
+    def restore(self) -> None:
+        """Restores/reset both stdin and stdout"""
         sys.stdin = sys.__stdin__
         sys.stdout = sys.__stdout__

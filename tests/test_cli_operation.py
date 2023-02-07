@@ -59,7 +59,7 @@ class FiletoteCLIOperation(FiletoteTestCase):
 
         self._setup_import_session(copy=False, autotag=False)
 
-        self._create_file(
+        self.create_file(
             self.album_path, beets.util.bytestring_path("\xe4rtifact.file")
         )
         medium = self._create_medium(
@@ -85,7 +85,7 @@ class FiletoteCLIOperation(FiletoteTestCase):
         providing it as `--move` in the CLI correctly overrides."""
         self._setup_import_session(copy=False, autotag=False)
 
-        self._create_file(
+        self.create_file(
             self.album_path, beets.util.bytestring_path("\xe4rtifact.file")
         )
         medium = self._create_medium(
@@ -112,7 +112,7 @@ class FiletoteCLIOperation(FiletoteTestCase):
 
         self._setup_import_session(copy=True, autotag=False)
 
-        self._create_file(
+        self.create_file(
             self.album_path, beets.util.bytestring_path("\xe4rtifact.file")
         )
         medium = self._create_medium(
@@ -138,7 +138,7 @@ class FiletoteCLIOperation(FiletoteTestCase):
         `--copy` in the CLI correctly overrides."""
         self._setup_import_session(move=True, autotag=False)
 
-        self._create_file(
+        self.create_file(
             self.album_path, beets.util.bytestring_path("\xe4rtifact.file")
         )
         medium = self._create_medium(
