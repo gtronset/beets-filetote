@@ -1,7 +1,7 @@
 """beets-filetote plugin for beets."""
 import filecmp
 import os
-from typing import TYPE_CHECKING, List, Optional, Tuple, Union
+from typing import TYPE_CHECKING, Dict, List, Optional, Tuple, Union
 
 from beets import config, util
 from beets.library import DefaultTemplateFunctions
@@ -44,9 +44,11 @@ class FiletotePlugin(BeetsPlugin):
 
         queries: List[str] = ["ext:", "filename:", "paired_ext:"]
 
-        self._path_formats: List[tuple] = self._get_filetote_path_formats(queries)
+        self._path_formats: List[Tuple[str, str]] = self._get_filetote_path_formats(
+            queries
+        )
         self._process_queue: List[FiletoteArtifactCollection] = []
-        self._shared_artifacts: dict = {}
+        self._shared_artifacts: Dict[str, List[str]] = {}
         self._dirs_seen: List[str] = []
 
         move_events: List[str] = [
@@ -63,9 +65,9 @@ class FiletotePlugin(BeetsPlugin):
         self.register_listener("import_begin", self._register_session_settings)
         self.register_listener("cli_exit", self.process_events)
 
-    def _get_filetote_path_formats(self, queries: List[str]) -> List[tuple]:
+    def _get_filetote_path_formats(self, queries: List[str]) -> List[Tuple[str, str]]:
         """Gets all `path` formats from beets and parses those set for Filetote."""
-        path_formats = []
+        path_formats: List[Tuple[str, str]] = []
 
         for path_format in get_path_formats():
             for query in queries:
@@ -117,7 +119,7 @@ class FiletotePlugin(BeetsPlugin):
 
     def _get_path_query_format_match(
         self, artifact_filename: str, artifact_ext: str, paired: bool
-    ) -> tuple:
+    ) -> Tuple[Optional[str], Optional[str]]:
         full_filename = util.displayable_path(artifact_filename)
 
         selected_path_query: Optional[str] = None
@@ -429,7 +431,7 @@ class FiletotePlugin(BeetsPlugin):
         if not source_artifacts:
             return
 
-        ignored_artifacts: List = []
+        ignored_artifacts: List[str] = []
 
         for artifact in source_artifacts:
             artifact_source = artifact.path
@@ -450,7 +452,7 @@ class FiletotePlugin(BeetsPlugin):
                 artifact_paired=artifact.paired,
             )
 
-            if is_ignorable:
+            if is_ignorable and ignore_filename:
                 ignored_artifacts.append(ignore_filename)
                 continue
 
@@ -462,7 +464,7 @@ class FiletotePlugin(BeetsPlugin):
 
         self.print_ignored_artifacts(ignored_artifacts)
 
-    def print_ignored_artifacts(self, ignored_artifacts: list) -> None:
+    def print_ignored_artifacts(self, ignored_artifacts: List[str]) -> None:
         """If enabled in config, output ignored files to beets logs."""
 
         if self.filetote.print_ignored and ignored_artifacts:

@@ -1,7 +1,7 @@
 """ "Mapping" Model for Filetote. """
 
 from sys import version_info
-from typing import List, Optional, Union
+from typing import Dict, List, Optional, Union
 
 from beets.dbcore import db
 from beets.dbcore import types as db_types
@@ -30,11 +30,11 @@ class FiletoteMappingModel(db.Model):
         super().__setitem__(key, value)
 
     @classmethod
-    def _getters(cls) -> dict:
+    def _getters(cls) -> Dict[None, None]:
         """Return "blank" for getter functions."""
         return {}
 
-    def _template_funcs(self) -> dict:
+    def _template_funcs(self) -> Dict[None, None]:
         """Return "blank" for template functions."""
         return {}
 
@@ -50,7 +50,7 @@ class FiletoteMappingFormatted(db.FormattedMapping):
     def __init__(
         self,
         model: FiletoteMappingModel,
-        included_keys: Union[Literal["*"], list] = ALL_KEYS,
+        included_keys: Union[Literal["*"], List[str]] = ALL_KEYS,
         for_path: bool = False,
         whitelist_replace: Optional[List[str]] = None,
     ):

@@ -52,7 +52,7 @@ class FiletotePairingData:
 
     enabled: bool = False
     pairing_only: bool = False
-    extensions: Union[Literal[".*"], list] = ".*"
+    extensions: Union[Literal[".*"], List[str]] = ".*"
 
 
 @dataclass
@@ -60,13 +60,13 @@ class FiletoteConfig:
     """Configuration settings for FileTote Item."""
 
     session: FiletoteSessionData = field(default_factory=FiletoteSessionData)
-    extensions: Union[Literal[".*"], list] = ".*"
-    filenames: Union[Literal[""], list] = ""
-    exclude: Union[Literal[""], list] = ""
+    extensions: Union[Literal[".*"], List[str]] = ".*"
+    filenames: Union[Literal[""], List[str]] = ""
+    exclude: Union[Literal[""], List[str]] = ""
     print_ignored: bool = False
     pairing: FiletotePairingData = field(default_factory=FiletotePairingData)
 
-    def asdict(self) -> dict:
+    def asdict(self) -> dict:  # type: ignore[type-arg]
         """Returns a `dict` version of the dataclass."""
         return asdict(self)
 
