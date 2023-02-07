@@ -23,7 +23,7 @@ if TYPE_CHECKING:
     from beets.library import Item, Library
 
 
-class FiletotePlugin(BeetsPlugin):
+class FiletotePlugin(BeetsPlugin):  # type: ignore[misc]
     """Plugin main class. Eventually, should encompass additional features as
     described in https://github.com/beetbox/beets/wiki/Attachments."""
 

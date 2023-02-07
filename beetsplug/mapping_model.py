@@ -12,7 +12,7 @@ else:
     from typing_extensions import Literal  # type: ignore # pylint: disable=import-error
 
 
-class FiletoteMappingModel(db.Model):
+class FiletoteMappingModel(db.Model):  # type: ignore[misc]
     """Model for a FiletoteMappingFormatted."""
 
     _fields = {
@@ -39,7 +39,7 @@ class FiletoteMappingModel(db.Model):
         return {}
 
 
-class FiletoteMappingFormatted(db.FormattedMapping):
+class FiletoteMappingFormatted(db.FormattedMapping):  # type: ignore[misc]
     """
     Formatted Mapping that does not replace path separators for certain keys
     (e.g., albumpath).
