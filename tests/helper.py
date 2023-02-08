@@ -64,6 +64,7 @@ class MediaMeta:
     albumartist: str = "Tag Album Artist"
     title: str = "Tag Title 1"
     track: str = "1"
+    disc: str = "1"
     mb_trackid: None = None
     mb_albumid: None = None
     comp: None = None
@@ -230,10 +231,10 @@ class FiletoteTestCase(_common.TestCase, Assertions, HelperUtils):
 
         self.rsrc_mp3: bytes = b"full.mp3"
 
-        self._media_count: Optional[int] = None
-        self._pairs_count: Optional[int] = None
+        self._media_count: int = 0
+        self._pairs_count: int = 0
 
-        self.import_dir: Optional[bytes] = None
+        self.import_dir: bytes = b""
         self.import_media: Optional[List[MediaFile]] = None
         self.importer: Optional[importer.ImportSession] = None
         self.paths: Optional[bytes] = None
@@ -379,7 +380,7 @@ class FiletoteTestCase(_common.TestCase, Assertions, HelperUtils):
         for artifact in artifacts:
             self.create_file(album_path, artifact)
 
-        media_file_count = 0
+        media_file_count: int = 0
 
         media_list: List[MediaFile] = []
 
@@ -403,13 +404,116 @@ class FiletoteTestCase(_common.TestCase, Assertions, HelperUtils):
         log.debug("--- import directory created")
         self.list_files(self.import_dir)
 
+    def _create_nested_import_dir(
+        self,
+        disc1_media_files: Optional[List[MediaSetup]] = None,
+        disc2_media_files: Optional[List[MediaSetup]] = None,
+    ) -> None:
+        """
+        Creates a directory with media files and artifacts nested in subdirectories.
+        Sets ``self.import_dir`` to the path of the directory. Also sets
+        ``self.import_media`` to a list :class:`MediaFile` for all the media files in
+        the directory.
+
+        The directory has the following layout
+            the_album/
+                disc1/
+                    track_1.mp3
+                    artifact1.file
+                disc2/
+                    track_1.mp3
+                    artifact2.file
+        """
+
+        if disc1_media_files is None:
+            disc1_media_files = [MediaSetup()]
+
+        if disc2_media_files is None:
+            disc2_media_files = [MediaSetup()]
+
+        self._set_import_dir()
+
+        if self.import_dir is None:
+            return
+
+        album_path = os.path.join(self.import_dir, b"the_album")
+        disc1_path = os.path.join(album_path, b"disc1")
+        disc2_path = os.path.join(album_path, b"disc2")
+
+        os.makedirs(disc1_path)
+        os.makedirs(disc2_path)
+
+        # Create Disc1 artifacts
+        disc1_artifacts = [
+            b"artifact.file",
+            b"artifact2.file",
+            b"artifact_disc1.nfo",
+        ]
+
+        for artifact in disc1_artifacts:
+            self.create_file(disc1_path, artifact)
+
+        # Create Disc2 artifacts
+        disc2_artifacts = [
+            b"artifact3.file",
+            b"artifact4.file",
+            b"artifact_disc2.nfo",
+        ]
+
+        for artifact in disc2_artifacts:
+            self.create_file(disc2_path, artifact)
+
+        media_file_count: int = 0
+
+        media_list: List[MediaFile] = []
+
+        for media_file in disc1_media_files:
+            media_file_count += media_file.count
+
+            media_list.append(
+                self._generate_paired_media_list(
+                    album_path=disc1_path,
+                    file_type=media_file.file_type,
+                    count=media_file.count,
+                    generate_pair=media_file.generate_pair,
+                )
+            )
+
+        for media_file in disc2_media_files:
+            media_file_count += media_file.count
+
+            media_list.append(
+                self._generate_paired_media_list(
+                    album_path=disc2_path,
+                    filename_prefix="supertrack_",
+                    file_type=media_file.file_type,
+                    count=media_file.count,
+                    generate_pair=media_file.generate_pair,
+                    title_prefix="Super Tag Title ",
+                    disc="2",
+                )
+            )
+
+        # Number of desired media
+        self._pairs_count = media_file_count
+        self._media_count = media_file_count
+
+        self.import_media = media_list
+
+        log.debug("--- import directory created")
+        self.list_files(self.import_dir)
+
     def _generate_paired_media_list(
         self,
         album_path: bytes,
-        file_type: str = "mp3",
         count: int = 3,
         generate_pair: bool = True,
+        filename_prefix: str = "track_",
+        file_type: str = "mp3",
+        title_prefix: str = "Tag Title ",
+        disc: str = "1",
     ) -> List[MediaFile]:
+        # pylint: disable=too-many-arguments
         """
         Generates the desired number of media files and corresponding
         "paired" artifacts.
@@ -417,7 +521,7 @@ class FiletoteTestCase(_common.TestCase, Assertions, HelperUtils):
         media_list: List[MediaFile] = []
 
         while count > 0:
-            trackname = f"track_{count}"
+            trackname = f"{filename_prefix}{count}"
             media_list.append(
                 self._create_medium(
                     path=os.path.join(
@@ -426,8 +530,7 @@ class FiletoteTestCase(_common.TestCase, Assertions, HelperUtils):
                     ),
                     resource_name=self.get_rsrc_from_file_type(file_type),
                     media_meta=MediaMeta(
-                        title=f"Tag Title {count}",
-                        track=str(count),
+                        title=f"{title_prefix}{count}", track=str(count), disc=disc
                     ),
                 )
             )
@@ -469,23 +572,6 @@ class FiletoteTestCase(_common.TestCase, Assertions, HelperUtils):
         if os.path.isdir(self.import_dir):
             shutil.rmtree(self.import_dir)
         self.import_dir = os.path.join(self.temp_dir, b"testsrc_dir")
-
-    def _create_nested_import_dir(self) -> None:
-        """
-        Creates a directory with media files and artifacts nested in subdirectories.
-        Sets ``self.import_dir`` to the path of the directory. Also sets
-        ``self.import_media`` to a list :class:`MediaFile` for all the media files in
-        the directory.
-
-        The directory has the following layout
-            the_album/
-                disc1/
-                    track_1.mp3
-                    artifact1.file
-                disc2/
-                    track_1.mp3
-                    artifact2.file
-        """
 
     def _setup_import_session(
         self,

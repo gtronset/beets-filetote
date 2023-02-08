@@ -15,14 +15,14 @@ class FiletoteRenameFieldsTest(FiletoteTestCase):
     expected for custom path formats (both by extension and filename).
     """
 
-    def setUp(self, audible_plugin=False):
+    def setUp(self, audible_plugin: bool = False) -> None:
         """Provides shared setup for tests."""
         super().setUp()
 
         self._create_flat_import_dir()
         self._setup_import_session(autotag=False)
 
-    def test_rename_field_albumpath(self):
+    def test_rename_field_albumpath(self) -> None:
         """Tests that the value of `albumpath` populates in renaming."""
         config["filetote"]["extensions"] = ".file"
         config["paths"]["ext:file"] = str("$albumpath/newname")
@@ -31,7 +31,7 @@ class FiletoteRenameFieldsTest(FiletoteTestCase):
 
         self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"newname.file")
 
-    def test_rename_field_artist(self):
+    def test_rename_field_artist(self) -> None:
         """Tests that the value of `artist` populates in renaming."""
         config["filetote"]["extensions"] = ".file"
         config["paths"]["ext:file"] = str("$albumpath/$artist - newname")
@@ -42,7 +42,7 @@ class FiletoteRenameFieldsTest(FiletoteTestCase):
             b"Tag Artist", b"Tag Album", b"Tag Artist - newname.file"
         )
 
-    def test_rename_field_albumartist(self):
+    def test_rename_field_albumartist(self) -> None:
         """Tests that the value of `albumartist` populates in renaming."""
         config["filetote"]["extensions"] = ".file"
         config["paths"]["ext:file"] = str("$albumpath/$albumartist - newname")
@@ -53,7 +53,7 @@ class FiletoteRenameFieldsTest(FiletoteTestCase):
             b"Tag Artist", b"Tag Album", b"Tag Album Artist - newname.file"
         )
 
-    def test_rename_field_album(self):
+    def test_rename_field_album(self) -> None:
         """Tests that the value of `album` populates in renaming."""
         config["filetote"]["extensions"] = ".file"
         config["paths"]["ext:file"] = str("$albumpath/$album - newname")
@@ -62,7 +62,7 @@ class FiletoteRenameFieldsTest(FiletoteTestCase):
 
         self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"Tag Album - newname.file")
 
-    def test_rename_field_old_filename(self):
+    def test_rename_field_old_filename(self) -> None:
         """Tests that the value of `old_filename` populates in renaming."""
         config["filetote"]["extensions"] = ".file"
         config["paths"]["ext:file"] = str("$albumpath/$old_filename")
@@ -72,7 +72,7 @@ class FiletoteRenameFieldsTest(FiletoteTestCase):
         self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"artifact.file")
         self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"artifact2.file")
 
-    def test_rename_field_medianame_old(self):
+    def test_rename_field_medianame_old(self) -> None:
         """Tests that the value of `medianame_old` populates in renaming."""
         config["filetote"]["extensions"] = ".file"
         config["paths"]["ext:file"] = str("$albumpath/$medianame_old")
@@ -81,7 +81,7 @@ class FiletoteRenameFieldsTest(FiletoteTestCase):
 
         self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"track_1.file")
 
-    def test_rename_field_medianame_new(self):
+    def test_rename_field_medianame_new(self) -> None:
         """Tests that the value of `medianame_new` populates in renaming."""
         config["filetote"]["extensions"] = ".lrc"
         config["filetote"]["pairing"] = {

@@ -198,6 +198,22 @@ filetote:
   print_ignored: true
 ```
 
+## Multi-Disc and Nested Import Directories
+
+Beets imports multi-disc albums as a single unit ([see Beets documentation]).
+By default, this results in the media importing to a single directory in the
+library. Artifacts and extra files in the initial subdirectories will brought
+by Filetote to the destination of the file's they're near, resulting in them
+landing where one would expect. Because of this, the files will also be moved
+by Filetote to any specified subdirectory in the library if the path
+ definition creates "Disc N" subfolders [as described in the beets documentation].
+
+In short, artifacts and extra files in these scenarios should simply just
+move/copy as expected.
+
+[see beets documentation]: https://beets.readthedocs.io/en/stable/faq.html#import-a-multi-disc-album
+[as described in the beets documentation]: https://beets.readthedocs.io/en/stable/faq.html#create-disc-n-directories-for-multi-disc-albums
+
 ## Version Upgrade Instructions
 
 Certain versoins require changes to configurations as upgrades occur. Please

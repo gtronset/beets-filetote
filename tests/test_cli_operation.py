@@ -16,7 +16,7 @@ class FiletoteCLIOperation(FiletoteTestCase):
     overridden by the CLI.
     """
 
-    def setUp(self, audible_plugin=False):
+    def setUp(self, audible_plugin: bool = False) -> None:
         """Provides shared setup for tests."""
         super().setUp()
 
@@ -25,11 +25,11 @@ class FiletoteCLIOperation(FiletoteTestCase):
         self.rsrc_mp3 = b"full.mp3"
         os.makedirs(self.album_path)
 
-        self._base_file_count = None
+        self._base_file_count: int = 0
 
         config["filetote"]["extensions"] = ".file"
 
-    def test_do_nothing_when_not_copying_or_moving(self):
+    def test_do_nothing_when_not_copying_or_moving(self) -> None:
         """
         Check that plugin leaves everything alone when not
         copying (-C command line option) and not moving.
@@ -53,7 +53,7 @@ class FiletoteCLIOperation(FiletoteTestCase):
         self.assert_in_import_dir(b"the_album", b"artifact.nfo")
         self.assert_in_import_dir(b"the_album", b"artifact.lrc")
 
-    def test_import_config_copy_false_import_op_copy(self):
+    def test_import_config_copy_false_import_op_copy(self) -> None:
         """Tests that when config does not have an operation set, that
         providing it as `--copy` in the CLI correctly overrides."""
 
@@ -80,7 +80,7 @@ class FiletoteCLIOperation(FiletoteTestCase):
             beets.util.bytestring_path("\xe4rtifact.file"),
         )
 
-    def test_import_config_copy_false_import_op_move(self):
+    def test_import_config_copy_false_import_op_move(self) -> None:
         """Tests that when config does not have an operation set, that
         providing it as `--move` in the CLI correctly overrides."""
         self._setup_import_session(copy=False, autotag=False)
@@ -106,7 +106,7 @@ class FiletoteCLIOperation(FiletoteTestCase):
             beets.util.bytestring_path("\xe4rtifact.file"),
         )
 
-    def test_import_config_copy_true_import_op_move(self):
+    def test_import_config_copy_true_import_op_move(self) -> None:
         """Tests that when config operation is set to `copy`, that providing
         `--move` in the CLI correctly overrides."""
 
@@ -133,7 +133,7 @@ class FiletoteCLIOperation(FiletoteTestCase):
             beets.util.bytestring_path("\xe4rtifact.file"),
         )
 
-    def test_import_config_move_true_import_op_copy(self):
+    def test_import_config_move_true_import_op_copy(self) -> None:
         """Tests that when config operation is set to `move`, that providing
         `--copy` in the CLI correctly overrides."""
         self._setup_import_session(move=True, autotag=False)
