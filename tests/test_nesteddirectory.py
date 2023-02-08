@@ -23,29 +23,32 @@ class FiletoteFromNestedDirectoryTest(FiletoteTestCase):
         """Provides shared setup for tests."""
         super().setUp()
 
-        self._create_flat_import_dir()
+        self._create_nested_import_dir()
         self._setup_import_session(autotag=False)
 
         self._base_file_count = self._media_count + self._pairs_count
 
-    def test_only_copies_files_matching_configured_extension(self) -> None:
+    def test_copies_file_from_nested_to_lib(self) -> None:
         """
-        Ensures that nested directories are handled bby beets and the the files
-        relocate as expected.
+        Ensures that nested directories are handled by beets and the the files
+        relocate as expected following the default beets behavior (moves to a
+        single directory).
         """
         config["filetote"]["extensions"] = ".file"
 
         self._run_importer()
 
         self.assert_number_of_files_in_dir(
-            self._media_count + 2, self.lib_dir, b"Tag Artist", b"Tag Album"
+            self._media_count + 4, self.lib_dir, b"Tag Artist", b"Tag Album"
         )
 
         self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"artifact.file")
         self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"artifact2.file")
+        self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"artifact3.file")
+        self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"artifact4.file")
 
-        self.assert_in_import_dir(b"the_album", b"artifact.nfo")
-        self.assert_in_import_dir(b"the_album", b"artifact.lrc")
+        self.assert_in_import_dir(b"the_album", b"disc1", b"artifact_disc1.nfo")
+        self.assert_in_import_dir(b"the_album", b"disc2", b"artifact_disc2.nfo")
 
-        self.assert_not_in_lib_dir(b"Tag Artist", b"Tag Album", b"artifact.nfo")
-        self.assert_not_in_lib_dir(b"Tag Artist", b"Tag Album", b"artifact.lrc")
+        self.assert_not_in_lib_dir(b"Tag Artist", b"Tag Album", b"artifact_disc1.nfo")
+        self.assert_not_in_lib_dir(b"Tag Artist", b"Tag Album", b"artifact_disc2.lrc")

@@ -64,6 +64,7 @@ class MediaMeta:
     albumartist: str = "Tag Album Artist"
     title: str = "Tag Title 1"
     track: str = "1"
+    disc: str = "1"
     mb_trackid: None = None
     mb_albumid: None = None
     comp: None = None
@@ -471,7 +472,7 @@ class FiletoteTestCase(_common.TestCase, Assertions, HelperUtils):
 
             media_list.append(
                 self._generate_paired_media_list(
-                    album_path=album_path,
+                    album_path=disc1_path,
                     file_type=media_file.file_type,
                     count=media_file.count,
                     generate_pair=media_file.generate_pair,
@@ -483,10 +484,13 @@ class FiletoteTestCase(_common.TestCase, Assertions, HelperUtils):
 
             media_list.append(
                 self._generate_paired_media_list(
-                    album_path=album_path,
+                    album_path=disc2_path,
+                    filename_prefix="supertrack_",
                     file_type=media_file.file_type,
                     count=media_file.count,
                     generate_pair=media_file.generate_pair,
+                    title_prefix="Super Tag Title ",
+                    disc="2",
                 )
             )
 
@@ -502,10 +506,14 @@ class FiletoteTestCase(_common.TestCase, Assertions, HelperUtils):
     def _generate_paired_media_list(
         self,
         album_path: bytes,
-        file_type: str = "mp3",
         count: int = 3,
         generate_pair: bool = True,
+        filename_prefix: str = "track_",
+        file_type: str = "mp3",
+        title_prefix: str = "Tag Title ",
+        disc: str = "1",
     ) -> List[MediaFile]:
+        # pylint: disable=too-many-arguments
         """
         Generates the desired number of media files and corresponding
         "paired" artifacts.
@@ -513,7 +521,7 @@ class FiletoteTestCase(_common.TestCase, Assertions, HelperUtils):
         media_list: List[MediaFile] = []
 
         while count > 0:
-            trackname = f"track_{count}"
+            trackname = f"{filename_prefix}{count}"
             media_list.append(
                 self._create_medium(
                     path=os.path.join(
@@ -522,8 +530,7 @@ class FiletoteTestCase(_common.TestCase, Assertions, HelperUtils):
                     ),
                     resource_name=self.get_rsrc_from_file_type(file_type),
                     media_meta=MediaMeta(
-                        title=f"Tag Title {count}",
-                        track=str(count),
+                        title=f"{title_prefix}{count}", track=str(count), disc=disc
                     ),
                 )
             )
