@@ -3,6 +3,7 @@
 # pylint: disable=duplicate-code
 
 import logging
+import os
 
 from beets import config
 
@@ -28,7 +29,7 @@ class FiletoteFromNestedDirectoryTest(FiletoteTestCase):
 
         self._base_file_count = self._media_count + self._pairs_count
 
-    def test_copies_file_from_nested_to_lib(self) -> None:
+    def test_copies_file_from_nested_to_library(self) -> None:
         """
         Ensures that nested directories are handled by beets and the the files
         relocate as expected following the default beets behavior (moves to a
@@ -52,3 +53,37 @@ class FiletoteFromNestedDirectoryTest(FiletoteTestCase):
 
         self.assert_not_in_lib_dir(b"Tag Artist", b"Tag Album", b"artifact_disc1.nfo")
         self.assert_not_in_lib_dir(b"Tag Artist", b"Tag Album", b"artifact_disc2.lrc")
+
+    def test_copies_file_from_nested_to_nested_library(self) -> None:
+        """
+        Ensures that nested directory artifacts are relocated as expected
+        when beets is set to use a nested library destination.
+        """
+        config["filetote"]["extensions"] = ".file"
+        self.lib.path_formats = [
+            ("default", os.path.join("$artist", "$album", "$disc", "$title")),
+        ]
+
+        self._run_importer()
+
+        self.assert_number_of_files_in_dir(
+            5, self.lib_dir, b"Tag Artist", b"Tag Album", b"01"
+        )
+        self.assert_number_of_files_in_dir(
+            5, self.lib_dir, b"Tag Artist", b"Tag Album", b"02"
+        )
+
+        self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"01", b"artifact.file")
+        self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"01", b"artifact2.file")
+        self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"02", b"artifact3.file")
+        self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"02", b"artifact4.file")
+
+        self.assert_in_import_dir(b"the_album", b"disc1", b"artifact_disc1.nfo")
+        self.assert_in_import_dir(b"the_album", b"disc2", b"artifact_disc2.nfo")
+
+        self.assert_not_in_lib_dir(
+            b"Tag Artist", b"Tag Album", b"01", b"artifact_disc1.nfo"
+        )
+        self.assert_not_in_lib_dir(
+            b"Tag Artist", b"Tag Album", b"02", b"artifact_disc2.lrc"
+        )
