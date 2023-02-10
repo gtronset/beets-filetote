@@ -2,7 +2,7 @@
 import filecmp
 import fnmatch
 import os
-from typing import TYPE_CHECKING, Dict, ItemsView, List, Optional, Tuple, Union
+from typing import TYPE_CHECKING, Dict, List, Optional, Tuple, Union
 
 from beets import config, util
 from beets.library import DefaultTemplateFunctions
@@ -122,6 +122,14 @@ class FiletotePlugin(BeetsPlugin):  # type: ignore[misc]
     def _get_path_query_format_match(
         self, artifact_filename: str, artifact_ext: str, paired: bool
     ) -> Tuple[Optional[str], Optional[str]]:
+        """
+        Calculate the best path query format, prioritizing:
+
+        1. `filename:`
+        2. `paired_ext:`
+        3. `pattern:`
+        4. `ext:`
+        """
         full_filename = util.displayable_path(artifact_filename)
 
         selected_path_query: Optional[str] = None
@@ -130,6 +138,7 @@ class FiletotePlugin(BeetsPlugin):  # type: ignore[misc]
         for query, path_format in self._path_formats:
             ext_len: int = len("ext:")
             filename_len: int = len("filename:")
+            # pattern_len: int = len("pattern:")
             paired_ext_len: int = len("paired_ext:")
 
             if (
@@ -380,25 +389,28 @@ class FiletotePlugin(BeetsPlugin):  # type: ignore[misc]
             in self.filetote.pairing.extensions
         )
 
-    def _is_pattern_match(self, artifact: str) -> bool:
+    def _is_pattern_match(
+        self, artifact_name: str, match_category: Optional[str] = None
+    ) -> Tuple[bool, Optional[str]]:
         """Check if the file is in the defined patterns."""
 
-        artifact_path = artifact
+        pattern_definitions: List[Tuple[str, List[str]]] = list(
+            self.filetote.patterns.items()
+        )
 
-        pattern_definitions: ItemsView[str, List[str]] = self.filetote.patterns.items()
+        if match_category:
+            pattern_definitions = [
+                (match_category, self.filetote.patterns[match_category])
+            ]
 
         for category, patterns in pattern_definitions:
             for pattern in patterns:
-                match = fnmatch.fnmatch(artifact_path, pattern)
-                self._log.warning("=========================exec: ")
-                self._log.warning(category)
-                self._log.warning(pattern)
-                self._log.warning(artifact_path)
-                self._log.warning(str(match))
+                is_match = fnmatch.fnmatch(artifact_name, pattern)
 
-                return match
+                if is_match:
+                    return (is_match, category)
 
-        return False
+        return (False, None)
 
     def _is_artifact_ignorable(
         self,
@@ -422,12 +434,17 @@ class FiletotePlugin(BeetsPlugin):  # type: ignore[misc]
         # Skip:
         # - extensions not allowed in `extensions`
         # - filenames not explicitly in `filenames`
+        # - non-paired files
+        # - artifacts not matching patterns
         artifact_file_ext = os.path.splitext(artifact_filename)[1]
+        is_pattern_match, _category = self._is_pattern_match(
+            util.displayable_path(artifact_filename)
+        )
         if (
             ".*" not in self.filetote.extensions
             and util.displayable_path(artifact_file_ext) not in self.filetote.extensions
             and util.displayable_path(artifact_filename) not in self.filetote.filenames
-            and not self._is_pattern_match(util.displayable_path(artifact_filename))
+            and not is_pattern_match
             and not (
                 artifact_paired and self._is_valid_paired_extension(artifact_file_ext)
             )

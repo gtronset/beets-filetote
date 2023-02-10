@@ -38,5 +38,5 @@ class FiletotePatternTest(FiletoteTestCase):
                 log.info(line)
 
         self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"artifact.file")
-        # self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"artifact2.file")
-        # self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"artifact.nfo")
+        self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"artifact2.file")
+        self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"artifact.nfo")
