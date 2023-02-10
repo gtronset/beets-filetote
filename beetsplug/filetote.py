@@ -404,7 +404,6 @@ class FiletotePlugin(BeetsPlugin):  # type: ignore[misc]
         self,
         artifact_source: str,
         artifact_filename: str,
-        artifact_dest: str,
         artifact_paired: bool,
     ) -> bool:
         """
@@ -435,13 +434,22 @@ class FiletotePlugin(BeetsPlugin):  # type: ignore[misc]
         ):
             return True
 
-        # Skip file if it already exists in dest
-        if os.path.exists(artifact_dest) and filecmp.cmp(
-            artifact_source, artifact_dest
-        ):
-            return True
-
         return False
+
+    def _artifact_exists_in_dest(
+        self,
+        artifact_source: str,
+        artifact_dest: str,
+    ) -> bool:
+        """
+        Checks if the artifact/file already exists in the destination destination,
+        which would also make it ignorable.
+        """
+
+        # Skip file
+        return os.path.exists(artifact_dest) and filecmp.cmp(
+            artifact_source, artifact_dest
+        )
 
     def process_artifacts(
         self,
@@ -471,11 +479,15 @@ class FiletotePlugin(BeetsPlugin):  # type: ignore[misc]
             is_ignorable = self._is_artifact_ignorable(
                 artifact_source=artifact_source,
                 artifact_filename=artifact_filename,
-                artifact_dest=artifact_dest,
                 artifact_paired=artifact.paired,
             )
 
-            if is_ignorable:
+            already_exists = self._artifact_exists_in_dest(
+                artifact_source=artifact_source,
+                artifact_dest=artifact_dest,
+            )
+
+            if is_ignorable or already_exists:
                 ignored_artifacts.append(artifact_filename)
                 continue
 
