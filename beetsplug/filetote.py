@@ -1,5 +1,6 @@
 """beets-filetote plugin for beets."""
 import filecmp
+import fnmatch
 import os
 from typing import TYPE_CHECKING, Dict, List, Optional, Tuple, Union
 
@@ -378,6 +379,28 @@ class FiletotePlugin(BeetsPlugin):  # type: ignore[misc]
             in self.filetote.pairing.extensions
         )
 
+    def _is_pattern_match(self, artifact: str) -> bool:
+        """Check if the file is in the defined patterns."""
+
+        artifact_path = artifact
+
+        pattern_definitions: Tuple[str, List[str]] = (
+            self.config["patterns"].get(dict).items()
+        )
+
+        for category, patterns in pattern_definitions:
+            for pattern in patterns:
+                match = fnmatch.fnmatch(artifact_path, pattern)
+                self._log.warning("=========================exec: ")
+                self._log.warning(category)
+                self._log.warning(pattern)
+                self._log.warning(artifact_path)
+                self._log.warning(str(match))
+
+                return match
+
+        return False
+
     def _is_artifact_ignorable(
         self,
         artifact_source: str,
@@ -406,6 +429,7 @@ class FiletotePlugin(BeetsPlugin):  # type: ignore[misc]
             ".*" not in self.filetote.extensions
             and util.displayable_path(artifact_file_ext) not in self.filetote.extensions
             and util.displayable_path(artifact_filename) not in self.filetote.filenames
+            and not self._is_pattern_match(util.displayable_path(artifact_filename))
             and not (
                 artifact_paired and self._is_valid_paired_extension(artifact_file_ext)
             )
@@ -426,7 +450,7 @@ class FiletotePlugin(BeetsPlugin):  # type: ignore[misc]
         mapping: FiletoteMappingModel,
     ) -> None:
         """
-        Processes and prepares extra files / artifacts for subsequent manipulation.
+        Processes and prepares artifacts / extra files for subsequent manipulation.
         """
         if not source_artifacts:
             return
