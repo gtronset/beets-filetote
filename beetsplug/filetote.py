@@ -472,14 +472,18 @@ class FiletotePlugin(BeetsPlugin):  # type: ignore[misc]
             # within dir of source_path
             artifact_filename = artifact_source[len(source_path) + 1 :]
 
-            artifact_dest = self._get_artifact_destination(
-                artifact_filename, mapping, artifact.paired
-            )
-
             is_ignorable = self._is_artifact_ignorable(
                 artifact_source=artifact_source,
                 artifact_filename=artifact_filename,
                 artifact_paired=artifact.paired,
+            )
+
+            if is_ignorable:
+                ignored_artifacts.append(artifact_filename)
+                continue
+
+            artifact_dest = self._get_artifact_destination(
+                artifact_filename, mapping, artifact.paired
             )
 
             already_exists = self._artifact_exists_in_dest(
@@ -487,7 +491,7 @@ class FiletotePlugin(BeetsPlugin):  # type: ignore[misc]
                 artifact_dest=artifact_dest,
             )
 
-            if is_ignorable or already_exists:
+            if already_exists:
                 ignored_artifacts.append(artifact_filename)
                 continue
 
