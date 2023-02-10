@@ -44,7 +44,7 @@ class FiletotePlugin(BeetsPlugin):  # type: ignore[misc]
 
         self.filetote.adjust("pairing", self.config["pairing"].get(dict))
 
-        queries: List[str] = ["ext:", "filename:", "paired_ext:"]
+        queries: List[str] = ["ext:", "filename:", "paired_ext:", "pattern:"]
 
         self._path_formats: List[Tuple[str, str]] = self._get_filetote_path_formats(
             queries
@@ -120,7 +120,11 @@ class FiletotePlugin(BeetsPlugin):  # type: ignore[misc]
         return operation
 
     def _get_path_query_format_match(
-        self, artifact_filename: str, artifact_ext: str, paired: bool
+        self,
+        artifact_filename: str,
+        artifact_ext: str,
+        paired: bool,
+        pattern_category: Optional[str] = None,
     ) -> Tuple[Optional[str], Optional[str]]:
         """
         Calculate the best path query format, prioritizing:
@@ -138,7 +142,6 @@ class FiletotePlugin(BeetsPlugin):  # type: ignore[misc]
         for query, path_format in self._path_formats:
             ext_len: int = len("ext:")
             filename_len: int = len("filename:")
-            # pattern_len: int = len("pattern:")
             paired_ext_len: int = len("paired_ext:")
 
             if (
@@ -150,12 +153,20 @@ class FiletotePlugin(BeetsPlugin):  # type: ignore[misc]
                 if selected_path_query != "filename:":
                     selected_path_query = "paired_ext:"
                     selected_path_format = path_format
+            elif (
+                pattern_category and query == f"pattern:{pattern_category}"
+            ):  # This should pull the corresponding pattern def,
+                # Prioritize `filename:` and `paired_ext:` query selectory over
+                # `pattern:`
+                if selected_path_query not in ["filename:", "paired_ext:"]:
+                    selected_path_query = "pattern:"
+                    selected_path_format = path_format
             elif query[:ext_len] == "ext:" and artifact_ext == (
                 "." + query[ext_len:].lstrip(".")
             ):
-                # Prioritize `filename:` and `paired_ext:` query selectory over
-                # `ext:`
-                if selected_path_query not in ["filename:", "paired_ext:"]:
+                # Prioritize `filename:`, `paired_ext:`, and `pattern:` query selector
+                #  over `ext:`
+                if selected_path_query not in ["filename:", "paired_ext:", "pattern:"]:
                     selected_path_query = "ext:"
                     selected_path_format = path_format
             elif (
@@ -172,6 +183,7 @@ class FiletotePlugin(BeetsPlugin):  # type: ignore[misc]
         artifact_filename: str,
         mapping: FiletoteMappingModel,
         paired: bool = False,
+        pattern_category: Optional[str] = None,
     ) -> str:
         """
         Returns a destination path aan artifact/file should be moved to. The
@@ -195,7 +207,9 @@ class FiletotePlugin(BeetsPlugin):  # type: ignore[misc]
         (
             selected_path_query,
             selected_path_format,
-        ) = self._get_path_query_format_match(artifact_filename, artifact_ext, paired)
+        ) = self._get_path_query_format_match(
+            artifact_filename, artifact_ext, paired, pattern_category
+        )
 
         if not selected_path_query:
             # No query matched; use original filename
@@ -417,7 +431,7 @@ class FiletotePlugin(BeetsPlugin):  # type: ignore[misc]
         artifact_source: str,
         artifact_filename: str,
         artifact_paired: bool,
-    ) -> bool:
+    ) -> Tuple[bool, Optional[str]]:
         """
         Compares the artifact/file to certain checks to see if it should be ignored
         or skipped.
@@ -425,11 +439,11 @@ class FiletotePlugin(BeetsPlugin):  # type: ignore[misc]
 
         # Skip/ignore as another plugin or beets has already moved this file
         if not os.path.exists(artifact_source):
-            return True
+            return (True, None)
 
         # Skip if filename is explicitly in `exclude`
         if util.displayable_path(artifact_filename) in self.filetote.exclude:
-            return True
+            return (True, None)
 
         # Skip:
         # - extensions not allowed in `extensions`
@@ -437,7 +451,7 @@ class FiletotePlugin(BeetsPlugin):  # type: ignore[misc]
         # - non-paired files
         # - artifacts not matching patterns
         artifact_file_ext = os.path.splitext(artifact_filename)[1]
-        is_pattern_match, _category = self._is_pattern_match(
+        is_pattern_match, category = self._is_pattern_match(
             util.displayable_path(artifact_filename)
         )
         if (
@@ -449,9 +463,13 @@ class FiletotePlugin(BeetsPlugin):  # type: ignore[misc]
                 artifact_paired and self._is_valid_paired_extension(artifact_file_ext)
             )
         ):
-            return True
+            return (True, None)
 
-        return False
+        matched_category = None
+        if is_pattern_match:
+            matched_category = category
+
+        return (False, matched_category)
 
     def _artifact_exists_in_dest(
         self,
@@ -489,7 +507,7 @@ class FiletotePlugin(BeetsPlugin):  # type: ignore[misc]
             # within dir of source_path
             artifact_filename = artifact_source[len(source_path) + 1 :]
 
-            is_ignorable = self._is_artifact_ignorable(
+            is_ignorable, pattern_category = self._is_artifact_ignorable(
                 artifact_source=artifact_source,
                 artifact_filename=artifact_filename,
                 artifact_paired=artifact.paired,
@@ -500,7 +518,7 @@ class FiletotePlugin(BeetsPlugin):  # type: ignore[misc]
                 continue
 
             artifact_dest = self._get_artifact_destination(
-                artifact_filename, mapping, artifact.paired
+                artifact_filename, mapping, artifact.paired, pattern_category
             )
 
             already_exists = self._artifact_exists_in_dest(

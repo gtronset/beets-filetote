@@ -22,8 +22,7 @@ class FiletotePatternTest(FiletoteTestCase):
         self._setup_import_session(autotag=False)
 
     def test_patterns_match(self) -> None:
-        """Tests that renaming works when copying."""
-        config["filetote"]["print_ignored"] = True
+        """Tests that patterns are used to itentify artifacts."""
         config["filetote"]["extensions"] = ""
         config["filetote"]["patterns"] = {
             "file-pattern": ["[Aa]rtifact.file", "artifact[23].file"],
@@ -40,3 +39,32 @@ class FiletotePatternTest(FiletoteTestCase):
         self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"artifact.file")
         self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"artifact2.file")
         self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"artifact.nfo")
+
+    def test_patterns_path_renaming(self) -> None:
+        """Tests that the path definition for `pattern:` prefix works."""
+        config["filetote"]["extensions"] = ""
+        config["filetote"]["patterns"] = {
+            "file-pattern": ["[Aa]rtifact.file", "artifact[23].file"],
+            "nfo-pattern": ["*.nfo"],
+        }
+        config["paths"]["pattern:file-pattern"] = str(
+            "$albumpath/file-pattern $old_filename"
+        )
+        config["paths"]["pattern:nfo-pattern"] = str(
+            "$albumpath/nfo-pattern $old_filename"
+        )
+
+        with capture_log() as logs:
+            self._run_importer()
+
+        for line in logs:
+            if line.startswith("filetote:"):
+                log.info(line)
+
+        self.assert_in_lib_dir(
+            b"Tag Artist", b"Tag Album", b"file-pattern artifact.file"
+        )
+        self.assert_in_lib_dir(
+            b"Tag Artist", b"Tag Album", b"file-pattern artifact2.file"
+        )
+        self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"nfo-pattern artifact.nfo")
