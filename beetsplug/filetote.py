@@ -407,7 +407,7 @@ class FiletotePlugin(BeetsPlugin):  # type: ignore[misc]
         artifact_filename: str,
         artifact_dest: str,
         artifact_paired: bool,
-    ) -> Tuple[bool, Optional[str]]:
+    ) -> bool:
         """
         Compares the artifact/file to certain checks to see if it should be ignored
         or skipped.
@@ -415,11 +415,11 @@ class FiletotePlugin(BeetsPlugin):  # type: ignore[misc]
 
         # Skip/ignore as another plugin or beets has already moved this file
         if not os.path.exists(artifact_source):
-            return (True, artifact_source)
+            return True
 
         # Skip if filename is explicitly in `exclude`
         if util.displayable_path(artifact_filename) in self.filetote.exclude:
-            return (True, artifact_source)
+            return True
 
         # Skip:
         # - extensions not allowed in `extensions`
@@ -434,15 +434,15 @@ class FiletotePlugin(BeetsPlugin):  # type: ignore[misc]
                 artifact_paired and self._is_valid_paired_extension(artifact_file_ext)
             )
         ):
-            return (True, artifact_source)
+            return True
 
         # Skip file if it already exists in dest
         if os.path.exists(artifact_dest) and filecmp.cmp(
             artifact_source, artifact_dest
         ):
-            return (True, artifact_source)
+            return True
 
-        return (False, None)
+        return False
 
     def process_artifacts(
         self,
@@ -469,15 +469,15 @@ class FiletotePlugin(BeetsPlugin):  # type: ignore[misc]
                 artifact_filename, mapping, artifact.paired
             )
 
-            is_ignorable, ignore_filename = self._is_artifact_ignorable(
+            is_ignorable = self._is_artifact_ignorable(
                 artifact_source=artifact_source,
                 artifact_filename=artifact_filename,
                 artifact_dest=artifact_dest,
                 artifact_paired=artifact.paired,
             )
 
-            if is_ignorable and ignore_filename:
-                ignored_artifacts.append(ignore_filename)
+            if is_ignorable:
+                ignored_artifacts.append(artifact_filename)
                 continue
 
             artifact_dest = util.unique_path(artifact_dest)
