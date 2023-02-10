@@ -3,7 +3,7 @@ data used in processing extra files/artifacts. """
 
 from dataclasses import asdict, dataclass, field
 from sys import version_info
-from typing import Any, List, Optional, Union
+from typing import Any, Dict, List, Optional, Union
 
 from beets.library import Library
 from beets.util import MoveOperation
@@ -62,6 +62,7 @@ class FiletoteConfig:
     session: FiletoteSessionData = field(default_factory=FiletoteSessionData)
     extensions: Union[Literal[".*"], List[str]] = ".*"
     filenames: Union[Literal[""], List[str]] = ""
+    patterns: Dict[str, List[str]] = field(default_factory=dict)
     exclude: Union[Literal[""], List[str]] = ""
     print_ignored: bool = False
     pairing: FiletotePairingData = field(default_factory=FiletotePairingData)

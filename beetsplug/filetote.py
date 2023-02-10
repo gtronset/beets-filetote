@@ -2,7 +2,7 @@
 import filecmp
 import fnmatch
 import os
-from typing import TYPE_CHECKING, Dict, List, Optional, Tuple, Union
+from typing import TYPE_CHECKING, Dict, ItemsView, List, Optional, Tuple, Union
 
 from beets import config, util
 from beets.library import DefaultTemplateFunctions
@@ -37,6 +37,7 @@ class FiletotePlugin(BeetsPlugin):  # type: ignore[misc]
         self.filetote: FiletoteConfig = FiletoteConfig(
             extensions=self.config["extensions"].as_str_seq(),
             filenames=self.config["filenames"].as_str_seq(),
+            patterns=self.config["patterns"].get(dict),
             exclude=self.config["exclude"].as_str_seq(),
             print_ignored=self.config["print_ignored"].get(),
         )
@@ -384,9 +385,7 @@ class FiletotePlugin(BeetsPlugin):  # type: ignore[misc]
 
         artifact_path = artifact
 
-        pattern_definitions: Tuple[str, List[str]] = (
-            self.config["patterns"].get(dict).items()
-        )
+        pattern_definitions: ItemsView[str, List[str]] = self.filetote.patterns.items()
 
         for category, patterns in pattern_definitions:
             for pattern in patterns:
