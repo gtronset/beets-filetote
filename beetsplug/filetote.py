@@ -38,6 +38,7 @@ class FiletotePlugin(BeetsPlugin):  # type: ignore[misc]
             extensions=self.config["extensions"].as_str_seq(),
             filenames=self.config["filenames"].as_str_seq(),
             patterns=self.config["patterns"].get(dict),
+            paths=self.config["paths"].get(dict),
             exclude=self.config["exclude"].as_str_seq(),
             print_ignored=self.config["print_ignored"].get(),
         )
@@ -71,10 +72,13 @@ class FiletotePlugin(BeetsPlugin):  # type: ignore[misc]
         """Gets all `path` formats from beets and parses those set for Filetote."""
         path_formats: List[Tuple[str, str]] = []
 
-        for path_format in get_path_formats():
+        for beets_path_format in get_path_formats():
             for query in queries:
-                if path_format[0].startswith(query):
-                    path_formats.append(path_format)
+                if beets_path_format[0].startswith(query):
+                    path_formats.append(beets_path_format)
+
+        path_formats.extend(list(self.filetote.paths.items()))
+
         return path_formats
 
     def _register_session_settings(self, session: "ImportSession") -> None:
@@ -119,6 +123,12 @@ class FiletotePlugin(BeetsPlugin):  # type: ignore[misc]
 
         return operation
 
+    def remove_prefix(self, text: str, prefix: str) -> str:
+        """Removes the prefix of given text."""
+        if text.startswith(prefix):
+            return text[len(prefix) :]
+        return text
+
     def _get_path_query_format_match(
         self,
         artifact_filename: str,
@@ -146,7 +156,7 @@ class FiletotePlugin(BeetsPlugin):  # type: ignore[misc]
 
             if (
                 paired
-                and query[:paired_ext_len] == "paired_ext:"
+                and query.startswith("paired_ext:")
                 and artifact_ext == ("." + query[paired_ext_len:].lstrip("."))
             ):
                 # Prioritize `filename:` query selectory over `paired_ext:`
@@ -154,14 +164,16 @@ class FiletotePlugin(BeetsPlugin):  # type: ignore[misc]
                     selected_path_query = "paired_ext:"
                     selected_path_format = path_format
             elif (
-                pattern_category and query == f"pattern:{pattern_category}"
+                pattern_category
+                and not query.startswith(("filename:", "paired_ext:", "ext:"))
+                and self.remove_prefix(query, "pattern:") == pattern_category
             ):  # This should pull the corresponding pattern def,
                 # Prioritize `filename:` and `paired_ext:` query selectory over
                 # `pattern:`
                 if selected_path_query not in ["filename:", "paired_ext:"]:
                     selected_path_query = "pattern:"
                     selected_path_format = path_format
-            elif query[:ext_len] == "ext:" and artifact_ext == (
+            elif query.startswith("ext:") and artifact_ext == (
                 "." + query[ext_len:].lstrip(".")
             ):
                 # Prioritize `filename:`, `paired_ext:`, and `pattern:` query selector
@@ -170,8 +182,7 @@ class FiletotePlugin(BeetsPlugin):  # type: ignore[misc]
                     selected_path_query = "ext:"
                     selected_path_format = path_format
             elif (
-                query[:filename_len] == "filename:"
-                and full_filename == query[filename_len:]
+                query.startswith("filename:") and full_filename == query[filename_len:]
             ):
                 selected_path_query = "filename:"
                 selected_path_format = path_format

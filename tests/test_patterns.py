@@ -29,12 +29,7 @@ class FiletotePatternTest(FiletoteTestCase):
             "nfo-pattern": ["*.nfo"],
         }
 
-        with capture_log() as logs:
-            self._run_importer()
-
-        for line in logs:
-            if line.startswith("filetote:"):
-                log.info(line)
+        self._run_importer()
 
         self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"artifact.file")
         self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"artifact2.file")
