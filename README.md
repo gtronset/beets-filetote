@@ -126,11 +126,17 @@ and [#36](https://github.com/gtronset/beets-filetote/pull/36) for more details.
 
 ### Renaming files
 
-Renaming works in much the same way as beets [Path Formats](http://beets.readthedocs.org/en/stable/reference/pathformat.html).
-This plugin supports the below new path queries (from least to most specific).
-Each takes a single corresponding value.
+Renaming works in much the same way as beets [Path Formats].
+This plugin supports the below new path queries, which each takes a single
+corresponding value. These can be defined in either the top-level `paths`
+section of Beet's config or in the `paths` section of Filetote's config.
+
+[Path Formats]: http://beets.readthedocs.org/en/stable/reference/pathformat.html
+.
+New path querie, from _least_ to _most_ specific:
 
 - `ext:`
+- `pattern:`
 - `paired_ext:`
 - `filename:`
 
@@ -141,21 +147,30 @@ Renaming has the following considerations:
   `$medianame_old` (filename of the item/track triggering it, _before_
   its renamed), and `$medianame_new` (filename of the item/track triggering it, _after_
   its renamed).
-- The full set of
-  [built in functions](http://beets.readthedocs.org/en/stable/reference/pathformat.html#functions)
-  are also supported, with the exception of `%aunique` - which will
-  return an empty string.
-- `filename:` path query will take precedence over `paired_ext:` and `ext:` if
-  a given file qualifies for them. `paired_ext:` takes precedence over `ext:`,
-  but is not required.
+- The full set of [built in functions] are also supported, with the exception of
+  `%aunique` - which will return an empty string.
+- `filename:` path query will take precedence over `paired_ext:`, `pattern:`,
+  and `ext:` if a given file qualifies for them. `paired_ext:` takes precedence
+  over `pattern:` and `ext:`, but is not required. `pattern:` is higher
+  priority than `ext:`.
 
-Each template string uses a query syntax for each of the file
-extensions. For example the following template string will be applied to
-`.log` files by using the `ext:` query:
+[built in functions]: http://beets.readthedocs.org/en/stable/reference/pathformat.html#functions
+
+Each template string uses a query syntax for each of the file extensions. For
+example the following template string will be applied to `.log` files by using
+the `ext:` query:
 
 ```yaml
 paths:
   ext:.log: $albumpath/$artist - $album
+```
+
+Or:
+
+```yaml
+filetote:
+  paths:
+    ext:.log: $albumpath/$artist - $album
 ```
 
 This will rename a log file to:
@@ -168,6 +183,14 @@ paths:
   filename:track.log: $albumpath/$artist - $album
 ```
 
+Or:
+
+```yaml
+filetote:
+  paths:
+    filename:track.log: $albumpath/$artist - $album
+```
+
 This will rename the specific `track.log` log file to:
 `~/Music/Artist/2014 - Album/Artist - Album.log`
 
@@ -176,7 +199,7 @@ This will rename the specific `track.log` log file to:
 > subsequently match will not be saved/renamed. To work around this,
 > `$old_filename` can be used to help with adding uniqueness to the name.
 
-### Example `config.yaml`
+### Examples of `config.yaml`
 
 ```yaml
 plugins: filetote
@@ -198,6 +221,30 @@ filetote:
   print_ignored: true
 ```
 
+Or:
+
+```yaml
+plugins: filetote
+
+paths:
+  default: $albumartist/$year - $album/$track - $title
+  singleton: Singletons/$artist - $title
+
+filetote:
+  extensions: .cue
+  patterns:
+    artworkdir:
+          - "[sS]cans/"
+          - "[aA]rtwork/"
+  pairing:
+    enabled: true
+    extensions: ".lrc"
+  paths:
+    pattern:artworkdir: $albumpath/artwork
+    paired_ext:.lrc: $albumpath/$medianame_old
+    filename:cover.jpg: $albumpath/cover  
+```
+
 ## Multi-Disc and Nested Import Directories
 
 Beets imports multi-disc albums as a single unit ([see Beets documentation]).
@@ -214,12 +261,108 @@ move/copy as expected.
 [see beets documentation]: https://beets.readthedocs.io/en/stable/faq.html#import-a-multi-disc-album
 [as described in the beets documentation]: https://beets.readthedocs.io/en/stable/faq.html#create-disc-n-directories-for-multi-disc-albums
 
+## Why Filetote and Not Other Plugins?
+
+Filetote serves the same core purpose as the [`copyfilertifacts` plugin] and the
+[`extrafiles` plugin], however both have lacked in maintenance over the last few
+years. There are outstanding bugs in each (though `copyfilertifacts` has seen
+some recent activity resolving some). In addition, each are lacking in certain
+features and abilities, such as hardlink/reflink support, "paired" file handling,
+and extending renaming options. What's more, significant focus has been provided
+to Filetote around Python3 conventions, linting, and typing in order to promote
+healthier code and easier maintenance.
+
+Filetote encompasses all fonctionality that _both_ `copyfilertifacts` and
+`extrafiles` provide, and then some!
+
+[`copyfilertifacts` plugin]: https://github.com/adammillerio/beets-copyartifacts
+[`extrafiles` plugin]: https://github.com/Holzhaus/beets-extrafiles
+
+### Migrating from `copyfilertifacts`
+
+Filetote can be configured using nearly identical configuration as `copyfilertifacts`,
+simply replacing the name of the plugin in its configuration settings. **There
+is one change that's needed if all extensions are desired, as Filetote does not
+grab all extensions by default (as `copyfilertifacts` does).** To accommodate,
+simply explicitly state all extension using `.*`:
+
+```yaml
+filetote:
+    extensions: .*
+```
+
+Otherwise, simply replacing the name in the config section will work. For example:
+
+```yaml
+copyartifacts:
+    extensions: .cue .log
+```
+
+Would become:
+
+```yaml
+filetote:
+    extensions: .cue .log
+```
+
+Path definitions can also be specified in the way that `copyfileartifacts` does,
+alongside other path definitions for beets. E.g.:
+
+```yaml
+paths:
+    ext:log: $albumpath/$artist - $album
+```
+
+### Migrating from `extrafiles`
+
+Filetote can be configured using nearly identical configuration as `extrafiles`,
+simply replacing the name of the plugin in its configuration settings. For example:
+
+```yaml
+extrafiles:
+    patterns:
+        all: "*.*"
+```
+
+Would become:
+
+```yaml
+filetote:
+    patterns:
+        all: "*.*"
+```
+
+Path definitions can also be specified in the way that `extrafiles` does, e.g.:
+
+```yaml
+filetote:
+    patterns:
+        artworkdir:
+          - '[sS]cans/'
+          - '[aA]rtwork/'
+    paths:
+        artworkdir: $albumpath/artwork
+```
+
 ## Version Upgrade Instructions
 
 Certain versoins require changes to configurations as upgrades occur. Please
 see below for specific steps for each version.
 
-### 0.4.0
+### `0.4.0`
+
+#### Default extensions is now `None`
+
+As of version `0.4.0`, Filetote no longer set the default for `extensions` to
+`.*`. Instead, setting Filetote to collect all extensions needs to be explicitly
+defined, e.g.:
+
+```yaml
+filetote:
+    extensions: .*
+```
+
+#### Pairing Config Changes
 
 `pairing` has been converted from a boolean to an object with other
 like-config. Take the following config:
@@ -244,11 +387,10 @@ Both remain optional and both default to `false`.
 
 ## Thanks
 
-This plugin is a hard fork from [beets-copyartifacts (copyartifacts3)] to
-expand functionality and provide on-going maintenance.
+This plugin originated as a hard fork from [beets-copyartifacts (copyartifacts3)].
 
-Thank you to the original work done by Sami Barakat, Adrian Sampson, and the
-larger community on [beets](http://beets.io).
+Thank you to the original work done by Sami Barakat, Adrian Sampson, along with
+the larger community on [beets](http://beets.io).
 
 Please report any issues you may have and feel free to contribute.
 
