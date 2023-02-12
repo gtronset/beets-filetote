@@ -1,5 +1,7 @@
 """Tests manipulation of files for the beets-filetote plugin."""
 
+# pylint: disable=duplicate-code
+
 import logging
 import os
 import stat
@@ -24,6 +26,55 @@ class FiletoteManipulateFiles(FiletoteTestCase):
 
         self._create_flat_import_dir()
         self._setup_import_session(autotag=False, copy=False)
+
+        self._base_file_count = self._media_count + self._pairs_count
+
+    def test_copy_artifacts(self) -> None:
+        """Test that copy actually copies (and not just moves)."""
+        config["import"]["copy"] = True
+
+        self._run_importer()
+
+        self.assert_number_of_files_in_dir(
+            self._base_file_count + 4, self.lib_dir, b"Tag Artist", b"Tag Album"
+        )
+
+        self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"artifact.file")
+        self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"artifact2.file")
+        self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"artifact.nfo")
+        self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"artifact.lrc")
+
+    def test_move_artifacts(self) -> None:
+        """Test that move actually moves (and not just copies)."""
+        config["import"]["move"] = True
+
+        self._run_importer()
+
+        self.assert_number_of_files_in_dir(
+            self._base_file_count + 4, self.lib_dir, b"Tag Artist", b"Tag Album"
+        )
+
+        self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"artifact.file")
+        self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"artifact2.file")
+        self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"artifact.nfo")
+        self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"artifact.lrc")
+
+        self.assert_not_in_import_dir(b"the_album", b"artifact.file")
+        self.assert_not_in_import_dir(b"the_album", b"artifact2.file")
+        self.assert_not_in_import_dir(b"the_album", b"artifact.nfo")
+        self.assert_not_in_import_dir(b"the_album", b"artifact.lrc")
+
+    def test_artifacts_copymove_on_first_media_by_default(self) -> None:
+        """By default, all eligible files are grabbed with the first item."""
+        config["filetote"]["extensions"] = ".file"
+        config["paths"]["ext:file"] = "$albumpath/$medianame_old - $old_filename"
+
+        config["import"]["copy"] = True
+
+        self._run_importer()
+
+        self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"track_1 - artifact.file")
+        self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"track_1 - artifact2.file")
 
     @pytest.mark.skipif(
         not _common.HAVE_SYMLINK, reason="need symlinks"
