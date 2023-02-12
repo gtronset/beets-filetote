@@ -47,9 +47,7 @@ class FiletotePlugin(BeetsPlugin):  # type: ignore[misc]
 
         queries: List[str] = ["ext:", "filename:", "paired_ext:", "pattern:"]
 
-        self._path_formats: List[Tuple[str, str]] = self._get_filetote_path_formats(
-            queries
-        )
+        self._path_formats: Dict[str, str] = self._get_filetote_path_formats(queries)
         self._process_queue: List[FiletoteArtifactCollection] = []
         self._shared_artifacts: Dict[str, List[str]] = {}
         self._dirs_seen: List[str] = []
@@ -68,16 +66,21 @@ class FiletotePlugin(BeetsPlugin):  # type: ignore[misc]
         self.register_listener("import_begin", self._register_session_settings)
         self.register_listener("cli_exit", self.process_events)
 
-    def _get_filetote_path_formats(self, queries: List[str]) -> List[Tuple[str, str]]:
-        """Gets all `path` formats from beets and parses those set for Filetote."""
-        path_formats: List[Tuple[str, str]] = []
+    def _get_filetote_path_formats(self, queries: List[str]) -> Dict[str, str]:
+        """
+        Gets all `path` formats from beets and parses those set for Filetote.
+        First sets those from the Beet's `path` node then sets them from
+        Filetote's node, overriding when needed to give priority to Filetote's
+        definitions.
+        """
+        path_formats: Dict[str, str] = {}
 
         for beets_path_format in get_path_formats():
             for query in queries:
                 if beets_path_format[0].startswith(query):
-                    path_formats.append(beets_path_format)
+                    path_formats[beets_path_format[0]] = beets_path_format[1]
 
-        path_formats.extend(list(self.filetote.paths.items()))
+        path_formats.update(self.filetote.paths)
 
         return path_formats
 
@@ -149,42 +152,50 @@ class FiletotePlugin(BeetsPlugin):  # type: ignore[misc]
         selected_path_query: Optional[str] = None
         selected_path_format: Optional[str] = None
 
-        for query, path_format in self._path_formats:
-            ext_len: int = len("ext:")
-            filename_len: int = len("filename:")
-            paired_ext_len: int = len("paired_ext:")
+        for query, path_format in self._path_formats.items():
+            ext_prefix: str = "ext:"
+            filename_prefix: str = "filename:"
+            pattern_prefix: str = "pattern:"
+            paired_ext_prefix: str = "paired_ext:"
 
             if (
                 paired
-                and query.startswith("paired_ext:")
-                and artifact_ext == ("." + query[paired_ext_len:].lstrip("."))
+                and query.startswith(paired_ext_prefix)
+                and artifact_ext
+                == ("." + self.remove_prefix(query, paired_ext_prefix).lstrip("."))
             ):
                 # Prioritize `filename:` query selectory over `paired_ext:`
-                if selected_path_query != "filename:":
-                    selected_path_query = "paired_ext:"
+                if selected_path_query != filename_prefix:
+                    selected_path_query = paired_ext_prefix
                     selected_path_format = path_format
             elif (
                 pattern_category
-                and not query.startswith(("filename:", "paired_ext:", "ext:"))
-                and self.remove_prefix(query, "pattern:") == pattern_category
+                and not query.startswith(
+                    (filename_prefix, paired_ext_prefix, ext_prefix)
+                )
+                and self.remove_prefix(query, pattern_prefix) == pattern_category
             ):  # This should pull the corresponding pattern def,
                 # Prioritize `filename:` and `paired_ext:` query selectory over
                 # `pattern:`
-                if selected_path_query not in ["filename:", "paired_ext:"]:
-                    selected_path_query = "pattern:"
+                if selected_path_query not in [filename_prefix, paired_ext_prefix]:
+                    selected_path_query = pattern_prefix
                     selected_path_format = path_format
-            elif query.startswith("ext:") and artifact_ext == (
-                "." + query[ext_len:].lstrip(".")
+            elif query.startswith(ext_prefix) and artifact_ext == (
+                "." + self.remove_prefix(query, ext_prefix).lstrip(".")
             ):
                 # Prioritize `filename:`, `paired_ext:`, and `pattern:` query selector
                 #  over `ext:`
-                if selected_path_query not in ["filename:", "paired_ext:", "pattern:"]:
-                    selected_path_query = "ext:"
+                if selected_path_query not in [
+                    filename_prefix,
+                    paired_ext_prefix,
+                    pattern_prefix,
+                ]:
+                    selected_path_query = ext_prefix
                     selected_path_format = path_format
-            elif (
-                query.startswith("filename:") and full_filename == query[filename_len:]
-            ):
-                selected_path_query = "filename:"
+            elif query.startswith(
+                filename_prefix
+            ) and full_filename == self.remove_prefix(query, filename_prefix):
+                selected_path_query = filename_prefix
                 selected_path_format = path_format
 
         return (selected_path_query, selected_path_format)

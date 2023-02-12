@@ -66,3 +66,35 @@ class FiletoteRenamePathsTest(FiletoteTestCase):
             b"Tag Artist", b"Tag Album", b"file-pattern artifact.file"
         )
         self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"nfo-pattern artifact.nfo")
+
+    def test_rename_prioritizes_filetote_path(self) -> None:
+        """Tests that renaming patterns works using setting from Filetote's paths
+        doesn't require `pattern:` prefix.
+        """
+        config["filetote"]["extensions"] = ""
+        config["filetote"]["patterns"] = {
+            "file-pattern": ["[Aa]rtifact.file"],
+            "nfo-pattern": ["*.nfo"],
+        }
+        config["paths"] = {
+            "pattern:file-pattern": "$albumpath/beets_path $old_filename",
+            "nfo-pattern": "$albumpath/beets_path $old_filename",
+        }
+        config["filetote"]["paths"] = {
+            "pattern:file-pattern": "$albumpath/filetote_path $old_filename",
+            "nfo-pattern": "$albumpath/filetote_path $old_filename",
+        }
+
+        with capture_log() as logs:
+            self._run_importer()
+
+        for line in logs:
+            if line.startswith("filetote:"):
+                log.info(line)
+
+        self.assert_in_lib_dir(
+            b"Tag Artist", b"Tag Album", b"filetote_path artifact.file"
+        )
+        self.assert_in_lib_dir(
+            b"Tag Artist", b"Tag Album", b"filetote_path artifact.nfo"
+        )
