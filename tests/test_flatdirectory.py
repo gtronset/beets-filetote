@@ -164,7 +164,7 @@ class FiletoteFromFlatDirectoryTest(FiletoteTestCase):
     def test_artifacts_copymove_on_first_media_by_default(self) -> None:
         """By default, all eligible files are grabbed with the first item."""
         config["filetote"]["extensions"] = ".file"
-        config["paths"]["ext:file"] = str("$albumpath/$medianame_old - $old_filename")
+        config["paths"]["ext:file"] = "$albumpath/$medianame_old - $old_filename"
 
         self._run_importer()
 

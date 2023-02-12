@@ -42,12 +42,11 @@ class FiletotePatternTest(FiletoteTestCase):
             "file-pattern": ["[Aa]rtifact.file", "artifact[23].file"],
             "nfo-pattern": ["*.nfo"],
         }
-        config["paths"]["pattern:file-pattern"] = str(
-            "$albumpath/file-pattern $old_filename"
-        )
-        config["paths"]["pattern:nfo-pattern"] = str(
-            "$albumpath/nfo-pattern $old_filename"
-        )
+        config["paths"][
+            "pattern:file-pattern"
+        ] = "$albumpath/file-pattern $old_filename"
+
+        config["paths"]["pattern:nfo-pattern"] = "$albumpath/nfo-pattern $old_filename"
 
         with capture_log() as logs:
             self._run_importer()

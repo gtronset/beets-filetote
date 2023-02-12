@@ -112,9 +112,7 @@ class FiletoteReimportTest(FiletoteTestCase):
 
     def test_rename_with_copy_reimport(self) -> None:
         """Tests that renaming during `copy` works even when reimporting."""
-        config["paths"]["ext:file"] = str(
-            os.path.join("$albumpath", "$artist - $album")
-        )
+        config["paths"]["ext:file"] = os.path.join("$albumpath", "$artist - $album")
         self._setup_import_session(autotag=False, import_dir=self.lib_dir)
 
         log.debug("--- second import")
@@ -127,9 +125,7 @@ class FiletoteReimportTest(FiletoteTestCase):
 
     def test_rename_with_move_reimport(self) -> None:
         """Tests that renaming during `move` works even when reimporting."""
-        config["paths"]["ext:file"] = str(
-            os.path.join("$albumpath", "$artist - $album")
-        )
+        config["paths"]["ext:file"] = os.path.join("$albumpath", "$artist - $album")
         self._setup_import_session(autotag=False, import_dir=self.lib_dir, move=True)
 
         log.debug("--- second import")
@@ -146,7 +142,7 @@ class FiletoteReimportTest(FiletoteTestCase):
         is changed and files already in the library are reimported and renamed to
         reflect the change
         """
-        config["paths"]["ext:file"] = str(os.path.join("$albumpath", "$album"))
+        config["paths"]["ext:file"] = os.path.join("$albumpath", "$album")
         self._setup_import_session(autotag=False, import_dir=self.lib_dir, move=True)
 
         log.debug("--- second import")
@@ -164,7 +160,7 @@ class FiletoteReimportTest(FiletoteTestCase):
             os.path.join("1$artist", "$album", "$title"),
         )
         self._setup_import_session(autotag=False, import_dir=self.lib_dir, move=True)
-        config["paths"]["ext:file"] = str("$albumpath/$old_filename - import I")
+        config["paths"]["ext:file"] = "$albumpath/$old_filename - import I"
 
         log.debug("--- first import")
         self._run_importer()
@@ -184,7 +180,7 @@ class FiletoteReimportTest(FiletoteTestCase):
             os.path.join("2$artist", "$album", "$title"),
         )
         self._setup_import_session(autotag=False, import_dir=self.lib_dir, move=True)
-        config["paths"]["ext:file"] = str("$albumpath/$old_filename I")
+        config["paths"]["ext:file"] = "$albumpath/$old_filename I"
         self._run_importer()
 
         self.assert_not_in_lib_dir(

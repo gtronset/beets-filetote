@@ -31,7 +31,7 @@ class FiletoteManipulateFiles(FiletoteTestCase):
     def test_import_symlink_files(self) -> None:
         """Tests that the `symlink` operation correctly symlinks files."""
         config["filetote"]["extensions"] = ".file"
-        config["paths"]["ext:file"] = str("$albumpath/newname")
+        config["paths"]["ext:file"] = "$albumpath/newname"
         config["import"]["link"] = True
 
         old_path = os.path.join(
@@ -63,7 +63,7 @@ class FiletoteManipulateFiles(FiletoteTestCase):
         """Tests that the `hardlink` operation correctly hardlinks files."""
 
         config["filetote"]["extensions"] = ".file"
-        config["paths"]["ext:file"] = str("$albumpath/newname")
+        config["paths"]["ext:file"] = "$albumpath/newname"
         config["import"]["hardlink"] = True
 
         old_path = os.path.join(
@@ -98,7 +98,7 @@ class FiletoteManipulateFiles(FiletoteTestCase):
         """Tests that the `reflink` operation correctly links files."""
 
         config["filetote"]["extensions"] = ".file"
-        config["paths"]["ext:file"] = str("$albumpath/newname")
+        config["paths"]["ext:file"] = "$albumpath/newname"
         config["import"]["reflink"] = True
 
         self._run_importer()

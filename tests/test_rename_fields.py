@@ -25,7 +25,7 @@ class FiletoteRenameFieldsTest(FiletoteTestCase):
     def test_rename_field_albumpath(self) -> None:
         """Tests that the value of `albumpath` populates in renaming."""
         config["filetote"]["extensions"] = ".file"
-        config["paths"]["ext:file"] = str("$albumpath/newname")
+        config["paths"]["ext:file"] = "$albumpath/newname"
 
         self._run_importer()
 
@@ -34,7 +34,7 @@ class FiletoteRenameFieldsTest(FiletoteTestCase):
     def test_rename_field_artist(self) -> None:
         """Tests that the value of `artist` populates in renaming."""
         config["filetote"]["extensions"] = ".file"
-        config["paths"]["ext:file"] = str("$albumpath/$artist - newname")
+        config["paths"]["ext:file"] = "$albumpath/$artist - newname"
 
         self._run_importer()
 
@@ -45,7 +45,7 @@ class FiletoteRenameFieldsTest(FiletoteTestCase):
     def test_rename_field_albumartist(self) -> None:
         """Tests that the value of `albumartist` populates in renaming."""
         config["filetote"]["extensions"] = ".file"
-        config["paths"]["ext:file"] = str("$albumpath/$albumartist - newname")
+        config["paths"]["ext:file"] = "$albumpath/$albumartist - newname"
 
         self._run_importer()
 
@@ -56,7 +56,7 @@ class FiletoteRenameFieldsTest(FiletoteTestCase):
     def test_rename_field_album(self) -> None:
         """Tests that the value of `album` populates in renaming."""
         config["filetote"]["extensions"] = ".file"
-        config["paths"]["ext:file"] = str("$albumpath/$album - newname")
+        config["paths"]["ext:file"] = "$albumpath/$album - newname"
 
         self._run_importer()
 
@@ -65,7 +65,7 @@ class FiletoteRenameFieldsTest(FiletoteTestCase):
     def test_rename_field_old_filename(self) -> None:
         """Tests that the value of `old_filename` populates in renaming."""
         config["filetote"]["extensions"] = ".file"
-        config["paths"]["ext:file"] = str("$albumpath/$old_filename")
+        config["paths"]["ext:file"] = "$albumpath/$old_filename"
 
         self._run_importer()
 
@@ -75,7 +75,7 @@ class FiletoteRenameFieldsTest(FiletoteTestCase):
     def test_rename_field_medianame_old(self) -> None:
         """Tests that the value of `medianame_old` populates in renaming."""
         config["filetote"]["extensions"] = ".file"
-        config["paths"]["ext:file"] = str("$albumpath/$medianame_old")
+        config["paths"]["ext:file"] = "$albumpath/$medianame_old"
 
         self._run_importer()
 
@@ -88,7 +88,7 @@ class FiletoteRenameFieldsTest(FiletoteTestCase):
             "enabled": True,
             "pairing_only": True,
         }
-        config["paths"]["ext:lrc"] = str("$albumpath/$medianame_new")
+        config["paths"]["ext:lrc"] = "$albumpath/$medianame_new"
 
         self._run_importer()
 

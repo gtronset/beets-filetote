@@ -25,7 +25,7 @@ class FiletoteRenameTest(FiletoteTestCase):
     def test_rename_when_copying(self) -> None:
         """Tests that renaming works when copying."""
         config["filetote"]["extensions"] = ".file"
-        config["paths"]["ext:file"] = str("$albumpath/$artist - $album")
+        config["paths"]["ext:file"] = "$albumpath/$artist - $album"
 
         self._run_importer()
 
@@ -38,7 +38,7 @@ class FiletoteRenameTest(FiletoteTestCase):
     def test_rename_when_moving(self) -> None:
         """Tests that renaming works when moving."""
         config["filetote"]["extensions"] = ".file"
-        config["paths"]["ext:file"] = str("$albumpath/$artist - $album")
+        config["paths"]["ext:file"] = "$albumpath/$artist - $album"
         config["import"]["move"] = True
 
         self._run_importer()
@@ -52,7 +52,7 @@ class FiletoteRenameTest(FiletoteTestCase):
         """Tests that the value of `medianame_new` populates in renaming."""
         config["filetote"]["extensions"] = ".lrc"
         config["filetote"]["pairing"]["enabled"] = True
-        config["paths"]["paired_ext:lrc"] = str("$albumpath/$medianame_new")
+        config["paths"]["paired_ext:lrc"] = "$albumpath/$medianame_new"
 
         self._run_importer()
 
@@ -65,8 +65,8 @@ class FiletoteRenameTest(FiletoteTestCase):
         """Tests that paired path definitions work alongside `ext` ones."""
         config["filetote"]["extensions"] = ".lrc"
         config["filetote"]["pairing"]["enabled"] = True
-        config["paths"]["ext:lrc"] = str("$albumpath/1 $old_filename")
-        config["paths"]["paired_ext:lrc"] = str("$albumpath/$medianame_new")
+        config["paths"]["ext:lrc"] = "$albumpath/1 $old_filename"
+        config["paths"]["paired_ext:lrc"] = "$albumpath/$medianame_new"
 
         self._run_importer()
 
@@ -80,8 +80,8 @@ class FiletoteRenameTest(FiletoteTestCase):
         a collision."""
         config["filetote"]["extensions"] = ".lrc"
         config["filetote"]["pairing"]["enabled"] = True
-        config["paths"]["paired_ext:lrc"] = str("$albumpath/$medianame_new")
-        config["paths"]["ext:lrc"] = str("$albumpath/1 $old_filename")
+        config["paths"]["paired_ext:lrc"] = "$albumpath/$medianame_new"
+        config["paths"]["ext:lrc"] = "$albumpath/1 $old_filename"
 
         self._run_importer()
 
@@ -95,8 +95,8 @@ class FiletoteRenameTest(FiletoteTestCase):
         a collision."""
         config["filetote"]["extensions"] = ".lrc"
         config["filetote"]["pairing"]["enabled"] = True
-        config["paths"]["paired_ext:lrc"] = str("$albumpath/$medianame_new")
-        config["paths"]["filename:track_1.lrc"] = str("$albumpath/1 $old_filename")
+        config["paths"]["paired_ext:lrc"] = "$albumpath/$medianame_new"
+        config["paths"]["filename:track_1.lrc"] = "$albumpath/1 $old_filename"
 
         self._run_importer()
 
@@ -110,8 +110,8 @@ class FiletoteRenameTest(FiletoteTestCase):
         Tests that leading periods are options when definiting `ext` paths.
         """
         config["filetote"]["extensions"] = ".file .nfo"
-        config["paths"]["ext:file"] = str("$albumpath/$artist - $album")
-        config["paths"]["ext:.nfo"] = str("$albumpath/$artist - $album 2")
+        config["paths"]["ext:file"] = "$albumpath/$artist - $album"
+        config["paths"]["ext:.nfo"] = "$albumpath/$artist - $album 2"
         config["import"]["move"] = True
 
         self._run_importer()
@@ -131,7 +131,7 @@ class FiletoteRenameTest(FiletoteTestCase):
         but not subsequent ones that conflict."""
 
         config["filetote"]["extensions"] = ".file"
-        config["paths"]["ext:file"] = str("$albumpath/$artist - $album")
+        config["paths"]["ext:file"] = "$albumpath/$artist - $album"
         config["import"]["move"] = True
 
         self._run_importer()
@@ -150,8 +150,8 @@ class FiletoteRenameTest(FiletoteTestCase):
         """Ensure that specifying multiple extensions and definitions properly
         rename."""
         config["filetote"]["extensions"] = ".file .nfo"
-        config["paths"]["ext:file"] = str("$albumpath/$artist - $album")
-        config["paths"]["ext:nfo"] = str("$albumpath/$artist - $album")
+        config["paths"]["ext:file"] = "$albumpath/$artist - $album"
+        config["paths"]["ext:nfo"] = "$albumpath/$artist - $album"
         config["import"]["move"] = True
 
         self._run_importer()
@@ -171,10 +171,8 @@ class FiletoteRenameTest(FiletoteTestCase):
     def test_rename_matching_filename(self) -> None:
         """Ensure that `filename` path definitions rename correctly."""
         config["filetote"]["filenames"] = "artifact.file artifact2.file"
-        config["paths"]["filename:artifact.file"] = str("$albumpath/new-filename")
-        config["paths"]["filename:artifact2.file"] = str(
-            "$albumpath/another-new-filename"
-        )
+        config["paths"]["filename:artifact.file"] = "$albumpath/new-filename"
+        config["paths"]["filename:artifact2.file"] = "$albumpath/another-new-filename"
         config["import"]["move"] = True
 
         self._run_importer()
@@ -191,8 +189,8 @@ class FiletoteRenameTest(FiletoteTestCase):
         a collision."""
         config["filetote"]["extensions"] = ".file"
         config["filetote"]["filenames"] = "artifact.file"
-        config["paths"]["ext:file"] = str("$albumpath/$artist - $old_filename")
-        config["paths"]["filename:artifact.file"] = str("$albumpath/new-filename")
+        config["paths"]["ext:file"] = "$albumpath/$artist - $old_filename"
+        config["paths"]["filename:artifact.file"] = "$albumpath/new-filename"
         config["import"]["move"] = True
 
         self._run_importer()
@@ -213,8 +211,8 @@ class FiletoteRenameTest(FiletoteTestCase):
         config["filetote"]["filenames"] = "artifact.file"
         # order of paths matter here; this is the opposite order as
         # `test_rename_prioritizes_filename_over_ext`
-        config["paths"]["filename:artifact.file"] = str("$albumpath/new-filename")
-        config["paths"]["ext:file"] = str("$albumpath/$artist - $old_filename")
+        config["paths"]["filename:artifact.file"] = "$albumpath/new-filename"
+        config["paths"]["ext:file"] = "$albumpath/$artist - $old_filename"
         config["import"]["move"] = True
 
         self._run_importer()
@@ -232,9 +230,9 @@ class FiletoteRenameTest(FiletoteTestCase):
         ones when there's collision(s)."""
         config["filetote"]["extensions"] = ".file"
         config["filetote"]["filenames"] = "artifact.file artifact2.file"
-        config["paths"]["ext:file"] = str("$albumpath/$artist - $old_filename")
-        config["paths"]["filename:artifact.file"] = str("$albumpath/new-filename")
-        config["paths"]["filename:artifact2.file"] = str("$albumpath/new-filename2")
+        config["paths"]["ext:file"] = "$albumpath/$artist - $old_filename"
+        config["paths"]["filename:artifact.file"] = "$albumpath/new-filename"
+        config["paths"]["filename:artifact2.file"] = "$albumpath/new-filename2"
         config["import"]["move"] = True
 
         self._run_importer()
