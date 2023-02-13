@@ -45,7 +45,6 @@ class FiletoteRenamePathsTest(FiletoteTestCase):
         """Tests that renaming patterns works using setting from Filetote's paths
         doesn't require `pattern:` prefix.
         """
-        config["filetote"]["extensions"] = ""
         config["filetote"]["patterns"] = {
             "file-pattern": ["[Aa]rtifact.file"],
             "nfo-pattern": ["*.nfo"],
@@ -71,7 +70,6 @@ class FiletoteRenamePathsTest(FiletoteTestCase):
         """Tests that renaming patterns works using setting from Filetote's paths
         doesn't require `pattern:` prefix.
         """
-        config["filetote"]["extensions"] = ""
         config["filetote"]["patterns"] = {
             "file-pattern": ["[Aa]rtifact.file"],
             "nfo-pattern": ["*.nfo"],

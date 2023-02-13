@@ -32,6 +32,7 @@ class FiletoteManipulateFiles(FiletoteTestCase):
     def test_copy_artifacts(self) -> None:
         """Test that copy actually copies (and not just moves)."""
         config["import"]["copy"] = True
+        config["filetote"]["extensions"] = ".*"
 
         self._run_importer()
 
@@ -47,6 +48,7 @@ class FiletoteManipulateFiles(FiletoteTestCase):
     def test_move_artifacts(self) -> None:
         """Test that move actually moves (and not just copies)."""
         config["import"]["move"] = True
+        config["filetote"]["extensions"] = ".*"
 
         self._run_importer()
 

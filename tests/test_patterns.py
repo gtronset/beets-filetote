@@ -23,7 +23,6 @@ class FiletotePatternTest(FiletoteTestCase):
 
     def test_patterns_match(self) -> None:
         """Tests that patterns are used to itentify artifacts."""
-        config["filetote"]["extensions"] = ""
         config["filetote"]["patterns"] = {
             "file-pattern": ["[Aa]rtifact.file", "artifact[23].file"],
             "nfo-pattern": ["*.nfo"],
@@ -37,7 +36,6 @@ class FiletotePatternTest(FiletoteTestCase):
 
     def test_patterns_path_renaming(self) -> None:
         """Tests that the path definition for `pattern:` prefix works."""
-        config["filetote"]["extensions"] = ""
         config["filetote"]["patterns"] = {
             "file-pattern": ["[Aa]rtifact.file", "artifact[23].file"],
             "nfo-pattern": ["*.nfo"],

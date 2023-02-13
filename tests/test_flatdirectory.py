@@ -83,7 +83,6 @@ class FiletoteFromFlatDirectoryTest(FiletoteTestCase):
 
     def test_only_copy_artifacts_matching_configured_filename(self) -> None:
         """Test that only the specific file (by filename) is copied when specified."""
-        config["filetote"]["extensions"] = ""
         config["filetote"]["filenames"] = "artifact.file"
 
         self._run_importer()
@@ -117,15 +116,15 @@ class FiletoteFromFlatDirectoryTest(FiletoteTestCase):
 
         self.assert_not_in_lib_dir(b"Tag Artist", b"Tag Album", b"artifact.lrc")
 
-    def test_copy_all_artifacts_by_default(self) -> None:
+    def test_copy_no_artifacts_by_default(self) -> None:
         """Ensure that all artifacts that match the extensions are moved by default."""
         self._run_importer()
 
         self.assert_number_of_files_in_dir(
-            self._base_file_count + 4, self.lib_dir, b"Tag Artist", b"Tag Album"
+            self._media_count, self.lib_dir, b"Tag Artist", b"Tag Album"
         )
 
-        self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"artifact.file")
-        self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"artifact2.file")
-        self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"artifact.nfo")
-        self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"artifact.lrc")
+        self.assert_not_in_lib_dir(b"Tag Artist", b"Tag Album", b"artifact.file")
+        self.assert_not_in_lib_dir(b"Tag Artist", b"Tag Album", b"artifact2.file")
+        self.assert_not_in_lib_dir(b"Tag Artist", b"Tag Album", b"artifact.nfo")
+        self.assert_not_in_lib_dir(b"Tag Artist", b"Tag Album", b"artifact.lrc")

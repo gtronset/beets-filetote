@@ -62,7 +62,7 @@ class FiletoteConfig:
     # pylint: disable=too-many-instance-attributes
 
     session: FiletoteSessionData = field(default_factory=FiletoteSessionData)
-    extensions: Union[Literal[".*"], List[str]] = ".*"
+    extensions: Union[Literal[""], List[str]] = ""
     filenames: Union[Literal[""], List[str]] = ""
     patterns: Dict[str, List[str]] = field(default_factory=dict)
     exclude: Union[Literal[""], List[str]] = ""
