@@ -181,10 +181,10 @@ class HelperUtils:
     def _log_indenter(self, indent_level: int) -> str:
         return " " * 4 * (indent_level)
 
-    def create_file(self, album_path: bytes, filename: bytes) -> None:
+    def create_file(self, path: bytes, filename: bytes) -> None:
         """Creates a file in a specific location."""
         with open(
-            os.path.join(album_path, filename), mode="a", encoding="utf-8"
+            os.path.join(path, filename), mode="a", encoding="utf-8"
         ) as file_handle:
             file_handle.close()
 

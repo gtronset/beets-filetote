@@ -416,7 +416,11 @@ class FiletotePlugin(BeetsPlugin):  # type: ignore[misc]
 
             self._shared_artifacts[source_path] = []
 
-            self.process_artifacts(artifacts, artifact_collection.mapping)
+            self.process_artifacts(
+                source_path=source_path,
+                source_artifacts=artifacts,
+                mapping=artifact_collection.mapping,
+            )
 
     def _is_valid_paired_extension(self, artifact_file_ext: Union[str, bytes]) -> bool:
         return (
@@ -426,7 +430,7 @@ class FiletotePlugin(BeetsPlugin):  # type: ignore[misc]
         )
 
     def _is_pattern_match(
-        self, artifact_name: str, match_category: Optional[str] = None
+        self, artifact_relpath: str, match_category: Optional[str] = None
     ) -> Tuple[bool, Optional[str]]:
         """Check if the file is in the defined patterns."""
 
@@ -441,7 +445,7 @@ class FiletotePlugin(BeetsPlugin):  # type: ignore[misc]
 
         for category, patterns in pattern_definitions:
             for pattern in patterns:
-                is_match = fnmatch.fnmatch(artifact_name, pattern)
+                is_match = fnmatch.fnmatch(artifact_relpath, pattern.lstrip("/"))
 
                 if is_match:
                     return (is_match, category)
@@ -450,6 +454,7 @@ class FiletotePlugin(BeetsPlugin):  # type: ignore[misc]
 
     def _is_artifact_ignorable(
         self,
+        source_path: str,
         artifact_source: str,
         artifact_filename: str,
         artifact_paired: bool,
@@ -472,10 +477,14 @@ class FiletotePlugin(BeetsPlugin):  # type: ignore[misc]
         # - filenames not explicitly in `filenames`
         # - non-paired files
         # - artifacts not matching patterns
+
         artifact_file_ext = os.path.splitext(artifact_filename)[1]
+
+        relpath = os.path.relpath(artifact_source, start=source_path)
         is_pattern_match, category = self._is_pattern_match(
-            util.displayable_path(artifact_filename)
+            artifact_relpath=util.displayable_path(relpath)
         )
+
         if (
             ".*" not in self.filetote.extensions
             and util.displayable_path(artifact_file_ext) not in self.filetote.extensions
@@ -510,6 +519,7 @@ class FiletotePlugin(BeetsPlugin):  # type: ignore[misc]
 
     def process_artifacts(
         self,
+        source_path: str,
         source_artifacts: List[FiletoteArtifact],
         mapping: FiletoteMappingModel,
     ) -> None:
@@ -524,12 +534,14 @@ class FiletotePlugin(BeetsPlugin):  # type: ignore[misc]
         for artifact in source_artifacts:
             artifact_source = artifact.path
 
-            source_path = os.path.dirname(artifact_source)
+            artifact_path = os.path.dirname(artifact_source)
+
             # os.path.basename() not suitable here as files may be contained
             # within dir of source_path
-            artifact_filename = artifact_source[len(source_path) + 1 :]
+            artifact_filename = artifact_source[len(artifact_path) + 1 :]
 
             is_ignorable, pattern_category = self._is_artifact_ignorable(
+                source_path=source_path,
                 artifact_source=artifact_source,
                 artifact_filename=artifact_filename,
                 artifact_paired=artifact.paired,
