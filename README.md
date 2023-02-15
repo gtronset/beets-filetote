@@ -57,6 +57,13 @@ filetote:
   extensions: .cue .log
 ```
 
+Or copy all non-music files:
+
+```yaml
+filetote:
+  extensions: .*
+```
+
 Or copy files by filename:
 
 ```yaml
@@ -64,11 +71,13 @@ filetote:
   filenames: song.log
 ```
 
-Or copy all non-music files (it does this by default):
+Or match based on a "pattern" ([glob pattern]):
 
 ```yaml
 filetote:
-  extensions: .*
+  patterns:
+    artworkdir:
+          - "[aA]rtwork/"
 ```
 
 It can look for and target "pairs" (files having the same name as a matching or
@@ -108,28 +117,90 @@ filetote:
 `exclude`-d files take precedence over other matching, meaning exclude will
 trump other matches by either `extensions` or `filenames`.
 
+[glob pattern]: https://docs.python.org/3/library/glob.html#module-glob
+
 ### Matching/Handling Files
 
 In order to collect extra files and artifacts, Filetote needs to be told which
 types of files it should care about. This can be done using the following:
 
-- `filename:`
-- `pattern:`
-- `ext:`
+- `ext`
+- `filename`
+- `pattern`
 
 Filetote can also grab "paired" files, meaning those files having the same name
- as a matching media item/track.
+as a matching media item/track.
+
+#### Extension (`ext`)
+
+Filename can match on the extensio) of the file, in a space-delimited list
+(string sequence). Take:
+
+```yaml
+filetote:
+  ext: .lrc .log
+```
+
+Any file with either a `.lrc` or `.log` will match.
+
+Use `.*` to match all file extensions.
+
+#### Filename
+
+Filetote can match on the actual name (including extension) of the file, in a
+space-delimited list (string sequence). Take:
+
+```yaml
+filetote:
+  filenames: cover.jpg artifact.nfo
+```
+
+This will match if the filename of the given artifact or extra file matches the
+name exactly as specified, in this example either `cover.jpg` or `artifact.nfo`.
+This will match across any subdirectories, meaning targeting a filename in a
+specific subdirectory will not work (this functionality _can_ be achieved using
+a `pattern`, however).
+
+#### Pattern
+
+Filetote can match on a given _pattern_ as specified using [glob patterns].
+Paths in the pattern are relative to the root of the importing album. Hence,
+if there are subdirectories in the album's folder (for multidisc setups, for
+instance, e.g., `albumpath/CD1`), the album's path would be the base/root for
+the pattern (ex: `CD1/*.jpg`). Patterns will work with or without the
+proceeding slash (`/`). Note: Windows users will need to obviously use the
+appropriate slash (`\`).
+
+Take:
+
+```yaml
+filetote:
+  patterns:
+    artworkdir:
+          - "[aA]rtwork/"
+```
+
+This will match all files within the given subdirectory of either `artwork/`
+or `Artwork/`. Unless specified, `[aA]rtwork/` will grab all non-media files
+in that subdirectory irrespective of name or extension (it is equivalent to
+`[aA]rtwork/*.*`).
+
+Patterns are defined by a _name_ so that any customization for renaming can
+apply to the pattern when specifying the path (ex: `pattern:artworkdir`; see
+the section on renaming below).
+
+[glob patterns]: https://docs.python.org/3/library/glob.html#module-glob
 
 ### Renaming files
 
-Renaming works in much the same way as beets [Path Formats].
-This plugin supports the below new path queries, which each takes a single
-corresponding value. These can be defined in either the top-level `paths`
-section of Beet's config or in the `paths` section of Filetote's config.
+Renaming works in much the same way as beets [Path Formats]. This plugin
+supports the below new path queries, which each takes a single corresponding
+value. These can be defined in either the top-level `paths` section of Beet's
+config or in the `paths` section of Filetote's config.
 
 [Path Formats]: http://beets.readthedocs.org/en/stable/reference/pathformat.html
 
-New path queries, from _most_ to _least_specific:
+New path queries, from _most_ to _least_ specific:
 
 - `filename:`
 - `paired_ext:`

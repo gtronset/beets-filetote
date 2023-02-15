@@ -445,7 +445,15 @@ class FiletotePlugin(BeetsPlugin):  # type: ignore[misc]
 
         for category, patterns in pattern_definitions:
             for pattern in patterns:
-                is_match = fnmatch.fnmatch(artifact_relpath, pattern.lstrip("/"))
+                is_match = False
+
+                if pattern.endswith("/"):
+                    for path in util.ancestry(artifact_relpath):
+                        if not fnmatch.fnmatch(path, pattern.strip("/")):
+                            continue
+                        is_match = True
+                else:
+                    is_match = fnmatch.fnmatch(artifact_relpath, pattern.lstrip("/"))
 
                 if is_match:
                     return (is_match, category)
