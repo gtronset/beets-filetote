@@ -108,21 +108,17 @@ filetote:
 `exclude`-d files take precedence over other matching, meaning exclude will
 trump other matches by either `extensions` or `filenames`.
 
-### Import Operations
+### Matching/Handling Files
 
-This plugin supports the same operations as beets:
+In order to collect extra files and artifacts, Filetote needs to be told which
+types of files it should care about. This can be done using the following:
 
-- `copy`
-- `move`
-- `link` (symlink)
-- `harklink`
-- `reflink`
+- `filename:`
+- `pattern:`
+- `ext:`
 
-These options are mutually exclusive, and there are nuances to how beets (and
-thus this plugin) behave when there multiple set. See the [beets documentation]
-and [#36](https://github.com/gtronset/beets-filetote/pull/36) for more details.
-
-[beets documentation]: https://beets.readthedocs.io/en/stable/reference/config.html#importer-options
+Filetote can also grab "paired" files, meaning those files having the same name
+ as a matching media item/track.
 
 ### Renaming files
 
@@ -132,13 +128,13 @@ corresponding value. These can be defined in either the top-level `paths`
 section of Beet's config or in the `paths` section of Filetote's config.
 
 [Path Formats]: http://beets.readthedocs.org/en/stable/reference/pathformat.html
-.
-New path querie, from _least_ to _most_ specific:
 
-- `ext:`
-- `pattern:`
-- `paired_ext:`
+New path queries, from _most_ to _least_specific:
+
 - `filename:`
+- `paired_ext:`
+- `pattern:`
+- `ext:`
 
 Renaming has the following considerations:
 
@@ -198,6 +194,22 @@ This will rename the specific `track.log` log file to:
 > only the first will be added to the library (new folder); other files that
 > subsequently match will not be saved/renamed. To work around this,
 > `$old_filename` can be used to help with adding uniqueness to the name.
+
+### Import Operations
+
+This plugin supports the same operations as beets:
+
+- `copy`
+- `move`
+- `link` (symlink)
+- `harklink`
+- `reflink`
+
+These options are mutually exclusive, and there are nuances to how beets (and
+thus this plugin) behave when there multiple set. See the [beets documentation]
+and [#36](https://github.com/gtronset/beets-filetote/pull/36) for more details.
+
+[beets documentation]: https://beets.readthedocs.io/en/stable/reference/config.html#importer-options
 
 ### Examples of `config.yaml`
 

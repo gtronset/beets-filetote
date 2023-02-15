@@ -5,6 +5,7 @@ import os
 
 from beets import config
 
+from tests import _common
 from tests.helper import FiletoteTestCase, capture_log
 
 log = logging.getLogger("beets")
@@ -54,6 +55,11 @@ class FiletotePatternTest(FiletoteTestCase):
         config["paths"][
             "pattern:subfolder-pattern"
         ] = "$albumpath/artwork/$old_filename"
+
+        if _common.PLATFORM == "win32":
+            config["paths"][
+                "pattern:subfolder-pattern"
+            ] = "$albumpath\\artwork\\$old_filename"
 
         self._run_importer()
 
