@@ -111,7 +111,7 @@ class FiletotePatternTest(FiletoteTestCase):
         config["filetote"]["patterns"] = {
             "subfolder1-pattern": ["[aA]rtwork/"],
             "subfolder2-pattern": ["CD1/*.*"],
-            "subfolder3-pattern": ["Subfolder1/Subfolder2/Subfolder3/"],
+            "subfolder3-pattern": ["Subfolder1/Subfolder2/"],
         }
 
         config["paths"][
