@@ -79,7 +79,7 @@ class FiletoteFilename(FiletoteTestCase):
         """
         config["import"]["move"] = True
         config["filetote"]["extensions"] = ".log"
-        config["paths"]["ext:.log"] = str("$albumpath/$album - $old_filename")
+        config["paths"]["ext:.log"] = "$albumpath/$album - $old_filename"
 
         self.lib.path_formats[0] = (
             "default",
@@ -110,7 +110,7 @@ class FiletoteFilename(FiletoteTestCase):
         Tests that illegal characters in album name are replaced following beets
         conventions.
         """
-        config["paths"]["ext:file"] = str("$albumpath/$artist - $album")
+        config["paths"]["ext:file"] = "$albumpath/$artist - $album"
 
         # Create import directory, illegal filename character used in the album name
         self.create_file(self.album_path, b"artifact.file")

@@ -1,5 +1,6 @@
 """beets-filetote plugin for beets."""
 import filecmp
+import fnmatch
 import os
 from typing import TYPE_CHECKING, Dict, List, Optional, Tuple, Union
 
@@ -36,17 +37,17 @@ class FiletotePlugin(BeetsPlugin):  # type: ignore[misc]
         self.filetote: FiletoteConfig = FiletoteConfig(
             extensions=self.config["extensions"].as_str_seq(),
             filenames=self.config["filenames"].as_str_seq(),
+            patterns=self.config["patterns"].get(dict),
+            paths=self.config["paths"].get(dict),
             exclude=self.config["exclude"].as_str_seq(),
             print_ignored=self.config["print_ignored"].get(),
         )
 
         self.filetote.adjust("pairing", self.config["pairing"].get(dict))
 
-        queries: List[str] = ["ext:", "filename:", "paired_ext:"]
+        queries: List[str] = ["ext:", "filename:", "paired_ext:", "pattern:"]
 
-        self._path_formats: List[Tuple[str, str]] = self._get_filetote_path_formats(
-            queries
-        )
+        self._path_formats: Dict[str, str] = self._get_filetote_path_formats(queries)
         self._process_queue: List[FiletoteArtifactCollection] = []
         self._shared_artifacts: Dict[str, List[str]] = {}
         self._dirs_seen: List[str] = []
@@ -65,14 +66,22 @@ class FiletotePlugin(BeetsPlugin):  # type: ignore[misc]
         self.register_listener("import_begin", self._register_session_settings)
         self.register_listener("cli_exit", self.process_events)
 
-    def _get_filetote_path_formats(self, queries: List[str]) -> List[Tuple[str, str]]:
-        """Gets all `path` formats from beets and parses those set for Filetote."""
-        path_formats: List[Tuple[str, str]] = []
+    def _get_filetote_path_formats(self, queries: List[str]) -> Dict[str, str]:
+        """
+        Gets all `path` formats from beets and parses those set for Filetote.
+        First sets those from the Beet's `path` node then sets them from
+        Filetote's node, overriding when needed to give priority to Filetote's
+        definitions.
+        """
+        path_formats: Dict[str, str] = {}
 
-        for path_format in get_path_formats():
+        for beets_path_format in get_path_formats():
             for query in queries:
-                if path_format[0].startswith(query):
-                    path_formats.append(path_format)
+                if beets_path_format[0].startswith(query):
+                    path_formats[beets_path_format[0]] = beets_path_format[1]
+
+        path_formats.update(self.filetote.paths)
+
         return path_formats
 
     def _register_session_settings(self, session: "ImportSession") -> None:
@@ -117,41 +126,76 @@ class FiletotePlugin(BeetsPlugin):  # type: ignore[misc]
 
         return operation
 
+    def remove_prefix(self, text: str, prefix: str) -> str:
+        """Removes the prefix of given text."""
+        if text.startswith(prefix):
+            return text[len(prefix) :]
+        return text
+
     def _get_path_query_format_match(
-        self, artifact_filename: str, artifact_ext: str, paired: bool
+        self,
+        artifact_filename: str,
+        artifact_ext: str,
+        paired: bool,
+        pattern_category: Optional[str] = None,
     ) -> Tuple[Optional[str], Optional[str]]:
+        """
+        Calculate the best path query format, prioritizing:
+
+        1. `filename:`
+        2. `paired_ext:`
+        3. `pattern:`
+        4. `ext:`
+        """
         full_filename = util.displayable_path(artifact_filename)
 
         selected_path_query: Optional[str] = None
         selected_path_format: Optional[str] = None
 
-        for query, path_format in self._path_formats:
-            ext_len: int = len("ext:")
-            filename_len: int = len("filename:")
-            paired_ext_len: int = len("paired_ext:")
+        for query, path_format in self._path_formats.items():
+            filename_prefix: str = "filename:"
+            paired_ext_prefix: str = "paired_ext:"
+            pattern_prefix: str = "pattern:"
+            ext_prefix: str = "ext:"
 
             if (
                 paired
-                and query[:paired_ext_len] == "paired_ext:"
-                and artifact_ext == ("." + query[paired_ext_len:].lstrip("."))
+                and query.startswith(paired_ext_prefix)
+                and artifact_ext
+                == ("." + self.remove_prefix(query, paired_ext_prefix).lstrip("."))
             ):
                 # Prioritize `filename:` query selectory over `paired_ext:`
-                if selected_path_query != "filename:":
-                    selected_path_query = "paired_ext:"
-                    selected_path_format = path_format
-            elif query[:ext_len] == "ext:" and artifact_ext == (
-                "." + query[ext_len:].lstrip(".")
-            ):
-                # Prioritize `filename:` and `paired_ext:` query selectory over
-                # `ext:`
-                if selected_path_query not in ["filename:", "paired_ext:"]:
-                    selected_path_query = "ext:"
+                if selected_path_query != filename_prefix:
+                    selected_path_query = paired_ext_prefix
                     selected_path_format = path_format
             elif (
-                query[:filename_len] == "filename:"
-                and full_filename == query[filename_len:]
+                pattern_category
+                and not query.startswith(
+                    (filename_prefix, paired_ext_prefix, ext_prefix)
+                )
+                and self.remove_prefix(query, pattern_prefix) == pattern_category
+            ):  # This should pull the corresponding pattern def,
+                # Prioritize `filename:` and `paired_ext:` query selectory over
+                # `pattern:`
+                if selected_path_query not in [filename_prefix, paired_ext_prefix]:
+                    selected_path_query = pattern_prefix
+                    selected_path_format = path_format
+            elif query.startswith(ext_prefix) and artifact_ext == (
+                "." + self.remove_prefix(query, ext_prefix).lstrip(".")
             ):
-                selected_path_query = "filename:"
+                # Prioritize `filename:`, `paired_ext:`, and `pattern:` query selector
+                #  over `ext:`
+                if selected_path_query not in [
+                    filename_prefix,
+                    paired_ext_prefix,
+                    pattern_prefix,
+                ]:
+                    selected_path_query = ext_prefix
+                    selected_path_format = path_format
+            elif query.startswith(
+                filename_prefix
+            ) and full_filename == self.remove_prefix(query, filename_prefix):
+                selected_path_query = filename_prefix
                 selected_path_format = path_format
 
         return (selected_path_query, selected_path_format)
@@ -161,9 +205,10 @@ class FiletotePlugin(BeetsPlugin):  # type: ignore[misc]
         artifact_filename: str,
         mapping: FiletoteMappingModel,
         paired: bool = False,
+        pattern_category: Optional[str] = None,
     ) -> str:
         """
-        Returns a destination path aan artifact/file should be moved to. The
+        Returns a destination path an artifact/file should be moved to. The
         artifact filename is unique to ensure files aren't overwritten. This also
         checks the config for path formats based on file extension allowing the use of
         beets' template functions. If no path formats are found for the file extension
@@ -184,7 +229,9 @@ class FiletotePlugin(BeetsPlugin):  # type: ignore[misc]
         (
             selected_path_query,
             selected_path_format,
-        ) = self._get_path_query_format_match(artifact_filename, artifact_ext, paired)
+        ) = self._get_path_query_format_match(
+            artifact_filename, artifact_ext, paired, pattern_category
+        )
 
         if not selected_path_query:
             # No query matched; use original filename
@@ -369,7 +416,11 @@ class FiletotePlugin(BeetsPlugin):  # type: ignore[misc]
 
             self._shared_artifacts[source_path] = []
 
-            self.process_artifacts(artifacts, artifact_collection.mapping)
+            self.process_artifacts(
+                source_path=source_path,
+                source_artifacts=artifacts,
+                mapping=artifact_collection.mapping,
+            )
 
     def _is_valid_paired_extension(self, artifact_file_ext: Union[str, bytes]) -> bool:
         return (
@@ -378,11 +429,42 @@ class FiletotePlugin(BeetsPlugin):  # type: ignore[misc]
             in self.filetote.pairing.extensions
         )
 
+    def _is_pattern_match(
+        self, artifact_relpath: str, match_category: Optional[str] = None
+    ) -> Tuple[bool, Optional[str]]:
+        """Check if the file is in the defined patterns."""
+
+        pattern_definitions: List[Tuple[str, List[str]]] = list(
+            self.filetote.patterns.items()
+        )
+
+        if match_category:
+            pattern_definitions = [
+                (match_category, self.filetote.patterns[match_category])
+            ]
+
+        for category, patterns in pattern_definitions:
+            for pattern in patterns:
+                is_match = False
+
+                if pattern.endswith("/"):
+                    for path in util.ancestry(artifact_relpath):
+                        if not fnmatch.fnmatch(path, pattern.strip("/")):
+                            continue
+                        is_match = True
+                else:
+                    is_match = fnmatch.fnmatch(artifact_relpath, pattern.lstrip("/"))
+
+                if is_match:
+                    return (is_match, category)
+
+        return (False, None)
+
     def _is_artifact_ignorable(
         self,
+        source_path: str,
         artifact_source: str,
         artifact_filename: str,
-        artifact_dest: str,
         artifact_paired: bool,
     ) -> Tuple[bool, Optional[str]]:
         """
@@ -392,41 +474,65 @@ class FiletotePlugin(BeetsPlugin):  # type: ignore[misc]
 
         # Skip/ignore as another plugin or beets has already moved this file
         if not os.path.exists(artifact_source):
-            return (True, artifact_source)
+            return (True, None)
 
         # Skip if filename is explicitly in `exclude`
         if util.displayable_path(artifact_filename) in self.filetote.exclude:
-            return (True, artifact_source)
+            return (True, None)
 
         # Skip:
         # - extensions not allowed in `extensions`
         # - filenames not explicitly in `filenames`
+        # - non-paired files
+        # - artifacts not matching patterns
+
         artifact_file_ext = os.path.splitext(artifact_filename)[1]
+
+        relpath = os.path.relpath(artifact_source, start=source_path)
+        is_pattern_match, category = self._is_pattern_match(
+            artifact_relpath=util.displayable_path(relpath)
+        )
+
         if (
             ".*" not in self.filetote.extensions
             and util.displayable_path(artifact_file_ext) not in self.filetote.extensions
             and util.displayable_path(artifact_filename) not in self.filetote.filenames
+            and not is_pattern_match
             and not (
                 artifact_paired and self._is_valid_paired_extension(artifact_file_ext)
             )
         ):
-            return (True, artifact_source)
+            return (True, None)
 
-        # Skip file if it already exists in dest
-        if os.path.exists(artifact_dest) and filecmp.cmp(
+        matched_category = None
+        if is_pattern_match:
+            matched_category = category
+
+        return (False, matched_category)
+
+    def _artifact_exists_in_dest(
+        self,
+        artifact_source: str,
+        artifact_dest: str,
+    ) -> bool:
+        """
+        Checks if the artifact/file already exists in the destination destination,
+        which would also make it ignorable.
+        """
+
+        # Skip file
+        return os.path.exists(artifact_dest) and filecmp.cmp(
             artifact_source, artifact_dest
-        ):
-            return (True, artifact_source)
-
-        return (False, None)
+        )
 
     def process_artifacts(
         self,
+        source_path: str,
         source_artifacts: List[FiletoteArtifact],
         mapping: FiletoteMappingModel,
     ) -> None:
         """
-        Processes and prepares extra files / artifacts for subsequent manipulation.
+        Processes and prepares artifacts / extra files for subsequent manipulation.
         """
         if not source_artifacts:
             return
@@ -436,24 +542,34 @@ class FiletotePlugin(BeetsPlugin):  # type: ignore[misc]
         for artifact in source_artifacts:
             artifact_source = artifact.path
 
-            source_path = os.path.dirname(artifact_source)
+            artifact_path = os.path.dirname(artifact_source)
+
             # os.path.basename() not suitable here as files may be contained
             # within dir of source_path
-            artifact_filename = artifact_source[len(source_path) + 1 :]
+            artifact_filename = artifact_source[len(artifact_path) + 1 :]
 
-            artifact_dest = self._get_artifact_destination(
-                artifact_filename, mapping, artifact.paired
-            )
-
-            is_ignorable, ignore_filename = self._is_artifact_ignorable(
+            is_ignorable, pattern_category = self._is_artifact_ignorable(
+                source_path=source_path,
                 artifact_source=artifact_source,
                 artifact_filename=artifact_filename,
-                artifact_dest=artifact_dest,
                 artifact_paired=artifact.paired,
             )
 
-            if is_ignorable and ignore_filename:
-                ignored_artifacts.append(ignore_filename)
+            if is_ignorable:
+                ignored_artifacts.append(artifact_filename)
+                continue
+
+            artifact_dest = self._get_artifact_destination(
+                artifact_filename, mapping, artifact.paired, pattern_category
+            )
+
+            already_exists = self._artifact_exists_in_dest(
+                artifact_source=artifact_source,
+                artifact_dest=artifact_dest,
+            )
+
+            if already_exists:
+                ignored_artifacts.append(artifact_filename)
                 continue
 
             artifact_dest = util.unique_path(artifact_dest)

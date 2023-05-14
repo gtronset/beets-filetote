@@ -3,7 +3,7 @@ data used in processing extra files/artifacts. """
 
 from dataclasses import asdict, dataclass, field
 from sys import version_info
-from typing import Any, List, Optional, Union
+from typing import Any, Dict, List, Optional, Union
 
 from beets.library import Library
 from beets.util import MoveOperation
@@ -59,12 +59,16 @@ class FiletotePairingData:
 class FiletoteConfig:
     """Configuration settings for FileTote Item."""
 
+    # pylint: disable=too-many-instance-attributes
+
     session: FiletoteSessionData = field(default_factory=FiletoteSessionData)
-    extensions: Union[Literal[".*"], List[str]] = ".*"
+    extensions: Union[Literal[""], List[str]] = ""
     filenames: Union[Literal[""], List[str]] = ""
+    patterns: Dict[str, List[str]] = field(default_factory=dict)
     exclude: Union[Literal[""], List[str]] = ""
-    print_ignored: bool = False
     pairing: FiletotePairingData = field(default_factory=FiletotePairingData)
+    paths: Dict[str, str] = field(default_factory=dict)
+    print_ignored: bool = False
 
     def asdict(self) -> dict:  # type: ignore[type-arg]
         """Returns a `dict` version of the dataclass."""
