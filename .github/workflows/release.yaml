@@ -2,9 +2,6 @@ name: Release
 
 on:
   workflow_dispatch:
-  push:
-    tags:
-      - 'v*.*.*'
 
 env:
   PYTHON_VERSION: 3.11
