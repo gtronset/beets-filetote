@@ -48,7 +48,7 @@ jobs:
         uses: SebRollen/toml-action@v1.0.2
         with:
           file: 'pyproject.toml'
-          field: 'tools.poetry.version'
+          field: 'tool.poetry.version'
 
       - name: Check Version
         id: check-version
@@ -60,7 +60,7 @@ jobs:
         with:
           artifacts: "dist/*"
           token: ${{ secrets.GITHUB_TOKEN }}
-          tag: "${{ steps.tag-name.outputs.value }}"
+          tag: "v${{ steps.tag-name.outputs.value }}"
           draft: false
           generateReleaseNotes: true
           prerelease: steps.check-version.outputs.prerelease == 'true'
