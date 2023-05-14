@@ -193,7 +193,8 @@ the section on renaming below).
 
 ### Renaming files
 
-Renaming works in much the same way as beets [Path Formats]. This plugin
+Renaming works in much the same way as beets [Path Formats], though with only
+the below specified fields (this will change in the future). This plugin
 supports the below new path queries, which each takes a single corresponding
 value. These can be defined in either the top-level `paths` section of Beet's
 config or in the `paths` section of Filetote's config.
@@ -210,7 +211,7 @@ New path queries, from _most_ to _least_ specific:
 Renaming has the following considerations:
 
 - The fields available are `$artist`, `$albumartist`, `$album`, `$albumpath`,
-  `$old_filename` (filename of the extra/artifcat file before its renamed),
+  `$old_filename` (filename of the extra/artifact file before its renamed),
   `$medianame_old` (filename of the item/track triggering it, _before_
   its renamed), and `$medianame_new` (filename of the item/track triggering it, _after_
   its renamed).
@@ -355,8 +356,8 @@ and extending renaming options. What's more, significant focus has been provided
 to Filetote around Python3 conventions, linting, and typing in order to promote
 healthier code and easier maintenance.
 
-Filetote encompasses all fonctionality that _both_ `copyfilertifacts` and
-`extrafiles` provide, and then some!
+Filetote strives to encompass all fonctionality that _both_ `copyfilertifacts`
+and `extrafiles` provide, and then some!
 
 [`copyfilertifacts` plugin]: https://github.com/adammillerio/beets-copyartifacts
 [`extrafiles` plugin]: https://github.com/Holzhaus/beets-extrafiles

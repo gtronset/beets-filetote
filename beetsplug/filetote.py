@@ -153,10 +153,10 @@ class FiletotePlugin(BeetsPlugin):  # type: ignore[misc]
         selected_path_format: Optional[str] = None
 
         for query, path_format in self._path_formats.items():
-            ext_prefix: str = "ext:"
             filename_prefix: str = "filename:"
-            pattern_prefix: str = "pattern:"
             paired_ext_prefix: str = "paired_ext:"
+            pattern_prefix: str = "pattern:"
+            ext_prefix: str = "ext:"
 
             if (
                 paired
@@ -208,7 +208,7 @@ class FiletotePlugin(BeetsPlugin):  # type: ignore[misc]
         pattern_category: Optional[str] = None,
     ) -> str:
         """
-        Returns a destination path aan artifact/file should be moved to. The
+        Returns a destination path an artifact/file should be moved to. The
         artifact filename is unique to ensure files aren't overwritten. This also
         checks the config for path formats based on file extension allowing the use of
         beets' template functions. If no path formats are found for the file extension

@@ -53,7 +53,7 @@ class FiletotePatternTest(FiletoteTestCase):
         self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"artifact.nfo")
 
     def test_patterns_subfolders_match(self) -> None:
-        """Tests that patterns can match dubdirectories/subfolders."""
+        """Tests that patterns can match subdirectories/subfolders."""
 
         artwork_dir = os.path.join(self.import_dir, b"the_album", b"artwork")
         os.makedirs(artwork_dir)
