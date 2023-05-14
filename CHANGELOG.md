@@ -9,17 +9,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.4.0] - 2023-05-14
+
 ### Added
 
 - Add tox command for doing black changes <https://github.com/gtronset/beets-filetote/pull/48>
 - Add mypy <https://github.com/gtronset/beets-filetote/pull/49>
 - Allow paired files to be by ext <https://github.com/gtronset/beets-filetote/pull/54>
+- Add flake8-bugbear & fix errors <https://github.com/gtronset/beets-filetote/pull/55>
+- Add pattern match and alternative path format config section <https://github.com/gtronset/beets-filetote/pull/62>
 
 ### Changed
 
 - Misc. Refactors to Filetote <https://github.com/gtronset/beets-filetote/pull/51>
+- Test Suite Refactoring <https://github.com/gtronset/beets-filetote/pull/57>
+- Add additional, stricter mypy settings <https://github.com/gtronset/beets-filetote/pull/59>
+- Add testing for nested directories / multi-disc imports <https://github.com/gtronset/beets-filetote/pull/60>
+- Various dependency updates
 
-## [0.3.3] - 2022-01-08
+## [0.3.3] - 2023-01-08
 
 ### Fixed
 
@@ -102,11 +110,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Updated
 
-- Fork from <https://github.com/adammillerio/beets-copyartifacts>
+- Hard Fork from <https://github.com/adammillerio/beets-copyartifacts>
 
 <!-- Release Links -->
 
-[unreleased]: https://github.com/gtronset/beets-filetote/compare/v0.3.3...HEAD
+[unreleased]: https://github.com/gtronset/beets-filetote/compare/v0.4.0...HEAD
+[0.4.0]: https://github.com/gtronset/beets-filetote/releases/tag/v0.4.0
 [0.3.3]: https://github.com/gtronset/beets-filetote/releases/tag/v0.3.3
 [0.3.2]: https://github.com/gtronset/beets-filetote/releases/tag/v0.3.2
 [0.3.1]: https://github.com/gtronset/beets-filetote/releases/tag/v0.3.1
