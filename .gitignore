@@ -13,3 +13,4 @@ beets/
 .DS_Store
 .act-secrets
 .actrc
+.mypy_cache

@@ -14,3 +14,4 @@ beets/
 *.swp
 .act-secrets
 .actrc
+.mypy_cache
