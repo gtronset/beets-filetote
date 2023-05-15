@@ -42,6 +42,17 @@ class FiletoteRenameFieldsTest(FiletoteTestCase):
             b"Tag Artist", b"Tag Album", b"Tag Artist - newname.file"
         )
 
+    def test_rename_field_track_title(self) -> None:
+        """Tests that the values of `track` and `title` populate in renaming."""
+        config["filetote"]["extensions"] = ".file"
+        config["paths"]["ext:file"] = "$albumpath/$track - $title - newname"
+
+        self._run_importer()
+
+        self.assert_in_lib_dir(
+            b"Tag Artist", b"Tag Album", b"1 - Tag Title 1 - newname.file"
+        )
+
     def test_rename_field_albumartist(self) -> None:
         """Tests that the value of `albumartist` populates in renaming."""
         config["filetote"]["extensions"] = ".file"

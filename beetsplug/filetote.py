@@ -282,13 +282,13 @@ class FiletotePlugin(BeetsPlugin):  # type: ignore[misc]
         medianame_new, _ = os.path.splitext(os.path.basename(strpath_new))
 
         mapping_meta = {
-            "artist": beets_item.artist or "None",
-            "albumartist": beets_item.albumartist or "None",
-            "album": beets_item.album or "None",
             "albumpath": util.displayable_path(album_path),
             "medianame_old": medianame_old,
             "medianame_new": medianame_new,
         }
+
+        # Include all normal Item fields
+        mapping_meta.update(beets_item)
 
         return FiletoteMappingModel(**mapping_meta)
 

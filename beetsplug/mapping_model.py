@@ -16,9 +16,6 @@ class FiletoteMappingModel(db.Model):  # type: ignore[misc]
     """Model for a FiletoteMappingFormatted."""
 
     _fields = {
-        "artist": db_types.STRING,
-        "albumartist": db_types.STRING,
-        "album": db_types.STRING,
         "albumpath": db_types.STRING,
         "medianame_old": db_types.STRING,
         "medianame_new": db_types.STRING,
