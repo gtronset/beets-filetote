@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.4.1] - 2023-05-15
+
 ### Changed
 
 - Refactor fields to allow Beets Item values <https://github.com/gtronset/beets-filetote/pull/90>
@@ -118,7 +120,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 <!-- Release Links -->
 
-[unreleased]: https://github.com/gtronset/beets-filetote/compare/v0.4.0...HEAD
+[unreleased]: https://github.com/gtronset/beets-filetote/compare/v0.4.1...HEAD
+[0.4.1]: https://github.com/gtronset/beets-filetote/releases/tag/v0.4.1
 [0.4.0]: https://github.com/gtronset/beets-filetote/releases/tag/v0.4.0
 [0.3.3]: https://github.com/gtronset/beets-filetote/releases/tag/v0.3.3
 [0.3.2]: https://github.com/gtronset/beets-filetote/releases/tag/v0.3.2
