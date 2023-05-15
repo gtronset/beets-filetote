@@ -210,11 +210,17 @@ New path queries, from _most_ to _least_ specific:
 
 Renaming has the following considerations:
 
-- The fields available are `$artist`, `$albumartist`, `$album`, `$albumpath`,
-  `$old_filename` (filename of the extra/artifact file before its renamed),
-  `$medianame_old` (filename of the item/track triggering it, _before_
-  its renamed), and `$medianame_new` (filename of the item/track triggering it, _after_
-  its renamed).
+- The fields available include [the standard metadata values] of the imported
+  item (`$albumartist`, `$album`, `$title`, etc.), along with Filetote-specific
+  values of:
+  - `$albumpath`: the entire path of the new destination of the item/track (a
+  useful shorthand for when the extra/artifact file will be moved allongside
+  the item/track)
+  - `$old_filename`: the filename of the extra/artifact file before its renamed
+  - `$medianame_old`: the filename of the item/track triggering it, _before_ it's
+   renamed
+  - `$medianame_new`: the filename of the item/track triggering it, _after_ it's
+  renamed).
 - The full set of [built in functions] are also supported, with the exception of
   `%aunique` - which will return an empty string.
 - `filename:` path query will take precedence over `paired_ext:`, `pattern:`,
@@ -222,6 +228,7 @@ Renaming has the following considerations:
   over `pattern:` and `ext:`, but is not required. `pattern:` is higher
   priority than `ext:`.
 
+[the standard metadata values]: https://beets.readthedocs.io/en/stable/reference/pathformat.html#available-values
 [built in functions]: http://beets.readthedocs.org/en/stable/reference/pathformat.html#functions
 
 Each template string uses a query syntax for each of the file extensions. For
