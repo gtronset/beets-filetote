@@ -1,4 +1,4 @@
-"""Tests renaming fields for the beets-filetote plugin."""
+"""Tests renaming Filetote custom fields for the beets-filetote plugin."""
 
 import logging
 
@@ -9,7 +9,7 @@ from tests.helper import FiletoteTestCase
 log = logging.getLogger("beets")
 
 
-class FiletoteRenameFieldsTest(FiletoteTestCase):
+class FiletoteRenameFiletoteFieldsTest(FiletoteTestCase):
     """
     Tests to check that Filetote renames using Filetote-provided fields as
     expected for custom path formats (both by extension and filename).
@@ -30,48 +30,6 @@ class FiletoteRenameFieldsTest(FiletoteTestCase):
         self._run_importer()
 
         self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"newname.file")
-
-    def test_rename_field_artist(self) -> None:
-        """Tests that the value of `artist` populates in renaming."""
-        config["filetote"]["extensions"] = ".file"
-        config["paths"]["ext:file"] = "$albumpath/$artist - newname"
-
-        self._run_importer()
-
-        self.assert_in_lib_dir(
-            b"Tag Artist", b"Tag Album", b"Tag Artist - newname.file"
-        )
-
-    def test_rename_field_track_title(self) -> None:
-        """Tests that the values of `track` and `title` populate in renaming."""
-        config["filetote"]["extensions"] = ".file"
-        config["paths"]["ext:file"] = "$albumpath/$track - $title - newname"
-
-        self._run_importer()
-
-        self.assert_in_lib_dir(
-            b"Tag Artist", b"Tag Album", b"01 - Tag Title 1 - newname.file"
-        )
-
-    def test_rename_field_albumartist(self) -> None:
-        """Tests that the value of `albumartist` populates in renaming."""
-        config["filetote"]["extensions"] = ".file"
-        config["paths"]["ext:file"] = "$albumpath/$albumartist - newname"
-
-        self._run_importer()
-
-        self.assert_in_lib_dir(
-            b"Tag Artist", b"Tag Album", b"Tag Album Artist - newname.file"
-        )
-
-    def test_rename_field_album(self) -> None:
-        """Tests that the value of `album` populates in renaming."""
-        config["filetote"]["extensions"] = ".file"
-        config["paths"]["ext:file"] = "$albumpath/$album - newname"
-
-        self._run_importer()
-
-        self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"Tag Album - newname.file")
 
     def test_rename_field_old_filename(self) -> None:
         """Tests that the value of `old_filename` populates in renaming."""
