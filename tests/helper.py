@@ -21,6 +21,8 @@ from beetsplug import (  # type: ignore[attr-defined] # pylint: disable=no-name-
 )
 from tests import _common
 
+from ._item_model import MediaMeta
+
 if version_info >= (3, 8):
     from typing import Literal
 else:
@@ -52,22 +54,6 @@ def capture_log(logger: str = "beets") -> Iterator[List[str]]:
         yield capture.messages
     finally:
         logs.removeHandler(capture)
-
-
-@dataclass
-class MediaMeta:
-    # pylint: disable=too-many-instance-attributes
-    """Metadata for created media files."""
-
-    artist: str = "Tag Artist"
-    album: str = "Tag Album"
-    albumartist: str = "Tag Album Artist"
-    title: str = "Tag Title 1"
-    track: str = "1"
-    disc: str = "1"
-    mb_trackid: None = None
-    mb_albumid: None = None
-    comp: None = None
 
 
 @dataclass
@@ -490,7 +476,7 @@ class FiletoteTestCase(_common.TestCase, Assertions, HelperUtils):
                     count=media_file.count,
                     generate_pair=media_file.generate_pair,
                     title_prefix="Super Tag Title ",
-                    disc="2",
+                    disc=2,
                 )
             )
 
@@ -511,7 +497,7 @@ class FiletoteTestCase(_common.TestCase, Assertions, HelperUtils):
         filename_prefix: str = "track_",
         file_type: str = "mp3",
         title_prefix: str = "Tag Title ",
-        disc: str = "1",
+        disc: int = 1,
     ) -> List[MediaFile]:
         # pylint: disable=too-many-arguments
         """
@@ -530,7 +516,7 @@ class FiletoteTestCase(_common.TestCase, Assertions, HelperUtils):
                     ),
                     resource_name=self.get_rsrc_from_file_type(file_type),
                     media_meta=MediaMeta(
-                        title=f"{title_prefix}{count}", track=str(count), disc=disc
+                        title=f"{title_prefix}{count}", track=count, disc=disc
                     ),
                 )
             )
