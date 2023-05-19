@@ -288,7 +288,7 @@ class FiletotePlugin(BeetsPlugin):  # type: ignore[misc]
             "medianame_new": medianame_new,
         }
 
-        # Include all normal Item fields
+        # Include all normal Item fields, using the formatted values
         mapping_meta.update(beets_item.formatted())
 
         return FiletoteMappingModel(**mapping_meta)
