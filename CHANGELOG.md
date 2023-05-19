@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Loosen Python version in Dockerfile <https://github.com/gtronset/beets-filetote/pull/92>
 - Use the formatted version of Item fields <https://github.com/gtronset/beets-filetote/pull/93>
 
 ## [0.4.1] - 2023-05-15
