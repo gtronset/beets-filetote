@@ -12,7 +12,7 @@ log = logging.getLogger("beets")
 class FiletoteRenameFiletoteFieldsTest(FiletoteTestCase):
     """
     Tests to check that Filetote renames using Filetote-provided fields as
-    expected for custom path formats (both by extension and filename).
+    expected for custom path formats.
     """
 
     def setUp(self, audible_plugin: bool = False) -> None:
