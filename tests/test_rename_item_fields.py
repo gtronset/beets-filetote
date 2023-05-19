@@ -78,6 +78,8 @@ class FiletoteRenameItemFieldsTest(FiletoteTestCase):
         """
         Tests that the value of `bpm`, `length`, `format`, and `bitrate` populate
         in renaming.
+
+        `length` will convert from `M:SS` to `M_SS` for path-friendliness.
         """
         config["filetote"]["extensions"] = ".file"
         config["paths"][
