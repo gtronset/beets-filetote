@@ -174,7 +174,8 @@ class FiletotePlugin(BeetsPlugin):  # type: ignore[misc]
                     (filename_prefix, paired_ext_prefix, ext_prefix)
                 )
                 and self.remove_prefix(query, pattern_prefix) == pattern_category
-            ):  # This should pull the corresponding pattern def,
+            ):
+                # This should pull the corresponding pattern def,
                 # Prioritize `filename:` and `paired_ext:` query selectory over
                 # `pattern:`
                 if selected_path_query not in [filename_prefix, paired_ext_prefix]:
@@ -288,7 +289,7 @@ class FiletotePlugin(BeetsPlugin):  # type: ignore[misc]
         }
 
         # Include all normal Item fields
-        mapping_meta.update(beets_item)
+        mapping_meta.update(beets_item.formatted())
 
         return FiletoteMappingModel(**mapping_meta)
 

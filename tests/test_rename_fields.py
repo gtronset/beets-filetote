@@ -50,7 +50,7 @@ class FiletoteRenameFieldsTest(FiletoteTestCase):
         self._run_importer()
 
         self.assert_in_lib_dir(
-            b"Tag Artist", b"Tag Album", b"1 - Tag Title 1 - newname.file"
+            b"Tag Artist", b"Tag Album", b"01 - Tag Title 1 - newname.file"
         )
 
     def test_rename_field_albumartist(self) -> None:
