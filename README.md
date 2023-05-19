@@ -7,7 +7,7 @@
 [![PyPI - Python Version][pypi_python_versions]][pypi_link]
 
 A plugin that moves non-music extra files, attachments, and artifacts during
-the import process for [beets](http://beets.radbox.org/), a music library
+the import process for [beets](https://beets.io/), a music library
 manager (and much more!).
 
 ## Installing
