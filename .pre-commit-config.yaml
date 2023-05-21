@@ -50,7 +50,7 @@ repos:
       args: [--ignore-missing-imports]
 
   - repo: https://github.com/python-poetry/poetry
-    rev: '1.4.0'
+    rev: '1.5.0'
     hooks:
       - id: poetry-check
         stages: [push]
@@ -72,7 +72,7 @@ repos:
           ]
 
   - repo: https://github.com/crate-ci/typos
-    rev: 'v1.14.9'
+    rev: 'typos-dict-v0.9.27'
     hooks:
       - id: typos
         exclude: "(_typos.toml|.gitignore)"
