@@ -363,7 +363,7 @@ and extending renaming options. What's more, significant focus has been provided
 to Filetote around Python3 conventions, linting, and typing in order to promote
 healthier code and easier maintenance.
 
-Filetote strives to encompass all fonctionality that _both_ `copyfilertifacts`
+Filetote strives to encompass all functionality that _both_ `copyfilertifacts`
 and `extrafiles` provide, and then some!
 
 [`copyfilertifacts` plugin]: https://github.com/adammillerio/beets-copyartifacts
