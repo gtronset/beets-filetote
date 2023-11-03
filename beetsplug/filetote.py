@@ -1,4 +1,5 @@
 """beets-filetote plugin for beets."""
+
 import filecmp
 import fnmatch
 import os
