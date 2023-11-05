@@ -22,8 +22,9 @@ class FiletoteNoFilesizeErrorTest(FiletoteTestCase):
 
     def test_no_filesize_error(self) -> None:
         """
-        Tests that when `print_ignored` is enabled, it prints out all files not handled
-        by Filetote.
+        Tests to ensure no "could not get filesize" error occurs by confirming no
+        warning log is emitted and ensuring the hidden filesize metadata value is
+        not `0`.
         """
         config["filetote"]["extensions"] = ".file .lrc"
         config["paths"]["ext:file"] = "$albumpath/filesize - ${filesize}b"
