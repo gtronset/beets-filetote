@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- Fix "cannot find the file specified" bug <https://github.com/gtronset/beets-filetote/pull/115>
+
 ### Changed
 
 - Add support for Python 3.12 (py312) <https://github.com/gtronset/beets-filetote/pull/114>
