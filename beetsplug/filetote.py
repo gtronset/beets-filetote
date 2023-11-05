@@ -54,7 +54,7 @@ class FiletotePlugin(BeetsPlugin):  # type: ignore[misc]
         self._dirs_seen: List[str] = []
 
         move_events: List[str] = [
-            "item_moved",
+            "before_item_moved",
             "item_copied",
             "item_linked",
             "item_hardlinked",
