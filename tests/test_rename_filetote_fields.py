@@ -20,7 +20,7 @@ class FiletoteRenameFiletoteFieldsTest(FiletoteTestCase):
         super().setUp()
 
         self._create_flat_import_dir()
-        self._setup_import_session(autotag=False)
+        self._setup_import_session(autotag=False, move=True)
 
     def test_rename_field_albumpath(self) -> None:
         """Tests that the value of `albumpath` populates in renaming."""
