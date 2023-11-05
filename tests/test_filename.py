@@ -7,7 +7,9 @@ import pytest
 from beets import config
 
 from tests import _common
-from tests.helper import FiletoteTestCase, MediaMeta
+from tests.helper import FiletoteTestCase
+
+from ._item_model import MediaMeta
 
 
 class FiletoteFilename(FiletoteTestCase):

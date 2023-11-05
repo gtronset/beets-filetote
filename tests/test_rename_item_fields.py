@@ -111,8 +111,6 @@ class FiletoteRenameItemFieldsTest(FiletoteTestCase):
         self.assert_in_lib_dir(
             b"Tag Artist",
             b"Tag Album",
-            (
-                b"someID-3 - someID-2 (someID-4) - someID-1 someID-5 - Tag work"
-                b" musicbrainz id.file"
-            ),
+            b"someID-3 - someID-2 (someID-4) - someID-1 someID-5 - Tag work"
+            b" musicbrainz id.file",
         )
