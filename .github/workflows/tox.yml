@@ -32,6 +32,8 @@ jobs:
           - python-version: "3.11"
             os: ubuntu-latest
             tox-env: py311
+          - python-version: "3.12"
+            tox-env: py312
     env:
       TOXENV: ${{ matrix.tox-env }}
     runs-on: ${{ matrix.os }}
@@ -58,7 +60,7 @@ jobs:
       - name: Setup Python
         uses: actions/setup-python@v4
         with:
-          python-version: "3.11"
+          python-version: "3.12"
 
       - name: Install Python dependencies
         run: |

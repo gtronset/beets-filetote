@@ -1,7 +1,7 @@
 name: Pre-commit Updater
 on:
   schedule:
-    - cron: '0 4 * * 0'
+    - cron: "0 4 * * 0"
   workflow_dispatch:
 jobs:
   auto-update:
@@ -12,7 +12,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
-          python-version: '3.11'
+          python-version: "3.12"
 
       - name: Install pre-commit
         run: pip install pre-commit
