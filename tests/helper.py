@@ -65,7 +65,7 @@ class MediaSetup:
     generate_pair: bool = True
 
 
-# More may be expanded as testing becomes more sophisticated.
+# More types may be expanded as testing becomes more sophisticated.
 RSRC_TYPES = {
     "mp3": b"full.mp3",
     # 'aac':  b"full.aac",
