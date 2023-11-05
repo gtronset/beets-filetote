@@ -12,7 +12,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-version: ["3.7", "3.8", "3.9", "3.10", "3.12"]
+        python-version: ["3.7", "3.8", "3.9", "3.10"]
         os: [ubuntu-latest, windows-latest]
         include:
           - python-version: "3.6"
@@ -33,11 +33,12 @@ jobs:
             os: ubuntu-latest
             tox-env: py311
           - python-version: "3.12"
+            os: ubuntu-latest
             tox-env: py312
     env:
       TOXENV: ${{ matrix.tox-env }}
     runs-on: ${{ matrix.os }}
-    continue-on-error: ${{ matrix.os == 'windows-latest' && matrix.python-version == '3.11' }}
+    # continue-on-error: ${{ matrix.os == 'windows-latest' && matrix.python-version == '3.11' }}
     steps:
       - uses: actions/checkout@v3
       - name: Setup Python ${{ matrix.python-version }}
