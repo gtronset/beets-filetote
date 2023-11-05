@@ -33,14 +33,14 @@ class FiletoteNoFilesizeErrorTest(FiletoteTestCase):
 
         self.assert_not_in_lib_dir(b"Tag Artist", b"Tag Album", b"artifact.nfo")
 
-        self.assert_in_lib_dir(
-            b"Tag Artist",
-            b"Tag Album",
-            b"filesize - 12820b.file",
-        )
-
         # check output log
         matching_logs = [
             line for line in logs if line.startswith("could not get filesize:")
         ]
         assert not matching_logs
+
+        self.assert_in_lib_dir(
+            b"Tag Artist",
+            b"Tag Album",
+            b"filesize - 12820b.file",
+        )
