@@ -1,34 +1,26 @@
+from collections.abc import Generator, Sequence
 from enum import Enum
 from logging import Logger
-from typing import (
-    Any,
-    AnyStr,
-    Generator,
-    List,
-    Optional,
-    Pattern,
-    Sequence,
-    Tuple,
-    Union,
-)
+from re import Pattern
+from typing import Any, AnyStr
 
 from typing_extensions import TypeAlias
 
-Bytes_or_String: TypeAlias = Union[str, bytes]
+Bytes_or_String: TypeAlias = str | bytes
 
-def ancestry(path: bytes) -> List[str]: ...
+def ancestry(path: bytes) -> list[str]: ...
 def displayable_path(
-    path: Union[bytes, str, Tuple[Union[bytes, str], ...]],
+    path: Bytes_or_String | tuple[Bytes_or_String, ...],
     separator: str = "; ",
 ) -> str: ...
 def normpath(path: bytes) -> bytes: ...
 def sanitize_path(
     path: str,
-    replacements: Optional[Sequence[Sequence[Union[Pattern[Any], str]]]] = None,
+    replacements: Sequence[Sequence[Pattern[Any] | str]] | None = None,
 ) -> str: ...
 def unique_path(path: bytes) -> bytes: ...
 def bytestring_path(path: Bytes_or_String) -> bytes: ...
-def py3_path(path: Union[bytes, str]) -> str: ...
+def py3_path(path: Bytes_or_String) -> str: ...
 def mkdirall(path: bytes) -> None: ...
 def syspath(path: bytes, prefix: bool = True) -> Bytes_or_String: ...
 def copy(path: bytes, dest: bytes, replace: bool = False) -> None: ...
@@ -43,15 +35,15 @@ def reflink(
 def hardlink(path: bytes, dest: bytes, replace: bool = False) -> None: ...
 def prune_dirs(
     path: bytes,
-    root: Optional[Bytes_or_String] = None,
+    root: Bytes_or_String | None = None,
     clutter: Sequence[str] = (".DS_Store", "Thumbs.db"),
 ) -> None: ...
 def sorted_walk(
     path: AnyStr,
-    ignore: Optional[Sequence[Bytes_or_String]] = (),
+    ignore: Sequence[Bytes_or_String] | None = (),
     ignore_hidden: bool = False,
-    logger: Optional[Logger] = None,
-) -> Generator[Tuple[bytes, List[bytes], List[bytes]], None, None]: ...
+    logger: Logger | None = None,
+) -> Generator[tuple[bytes, list[bytes], list[bytes]], None, None]: ...
 
 class MoveOperation(Enum):
     MOVE = 0

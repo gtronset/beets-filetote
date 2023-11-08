@@ -1,28 +1,27 @@
-from typing import Any, Callable, Dict, List, Optional, Tuple
+from collections.abc import Callable
+from typing import Any
 
 from .dbcore import Database
 from .dbcore.db import Model
 
 class DefaultTemplateFunctions:
-    def functions(self) -> Dict[str, Callable[..., Any]]: ...
+    def functions(self) -> dict[str, Callable[..., Any]]: ...
 
 class Library(Database):
+    directory: bytes
+    path_formats: list[tuple[str, str]]
+    replacements: list[str] | None
     def __init__(
         self,
         path: bytes,
         directory: str = "~/Music",
-        path_formats: List[Tuple[str, str]] = [
-            ("default", "$artist/$album/$track $title")
-        ],
-        replacements: Optional[List[str]] = None,
-    ):
-        self.directory: bytes
-        self.path_formats: List[Tuple[str, str]] = path_formats
-        self.replacements: Optional[List[str]] = replacements
+        path_formats: list[tuple[str, str]] = [],
+        replacements: list[str] | None = None,
+    ): ...
 
-class LibModel(Model):
-    pass
+class LibModel(Model): ...
 
 class Item(LibModel):
-    def __init__(self) -> None:
-        self.path: bytes
+    path: bytes
+
+    def __init__(self) -> None: ...

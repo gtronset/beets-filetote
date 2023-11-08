@@ -1,14 +1,14 @@
-from typing import Any, Callable, Dict, List
+from collections.abc import Callable
+from typing import Any
 
 from ..dbcore.db import FormattedMapping
 
 class Template:
-    def __init__(self, template: str) -> None:
-        self.expr: List[Any]
-        self.original: str
-
+    expr: list[Any]
+    original: str
+    def __init__(self, template: str) -> None: ...
     def substitute(
         self,
         values: FormattedMapping,
-        functions: Dict[str, Callable[..., str]] = {},
+        functions: dict[str, Callable[..., str]] = {},
     ) -> str: ...

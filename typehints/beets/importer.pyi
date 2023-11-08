@@ -1,20 +1,17 @@
 from logging import Logger
-from typing import List, Optional
 
 from beets import library
 
 class ImportSession:
+    lib: library.Library
+    logger: Logger | None
+    paths: list[bytes]
+    query: str | None
     def __init__(
         self,
         lib: library.Library,
-        loghandler: Optional[Logger],
-        paths: List[bytes],
-        query: Optional[str],
-    ):
-        self.lib: library.Library
-        self.logger: Optional[Logger]
-        self.paths: List[bytes]
-        self.query: Optional[str]
-
-    def run(self) -> None:
-        pass
+        loghandler: Logger | None,
+        paths: list[bytes],
+        query: str | None,
+    ): ...
+    def run(self) -> None: ...

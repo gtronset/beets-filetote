@@ -1,22 +1,20 @@
+from collections.abc import Callable
 from logging import Logger
-from typing import Any, Callable, Dict, List, Optional, Set
+from typing import Any
 
 from beets import config
 
 class BeetsPlugin:
-    def __init__(self, name: Optional[str] = None):
-        """Perform one-time plugin setup."""
-        self.name: str = name or self.__module__.split(".")[-1]
-        self.config = config[self.name]
-
-        self._log: Logger
-
+    name: str
+    config = config
+    _log: Logger
+    def __init__(self, name: str | None = None): ...
     def register_listener(self, event: str, func: Callable[..., Any]) -> None: ...
 
-def send(event: str, **arguments: Any) -> List[Any]: ...
-def find_plugins() -> List[Any]: ...
-def load_plugins(names: List[str]) -> None: ...
+def send(event: str, **arguments: Any) -> list[Any]: ...
+def find_plugins() -> list[Any]: ...
+def load_plugins(names: list[str]) -> None: ...
 
-_instances: Dict[Any, Any]
+_instances: dict[Any, Any]
 
-_classes: Set[Any]
+_classes: set[Any]

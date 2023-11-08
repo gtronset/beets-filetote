@@ -1,24 +1,22 @@
-from typing import Any, List, Optional
+from typing import Any
 
-class ConfigView(object):
+class ConfigView:
     def __getitem__(self, key: str) -> Any: ...
     def __setitem__(self, key: str, value: Any) -> Any: ...
 
 class RootView(ConfigView):
-    def __init__(self, sources: List[Any]):
-        self.sources: List[Any] = list(sources)
+    sources: list[Any]
+    def __init__(self, sources: list[Any]): ...
 
 class Configuration(RootView):
     def __init__(
         self,
         appname: str,
-        modname: Optional[str] = None,
+        modname: str | None = None,
         read: bool = True,
-    ):
-        super(Configuration, self).__init__([])
+    ): ...
 
 class LazyConfig(Configuration):
-    def __init__(self, appname: str, modname: Optional[str] = None):
-        super(LazyConfig, self).__init__(appname, modname, False)
-
+    def __init__(self, appname: str, modname: str | None = None): ...
+    def add(self, value: dict[str, Any]) -> None: ...
     def clear(self) -> None: ...
