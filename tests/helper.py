@@ -373,7 +373,7 @@ class FiletoteTestCase(_common.TestCase, Assertions, HelperUtils):
         for media_file in media_files:
             media_file_count += media_file.count
 
-            media_list.append(
+            media_list.extend(
                 self._generate_paired_media_list(
                     album_path=album_path,
                     file_type=media_file.file_type,
@@ -456,7 +456,7 @@ class FiletoteTestCase(_common.TestCase, Assertions, HelperUtils):
         for media_file in disc1_media_files:
             media_file_count += media_file.count
 
-            media_list.append(
+            media_list.extend(
                 self._generate_paired_media_list(
                     album_path=disc1_path,
                     file_type=media_file.file_type,
@@ -468,7 +468,7 @@ class FiletoteTestCase(_common.TestCase, Assertions, HelperUtils):
         for media_file in disc2_media_files:
             media_file_count += media_file.count
 
-            media_list.append(
+            media_list.extend(
                 self._generate_paired_media_list(
                     album_path=disc2_path,
                     filename_prefix="supertrack_",

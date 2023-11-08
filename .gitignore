@@ -7,7 +7,7 @@ __pycache__/
 dist/
 build/
 env/
-beets/
+./beets/
 *.egg-info/
 .vscode/
 .DS_Store

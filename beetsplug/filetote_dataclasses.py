@@ -20,7 +20,7 @@ else:
 class FiletoteArtifact:
     """An individual FileTote Artifact item for processing."""
 
-    path: str
+    path: bytes
     paired: bool
 
 
@@ -30,7 +30,7 @@ class FiletoteArtifactCollection:
 
     artifacts: List[FiletoteArtifact]
     mapping: FiletoteMappingModel
-    source_path: str
+    source_path: bytes
 
 
 @dataclass

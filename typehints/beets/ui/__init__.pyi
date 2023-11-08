@@ -1,0 +1,3 @@
+from typing import Any, List, Optional, Tuple
+
+def get_path_formats(subview: Optional[Any] = None) -> List[Tuple[str, str]]: ...
