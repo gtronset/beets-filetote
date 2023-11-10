@@ -72,8 +72,6 @@ max-line-length = '88'
 output-format = 'colorized'
 
 [tool.mypy]
-# FIXME: Would be better to write stubs. For now, silence errors
-ignore_missing_imports = false
 mypy_path = ["./typehints"]
 strict=true
 pretty=true
