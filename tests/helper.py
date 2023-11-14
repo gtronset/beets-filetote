@@ -222,7 +222,7 @@ class FiletoteTestCase(_common.TestCase, Assertions, HelperUtils):
 
         self.import_dir: bytes = b""
         self.import_media: Optional[List[MediaFile]] = None
-        self.importer: Optional[importer.ImportSession] = None
+        self.importer: Optional["importer.ImportSession"] = None
         self.paths: Optional[bytes] = None
 
         # Install the DummyIO to capture anything directed to stdout
