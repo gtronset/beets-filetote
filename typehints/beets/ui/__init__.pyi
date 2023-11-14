@@ -1,3 +1,5 @@
 from typing import Any
 
-def get_path_formats(subview: Any | None = None) -> list[tuple[str, str]]: ...
+from beets.util.functemplate import Template
+
+def get_path_formats(subview: Any | None = None) -> list[tuple[str, Template]]: ...

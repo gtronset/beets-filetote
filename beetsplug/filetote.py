@@ -12,6 +12,7 @@ from beets.ui import get_path_formats
 from beets.util import MoveOperation
 from beets.util.functemplate import Template
 from mediafile import TYPES as BEETS_FILE_TYPES
+from typeguard import typechecked
 
 from .filetote_dataclasses import (
     FiletoteArtifact,
@@ -24,7 +25,10 @@ if TYPE_CHECKING:
     from beets.importer import ImportSession
     from beets.library import Item, Library
 
+# if "PYTEST_CURRENT_TEST" in os.environ:
 
+
+@typechecked
 class FiletotePlugin(BeetsPlugin):
     """Plugin main class. Eventually, should encompass additional features as
     described in https://github.com/beetbox/beets/wiki/Attachments."""
@@ -35,11 +39,13 @@ class FiletotePlugin(BeetsPlugin):
         # Set default plugin config settings
         self.config.add(FiletoteConfig().asdict())
 
+        config_paths: Dict[str, Union[str, Template]] = self.config["paths"].get(dict)
+
         self.filetote: FiletoteConfig = FiletoteConfig(
             extensions=self.config["extensions"].as_str_seq(),
             filenames=self.config["filenames"].as_str_seq(),
             patterns=self.config["patterns"].get(dict),
-            paths=self.config["paths"].get(dict),
+            paths=self._templatize_config_paths(config_paths),
             exclude=self.config["exclude"].as_str_seq(),
             print_ignored=self.config["print_ignored"].get(),
         )
@@ -48,7 +54,9 @@ class FiletotePlugin(BeetsPlugin):
 
         queries: List[str] = ["ext:", "filename:", "paired_ext:", "pattern:"]
 
-        self._path_formats: Dict[str, str] = self._get_filetote_path_formats(queries)
+        self._path_formats: Dict[str, Template] = self._get_filetote_path_formats(
+            queries
+        )
         self._process_queue: List[FiletoteArtifactCollection] = []
         self._shared_artifacts: Dict[bytes, List[bytes]] = {}
         self._dirs_seen: List[bytes] = []
@@ -67,14 +75,14 @@ class FiletotePlugin(BeetsPlugin):
         self.register_listener("import_begin", self._register_session_settings)
         self.register_listener("cli_exit", self.process_events)
 
-    def _get_filetote_path_formats(self, queries: List[str]) -> Dict[str, str]:
+    def _get_filetote_path_formats(self, queries: List[str]) -> Dict[str, Template]:
         """
         Gets all `path` formats from beets and parses those set for Filetote.
         First sets those from the Beet's `path` node then sets them from
         Filetote's node, overriding when needed to give priority to Filetote's
         definitions.
         """
-        path_formats: Dict[str, str] = {}
+        path_formats: Dict[str, Template] = {}
 
         for beets_path_format in get_path_formats():
             for query in queries:
@@ -139,7 +147,7 @@ class FiletotePlugin(BeetsPlugin):
         artifact_ext: str,
         paired: bool,
         pattern_category: Optional[str] = None,
-    ) -> Tuple[Optional[str], Optional[str]]:
+    ) -> Tuple[Optional[str], Optional[Template]]:
         """
         Calculate the best path query format, prioritizing:
 
@@ -151,7 +159,7 @@ class FiletotePlugin(BeetsPlugin):
         full_filename = util.displayable_path(artifact_filename)
 
         selected_path_query: Optional[str] = None
-        selected_path_format: Optional[str] = None
+        selected_path_format: Optional[Template] = None
 
         for query, path_format in self._path_formats.items():
             filename_prefix: str = "filename:"
@@ -280,6 +288,15 @@ class FiletotePlugin(BeetsPlugin):
             subpath_tmpl = Template(path_format)
 
         return subpath_tmpl
+
+    def _templatize_config_paths(
+        self, paths: Dict[str, Union[str, Template]]
+    ) -> Dict[str, Template]:
+        """Ensures that the path format is a Beets Template."""
+        templatized_paths: Dict[str, Template] = {}
+        for path_key, path_value in paths.items():
+            templatized_paths[path_key] = self._templatize_path_format(path_value)
+        return templatized_paths
 
     def _generate_mapping(
         self, beets_item: "Item", destination: bytes

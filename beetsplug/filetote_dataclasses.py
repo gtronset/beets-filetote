@@ -7,6 +7,7 @@ from typing import Any, Dict, List, Optional, Union
 
 from beets.library import Library
 from beets.util import MoveOperation
+from beets.util.functemplate import Template
 
 from .mapping_model import FiletoteMappingModel
 
@@ -67,7 +68,7 @@ class FiletoteConfig:
     patterns: Dict[str, List[str]] = field(default_factory=dict)
     exclude: Union[Literal[""], List[str]] = ""
     pairing: FiletotePairingData = field(default_factory=FiletotePairingData)
-    paths: Dict[str, str] = field(default_factory=dict)
+    paths: Dict[str, Template] = field(default_factory=dict)
     print_ignored: bool = False
 
     def asdict(self) -> dict:  # type: ignore[type-arg]
