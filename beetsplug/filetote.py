@@ -46,7 +46,14 @@ class FiletotePlugin(BeetsPlugin):
             print_ignored=self.config["print_ignored"].get(bool),
         )
 
-        self.filetote.adjust("pairing", self.config["pairing"].get(dict))
+        self.filetote.adjust(
+            "pairing",
+            {
+                "enabled": self.config["pairing"]["enabled"].get(bool),
+                "pairing_only": self.config["pairing"]["pairing_only"].get(bool),
+                "extensions": self.config["pairing"]["extensions"].as_str_seq(),
+            },
+        )
 
         queries: List[str] = ["ext:", "filename:", "paired_ext:", "pattern:"]
 
