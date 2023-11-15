@@ -21,7 +21,7 @@ from .filetote_dataclasses import (
 from .mapping_model import FiletoteMappingFormatted, FiletoteMappingModel
 
 if TYPE_CHECKING:
-    from beets.importer import ImportSession
+    from beets import importer
     from beets.library import Item, Library
 
 
@@ -89,7 +89,7 @@ class FiletotePlugin(BeetsPlugin):
 
         return path_formats
 
-    def _register_session_settings(self, session: "ImportSession") -> None:
+    def _register_session_settings(self, session: "importer.ImportSession") -> None:
         """
         Certain settings are only available and/or finalized once the
         Beets import session begins.
