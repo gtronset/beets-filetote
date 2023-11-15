@@ -51,7 +51,7 @@ jobs:
       - name: Run tox
         run: |
           python -m tox --discover $(which python)
-          python -m tox -e pytest
+          python -m tox
         shell: bash
 
   lint:
