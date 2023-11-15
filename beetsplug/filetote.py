@@ -3,7 +3,7 @@
 import filecmp
 import fnmatch
 import os
-from typing import TYPE_CHECKING, Dict, List, Optional, Tuple, Union
+from typing import TYPE_CHECKING, Any, Dict, List, Optional, Tuple, Union
 
 from beets import config, util
 from beets.library import DefaultTemplateFunctions
@@ -35,7 +35,7 @@ class FiletotePlugin(BeetsPlugin):
         # Set default plugin config settings
         self.config.add(FiletoteConfig().asdict())
 
-        config_paths: Dict[str, Union[str, Template]] = self.config["paths"].get(dict)
+        config_paths: Dict[str, Any] = self.config["paths"].get(dict)
 
         self.filetote: FiletoteConfig = FiletoteConfig(
             extensions=self.config["extensions"].as_str_seq(),
@@ -43,7 +43,7 @@ class FiletotePlugin(BeetsPlugin):
             patterns=self.config["patterns"].get(dict),
             paths=self._templatize_config_paths(config_paths),
             exclude=self.config["exclude"].as_str_seq(),
-            print_ignored=self.config["print_ignored"].get(),
+            print_ignored=self.config["print_ignored"].get(bool),
         )
 
         self.filetote.adjust("pairing", self.config["pairing"].get(dict))
