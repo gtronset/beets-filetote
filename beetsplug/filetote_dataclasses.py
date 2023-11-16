@@ -21,6 +21,11 @@ if version_info >= (3, 10):
 else:
     from typing_extensions import TypeAlias  # pylint: disable=import-error
 
+FieldType: TypeAlias = Any
+
+if version_info >= (3, 9):
+    FieldType = Field[Any]  # type: ignore[misc]
+
 
 StrSeq: TypeAlias = List[str]
 OptionalStrSeq: TypeAlias = Union[Literal[""], StrSeq]
@@ -88,9 +93,7 @@ class FiletotePairingData:
             if field_.name == "extensions":
                 self._validate_pairing_extensions(field_, field_value)
 
-    def _validate_pairing_extensions(
-        self, field_: Field[Any], field_value: Any
-    ) -> None:
+    def _validate_pairing_extensions(self, field_: FieldType, field_value: Any) -> None:
         if field_value != DEFAULT_ALL_GLOB and not isinstance(field_value, list):
             raise TypeError(
                 f'Value for Filetote Pairing config key "{field_.name}" should be the'
@@ -179,7 +182,7 @@ class FiletoteConfig:
                     f" `{field_type}`, got {type(field_value)}."
                 )
 
-    def _validate_str_eq(self, field_: Field[Any], field_value: Any) -> None:
+    def _validate_str_eq(self, field_: FieldType, field_value: Any) -> None:
         if field_value != DEFAULT_EMPTY and not isinstance(field_value, list):
             raise TypeError(
                 f'Value for Filetote config key "{field_.name}" should be a empty'
