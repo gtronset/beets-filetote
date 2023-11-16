@@ -3,7 +3,7 @@ data used in processing extra files/artifacts. """
 
 from dataclasses import Field, asdict, dataclass, field, fields
 from sys import version_info
-from typing import Any, Dict, List, Optional, TypeAlias, Union
+from typing import Any, Dict, List, Optional, Union
 
 from beets.library import Library
 from beets.util import MoveOperation
@@ -15,6 +15,11 @@ if version_info >= (3, 8):
     from typing import Literal
 else:
     from typing_extensions import Literal  # type: ignore # pylint: disable=import-error
+
+if version_info >= (3, 10):
+    from typing import TypeAlias
+else:
+    from typing_extensions import TypeAlias  # pylint: disable=import-error
 
 
 StrSeq: TypeAlias = List[str]
