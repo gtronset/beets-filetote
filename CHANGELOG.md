@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- Reevaluate & fix types (now with stubs!) <https://github.com/gtronset/beets-filetote/pull/119>
+
 ## [0.4.3] - 2023-10-05
 
 ### Fixed
