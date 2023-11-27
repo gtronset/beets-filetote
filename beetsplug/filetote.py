@@ -75,7 +75,10 @@ class FiletotePlugin(BeetsPlugin):
         for move_event in move_events:
             self.register_listener(move_event, self.collect_artifacts)
 
+        self.register_listener("pluginload", self._register_additional_file_types)
+
         self.register_listener("import_begin", self._register_session_settings)
+
         self.register_listener("cli_exit", self.process_events)
 
     def _get_filetote_path_formats(self, queries: List[str]) -> Dict[str, Template]:
@@ -96,16 +99,12 @@ class FiletotePlugin(BeetsPlugin):
 
         return path_formats
 
-    def _register_session_settings(self, session: "ImportSession") -> None:
+    def _register_additional_file_types(self) -> None:
         """
-        Certain settings are only available and/or finalized once the
-        Beets import session begins.
-
-        This also augments the file type list of what is considered a music
+        This augments the file type list of what is considered a music
         file or media, since MediaFile.TYPES isn't fundamentally a complete
         list of files by extension.
         """
-
         BEETS_FILE_TYPES.update({
             "m4a": "M4A",
             "wma": "WMA",
@@ -114,6 +113,12 @@ class FiletotePlugin(BeetsPlugin):
 
         if "audible" in config["plugins"].get():
             BEETS_FILE_TYPES.update({"m4b": "M4B"})
+
+    def _register_session_settings(self, session: "ImportSession") -> None:
+        """
+        Certain settings are only available and/or finalized once the
+        Beets import session begins.
+        """
 
         self.filetote.session.adjust("operation", self._operation_type())
         self.filetote.session.import_path = os.path.expanduser(session.paths[0])

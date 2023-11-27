@@ -158,3 +158,22 @@ class FiletoteCLIOperation(FiletoteTestCase):
             b"Tag Album",
             beets.util.bytestring_path("\xe4rtifact.file"),
         )
+
+    # def test_move_on_move_command(self) -> None:
+    #     """
+    #     Check that plugin detects the correct operation for the "move" (or "mv")
+    #     command.
+    #     """
+    #     self._create_flat_import_dir()
+
+    #     self._run_mover()
+
+    #     self.assert_not_in_import_dir(
+    #         b"the_album",
+    #         b"artifact.file",
+    #     )
+
+    #     self.assert_in_lib_dir(b"the_album", b"artifact.file")
+    #     self.assert_in_lib_dir(b"the_album", b"artifact2.file")
+    #     self.assert_in_lib_dir(b"the_album", b"artifact.nfo")
+    #     self.assert_in_lib_dir(b"the_album", b"artifact.lrc")
