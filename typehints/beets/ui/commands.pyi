@@ -1,13 +1,11 @@
-from typing import Optional
-
 from beets.library import Library
 
 def move_items(
     lib: Library,
-    dest: Optional[bytes],
+    dest: bytes | None,
     query: str,
     copy: bool,
-    album: Optional[str],
+    album: str | None,
     pretend: bool,
     confirm: bool = False,
     export: bool = False,

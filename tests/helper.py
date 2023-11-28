@@ -263,6 +263,8 @@ class FiletoteTestCase(_common.TestCase, Assertions, HelperUtils):
             config["plugins"] = ["filetote"]
             plugins.load_plugins(["filetote"])
 
+        plugins.send("pluginload")
+
     def unload_plugins(self) -> None:
         # pylint: disable=protected-access
         """Unload all plugins and remove the from the configuration."""
