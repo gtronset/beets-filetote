@@ -6,7 +6,7 @@ import shutil
 from contextlib import contextmanager
 from dataclasses import asdict, dataclass
 from sys import version_info
-from typing import Iterator, List, Optional
+from typing import Dict, Iterator, List, Optional
 
 from beets import config, library, plugins, util
 from beets.importer import ImportSession
@@ -337,6 +337,7 @@ class FiletoteTestCase(_common.TestCase, Assertions, HelperUtils):
         Create an instance of the plugin, run the "move" command, and
         remove/unregister the plugin instance so a new instance can
         be created when this method is run again.
+
         This is a convenience method that can be called to setup, exercise
         and teardown the system under test after setting any config options
         and before assertions are made regarding changes to the filesystem.
@@ -355,7 +356,60 @@ class FiletoteTestCase(_common.TestCase, Assertions, HelperUtils):
             copy=copy,
             album=album,
             pretend=pretend,
+            confirm=False,
             export=export,
+        )
+
+        # Fake the occurrence of the cli_exit event
+        plugins.send("cli_exit", lib=self.lib)
+
+        # Teardown Plugins
+        self.unload_plugins()
+
+        log.debug("--- library structure")
+        self.list_files(self.lib_dir)
+
+        if self.paths:
+            log.debug("--- source structure after import")
+            self.list_files(self.paths)
+
+    def _run_modify(  # pylint: disable=too-many-arguments
+        self,
+        query: str,
+        mods: Optional[Dict[str, str]] = None,
+        dels: Optional[Dict[str, str]] = None,
+        write: bool = True,
+        move: bool = True,
+        album: Optional[str] = None,
+    ) -> None:
+        """
+        Create an instance of the plugin, run the "modify" command, and
+        remove/unregister the plugin instance so a new instance can
+        be created when this method is run again.
+
+        This is a convenience method that can be called to setup, exercise
+        and teardown the system under test after setting any config options
+        and before assertions are made regarding changes to the filesystem.
+        """
+        mods = mods or {}
+        dels = dels or {}
+
+        # Setup
+        # Create an instance of the plugin
+        plugins.find_plugins()
+
+        plugins.send("pluginload")
+
+        # Run the move command
+        commands.modify_items(
+            lib=self.lib,
+            mods=mods,
+            dels=dels,
+            query=query,
+            write=write,
+            move=move,
+            album=album,
+            confirm=False,
         )
 
         # Fake the occurrence of the cli_exit event
