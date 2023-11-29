@@ -3,17 +3,7 @@
 import filecmp
 import fnmatch
 import os
-from typing import (
-    TYPE_CHECKING,
-    Any,
-    Callable,
-    Dict,
-    List,
-    Literal,
-    Optional,
-    Tuple,
-    Union,
-)
+from typing import TYPE_CHECKING, Any, Callable, Dict, List, Optional, Tuple, Union
 
 from beets import config, util
 from beets.library import DefaultTemplateFunctions
@@ -757,9 +747,7 @@ class FiletotePlugin(BeetsPlugin):
 
         (reimport, root_path) = self._is_reimport(library_dir, import_path)
 
-        operation: Optional[Union[Literal["REIMPORT"], MoveOperation]] = (
-            self.filetote.session.operation
-        )
+        operation: Optional[Union[str, MoveOperation]] = self.filetote.session.operation
 
         if reimport:
             operation = "REIMPORT"
