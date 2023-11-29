@@ -768,10 +768,9 @@ class FiletotePlugin(BeetsPlugin):
 
         (reimport, root_path) = self._is_reimport(library_dir, import_path)
 
-        operation: Optional[Union[str, MoveOperation]] = self.filetote.session.operation
-
-        if reimport:
-            operation = "REIMPORT"
+        operation: Optional[Union[str, MoveOperation]] = (
+            "REIMPORT" if reimport else self.filetote.session.operation
+        )
 
         self._log.info(
             f"{operation}-ing artifact:"
