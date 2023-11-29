@@ -64,7 +64,26 @@ class FiletotePlugin(BeetsPlugin):
         self._shared_artifacts: Dict[bytes, List[bytes]] = {}
         self._dirs_seen: List[bytes] = []
 
-        move_events: List[str] = [
+        self._register_file_operation_events()
+
+    def _register_file_operation_events(self) -> None:
+        """
+        Registers various file operation events and their corresponding functions.
+
+        This method creates functions for file operation events like moving, copying,
+        linking, etc., and registers them as listeners for corresponding Beets events.
+        It also registers other necessary listeners for plugin functionality
+        (`pluginload`, `import_begin`, and `cli_exit`) which do not utilize generated
+        function wrappers.
+
+        These functions act as wrappers for Beets events, forwarding the event name
+        to the target function (e.g., 'move_event_listener()') along with any additional
+        event-specific arguments.
+
+        Note: The `file_operation_event_functions` dictionary stores the event name and
+        its corresponding generated function.
+        """
+        file_operation_events: List[str] = [
             "before_item_moved",
             "item_copied",
             "item_linked",
@@ -72,14 +91,14 @@ class FiletotePlugin(BeetsPlugin):
             "item_reflinked",
         ]
 
-        move_event_functions = {}
+        file_operation_event_functions: Dict[str, Callable[..., None]] = {}
 
-        for move_event in move_events:
-            move_event_functions[move_event] = self._move_event_function_builder(
-                move_event
+        for event in file_operation_events:
+            file_operation_event_functions[event] = self._build_file_event_function(
+                event
             )
 
-            self.register_listener(move_event, move_event_functions[move_event])
+            self.register_listener(event, file_operation_event_functions[event])
 
         self.register_listener("pluginload", self._register_additional_file_types)
 
@@ -87,14 +106,14 @@ class FiletotePlugin(BeetsPlugin):
 
         self.register_listener("cli_exit", self.process_events)
 
-    def _move_event_function_builder(self, event: str) -> Callable[..., None]:
+    def _build_file_event_function(self, event: str) -> Callable[..., None]:
         """Builds a wrapper function for beets events that passes the event name to the
         target function."""
 
-        def move_event_function(**kwargs: Any) -> None:
-            self.move_event_listener(event, **kwargs)
+        def file_event_function(**kwargs: Any) -> None:
+            self.file_operation_event_listener(event, **kwargs)
 
-        return move_event_function
+        return file_event_function
 
     def _get_filetote_path_formats(self, queries: List[str]) -> Dict[str, Template]:
         """
@@ -173,7 +192,7 @@ class FiletotePlugin(BeetsPlugin):
 
         return mapping.get(event, None)
 
-    def move_event_listener(
+    def file_operation_event_listener(
         self, event: str, item: "Item", source: bytes, destination: bytes
     ) -> None:
         """
@@ -641,7 +660,7 @@ class FiletotePlugin(BeetsPlugin):
         mapping: FiletoteMappingModel,
     ) -> None:
         """
-        Processes and prepares artifacts / extra files for subsequent manipulation.
+        Processes and prepares extra files and artifacts for subsequent manipulation.
         """
         if not source_artifacts:
             return
