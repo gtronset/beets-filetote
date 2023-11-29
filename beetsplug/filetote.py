@@ -696,21 +696,28 @@ class FiletotePlugin(BeetsPlugin):
                 artifact_filename, mapping, artifact.paired, pattern_category
             )
 
-            already_exists: bool = self._artifact_exists_in_dest(
+            if self._artifact_exists_in_dest(
                 artifact_source=artifact_source,
                 artifact_dest=artifact_dest,
-            )
-
-            if already_exists:
+            ):
                 ignored_artifacts.append(artifact_filename)
                 continue
 
             artifact_dest = util.unique_path(artifact_dest)
             util.mkdirall(artifact_dest)
 
+            # In copy and link modes, treat reimports specially: move in-library
+            # files. (Out-of-library files are copied/moved as usual).
+            reimport: bool
+            root_path: Optional[bytes]
+            reimport, root_path = self._is_reimport()
+
+            operation: Optional[Union[str, MoveOperation]] = (
+                "REIMPORT" if reimport else self.filetote.session.operation
+            )
+
             self.manipulate_artifact(
-                artifact_source,
-                artifact_dest,
+                operation, artifact_source, artifact_dest, root_path
             )
 
         self.print_ignored_artifacts(ignored_artifacts)
@@ -723,15 +730,20 @@ class FiletotePlugin(BeetsPlugin):
             for artifact_filename in ignored_artifacts:
                 self._log.warning("   {0}", os.path.basename(artifact_filename))
 
-    def _is_reimport(
-        self, library_dir: bytes, import_path: Optional[bytes]
-    ) -> Tuple[bool, Optional[bytes]]:
+    def _is_reimport(self) -> Tuple[bool, Optional[bytes]]:
         """
         Checks if the this would be considered a "reimport", as copy and link modes
         reimports are treated specially (in-library files are moved). This also deduces
         what is considered the "root" path to help aid in cleaning up dangling files on
         MOVE.
         """
+
+        # Sanity check for pylint in cases where beets_lib is None
+        assert self.filetote.session.beets_lib is not None
+
+        library_dir = self.filetote.session.beets_lib.directory
+
+        import_path = self.filetote.session.import_path
 
         if import_path:
             if import_path == library_dir:
@@ -741,44 +753,23 @@ class FiletotePlugin(BeetsPlugin):
 
         return False, None
 
-    def manipulate_artifact(self, artifact_source: bytes, artifact_dest: bytes) -> None:
+    def manipulate_artifact(
+        self,
+        operation: Optional[Union[str, MoveOperation]],
+        artifact_source: bytes,
+        artifact_dest: bytes,
+        root_path: Optional[bytes],
+    ) -> None:
         """
         Copy, move, link, hardlink or reflink (depending on `operation`)
         the artifacts (as well as write metadata).
         NOTE: `operation` should be an instance of `MoveOperation`.
         """
 
-        if not os.path.exists(artifact_source):
-            # Sanity check for other plugins moving files
-            return
-
-        # In copy and link modes, treat reimports specially: move in-library
-        # files. (Out-of-library files are copied/moved as usual).
-        reimport: bool
-        root_path: Optional[bytes]
-
-        source_path: bytes = os.path.dirname(artifact_source)
-
-        # Sanity check for pylint in cases where beets_lib is None
-        assert self.filetote.session.beets_lib is not None
-
-        library_dir = self.filetote.session.beets_lib.directory
-
-        import_path = self.filetote.session.import_path
-
-        (reimport, root_path) = self._is_reimport(library_dir, import_path)
-
-        operation: Optional[Union[str, MoveOperation]] = (
-            "REIMPORT" if reimport else self.filetote.session.operation
-        )
-
-        self._log.info(
-            f"{operation}-ing artifact:"
-            f" {os.path.basename(util.displayable_path(artifact_dest))}"
-        )
-
         if operation in [MoveOperation.MOVE, "REIMPORT"]:
             util.move(artifact_source, artifact_dest)
+
+            source_path: bytes = os.path.dirname(artifact_source)
 
             util.prune_dirs(
                 source_path,
