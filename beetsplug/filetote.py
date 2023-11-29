@@ -107,8 +107,11 @@ class FiletotePlugin(BeetsPlugin):
         self.register_listener("cli_exit", self.process_events)
 
     def _build_file_event_function(self, event: str) -> Callable[..., None]:
-        """Builds a wrapper function for beets events that passes the event name to the
-        target function."""
+        """
+        Creates a function that acts as a wrapper for specific file operation events
+        triggered by Beets, forwarding the event name to the corresponding target
+        function.
+        """
 
         def file_event_function(**kwargs: Any) -> None:
             self.file_operation_event_listener(event, **kwargs)

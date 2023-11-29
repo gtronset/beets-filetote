@@ -191,7 +191,8 @@ class FiletoteCLIOperation(FiletoteTestCase):
     def test_copy_on_move_command_copy(self) -> None:
         """
         Check that plugin detects the correct operation for the "move" (or "mv")
-        command.
+        command when "copy" is set. The files should be present in both the original
+        and new Library locations.
         """
         self._create_flat_import_dir()
 
@@ -216,7 +217,8 @@ class FiletoteCLIOperation(FiletoteTestCase):
     def test_copy_on_move_command_export(self) -> None:
         """
         Check that plugin detects the correct operation for the "move" (or "mv")
-        command.
+        command when "export" is set. This functionally is the same as "copy" but
+        does not alter the Library data.
         """
         self._create_flat_import_dir()
 
