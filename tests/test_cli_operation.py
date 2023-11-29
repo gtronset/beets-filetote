@@ -159,21 +159,81 @@ class FiletoteCLIOperation(FiletoteTestCase):
             beets.util.bytestring_path("\xe4rtifact.file"),
         )
 
-    # def test_move_on_move_command(self) -> None:
-    #     """
-    #     Check that plugin detects the correct operation for the "move" (or "mv")
-    #     command.
-    #     """
-    #     self._create_flat_import_dir()
+    def test_move_on_move_command(self) -> None:
+        """
+        Check that plugin detects the correct operation for the "move" (or "mv")
+        command, which is MOVE by default.
+        """
+        self._create_flat_import_dir()
 
-    #     self._run_mover()
+        self._setup_import_session(move=True, autotag=False)
 
-    #     self.assert_not_in_import_dir(
-    #         b"the_album",
-    #         b"artifact.file",
-    #     )
+        self.lib.path_formats = [
+            ("default", os.path.join("Old Lib Artist", "$album", "$title")),
+        ]
 
-    #     self.assert_in_lib_dir(b"the_album", b"artifact.file")
-    #     self.assert_in_lib_dir(b"the_album", b"artifact2.file")
-    #     self.assert_in_lib_dir(b"the_album", b"artifact.nfo")
-    #     self.assert_in_lib_dir(b"the_album", b"artifact.lrc")
+        self._run_importer()
+
+        self.lib.path_formats = [
+            ("default", os.path.join("$artist", "$album", "$title")),
+        ]
+
+        self._run_mover(query="artist:'Tag Artist'")
+
+        self.assert_not_in_lib_dir(
+            b"Old Lib Artist",
+            b"Tag Album",
+            b"artifact.file",
+        )
+
+        self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"artifact.file")
+
+    def test_copy_on_move_command_copy(self) -> None:
+        """
+        Check that plugin detects the correct operation for the "move" (or "mv")
+        command.
+        """
+        self._create_flat_import_dir()
+
+        self._setup_import_session(move=True, autotag=False)
+
+        self.lib.path_formats = [
+            ("default", os.path.join("Old Lib Artist", "$album", "$title")),
+        ]
+
+        self._run_importer()
+
+        self.lib.path_formats = [
+            ("default", os.path.join("$artist", "$album", "$title")),
+        ]
+
+        self._run_mover(query="artist:'Tag Artist'", copy=True)
+
+        self.assert_in_lib_dir(b"Old Lib Artist", b"Tag Album", b"artifact.file")
+
+        self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"artifact.file")
+
+    def test_copy_on_move_command_export(self) -> None:
+        """
+        Check that plugin detects the correct operation for the "move" (or "mv")
+        command.
+        """
+        self._create_flat_import_dir()
+
+        self._setup_import_session(move=True, autotag=False)
+
+        self.lib.path_formats = [
+            ("default", os.path.join("Old Lib Artist", "$album", "$title")),
+        ]
+
+        self._run_importer()
+
+        self.lib.path_formats = [
+            ("default", os.path.join("$artist", "$album", "$title")),
+        ]
+
+        self._run_mover(query="artist:'Tag Artist'", export=True)
+
+        self.assert_in_lib_dir(b"Old Lib Artist", b"Tag Album", b"artifact.file")
+
+        self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"artifact.file")

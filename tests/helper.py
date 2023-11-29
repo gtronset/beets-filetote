@@ -348,7 +348,15 @@ class FiletoteTestCase(_common.TestCase, Assertions, HelperUtils):
         plugins.send("pluginload")
 
         # Run the move command
-        commands.move_items(self.lib, dest_dir, query, copy, album, pretend, export)
+        commands.move_items(
+            lib=self.lib,
+            dest=dest_dir,
+            query=query,
+            copy=copy,
+            album=album,
+            pretend=pretend,
+            export=export,
+        )
 
         # Fake the occurrence of the cli_exit event
         plugins.send("cli_exit", lib=self.lib)
