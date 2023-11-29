@@ -760,8 +760,7 @@ class FiletotePlugin(BeetsPlugin):
         source_path: bytes = os.path.dirname(artifact_source)
 
         # Sanity check for pylint in cases where beets_lib is None
-        if not self.filetote.session.beets_lib:
-            return
+        assert self.filetote.session.beets_lib is not None
 
         library_dir = self.filetote.session.beets_lib.directory
 
