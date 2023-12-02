@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.4.5] - 2023-12-01
+
 ### Added
 
 - Enable Filetote on "move" command <https://github.com/gtronset/beets-filetote/pull/124>
@@ -148,7 +150,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 <!-- Release Links -->
 
-[unreleased]: https://github.com/gtronset/beets-filetote/compare/v0.4.4...HEAD
+[unreleased]: https://github.com/gtronset/beets-filetote/compare/v0.4.5...HEAD
+[0.4.5]: https://github.com/gtronset/beets-filetote/releases/tag/v0.4.5
 [0.4.4]: https://github.com/gtronset/beets-filetote/releases/tag/v0.4.4
 [0.4.3]: https://github.com/gtronset/beets-filetote/releases/tag/v0.4.3
 [0.4.2]: https://github.com/gtronset/beets-filetote/releases/tag/v0.4.2
