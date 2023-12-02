@@ -691,10 +691,7 @@ class FiletoteTestCase(_common.TestCase, Assertions, HelperUtils):
 
         self.paths = import_dir
 
-        import_path: List[bytes] = []
-
-        if import_dir:
-            import_path = [import_dir]
+        import_path: List[bytes] = [import_dir] if import_dir else []
 
         self.importer = ImportSession(
             self.lib,
