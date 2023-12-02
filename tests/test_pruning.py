@@ -103,3 +103,103 @@ class FiletotePruningyTest(FiletoteTestCase):
         self.assert_not_in_lib_dir(b"Tag Artist", b"Tag Album")
         self.assert_not_in_lib_dir(b"Tag Artist")
         self.assert_in_lib_dir(b"1Tag Artist", b"Tag Album", b"artifact.file")
+
+    def test_prune_reimport_query(self) -> None:
+        """
+        Check that plugin prunes to the root of the library when reimporting
+        from library using `import` with a query.
+
+        Setup subsequent import directory of the following structure:
+
+            testlib_dir/
+                New Tag Artist/
+                    Tag Album/
+                        Tag Title 1.mp3
+                        Tag Title 2.mp3
+                        Tag Title 3.mp3
+                        artifact.file
+                        artifact2.file
+        """
+
+        config["filetote"]["extensions"] = ".file"
+
+        log.debug("--- initial import")
+        self._run_importer()
+
+        self.lib.path_formats = [
+            ("default", os.path.join("New Tag Artist", "$album", "$title")),
+        ]
+        self._setup_import_session(query="artist", autotag=False, move=True)
+
+        log.debug("--- second import")
+        self._run_importer()
+
+        self.assert_not_in_lib_dir(b"Tag Artist", b"Tag Album")
+        self.assert_not_in_lib_dir(b"Tag Artist")
+        self.assert_in_lib_dir(b"New Tag Artist", b"Tag Album", b"artifact.file")
+
+    def test_prune_move_query(self) -> None:
+        """
+        Check that plugin prunes any remaining empty album folders when using
+        the  `move` with a query.
+
+        Setup subsequent import directory of the following structure:
+
+            testlib_dir/
+                New Tag Artist/
+                    Tag Album/
+                        Tag Title 1.mp3
+                        Tag Title 2.mp3
+                        Tag Title 3.mp3
+                        artifact.file
+                        artifact2.file
+        """
+
+        config["filetote"]["extensions"] = ".file"
+
+        log.debug("--- initial import")
+        self._run_importer()
+
+        self.lib.path_formats = [
+            ("default", os.path.join("New Tag Artist", "$album", "$title")),
+        ]
+
+        log.debug("--- run mover")
+        self._run_mover(query="artist:'Tag Artist'")
+
+        self.assert_not_in_lib_dir(b"Tag Artist", b"Tag Album")
+        self.assert_not_in_lib_dir(b"Tag Artist")
+        self.assert_in_lib_dir(b"New Tag Artist", b"Tag Album", b"artifact.file")
+
+    def test_prune_modify_query(self) -> None:
+        """
+        Check that plugin prunes any remaining empty album folders when using
+        the  `modify` with a query.
+
+        Setup subsequent import directory of the following structure:
+
+            testlib_dir/
+                New Tag Artist/
+                    Tag Album/
+                        Tag Title 1.mp3
+                        Tag Title 2.mp3
+                        Tag Title 3.mp3
+                        artifact.file
+                        artifact2.file
+        """
+
+        config["filetote"]["extensions"] = ".file"
+
+        log.debug("--- initial import")
+        self._run_importer()
+
+        self.lib.path_formats = [
+            ("default", os.path.join("$artist", "$album", "$title")),
+        ]
+
+        log.debug("--- run modify")
+        self._run_modify(query="artist:'Tag Artist'", mods={"artist": "New Tag Artist"})
+
+        self.assert_not_in_lib_dir(b"Tag Artist", b"Tag Album")
+        self.assert_not_in_lib_dir(b"Tag Artist")
+        self.assert_in_lib_dir(b"New Tag Artist", b"Tag Album", b"artifact.file")
