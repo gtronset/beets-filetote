@@ -3,7 +3,7 @@
 import filecmp
 import fnmatch
 import os
-from typing import TYPE_CHECKING, Any, Dict, List, Optional, Tuple, Union
+from typing import TYPE_CHECKING, Any, Callable, Dict, List, Optional, Tuple, Union
 
 from beets import config, util
 from beets.library import DefaultTemplateFunctions
@@ -64,7 +64,26 @@ class FiletotePlugin(BeetsPlugin):
         self._shared_artifacts: Dict[bytes, List[bytes]] = {}
         self._dirs_seen: List[bytes] = []
 
-        move_events: List[str] = [
+        self._register_file_operation_events()
+
+    def _register_file_operation_events(self) -> None:
+        """
+        Registers various file operation events and their corresponding functions.
+
+        This method creates functions for file operation events like moving, copying,
+        linking, etc., and registers them as listeners for corresponding Beets events.
+        It also registers other necessary listeners for plugin functionality
+        (`pluginload`, `import_begin`, and `cli_exit`) which do not utilize generated
+        function wrappers.
+
+        These functions act as wrappers for Beets events, forwarding the event name
+        to the target function (e.g., 'move_event_listener()') along with any additional
+        event-specific arguments.
+
+        Note: The `file_operation_event_functions` dictionary stores the event name and
+        its corresponding generated function.
+        """
+        file_operation_events: List[str] = [
             "before_item_moved",
             "item_copied",
             "item_linked",
@@ -72,11 +91,32 @@ class FiletotePlugin(BeetsPlugin):
             "item_reflinked",
         ]
 
-        for move_event in move_events:
-            self.register_listener(move_event, self.collect_artifacts)
+        file_operation_event_functions: Dict[str, Callable[..., None]] = {}
+
+        for event in file_operation_events:
+            file_operation_event_functions[event] = self._build_file_event_function(
+                event
+            )
+
+            self.register_listener(event, file_operation_event_functions[event])
+
+        self.register_listener("pluginload", self._register_additional_file_types)
 
         self.register_listener("import_begin", self._register_session_settings)
+
         self.register_listener("cli_exit", self.process_events)
+
+    def _build_file_event_function(self, event: str) -> Callable[..., None]:
+        """
+        Creates a function that acts as a wrapper for specific file operation events
+        triggered by Beets, forwarding the event name to the corresponding target
+        function.
+        """
+
+        def file_event_function(**kwargs: Any) -> None:
+            self.file_operation_event_listener(event, **kwargs)
+
+        return file_event_function
 
     def _get_filetote_path_formats(self, queries: List[str]) -> Dict[str, Template]:
         """
@@ -96,16 +136,12 @@ class FiletotePlugin(BeetsPlugin):
 
         return path_formats
 
-    def _register_session_settings(self, session: "ImportSession") -> None:
+    def _register_additional_file_types(self) -> None:
         """
-        Certain settings are only available and/or finalized once the
-        Beets import session begins.
-
-        This also augments the file type list of what is considered a music
+        This augments the file type list of what is considered a music
         file or media, since MediaFile.TYPES isn't fundamentally a complete
         list of files by extension.
         """
-
         BEETS_FILE_TYPES.update({
             "m4a": "M4A",
             "wma": "WMA",
@@ -115,28 +151,69 @@ class FiletotePlugin(BeetsPlugin):
         if "audible" in config["plugins"].get():
             BEETS_FILE_TYPES.update({"m4b": "M4B"})
 
-        self.filetote.session.adjust("operation", self._operation_type())
+    def _register_session_settings(self, session: "ImportSession") -> None:
+        """
+        Certain settings are only available and/or finalized once the
+        Beets import session begins.
+        """
+
+        self.filetote.session.adjust("operation", self._import_operation_type())
         self.filetote.session.import_path = os.path.expanduser(session.paths[0])
 
-    def _operation_type(self) -> Union[MoveOperation, None]:
-        """Returns the file manipulations type."""
+    def _import_operation_type(self) -> Union[MoveOperation, None]:
+        """
+        Returns the file manipulations type. This prioritizes `move` over copy if
+        present.
+        """
 
-        operation: Union[MoveOperation, None]
+        mapping = {
+            "move": MoveOperation.MOVE,
+            "copy": MoveOperation.COPY,
+            "link": MoveOperation.LINK,
+            "hardlink": MoveOperation.HARDLINK,
+            "reflink": MoveOperation.REFLINK,
+        }
 
-        if config["import"]["move"]:
-            operation = MoveOperation.MOVE
-        elif config["import"]["copy"]:
-            operation = MoveOperation.COPY
-        elif config["import"]["link"]:
-            operation = MoveOperation.LINK
-        elif config["import"]["hardlink"]:
-            operation = MoveOperation.HARDLINK
-        elif config["import"]["reflink"]:
-            operation = MoveOperation.REFLINK
-        else:
-            operation = None
+        for operation_type, operation in mapping.items():
+            if config["import"][operation_type]:
+                return operation
 
-        return operation
+        return None
+
+    def _event_operation_type(self, event: str) -> Union[MoveOperation, None]:
+        """Returns the file manipulations type. Requires a Beets event to be provided
+        and the operation type is inferred based on the event name/type.
+        """
+
+        mapping = {
+            "before_item_moved": MoveOperation.MOVE,
+            "item_copied": MoveOperation.COPY,
+            "item_linked": MoveOperation.LINK,
+            "item_hardlinked": MoveOperation.HARDLINK,
+            "item_reflinked": MoveOperation.REFLINK,
+        }
+
+        return mapping.get(event, None)
+
+    def file_operation_event_listener(
+        self, event: str, item: "Item", source: bytes, destination: bytes
+    ) -> None:
+        """
+        Certain CLI opertations such as `move` (`mv`) don't utilize the config file's
+        `import` settings which `_operation_type()` uses by default to determine how
+        Filetote should move/copy the file. Since there are not otherwise any indicators
+        of this, the operation type is inferred based on the event name/type.
+
+        These events should only be emitted in cases where something happens to the
+        media files, and this should only have to fall back to infer from event types
+        for similar aforementioned CLI commands.
+        """
+        # Detmine the opteration type if not already present
+        if not self.filetote.session.operation:
+            self.filetote.session.adjust("operation", self._event_operation_type(event))
+
+        # Find and collect all non-media file artifacts
+        self.collect_artifacts(item, source, destination)
 
     def remove_prefix(self, text: str, prefix: str) -> str:
         """Removes the prefix of given text."""
@@ -586,7 +663,7 @@ class FiletotePlugin(BeetsPlugin):
         mapping: FiletoteMappingModel,
     ) -> None:
         """
-        Processes and prepares artifacts / extra files for subsequent manipulation.
+        Processes and prepares extra files and artifacts for subsequent manipulation.
         """
         if not source_artifacts:
             return
@@ -619,21 +696,28 @@ class FiletotePlugin(BeetsPlugin):
                 artifact_filename, mapping, artifact.paired, pattern_category
             )
 
-            already_exists: bool = self._artifact_exists_in_dest(
+            if self._artifact_exists_in_dest(
                 artifact_source=artifact_source,
                 artifact_dest=artifact_dest,
-            )
-
-            if already_exists:
+            ):
                 ignored_artifacts.append(artifact_filename)
                 continue
 
             artifact_dest = util.unique_path(artifact_dest)
             util.mkdirall(artifact_dest)
 
+            # In copy and link modes, treat reimports specially: move in-library
+            # files. (Out-of-library files are copied/moved as usual).
+            reimport: bool
+            root_path: Optional[bytes]
+            reimport, root_path = self._is_reimport()
+
+            operation: Optional[Union[str, MoveOperation]] = (
+                "REIMPORT" if reimport else self.filetote.session.operation
+            )
+
             self.manipulate_artifact(
-                artifact_source,
-                artifact_dest,
+                operation, artifact_source, artifact_dest, root_path
             )
 
         self.print_ignored_artifacts(ignored_artifacts)
@@ -646,52 +730,46 @@ class FiletotePlugin(BeetsPlugin):
             for artifact_filename in ignored_artifacts:
                 self._log.warning("   {0}", os.path.basename(artifact_filename))
 
-    def manipulate_artifact(self, artifact_source: bytes, artifact_dest: bytes) -> None:
+    def _is_reimport(self) -> Tuple[bool, Optional[bytes]]:
+        """
+        Checks if the this would be considered a "reimport", as copy and link modes
+        reimports are treated specially (in-library files are moved). This also deduces
+        what is considered the "root" path to help aid in cleaning up dangling files on
+        MOVE.
+        """
+
+        # Sanity check for pylint in cases where beets_lib is None
+        assert self.filetote.session.beets_lib is not None
+
+        library_dir = self.filetote.session.beets_lib.directory
+
+        import_path = self.filetote.session.import_path
+
+        if import_path:
+            if import_path == library_dir:
+                return True, os.path.dirname(import_path)
+            if str(library_dir) in util.ancestry(import_path):
+                return True, import_path
+
+        return False, None
+
+    def manipulate_artifact(
+        self,
+        operation: Optional[Union[str, MoveOperation]],
+        artifact_source: bytes,
+        artifact_dest: bytes,
+        root_path: Optional[bytes],
+    ) -> None:
         """
         Copy, move, link, hardlink or reflink (depending on `operation`)
         the artifacts (as well as write metadata).
         NOTE: `operation` should be an instance of `MoveOperation`.
         """
 
-        if not os.path.exists(artifact_source):
-            # Sanity check for other plugins moving files
-            return
-
-        # In copy and link modes, treat reimports specially: move in-library
-        # files. (Out-of-library files are copied/moved as usual).
-        reimport: bool = False
-
-        source_path: bytes = os.path.dirname(artifact_source)
-
-        # Sanity check for pylint in cases where beets_lib is None
-        if not self.filetote.session.beets_lib or not self.filetote.session.import_path:
-            return
-
-        library_dir = self.filetote.session.beets_lib.directory
-
-        root_path = None
-
-        import_path = self.filetote.session.import_path
-
-        if import_path == library_dir:
-            root_path = os.path.dirname(import_path)
-            reimport = True
-        elif str(library_dir) in util.ancestry(import_path):
-            root_path = import_path
-            reimport = True
-
-        operation: Optional[Union[str, MoveOperation]] = self.filetote.session.operation
-
-        if reimport:
-            operation = "REIMPORT"
-
-        self._log.info(
-            f"{operation}-ing artifact:"
-            f" {os.path.basename(util.displayable_path(artifact_dest))}"
-        )
-
         if operation in [MoveOperation.MOVE, "REIMPORT"]:
             util.move(artifact_source, artifact_dest)
+
+            source_path: bytes = os.path.dirname(artifact_source)
 
             util.prune_dirs(
                 source_path,
