@@ -217,3 +217,17 @@ class FiletoteReimportTest(FiletoteTestCase):
         self.assert_in_lib_dir(
             b"3Tag Artist", b"Tag Album", b"artifact2 - import I I I.file"
         )
+
+    def test_reimport_artifacts_with_query(self) -> None:
+        """Tests that when reimporting, copying works."""
+        # Cause files to relocate (move) when reimported
+        self.lib.path_formats = [
+            ("default", os.path.join("New Tag Artist", "$album", "$title")),
+        ]
+        self._setup_import_session(query="artist", autotag=False, move=True)
+
+        log.debug("--- second import")
+        self._run_importer()
+
+        self.assert_not_in_lib_dir(b"Tag Artist", b"Tag Album", b"artifact.file")
+        self.assert_in_lib_dir(b"New Tag Artist", b"Tag Album", b"artifact.file")
