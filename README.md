@@ -7,8 +7,8 @@
 [![PyPI - Python Version][pypi_python_versions]][pypi_link]
 
 A plugin that moves non-music extra files, attachments, and artifacts during
-the import process for [beets](https://beets.io/), a music library
-manager (and much more!).
+imports and CLI file manipulation actions (`move`, `modify`, reimport, etc.)
+ for [beets](https://beets.io/), a music library manager (and much more!).
 
 ## Installing
 
@@ -289,6 +289,16 @@ thus this plugin) behave when there multiple set. See the [beets documentation]
 and [#36](https://github.com/gtronset/beets-filetote/pull/36) for more details.
 
 [beets documentation]: https://beets.readthedocs.io/en/stable/reference/config.html#importer-options
+
+### Other CLI Operations
+
+Additional commands such such as `move` or `modify` will also trigger Filetote
+to handle files. These commands typically work with [queries], targeting specific
+files that match the supplied query. Please note that the operation executed by
+beets for these commands do not use the value set in the config file under
+`import`, they instead are specified as part of the CLI command.
+
+[queries]: https://beets.readthedocs.io/en/stable/reference/query.html
 
 ### Examples of `config.yaml`
 
