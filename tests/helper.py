@@ -673,6 +673,7 @@ class FiletoteTestCase(_common.TestCase, Assertions, HelperUtils):
         singletons: bool = False,
         move: bool = False,
         autotag: bool = True,
+        query: Optional[str] = None,
     ) -> None:
         # pylint: disable=too-many-arguments
 
@@ -685,11 +686,19 @@ class FiletoteTestCase(_common.TestCase, Assertions, HelperUtils):
         config["import"]["autotag"] = autotag
         config["import"]["resume"] = False
 
-        self.paths = import_dir or self.import_dir
+        if not import_dir and not query:
+            import_dir = self.import_dir
+
+        self.paths = import_dir
+
+        import_path: List[bytes] = []
+
+        if import_dir:
+            import_path = [import_dir]
 
         self.importer = ImportSession(
             self.lib,
             loghandler=None,
-            paths=[import_dir or self.import_dir],
-            query=None,
+            paths=import_path,
+            query=query,
         )

@@ -158,7 +158,13 @@ class FiletotePlugin(BeetsPlugin):
         """
 
         self.filetote.session.adjust("operation", self._import_operation_type())
-        self.filetote.session.import_path = os.path.expanduser(session.paths[0])
+
+        import_path: Optional[bytes] = None
+
+        if session.paths:
+            import_path = os.path.expanduser(session.paths[0])
+
+        self.filetote.session.import_path = import_path
 
     def _import_operation_type(self) -> Union[MoveOperation, None]:
         """
