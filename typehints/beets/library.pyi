@@ -8,6 +8,7 @@ class DefaultTemplateFunctions:
     def functions(self) -> dict[str, Callable[..., Any]]: ...
 
 class Library(Database):
+    path: bytes
     directory: bytes
     path_formats: list[tuple[str, str]]
     replacements: list[str] | None

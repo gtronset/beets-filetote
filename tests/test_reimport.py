@@ -41,7 +41,9 @@ class FiletoteReimportTest(FiletoteTestCase):
         self._run_importer()
 
     def test_reimport_artifacts_with_copy(self) -> None:
-        """Tests that when reimporting, copying works."""
+        """Tests that when reimporting, copying actually results in a move. The
+        operation gets changed to `move` when the media file is already in the
+        library (hence, reimport)."""
         # Cause files to relocate (move) when reimported
         self.lib.path_formats[0] = (
             "default",
@@ -63,23 +65,6 @@ class FiletoteReimportTest(FiletoteTestCase):
             os.path.join("1$artist", "$album", "$title"),
         )
         self._setup_import_session(autotag=False, import_dir=self.lib_dir, move=True)
-
-        log.debug("--- second import")
-        self._run_importer()
-
-        self.assert_not_in_lib_dir(b"Tag Artist", b"Tag Album", b"artifact.file")
-        self.assert_in_lib_dir(b"1Tag Artist", b"Tag Album", b"artifact.file")
-
-    def test_prune_empty_directories_with_copy_reimport(self) -> None:
-        """
-        Ensure directories are pruned when reimporting with 'copy'.
-        """
-        # Cause files to relocate when reimported
-        self.lib.path_formats[0] = (
-            "default",
-            os.path.join("1$artist", "$album", "$title"),
-        )
-        self._setup_import_session(autotag=False, import_dir=self.lib_dir)
 
         log.debug("--- second import")
         self._run_importer()
