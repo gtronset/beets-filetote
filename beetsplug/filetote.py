@@ -793,10 +793,16 @@ class FiletotePlugin(BeetsPlugin):
         root_path: Optional[bytes] = None
 
         if import_path is None:
+            # If there's not a import path (query, other CLI, etc.), use the
+            # Library's dir instead. This is consistent with beet's default
+            # pruning for MOVE.
             root_path = library_dir
         elif self._is_import_path_same_as_library_dir(import_path, library_dir):
+            # If the import path is the same as the Library's, allow for
+            # pruning all the way to the library path.
             root_path = os.path.dirname(import_path)
         elif self._is_import_path_within_library(import_path, library_dir):
+            # Otherwise, prune all the way up to the import path.
             root_path = import_path
 
         return root_path
