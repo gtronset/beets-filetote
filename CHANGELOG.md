@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - Fix reimport via query (IndexError bugfix) <https://github.com/gtronset/beets-filetote/pull/126>
+- Refactor and Fix Pruning <https://github.com/gtronset/beets-filetote/pull/128>
 
 ## [0.4.5] - 2023-12-01
 
