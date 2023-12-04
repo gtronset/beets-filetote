@@ -5,6 +5,7 @@
 import logging
 import os
 import stat
+from typing import List, Optional
 
 import pytest
 from beets import config, util
@@ -20,7 +21,7 @@ class FiletoteManipulateFiles(FiletoteTestCase):
     Tests to check that Filetote manipulates files using the correct operation.
     """
 
-    def setUp(self, audible_plugin: bool = False) -> None:
+    def setUp(self, other_plugins: Optional[List[str]] = None) -> None:
         """Provides shared setup for tests."""
         super().setUp()
 

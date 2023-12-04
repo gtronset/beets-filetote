@@ -2,6 +2,8 @@
 Tests that the version specified for the plugin matches the value in pyproject.
 """
 
+from typing import List, Optional
+
 import toml  # type: ignore # pylint: disable=import-error
 
 import beetsplug
@@ -14,7 +16,7 @@ class FiletoteVersionTest(FiletoteTestCase):
     pyproject.
     """
 
-    def setUp(self, audible_plugin: bool = False) -> None:
+    def setUp(self, other_plugins: Optional[List[str]] = None) -> None:
         """Provides shared setup for tests."""
         super().setUp()
 

@@ -2,6 +2,7 @@
 
 import logging
 import os
+from typing import List, Optional
 
 from beets import config
 
@@ -16,7 +17,7 @@ class FiletotePatternTest(FiletoteTestCase):
     Tests to check that Filetote grabs artfacts by user-definited patterns.
     """
 
-    def setUp(self, audible_plugin: bool = False) -> None:
+    def setUp(self, other_plugins: Optional[List[str]] = None) -> None:
         """Provides shared setup for tests."""
         super().setUp()
 

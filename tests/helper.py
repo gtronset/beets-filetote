@@ -20,6 +20,7 @@ import beetsplug  # noqa: E402
 from beetsplug import (  # type: ignore[attr-defined] # pylint: disable=no-name-in-module # noqa: E501
     audible,
     filetote,
+    inline,
 )
 from tests import _common
 
@@ -208,10 +209,12 @@ class FiletoteTestCase(_common.TestCase, Assertions, HelperUtils):
     for the autotagging library and assertions helpers.
     """
 
-    def setUp(self, audible_plugin: bool = False) -> None:
+    def setUp(self, other_plugins: Optional[List[str]] = None) -> None:
         super().setUp()
 
-        self.load_plugins(audible_plugin)
+        other_plugins = other_plugins or []
+
+        self.load_plugins(other_plugins)
 
         self.lib_dir: bytes = os.path.join(self.temp_dir, b"testlib_dir")
 
@@ -251,13 +254,21 @@ class FiletoteTestCase(_common.TestCase, Assertions, HelperUtils):
         self.lib._close()
         super().tearDown()
 
-    def load_plugins(self, audible_plugin: bool) -> None:
+    def load_plugins(self, other_plugins: List[str]) -> None:
         # pylint: disable=protected-access
         """Loads and sets up the plugin(s) for the test module."""
+
+        audible_plugin: bool = "audible" in other_plugins
+        inline_plugin: bool = "inline" in other_plugins
+
         if audible_plugin:
             plugins._classes = set([audible.Audible, filetote.FiletotePlugin])
             config["plugins"] = ["audible", "filetote"]
             plugins.load_plugins(["audible", "filetote"])
+        elif inline_plugin:
+            plugins._classes = set([inline.InlinePlugin, filetote.FiletotePlugin])
+            config["plugins"] = ["inline", "filetote"]
+            plugins.load_plugins(["inline", "filetote"])
         else:
             plugins._classes = set([filetote.FiletotePlugin])
             config["plugins"] = ["filetote"]
@@ -273,13 +284,16 @@ class FiletoteTestCase(_common.TestCase, Assertions, HelperUtils):
         if plugins._instances:
             classes = list(plugins._classes)
 
-            # In case Audible is included, iterate through each plugin class.
+            # In case `audible` or another plugin is included, iterate through
+            # each plugin class.
             for plugin_class in classes:
-                # Unregister listeners
-                for event in plugin_class.listeners:
-                    del plugin_class.listeners[event][0]
+                # Unregister listeners if they exist for the plugin
+                if plugin_class.listeners:
+                    for event in plugin_class.listeners:
+                        del plugin_class.listeners[event][0]
 
-                # Delete the plugin instance so a new one gets created for each test
+                # Delete the plugin instance so a new one gets created for each
+                # test.
                 del plugins._instances[plugin_class]
 
     def _run_importer(

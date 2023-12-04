@@ -1,6 +1,7 @@
 """Tests renaming Item fields for the beets-filetote plugin."""
 
 import logging
+from typing import List, Optional
 
 from beets import config
 
@@ -15,7 +16,7 @@ class FiletoteRenameItemFieldsTest(FiletoteTestCase):
     expected for custom path formats.
     """
 
-    def setUp(self, audible_plugin: bool = False) -> None:
+    def setUp(self, other_plugins: Optional[List[str]] = None) -> None:
         """Provides shared setup for tests."""
         super().setUp()
 

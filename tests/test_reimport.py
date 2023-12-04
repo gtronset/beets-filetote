@@ -4,6 +4,7 @@
 
 import logging
 import os
+from typing import List, Optional
 
 from beets import config
 
@@ -17,7 +18,7 @@ class FiletoteReimportTest(FiletoteTestCase):
     Tests to check that Filetote handles reimports correctly
     """
 
-    def setUp(self, audible_plugin: bool = False) -> None:
+    def setUp(self, other_plugins: Optional[List[str]] = None) -> None:
         """
         Setup subsequent import directory of the following structure:
 

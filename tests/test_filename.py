@@ -1,6 +1,7 @@
 """Tests file-naming for the beets-filetote plugin."""
 
 import os
+from typing import List, Optional
 
 import beets
 import pytest
@@ -17,7 +18,7 @@ class FiletoteFilename(FiletoteTestCase):
     Tests to check handling of artifacts with filenames containing unicode characters
     """
 
-    def setUp(self, audible_plugin: bool = False) -> None:
+    def setUp(self, other_plugins: Optional[List[str]] = None) -> None:
         """Provides shared setup for tests."""
         super().setUp()
 
