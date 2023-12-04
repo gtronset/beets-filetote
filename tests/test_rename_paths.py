@@ -3,6 +3,7 @@
 # pylint: disable=duplicate-code
 
 import logging
+from typing import List, Optional
 
 from beets import config
 
@@ -17,7 +18,7 @@ class FiletoteRenamePathsTest(FiletoteTestCase):
     either in the `paths` scetion of the overall config or in Filetote's.
     """
 
-    def setUp(self, audible_plugin: bool = False) -> None:
+    def setUp(self, other_plugins: Optional[List[str]] = None) -> None:
         """Provides shared setup for tests."""
         super().setUp()
 

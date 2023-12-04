@@ -2,6 +2,7 @@
 
 import logging
 import os
+from typing import List, Optional
 
 from beets import config
 
@@ -17,7 +18,7 @@ class FiletoteFromFlatDirectoryTest(FiletoteTestCase):
     directory). Also tests `extensions` and `filenames` config options.
     """
 
-    def setUp(self, audible_plugin: bool = False) -> None:
+    def setUp(self, other_plugins: Optional[List[str]] = None) -> None:
         """Provides shared setup for tests."""
         super().setUp()
 

@@ -3,6 +3,8 @@ Tests to ensure no "could not get filesize" error occurs in the beets-filetote
 plugin.
 """
 
+from typing import List, Optional
+
 from beets import config
 
 from tests.helper import FiletoteTestCase, capture_log
@@ -13,7 +15,7 @@ class FiletoteNoFilesizeErrorTest(FiletoteTestCase):
     Tests to ensure no "could not get filesize" error occurs.
     """
 
-    def setUp(self, audible_plugin: bool = False) -> None:
+    def setUp(self, other_plugins: Optional[List[str]] = None) -> None:
         """Provides shared setup for tests."""
         super().setUp()
 

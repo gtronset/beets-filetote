@@ -3,6 +3,7 @@
 # pylint: disable=duplicate-code
 
 import os
+from typing import List, Optional
 
 import beets
 from beets import config
@@ -16,7 +17,7 @@ class FiletoteCLIOperation(FiletoteTestCase):
     overridden by the CLI.
     """
 
-    def setUp(self, audible_plugin: bool = False) -> None:
+    def setUp(self, other_plugins: Optional[List[str]] = None) -> None:
         """Provides shared setup for tests."""
         super().setUp()
 
