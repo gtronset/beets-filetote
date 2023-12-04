@@ -714,17 +714,24 @@ class FiletotePlugin(BeetsPlugin):
 
             # In copy and link modes, treat reimports specially: move in-library
             # files. (Out-of-library files are copied/moved as usual).
-            reimport: bool
-            root_path: Optional[bytes]
-            reimport, root_path = self._is_reimport()
+            reimport: bool = self._is_reimport()
 
-            operation: Optional[Union[str, MoveOperation]] = (
-                "REIMPORT" if reimport else self.filetote.session.operation
-            )
+            operation: Optional[MoveOperation] = self.filetote.session.operation
 
             self.manipulate_artifact(
-                operation, artifact_source, artifact_dest, root_path
+                operation, artifact_source, artifact_dest, reimport
             )
+
+            if operation == MoveOperation.MOVE or reimport:
+                # Prune vacated directory. Depending on the type of operation,
+                # this might be a specific import path, the base library, etc.
+                root_path: Optional[bytes] = self._get_prune_root_path()
+
+                util.prune_dirs(
+                    source_path,
+                    root=root_path,
+                    clutter=config["clutter"].as_str_seq(),
+                )
 
         self.print_ignored_artifacts(ignored_artifacts)
 
@@ -736,52 +743,94 @@ class FiletotePlugin(BeetsPlugin):
             for artifact_filename in ignored_artifacts:
                 self._log.warning("   {0}", os.path.basename(artifact_filename))
 
-    def _is_reimport(self) -> Tuple[bool, Optional[bytes]]:
+    def _is_import_path_same_as_library_dir(
+        self, import_path: Optional[bytes], library_dir: bytes
+    ) -> bool:
+        """Checks if the import path matches the library directory."""
+        return import_path is not None and import_path == library_dir
+
+    def _is_import_path_within_library(
+        self, import_path: Optional[bytes], library_dir: bytes
+    ) -> bool:
+        """Checks if the import path is within the library directory."""
+        return import_path is not None and str(library_dir) in util.ancestry(
+            import_path
+        )
+
+    def _is_reimport(self) -> bool:
         """
-        Checks if the this would be considered a "reimport", as copy and link modes
-        reimports are treated specially (in-library files are moved). This also deduces
-        what is considered the "root" path to help aid in cleaning up dangling files on
-        MOVE.
+        Checks if the import is considered a "reimport".
+
+        Copy and link modes treat reimports specially, where in-library files
+        are moved.
         """
 
         # Sanity check for pylint in cases where beets_lib is None
         assert self.filetote.session.beets_lib is not None
 
         library_dir = self.filetote.session.beets_lib.directory
-
         import_path = self.filetote.session.import_path
 
-        if import_path:
-            if import_path == library_dir:
-                return True, os.path.dirname(import_path)
-            if str(library_dir) in util.ancestry(import_path):
-                return True, import_path
+        return self._is_import_path_same_as_library_dir(
+            import_path, library_dir
+        ) or self._is_import_path_within_library(import_path, library_dir)
 
-        return False, None
+    def _get_prune_root_path(self) -> Optional[bytes]:
+        """
+        Deduces the root path for cleaning up dangling files on MOVE.
+
+        This method determines the root path that aids in cleaning up files
+        when moving. If the import path matches the library directory or is
+        within it, the root path is selected. Otherwise, returns None.
+        """
+
+        # Sanity check for pylint in cases where beets_lib is None
+        assert self.filetote.session.beets_lib is not None
+
+        library_dir = self.filetote.session.beets_lib.directory
+        import_path = self.filetote.session.import_path
+
+        root_path: Optional[bytes] = None
+
+        if import_path is None:
+            # If there's not a import path (query, other CLI, etc.), use the
+            # Library's dir instead. This is consistent with beet's default
+            # pruning for MOVE.
+            root_path = library_dir
+        elif self._is_import_path_same_as_library_dir(import_path, library_dir):
+            # If the import path is the same as the Library's, allow for
+            # pruning all the way to the library path.
+            root_path = os.path.dirname(import_path)
+        elif self._is_import_path_within_library(import_path, library_dir):
+            # Otherwise, prune all the way up to the import path.
+            root_path = import_path
+
+        return root_path
 
     def manipulate_artifact(
         self,
-        operation: Optional[Union[str, MoveOperation]],
+        operation: Optional[MoveOperation],
         artifact_source: bytes,
         artifact_dest: bytes,
-        root_path: Optional[bytes],
+        reimport: Optional[bool] = False,
     ) -> None:
         """
         Copy, move, link, hardlink or reflink (depending on `operation`)
         the artifacts (as well as write metadata).
         NOTE: `operation` should be an instance of `MoveOperation`.
+
+        If the operation is copy or a link but it's a reimport, move in-library
+        files instead of copying.
         """
 
-        if operation in [MoveOperation.MOVE, "REIMPORT"]:
-            util.move(artifact_source, artifact_dest)
-
-            source_path: bytes = os.path.dirname(artifact_source)
-
-            util.prune_dirs(
-                source_path,
-                root=root_path,
-                clutter=config["clutter"].as_str_seq(),
+        if operation != MoveOperation.MOVE and reimport:
+            self._log.warning(
+                f"Filetote Operation changed to MOVE from {operation} since this is a"
+                " reimport."
             )
+
+        if operation == MoveOperation.MOVE or reimport:
+            util.move(artifact_source, artifact_dest)
         elif operation == MoveOperation.COPY:
             util.copy(artifact_source, artifact_dest)
         elif operation == MoveOperation.LINK:

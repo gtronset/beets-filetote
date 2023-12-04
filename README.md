@@ -285,10 +285,16 @@ This plugin supports the same operations as beets:
 - `reflink`
 
 These options are mutually exclusive, and there are nuances to how beets (and
-thus this plugin) behave when there multiple set. See the [beets documentation]
+thus this plugin) behave when there multiple set. See the [beets import documentation]
 and [#36](https://github.com/gtronset/beets-filetote/pull/36) for more details.
 
-[beets documentation]: https://beets.readthedocs.io/en/stable/reference/config.html#importer-options
+Reimporting has an additional nuance when copying of linking files that are
+already in the library, in which files will be moved rather than duplicated.
+This behavior in Filetote is identical to that of beets. See the
+[beets reimport documentation] for more details.
+
+[beets import documentation]: https://beets.readthedocs.io/en/stable/reference/config.html#importer-options
+[beets reimport documentation]: https://beets.readthedocs.io/en/stable/reference/cli.html#reimporting
 
 ### Other CLI Operations
 
