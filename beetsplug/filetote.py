@@ -44,6 +44,7 @@ class FiletotePlugin(BeetsPlugin):
             paths=self._templatize_config_paths(config_paths),
             exclude=self.config["exclude"].as_str_seq(),
             print_ignored=self.config["print_ignored"].get(bool),
+            incremental=self.config["incremental"].get(bool),
         )
 
         self.filetote.adjust(
@@ -85,6 +86,7 @@ class FiletotePlugin(BeetsPlugin):
         """
         file_operation_events: List[str] = [
             "before_item_moved",
+            "item_moved",
             "item_copied",
             "item_linked",
             "item_hardlinked",
@@ -104,7 +106,7 @@ class FiletotePlugin(BeetsPlugin):
 
         self.register_listener("import_begin", self._register_session_settings)
 
-        self.register_listener("cli_exit", self.process_events)
+        self.register_listener("cli_exit", self.cli_exit_event_listener)
 
     def _build_file_event_function(self, event: str) -> Callable[..., None]:
         """
@@ -204,6 +206,7 @@ class FiletotePlugin(BeetsPlugin):
     def file_operation_event_listener(
         self, event: str, item: "Item", source: bytes, destination: bytes
     ) -> None:
+        # pylint: disable=protected-access
         """
         Certain CLI opertations such as `move` (`mv`) don't utilize the config file's
         `import` settings which `_operation_type()` uses by default to determine how
@@ -219,7 +222,23 @@ class FiletotePlugin(BeetsPlugin):
             self.filetote.session.adjust("operation", self._event_operation_type(event))
 
         # Find and collect all non-media file artifacts
-        self.collect_artifacts(item, source, destination)
+        if event != "item_moved":
+            self.collect_artifacts(item, source, destination)
+
+        if event != "before_item_moved" and self.filetote.incremental:
+            self.process_events(item._db)
+
+    def cli_exit_event_listener(self, lib: "Library") -> None:
+        """
+        Triggered by the CLI exit event, which then triggers the processing and
+        manipuation of the extra files and artifacts.
+
+        If `incremental` is set, processing of files occurs after the beets
+        operations occur on the given media file, in which case no further
+        action is needed.
+        """
+        if not self.filetote.incremental:
+            self.process_events(lib)
 
     def remove_prefix(self, text: str, prefix: str) -> str:
         """Removes the prefix of given text."""
