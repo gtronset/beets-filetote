@@ -6,7 +6,7 @@ import shutil
 from contextlib import contextmanager
 from dataclasses import asdict, dataclass
 from sys import version_info
-from typing import Dict, Iterator, List, Optional
+from typing import Any, Dict, Iterator, List, Optional
 
 from beets import config, library, plugins, util
 from beets.importer import ImportSession
@@ -258,21 +258,24 @@ class FiletoteTestCase(_common.TestCase, Assertions, HelperUtils):
         # pylint: disable=protected-access
         """Loads and sets up the plugin(s) for the test module."""
 
-        audible_plugin: bool = "audible" in other_plugins
-        inline_plugin: bool = "inline" in other_plugins
+        plugin_list: List[str] = ["filetote"]
+        plugin_class_list: List[Any] = [filetote.FiletotePlugin]
 
-        if audible_plugin:
-            plugins._classes = set([audible.Audible, filetote.FiletotePlugin])
-            config["plugins"] = ["audible", "filetote"]
-            plugins.load_plugins(["audible", "filetote"])
-        elif inline_plugin:
-            plugins._classes = set([inline.InlinePlugin, filetote.FiletotePlugin])
-            config["plugins"] = ["inline", "filetote"]
-            plugins.load_plugins(["inline", "filetote"])
-        else:
-            plugins._classes = set([filetote.FiletotePlugin])
-            config["plugins"] = ["filetote"]
-            plugins.load_plugins(["filetote"])
+        approved_plugins: Dict[str, Any] = {
+            "audible": audible.Audible,
+            "inline": inline.InlinePlugin,
+        }
+
+        for other_plugin in other_plugins:
+            if other_plugin in approved_plugins:
+                plugin_class_list.append(approved_plugins[other_plugin])
+                plugin_list.append(other_plugin)
+            else:
+                raise AssertionError(f"Attempt to load unknown plugin: {other_plugin}")
+
+        plugins._classes = set(plugin_class_list)
+        config["plugins"] = plugin_list
+        plugins.load_plugins(plugin_list)
 
     def unload_plugins(self) -> None:
         # pylint: disable=protected-access

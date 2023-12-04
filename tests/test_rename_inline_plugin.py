@@ -32,6 +32,9 @@ class FiletoteInlineRenameTest(FiletoteTestCase):
         self._setup_import_session(autotag=False)
 
         config["filetote"]["extensions"] = ".*"
+        config["filetote"]["patterns"] = {
+            "file-pattern": ["*.file"],
+        }
         config["paths"][
             "ext:file"
         ] = "$albumpath/%if{$multidisc,Disc $disc} - $old_filename"
@@ -40,9 +43,11 @@ class FiletoteInlineRenameTest(FiletoteTestCase):
 
         self.lib.path_formats[0] = (
             "default",
-            os.path.join("$artist", "$album", "%if{$multidisc,Disc $disc} - $title"),
+            os.path.join("$artist", "$album", "%if{$multidisc,Disc $disc/}$title"),
         )
 
         self._run_importer()
 
-        self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"Disc 01 - artifact.file")
+        self.assert_in_lib_dir(
+            b"Tag Artist", b"Tag Album", b"Disc 01", b"Disc 01 - artifact.file"
+        )
