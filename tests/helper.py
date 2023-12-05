@@ -299,39 +299,26 @@ class FiletoteTestCase(_common.TestCase, Assertions, HelperUtils):
                 # test.
                 del plugins._instances[plugin_class]
 
-    def _run_importer(
-        self, operation_option: Literal["copy", "move", None] = None
-    ) -> None:
+    def _run_command(self, command: str, **kwargs: Any) -> None:
         """
-        Create an instance of the plugin, run the importer, and
+        Create an instance of the plugin, run the supplied command, and
         remove/unregister the plugin instance so a new instance can
         be created when this method is run again.
+
         This is a convenience method that can be called to setup, exercise
         and teardown the system under test after setting any config options
         and before assertions are made regarding changes to the filesystem.
         """
-        # Setup
-        # Create an instance of the plugin
         plugins.find_plugins()
-
         plugins.send("pluginload")
 
-        if operation_option == "copy":
-            config["import"]["copy"] = True
-            config["import"]["move"] = False
-        elif operation_option == "move":
-            config["import"]["copy"] = False
-            config["import"]["move"] = True
+        # Get the function associated with the provided command name
+        command_func = getattr(self, f"_run_{command}")
 
-        # Run the importer
-        if not self.importer:
-            return
-        self.importer.run()
+        # Call the function with the provided arguments
+        command_func(**kwargs)
 
-        # Fake the occurrence of the cli_exit event
         plugins.send("cli_exit", lib=self.lib)
-
-        # Teardown Plugins
         self.unload_plugins()
 
         log.debug("--- library structure")
@@ -341,7 +328,24 @@ class FiletoteTestCase(_common.TestCase, Assertions, HelperUtils):
             log.debug("--- source structure after import")
             self.list_files(self.paths)
 
-    def _run_mover(  # pylint: disable=too-many-arguments
+    def _run_importer(
+        self, operation_option: Literal["copy", "move", None] = None
+    ) -> None:
+        """Runs the "import" CLI command. This should be called with
+        _run_command()."""
+        if not self.importer:
+            return
+
+        if operation_option == "copy":
+            config["import"]["copy"] = True
+            config["import"]["move"] = False
+        elif operation_option == "move":
+            config["import"]["copy"] = False
+            config["import"]["move"] = True
+
+        self.importer.run()
+
+    def _run_mover(
         self,
         query: str,
         dest_dir: Optional[bytes] = None,
@@ -350,22 +354,9 @@ class FiletoteTestCase(_common.TestCase, Assertions, HelperUtils):
         pretend: bool = False,
         export: bool = False,
     ) -> None:
-        """
-        Create an instance of the plugin, run the "move" command, and
-        remove/unregister the plugin instance so a new instance can
-        be created when this method is run again.
-
-        This is a convenience method that can be called to setup, exercise
-        and teardown the system under test after setting any config options
-        and before assertions are made regarding changes to the filesystem.
-        """
-        # Setup
-        # Create an instance of the plugin
-        plugins.find_plugins()
-
-        plugins.send("pluginload")
-
-        # Run the move command
+        # pylint: disable=too-many-arguments
+        """Runs the "move" CLI command. This should be called with
+        _run_command()."""
         commands.move_items(
             lib=self.lib,
             dest=dest_dir,
@@ -377,20 +368,7 @@ class FiletoteTestCase(_common.TestCase, Assertions, HelperUtils):
             export=export,
         )
 
-        # Fake the occurrence of the cli_exit event
-        plugins.send("cli_exit", lib=self.lib)
-
-        # Teardown Plugins
-        self.unload_plugins()
-
-        log.debug("--- library structure")
-        self.list_files(self.lib_dir)
-
-        if self.paths:
-            log.debug("--- source structure after import")
-            self.list_files(self.paths)
-
-    def _run_modify(  # pylint: disable=too-many-arguments
+    def _run_modify(
         self,
         query: str,
         mods: Optional[Dict[str, str]] = None,
@@ -399,25 +377,12 @@ class FiletoteTestCase(_common.TestCase, Assertions, HelperUtils):
         move: bool = True,
         album: Optional[str] = None,
     ) -> None:
-        """
-        Create an instance of the plugin, run the "modify" command, and
-        remove/unregister the plugin instance so a new instance can
-        be created when this method is run again.
-
-        This is a convenience method that can be called to setup, exercise
-        and teardown the system under test after setting any config options
-        and before assertions are made regarding changes to the filesystem.
-        """
+        # pylint: disable=too-many-arguments
+        """Runs the "modify" CLI command. This should be called with
+        _run_command()."""
         mods = mods or {}
         dels = dels or {}
 
-        # Setup
-        # Create an instance of the plugin
-        plugins.find_plugins()
-
-        plugins.send("pluginload")
-
-        # Run the move command
         commands.modify_items(
             lib=self.lib,
             mods=mods,
@@ -429,20 +394,7 @@ class FiletoteTestCase(_common.TestCase, Assertions, HelperUtils):
             confirm=False,
         )
 
-        # Fake the occurrence of the cli_exit event
-        plugins.send("cli_exit", lib=self.lib)
-
-        # Teardown Plugins
-        self.unload_plugins()
-
-        log.debug("--- library structure")
-        self.list_files(self.lib_dir)
-
-        if self.paths:
-            log.debug("--- source structure after import")
-            self.list_files(self.paths)
-
-    def _run_update(  # pylint: disable=too-many-arguments
+    def _run_update(
         self,
         query: str,
         album: Optional[str] = None,
@@ -450,23 +402,9 @@ class FiletoteTestCase(_common.TestCase, Assertions, HelperUtils):
         pretend: bool = False,
         fields: Optional[List[str]] = None,
     ) -> None:
-        """
-        Create an instance of the plugin, run the "update" command, and
-        remove/unregister the plugin instance so a new instance can
-        be created when this method is run again.
-
-        This is a convenience method that can be called to setup, exercise
-        and teardown the system under test after setting any config options
-        and before assertions are made regarding changes to the filesystem.
-        """
-
-        # Setup
-        # Create an instance of the plugin
-        plugins.find_plugins()
-
-        plugins.send("pluginload")
-
-        # Run the move command
+        # pylint: disable=too-many-arguments
+        """Runs the "update" CLI command. This should be called with
+        _run_command()."""
         commands.update_items(
             lib=self.lib,
             query=query,
@@ -475,19 +413,6 @@ class FiletoteTestCase(_common.TestCase, Assertions, HelperUtils):
             pretend=pretend,
             fields=fields,
         )
-
-        # Fake the occurrence of the cli_exit event
-        plugins.send("cli_exit", lib=self.lib)
-
-        # Teardown Plugins
-        self.unload_plugins()
-
-        log.debug("--- library structure")
-        self.list_files(self.lib_dir)
-
-        if self.paths:
-            log.debug("--- source structure after import")
-            self.list_files(self.paths)
 
     def _create_flat_import_dir(
         self, media_files: Optional[List[MediaSetup]] = None

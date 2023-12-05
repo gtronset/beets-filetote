@@ -41,7 +41,7 @@ class FiletoteFilename(FiletoteTestCase):
         )
         self.import_media = [medium]
 
-        self._run_importer()
+        self._run_command("importer")
 
         self.assert_in_lib_dir(
             b"Tag Artist",
@@ -62,7 +62,7 @@ class FiletoteFilename(FiletoteTestCase):
         )
         self.import_media = [medium]
 
-        self._run_importer()
+        self._run_command("importer")
 
         self.assert_in_lib_dir(
             b"Tag Artist",
@@ -100,7 +100,7 @@ class FiletoteFilename(FiletoteTestCase):
         )
         self.import_media = [medium]
 
-        self._run_importer()
+        self._run_command("importer")
 
         self.assert_in_lib_dir(
             b"Tag Artist",
@@ -124,7 +124,7 @@ class FiletoteFilename(FiletoteTestCase):
         )
         self.import_media = [medium]
 
-        self._run_importer()
+        self._run_command("importer")
 
         self.assert_in_lib_dir(
             b"Tag Artist", b"Tag Album_", b"Tag Artist - Tag Album_.file"

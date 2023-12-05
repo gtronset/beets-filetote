@@ -28,7 +28,7 @@ class FiletoteRenameFiletoteFieldsTest(FiletoteTestCase):
         config["filetote"]["extensions"] = ".file"
         config["paths"]["ext:file"] = "$albumpath/newname"
 
-        self._run_importer()
+        self._run_command("importer")
 
         self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"newname.file")
 
@@ -37,7 +37,7 @@ class FiletoteRenameFiletoteFieldsTest(FiletoteTestCase):
         config["filetote"]["extensions"] = ".file"
         config["paths"]["ext:file"] = "$albumpath/$old_filename"
 
-        self._run_importer()
+        self._run_command("importer")
 
         self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"artifact.file")
         self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"artifact2.file")
@@ -47,7 +47,7 @@ class FiletoteRenameFiletoteFieldsTest(FiletoteTestCase):
         config["filetote"]["extensions"] = ".file"
         config["paths"]["ext:file"] = "$albumpath/$medianame_old"
 
-        self._run_importer()
+        self._run_command("importer")
 
         self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"track_1.file")
 
@@ -60,7 +60,7 @@ class FiletoteRenameFiletoteFieldsTest(FiletoteTestCase):
         }
         config["paths"]["ext:lrc"] = "$albumpath/$medianame_new"
 
-        self._run_importer()
+        self._run_command("importer")
 
         self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"Tag Title 1.lrc")
         self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"Tag Title 2.lrc")

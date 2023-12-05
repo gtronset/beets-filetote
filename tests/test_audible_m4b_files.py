@@ -31,6 +31,6 @@ class FiletoteM4BFilesIgnoredTest(FiletoteTestCase):
 
         config["filetote"]["extensions"] = ".*"
 
-        self._run_importer()
+        self._run_command("importer")
 
         self.assert_not_in_lib_dir(b"Tag Artist", b"Tag Album", b"track_1.m4b")

@@ -30,7 +30,7 @@ class FiletotePatternTest(FiletoteTestCase):
             "all-pattern": ["*.*"],
         }
 
-        self._run_importer()
+        self._run_command("importer")
 
         self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"track_1.lrc")
         self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"track_2.lrc")
@@ -47,7 +47,7 @@ class FiletotePatternTest(FiletoteTestCase):
             "nfo-pattern": ["*.nfo"],
         }
 
-        self._run_importer()
+        self._run_command("importer")
 
         self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"artifact.file")
         self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"artifact2.file")
@@ -78,7 +78,7 @@ class FiletotePatternTest(FiletoteTestCase):
                 "pattern:subfolder-pattern"
             ] = "$albumpath\\artwork\\$old_filename"
 
-        self._run_importer()
+        self._run_command("importer")
 
         self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"artifact.file")
         self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"artifact2.file")
@@ -133,7 +133,7 @@ class FiletotePatternTest(FiletoteTestCase):
                 "pattern:subfolder3-pattern"
             ] = "$albumpath\\sub1\\sub2\\$old_filename"
 
-        self._run_importer()
+        self._run_command("importer")
 
         self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"artwork", b"cover.jpg")
         self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"cd.file")
@@ -154,7 +154,7 @@ class FiletotePatternTest(FiletoteTestCase):
         config["paths"]["pattern:nfo-pattern"] = "$albumpath/nfo-pattern $old_filename"
 
         with capture_log() as logs:
-            self._run_importer()
+            self._run_command("importer")
 
         for line in logs:
             if line.startswith("filetote:"):

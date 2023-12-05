@@ -29,7 +29,7 @@ class FiletoteMusicFilesIgnoredTest(FiletoteTestCase):
 
         config["filetote"]["extensions"] = ".*"
 
-        self._run_importer()
+        self._run_command("importer")
 
         self.assert_not_in_lib_dir(b"Tag Artist", b"Tag Album", b"track_1.aac")
         self.assert_not_in_lib_dir(b"Tag Artist", b"Tag Album", b"track_1.aiff")
@@ -61,7 +61,7 @@ class FiletoteMusicFilesIgnoredTest(FiletoteTestCase):
 
         config["filetote"]["extensions"] = ".*"
 
-        self._run_importer()
+        self._run_command("importer")
 
         self.assert_not_in_lib_dir(b"Tag Artist", b"Tag Album", b"track_1.m4a")
         self.assert_not_in_lib_dir(b"Tag Artist", b"Tag Album", b"track_1.alac.m4a")
