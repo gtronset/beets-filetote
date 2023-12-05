@@ -606,6 +606,24 @@ six = ">=1.9"
 test = ["tox"]
 
 [[package]]
+name = "mediafile"
+version = "0.11.0"
+description = "Handles low-level interfacing for files' tags. Wraps Mutagen to"
+optional = false
+python-versions = ">=3.7"
+files = [
+    {file = "mediafile-0.11.0-py3-none-any.whl", hash = "sha256:88aa75595f5ff568173b914de0677ba58586c5babe319fb04ca68651a4a931df"},
+    {file = "mediafile-0.11.0.tar.gz", hash = "sha256:2771ae95a31b773635c1446957cf5cd91d29967b9606f8c8c6accba1715c5eaf"},
+]
+
+[package.dependencies]
+mutagen = ">=1.46"
+six = ">=1.9"
+
+[package.extras]
+test = ["tox"]
+
+[[package]]
 name = "mock"
 version = "5.1.0"
 description = "Rolling backport of unittest.mock for all Pythons"
@@ -652,6 +670,17 @@ python-versions = ">=3.5, <4"
 files = [
     {file = "mutagen-1.45.1-py3-none-any.whl", hash = "sha256:9c9f243fcec7f410f138cb12c21c84c64fde4195481a30c9bfb05b5f003adfed"},
     {file = "mutagen-1.45.1.tar.gz", hash = "sha256:6397602efb3c2d7baebd2166ed85731ae1c1d475abca22090b7141ff5034b3e1"},
+]
+
+[[package]]
+name = "mutagen"
+version = "1.47.0"
+description = "read and write audio tags for many formats"
+optional = false
+python-versions = ">=3.7"
+files = [
+    {file = "mutagen-1.47.0-py3-none-any.whl", hash = "sha256:edd96f50c5907a9539d8e5bba7245f62c9f520aef333d13392a79a4f70aca719"},
+    {file = "mutagen-1.47.0.tar.gz", hash = "sha256:719fadef0a978c31b4cf3c956261b3c58b6948b32023078a2117b1de09f0fc99"},
 ]
 
 [[package]]
@@ -1238,4 +1267,4 @@ testing = ["big-O", "flake8 (<5)", "jaraco.functools", "jaraco.itertools", "more
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.6"
-content-hash = "a288029411432ffe7e296d5fec8d27d174a1988fdd1de12abc66ddbe0f325a79"
+content-hash = "917441649261d622ede8727e234cf5c5cbd7699d140c532fd6672f805a1af39d"
