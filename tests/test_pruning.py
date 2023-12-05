@@ -42,16 +42,16 @@ class FiletotePruningyTest(FiletoteTestCase):
         """
         Check that plugin only prunes nested folder when specified.
         """
+        new_import_dir = os.path.join(self.import_dir, b"the_album")
         self._setup_import_session(
             autotag=False,
-            import_dir=os.path.join(self.import_dir, b"the_album"),
+            import_dir=new_import_dir,
             move=True,
         )
         config["filetote"]["extensions"] = ".*"
         self._run_importer()
 
-        self.assert_import_dir_exists(self.import_dir)
-        self.assert_not_in_import_dir(b"the_album")
+        self.assert_import_dir_exists(new_import_dir)
 
     def test_prune_import_expands_user_import_path(self) -> None:
         """
@@ -67,7 +67,7 @@ class FiletotePruningyTest(FiletoteTestCase):
         self._run_importer()
 
         self.assert_import_dir_exists(self.import_dir)
-        self.assert_not_in_import_dir(b"the_album")
+        self.assert_in_import_dir(b"the_album")
 
     def test_prune_reimport_move(self) -> None:
         """

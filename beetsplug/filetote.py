@@ -225,7 +225,11 @@ class FiletotePlugin(BeetsPlugin):
         if event != "item_moved":
             self.collect_artifacts(item, source, destination)
 
-        if event != "before_item_moved" and self.filetote.incremental:
+        if (
+            event != "before_item_moved"
+            and self.filetote.incremental
+            and not self.filetote.pairing.enabled
+        ):
             self.process_events(item._db)
 
     def cli_exit_event_listener(self, lib: "Library") -> None:
@@ -237,7 +241,7 @@ class FiletotePlugin(BeetsPlugin):
         operations occur on the given media file, in which case no further
         action is needed.
         """
-        if not self.filetote.incremental:
+        if not self.filetote.incremental or self.filetote.pairing.enabled:
             self.process_events(lib)
 
     def remove_prefix(self, text: str, prefix: str) -> str:
@@ -772,6 +776,7 @@ class FiletotePlugin(BeetsPlugin):
         self, import_path: Optional[bytes], library_dir: bytes
     ) -> bool:
         """Checks if the import path is within the library directory."""
+
         return import_path is not None and str(library_dir) in util.ancestry(
             import_path
         )
@@ -820,7 +825,7 @@ class FiletotePlugin(BeetsPlugin):
             # If the import path is the same as the Library's, allow for
             # pruning all the way to the library path.
             root_path = os.path.dirname(import_path)
-        elif self._is_import_path_within_library(import_path, library_dir):
+        else:
             # Otherwise, prune all the way up to the import path.
             root_path = import_path
 
