@@ -269,3 +269,39 @@ class FiletoteCLIOperation(FiletoteTestCase):
         )
 
         self.assert_in_lib_dir(b"Tag Artist New", b"Tag Album", b"artifact.file")
+
+    def test_move_on_update_move_command(self) -> None:
+        """
+        Check that plugin detects the correct operation for the "update"
+        command, which will MOVE by default.
+        """
+        self._create_flat_import_dir()
+
+        self._setup_import_session(move=True, autotag=False)
+
+        self.lib.path_formats = [
+            ("default", os.path.join("$artist", "$album", "$title")),
+        ]
+
+        self._run_importer()
+
+        self.lib.path_formats = [
+            ("default", os.path.join("$artist", "$album", "$title")),
+        ]
+
+        self._update_medium(
+            path=os.path.join(
+                self.lib_dir, b"Tag Artist", b"Tag Album", b"Tag Title 1.mp3"
+            ),
+            meta_updates={"artist": "New Artist Updated"},
+        )
+
+        self._run_update(query="artist:'Tag Artist'", fields=["artist"], move=True)
+
+        self.assert_not_in_lib_dir(
+            b"Tag Artist",
+            b"Tag Album",
+            b"artifact.file",
+        )
+
+        self.assert_in_lib_dir(b"New Artist Updated", b"Tag Album", b"artifact.file")

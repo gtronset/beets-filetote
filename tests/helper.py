@@ -442,6 +442,53 @@ class FiletoteTestCase(_common.TestCase, Assertions, HelperUtils):
             log.debug("--- source structure after import")
             self.list_files(self.paths)
 
+    def _run_update(  # pylint: disable=too-many-arguments
+        self,
+        query: str,
+        album: Optional[str] = None,
+        move: bool = True,
+        pretend: bool = False,
+        fields: Optional[List[str]] = None,
+    ) -> None:
+        """
+        Create an instance of the plugin, run the "update" command, and
+        remove/unregister the plugin instance so a new instance can
+        be created when this method is run again.
+
+        This is a convenience method that can be called to setup, exercise
+        and teardown the system under test after setting any config options
+        and before assertions are made regarding changes to the filesystem.
+        """
+
+        # Setup
+        # Create an instance of the plugin
+        plugins.find_plugins()
+
+        plugins.send("pluginload")
+
+        # Run the move command
+        commands.update_items(
+            lib=self.lib,
+            query=query,
+            album=album,
+            move=move,
+            pretend=pretend,
+            fields=fields,
+        )
+
+        # Fake the occurrence of the cli_exit event
+        plugins.send("cli_exit", lib=self.lib)
+
+        # Teardown Plugins
+        self.unload_plugins()
+
+        log.debug("--- library structure")
+        self.list_files(self.lib_dir)
+
+        if self.paths:
+            log.debug("--- source structure after import")
+            self.list_files(self.paths)
+
     def _create_flat_import_dir(
         self, media_files: Optional[List[MediaSetup]] = None
     ) -> None:
@@ -671,6 +718,13 @@ class FiletoteTestCase(_common.TestCase, Assertions, HelperUtils):
         medium.save()
 
         return medium
+
+    def _update_medium(self, path: bytes, meta_updates: Dict[str, str]) -> None:
+        medium = MediaFile(path)
+
+        for item, value in meta_updates.items():
+            setattr(medium, item, value)
+        medium.save()
 
     def _set_import_dir(self) -> None:
         """
