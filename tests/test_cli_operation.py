@@ -309,3 +309,56 @@ class FiletoteCLIOperation(FiletoteTestCase):
         )
 
         self.assert_in_lib_dir(b"New Artist Updated", b"Tag Album", b"artifact.file")
+
+    def test_pairs_on_update_move_command(self) -> None:
+        """
+        Check that plugin handles "pairs" for the "update"
+        command, which will MOVE by default.
+        """
+        self._create_flat_import_dir()
+
+        self._setup_import_session(move=True, autotag=False)
+
+        config["filetote"]["extensions"] = ".lrc"
+        config["filetote"]["pairing"] = {
+            "enabled": True,
+            "pairing_only": True,
+            "extensions": ".lrc",
+        }
+
+        config["paths"]["paired_ext:.lrc"] = "$albumpath/$medianame_new"
+
+        self.lib.path_formats = [
+            (
+                "default",
+                os.path.join("$artist", "$album", "$album - $track - $artist - $title"),
+            ),
+        ]
+
+        self._run_command("importer")
+
+        self._update_medium(
+            path=os.path.join(
+                self.lib_dir,
+                b"Tag Artist",
+                b"Tag Album",
+                b"Tag Album - 01 - Tag Artist - Tag Title 1.mp3",
+            ),
+            meta_updates={"artist": "New Artist Updated"},
+        )
+
+        self._run_command(
+            "update", query="artist:'Tag Artist'", fields=["artist"], move=True
+        )
+
+        self.assert_not_in_lib_dir(
+            b"Tag Artist",
+            b"Tag Album",
+            b"artifact.file",
+        )
+
+        self.assert_in_lib_dir(
+            b"New Artist Updated",
+            b"Tag Album",
+            b"Tag Album - 01 - New Artist Updated - Tag Title 1.lrc",
+        )
