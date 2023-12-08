@@ -28,7 +28,7 @@ class FiletoteRenameTest(FiletoteTestCase):
         config["filetote"]["extensions"] = ".file"
         config["paths"]["ext:file"] = "$albumpath/$artist - $album"
 
-        self._run_command("importer")
+        self._run_cli_command("import")
 
         self.assert_in_lib_dir(
             b"Tag Artist", b"Tag Album", b"Tag Artist - Tag Album.file"
@@ -42,7 +42,7 @@ class FiletoteRenameTest(FiletoteTestCase):
         config["paths"]["ext:file"] = "$albumpath/$artist - $album"
         config["import"]["move"] = True
 
-        self._run_command("importer")
+        self._run_cli_command("import")
 
         self.assert_in_lib_dir(
             b"Tag Artist", b"Tag Album", b"Tag Artist - Tag Album.file"
@@ -55,7 +55,7 @@ class FiletoteRenameTest(FiletoteTestCase):
         config["filetote"]["pairing"]["enabled"] = True
         config["paths"]["paired_ext:lrc"] = "$albumpath/$medianame_new"
 
-        self._run_command("importer")
+        self._run_cli_command("import")
 
         self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"artifact.lrc")
         self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"Tag Title 1.lrc")
@@ -69,7 +69,7 @@ class FiletoteRenameTest(FiletoteTestCase):
         config["paths"]["ext:lrc"] = "$albumpath/1 $old_filename"
         config["paths"]["paired_ext:lrc"] = "$albumpath/$medianame_new"
 
-        self._run_command("importer")
+        self._run_cli_command("import")
 
         self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"1 artifact.lrc")
         self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"Tag Title 1.lrc")
@@ -84,7 +84,7 @@ class FiletoteRenameTest(FiletoteTestCase):
         config["paths"]["paired_ext:lrc"] = "$albumpath/$medianame_new"
         config["paths"]["ext:lrc"] = "$albumpath/1 $old_filename"
 
-        self._run_command("importer")
+        self._run_cli_command("import")
 
         self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"1 artifact.lrc")
         self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"Tag Title 1.lrc")
@@ -99,7 +99,7 @@ class FiletoteRenameTest(FiletoteTestCase):
         config["paths"]["paired_ext:lrc"] = "$albumpath/$medianame_new"
         config["paths"]["filename:track_1.lrc"] = "$albumpath/1 $old_filename"
 
-        self._run_command("importer")
+        self._run_cli_command("import")
 
         self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"artifact.lrc")
         self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"1 track_1.lrc")
@@ -115,7 +115,7 @@ class FiletoteRenameTest(FiletoteTestCase):
         config["paths"]["ext:.nfo"] = "$albumpath/$artist - $album 2"
         config["import"]["move"] = True
 
-        self._run_command("importer")
+        self._run_cli_command("import")
 
         self.assert_in_lib_dir(
             b"Tag Artist", b"Tag Album", b"Tag Artist - Tag Album.file"
@@ -135,7 +135,7 @@ class FiletoteRenameTest(FiletoteTestCase):
         config["paths"]["ext:file"] = "$albumpath/$artist - $album"
         config["import"]["move"] = True
 
-        self._run_command("importer")
+        self._run_cli_command("import")
 
         # `artifact.file` correctly renames.
         self.assert_not_in_import_dir(b"the_album", b"artifact.file")
@@ -155,7 +155,7 @@ class FiletoteRenameTest(FiletoteTestCase):
         config["paths"]["ext:nfo"] = "$albumpath/$artist - $album"
         config["import"]["move"] = True
 
-        self._run_command("importer")
+        self._run_cli_command("import")
 
         self.assert_in_lib_dir(
             b"Tag Artist", b"Tag Album", b"Tag Artist - Tag Album.file"
@@ -176,7 +176,7 @@ class FiletoteRenameTest(FiletoteTestCase):
         config["paths"]["filename:artifact2.file"] = "$albumpath/another-new-filename"
         config["import"]["move"] = True
 
-        self._run_command("importer")
+        self._run_cli_command("import")
 
         self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"new-filename.file")
         self.assert_in_lib_dir(
@@ -194,7 +194,7 @@ class FiletoteRenameTest(FiletoteTestCase):
         config["paths"]["filename:artifact.file"] = "$albumpath/new-filename"
         config["import"]["move"] = True
 
-        self._run_command("importer")
+        self._run_cli_command("import")
 
         self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"new-filename.file")
         self.assert_in_lib_dir(
@@ -216,7 +216,7 @@ class FiletoteRenameTest(FiletoteTestCase):
         config["paths"]["ext:file"] = "$albumpath/$artist - $old_filename"
         config["import"]["move"] = True
 
-        self._run_command("importer")
+        self._run_cli_command("import")
 
         self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"new-filename.file")
         self.assert_in_lib_dir(
@@ -236,7 +236,7 @@ class FiletoteRenameTest(FiletoteTestCase):
         config["paths"]["filename:artifact2.file"] = "$albumpath/new-filename2"
         config["import"]["move"] = True
 
-        self._run_command("importer")
+        self._run_cli_command("import")
 
         self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"new-filename.file")
         self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"new-filename2.file")

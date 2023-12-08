@@ -299,7 +299,9 @@ class FiletoteTestCase(_common.TestCase, Assertions, HelperUtils):
                 # test.
                 del plugins._instances[plugin_class]
 
-    def _run_command(self, command: str, **kwargs: Any) -> None:
+    def _run_cli_command(
+        self, command: Literal["import", "modify", "move", "update"], **kwargs: Any
+    ) -> None:
         """
         Create an instance of the plugin, run the supplied command, and
         remove/unregister the plugin instance so a new instance can
@@ -313,7 +315,7 @@ class FiletoteTestCase(_common.TestCase, Assertions, HelperUtils):
         plugins.send("pluginload")
 
         # Get the function associated with the provided command name
-        command_func = getattr(self, f"_run_{command}")
+        command_func = getattr(self, f"_run_cli_{command}")
 
         # Call the function with the provided arguments
         command_func(**kwargs)
@@ -328,11 +330,11 @@ class FiletoteTestCase(_common.TestCase, Assertions, HelperUtils):
             log.debug("--- source structure after import")
             self.list_files(self.paths)
 
-    def _run_importer(
+    def _run_cli_import(
         self, operation_option: Literal["copy", "move", None] = None
     ) -> None:
         """Runs the "import" CLI command. This should be called with
-        _run_command()."""
+        _run_cli_command()."""
         if not self.importer:
             return
 
@@ -345,7 +347,7 @@ class FiletoteTestCase(_common.TestCase, Assertions, HelperUtils):
 
         self.importer.run()
 
-    def _run_mover(
+    def _run_cli_move(
         self,
         query: str,
         dest_dir: Optional[bytes] = None,
@@ -356,7 +358,7 @@ class FiletoteTestCase(_common.TestCase, Assertions, HelperUtils):
     ) -> None:
         # pylint: disable=too-many-arguments
         """Runs the "move" CLI command. This should be called with
-        _run_command()."""
+        _run_cli_command()."""
         commands.move_items(
             lib=self.lib,
             dest=dest_dir,
@@ -368,7 +370,7 @@ class FiletoteTestCase(_common.TestCase, Assertions, HelperUtils):
             export=export,
         )
 
-    def _run_modify(
+    def _run_cli_modify(
         self,
         query: str,
         mods: Optional[Dict[str, str]] = None,
@@ -379,7 +381,7 @@ class FiletoteTestCase(_common.TestCase, Assertions, HelperUtils):
     ) -> None:
         # pylint: disable=too-many-arguments
         """Runs the "modify" CLI command. This should be called with
-        _run_command()."""
+        _run_cli_command()."""
         mods = mods or {}
         dels = dels or {}
 
@@ -394,7 +396,7 @@ class FiletoteTestCase(_common.TestCase, Assertions, HelperUtils):
             confirm=False,
         )
 
-    def _run_update(
+    def _run_cli_update(
         self,
         query: str,
         album: Optional[str] = None,
@@ -404,7 +406,7 @@ class FiletoteTestCase(_common.TestCase, Assertions, HelperUtils):
     ) -> None:
         # pylint: disable=too-many-arguments
         """Runs the "update" CLI command. This should be called with
-        _run_command()."""
+        _run_cli_command()."""
         commands.update_items(
             lib=self.lib,
             query=query,

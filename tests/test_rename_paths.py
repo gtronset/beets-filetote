@@ -33,7 +33,7 @@ class FiletoteRenamePathsTest(FiletoteTestCase):
             "ext:nfo": "$albumpath/$artist - $album",
         }
 
-        self._run_command("importer")
+        self._run_cli_command("import")
 
         self.assert_in_lib_dir(
             b"Tag Artist", b"Tag Album", b"Tag Artist - Tag Album.file"
@@ -56,7 +56,7 @@ class FiletoteRenamePathsTest(FiletoteTestCase):
         }
 
         with capture_log() as logs:
-            self._run_command("importer")
+            self._run_cli_command("import")
 
         for line in logs:
             if line.startswith("filetote:"):
@@ -85,7 +85,7 @@ class FiletoteRenamePathsTest(FiletoteTestCase):
         }
 
         with capture_log() as logs:
-            self._run_command("importer")
+            self._run_cli_command("import")
 
         for line in logs:
             if line.startswith("filetote:"):

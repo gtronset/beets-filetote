@@ -35,7 +35,7 @@ class FiletoteManipulateFiles(FiletoteTestCase):
         config["import"]["copy"] = True
         config["filetote"]["extensions"] = ".*"
 
-        self._run_command("importer")
+        self._run_cli_command("import")
 
         self.assert_number_of_files_in_dir(
             self._base_file_count + 4, self.lib_dir, b"Tag Artist", b"Tag Album"
@@ -51,7 +51,7 @@ class FiletoteManipulateFiles(FiletoteTestCase):
         config["import"]["move"] = True
         config["filetote"]["extensions"] = ".*"
 
-        self._run_command("importer")
+        self._run_cli_command("import")
 
         self.assert_number_of_files_in_dir(
             self._base_file_count + 4, self.lib_dir, b"Tag Artist", b"Tag Album"
@@ -74,7 +74,7 @@ class FiletoteManipulateFiles(FiletoteTestCase):
 
         config["import"]["copy"] = True
 
-        self._run_command("importer")
+        self._run_cli_command("import")
 
         self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"track_1 - artifact.file")
         self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"track_1 - artifact2.file")
@@ -101,7 +101,7 @@ class FiletoteManipulateFiles(FiletoteTestCase):
             b"newname.file",
         )
 
-        self._run_command("importer")
+        self._run_cli_command("import")
 
         self.assert_in_import_dir(b"the_album", b"artifact.file")
         self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"newname.file")
@@ -133,7 +133,7 @@ class FiletoteManipulateFiles(FiletoteTestCase):
             b"newname.file",
         )
 
-        self._run_command("importer")
+        self._run_cli_command("import")
 
         self.assert_in_import_dir(b"the_album", b"artifact.file")
         self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"newname.file")
@@ -155,7 +155,7 @@ class FiletoteManipulateFiles(FiletoteTestCase):
         config["paths"]["ext:file"] = "$albumpath/newname"
         config["import"]["reflink"] = True
 
-        self._run_command("importer")
+        self._run_cli_command("import")
 
         self.assert_in_import_dir(b"the_album", b"artifact.file")
         self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"newname.file")

@@ -43,7 +43,7 @@ class FiletoteCLIOperation(FiletoteTestCase):
         config["import"]["copy"] = False
         config["import"]["move"] = False
 
-        self._run_command("importer")
+        self._run_cli_command("import")
 
         self.assert_number_of_files_in_dir(
             self._base_file_count + 4, self.import_dir, b"the_album"
@@ -68,7 +68,7 @@ class FiletoteCLIOperation(FiletoteTestCase):
         )
         self.import_media = [medium]
 
-        self._run_command("importer", operation_option="copy")
+        self._run_cli_command("import", operation_option="copy")
 
         self.assert_in_import_dir(
             b"the_album",
@@ -94,7 +94,7 @@ class FiletoteCLIOperation(FiletoteTestCase):
         )
         self.import_media = [medium]
 
-        self._run_command("importer", operation_option="move")
+        self._run_cli_command("import", operation_option="move")
 
         self.assert_not_in_import_dir(
             b"the_album",
@@ -121,7 +121,7 @@ class FiletoteCLIOperation(FiletoteTestCase):
         )
         self.import_media = [medium]
 
-        self._run_command("importer", operation_option="move")
+        self._run_cli_command("import", operation_option="move")
 
         self.assert_not_in_import_dir(
             b"the_album",
@@ -147,7 +147,7 @@ class FiletoteCLIOperation(FiletoteTestCase):
         )
         self.import_media = [medium]
 
-        self._run_command("importer", operation_option="copy")
+        self._run_cli_command("import", operation_option="copy")
 
         self.assert_in_import_dir(
             b"the_album",
@@ -173,13 +173,13 @@ class FiletoteCLIOperation(FiletoteTestCase):
             ("default", os.path.join("Old Lib Artist", "$album", "$title")),
         ]
 
-        self._run_command("importer")
+        self._run_cli_command("import")
 
         self.lib.path_formats = [
             ("default", os.path.join("$artist", "$album", "$title")),
         ]
 
-        self._run_command("mover", query="artist:'Tag Artist'")
+        self._run_cli_command("move", query="artist:'Tag Artist'")
 
         self.assert_not_in_lib_dir(
             b"Old Lib Artist",
@@ -203,13 +203,13 @@ class FiletoteCLIOperation(FiletoteTestCase):
             ("default", os.path.join("Old Lib Artist", "$album", "$title")),
         ]
 
-        self._run_command("importer")
+        self._run_cli_command("import")
 
         self.lib.path_formats = [
             ("default", os.path.join("$artist", "$album", "$title")),
         ]
 
-        self._run_command("mover", query="artist:'Tag Artist'", copy=True)
+        self._run_cli_command("move", query="artist:'Tag Artist'", copy=True)
 
         self.assert_in_lib_dir(b"Old Lib Artist", b"Tag Album", b"artifact.file")
 
@@ -229,13 +229,13 @@ class FiletoteCLIOperation(FiletoteTestCase):
             ("default", os.path.join("Old Lib Artist", "$album", "$title")),
         ]
 
-        self._run_command("importer")
+        self._run_cli_command("import")
 
         self.lib.path_formats = [
             ("default", os.path.join("$artist", "$album", "$title")),
         ]
 
-        self._run_command("mover", query="artist:'Tag Artist'", export=True)
+        self._run_cli_command("move", query="artist:'Tag Artist'", export=True)
 
         self.assert_in_lib_dir(b"Old Lib Artist", b"Tag Album", b"artifact.file")
 
@@ -254,13 +254,13 @@ class FiletoteCLIOperation(FiletoteTestCase):
             ("default", os.path.join("Old Lib Artist", "$album", "$title")),
         ]
 
-        self._run_command("importer")
+        self._run_cli_command("import")
 
         self.lib.path_formats = [
             ("default", os.path.join("$artist", "$album", "$title")),
         ]
 
-        self._run_command(
+        self._run_cli_command(
             "modify", query="artist:'Tag Artist'", mods={"artist": "Tag Artist New"}
         )
 
@@ -285,7 +285,7 @@ class FiletoteCLIOperation(FiletoteTestCase):
             ("default", os.path.join("$artist", "$album", "$title")),
         ]
 
-        self._run_command("importer")
+        self._run_cli_command("import")
 
         self.lib.path_formats = [
             ("default", os.path.join("$artist", "$album", "$title")),
@@ -298,7 +298,7 @@ class FiletoteCLIOperation(FiletoteTestCase):
             meta_updates={"artist": "New Artist Updated"},
         )
 
-        self._run_command(
+        self._run_cli_command(
             "update", query="artist:'Tag Artist'", fields=["artist"], move=True
         )
 
@@ -335,7 +335,7 @@ class FiletoteCLIOperation(FiletoteTestCase):
             ),
         ]
 
-        self._run_command("importer")
+        self._run_cli_command("import")
 
         self._update_medium(
             path=os.path.join(
@@ -347,7 +347,7 @@ class FiletoteCLIOperation(FiletoteTestCase):
             meta_updates={"artist": "New Artist Updated"},
         )
 
-        self._run_command(
+        self._run_cli_command(
             "update", query="artist:'Tag Artist'", fields=["artist"], move=True
         )
 
