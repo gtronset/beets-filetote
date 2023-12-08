@@ -311,6 +311,9 @@ class FiletoteTestCase(_common.TestCase, Assertions, HelperUtils):
         and teardown the system under test after setting any config options
         and before assertions are made regarding changes to the filesystem.
         """
+        log_string = f"Running CLI: {command}"
+        log.debug(log_string)
+
         plugins.find_plugins()
         plugins.send("pluginload")
 

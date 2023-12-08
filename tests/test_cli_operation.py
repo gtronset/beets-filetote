@@ -283,10 +283,6 @@ class FiletoteCLIOperation(FiletoteTestCase):
 
         self._run_cli_command("import")
 
-        self.lib.path_formats = [
-            ("default", os.path.join("$artist", "$album", "$title")),
-        ]
-
         self._update_medium(
             path=os.path.join(
                 self.lib_dir, b"Tag Artist", b"Tag Album", b"Tag Title 1.mp3"
