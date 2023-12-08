@@ -281,10 +281,6 @@ class FiletoteCLIOperation(FiletoteTestCase):
 
         self._setup_import_session(move=True, autotag=False)
 
-        self.lib.path_formats = [
-            ("default", os.path.join("$artist", "$album", "$title")),
-        ]
-
         self._run_cli_command("import")
 
         self.lib.path_formats = [
