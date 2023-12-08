@@ -77,7 +77,7 @@ Or match based on a "pattern" ([glob pattern]):
 filetote:
   patterns:
     artworkdir:
-          - "[aA]rtwork/"
+      - "[aA]rtwork/"
 ```
 
 It can look for and target "pairs" (files having the same name as a matching or
@@ -177,7 +177,7 @@ Take:
 filetote:
   patterns:
     artworkdir:
-          - "[aA]rtwork/"
+      - "[aA]rtwork/"
 ```
 
 This will match all files within the given subdirectory of either `artwork/`
@@ -316,7 +316,7 @@ paths:
   singleton: Singletons/$artist - $title
   ext:.log: $albumpath/$artist - $album
   ext:.cue: $albumpath/$artist - $album
-  paired_ext:.lrc: $albumpath/$medianame_old
+  paired_ext:.lrc: $albumpath/$medianame_new
   filename:cover.jpg: $albumpath/cover
 
 filetote:
@@ -341,8 +341,8 @@ filetote:
   extensions: .cue
   patterns:
     artworkdir:
-          - "[sS]cans/"
-          - "[aA]rtwork/"
+      - "[sS]cans/"
+      - "[aA]rtwork/"
   pairing:
     enabled: true
     extensions: ".lrc"
@@ -395,21 +395,21 @@ simply explicitly state all extension using `.*`:
 
 ```yaml
 filetote:
-    extensions: .*
+  extensions: .*
 ```
 
 Otherwise, simply replacing the name in the config section will work. For example:
 
 ```yaml
 copyartifacts:
-    extensions: .cue .log
+  extensions: .cue .log
 ```
 
 Would become:
 
 ```yaml
 filetote:
-    extensions: .cue .log
+  extensions: .cue .log
 ```
 
 Path definitions can also be specified in the way that `copyfileartifacts` does,
@@ -417,7 +417,7 @@ alongside other path definitions for beets. E.g.:
 
 ```yaml
 paths:
-    ext:log: $albumpath/$artist - $album
+  ext:log: $albumpath/$artist - $album
 ```
 
 ### Migrating from `extrafiles`
@@ -427,28 +427,28 @@ simply replacing the name of the plugin in its configuration settings. For examp
 
 ```yaml
 extrafiles:
-    patterns:
-        all: "*.*"
+  patterns:
+    all: "*.*"
 ```
 
 Would become:
 
 ```yaml
 filetote:
-    patterns:
-        all: "*.*"
+  patterns:
+    all: "*.*"
 ```
 
 Path definitions can also be specified in the way that `extrafiles` does, e.g.:
 
 ```yaml
 filetote:
-    patterns:
-        artworkdir:
-          - '[sS]cans/'
-          - '[aA]rtwork/'
-    paths:
-        artworkdir: $albumpath/artwork
+  patterns:
+    artworkdir:
+      - '[sS]cans/'
+      - '[aA]rtwork/'
+  paths:
+    artworkdir: $albumpath/artwork
 ```
 
 ## Version Upgrade Instructions
@@ -466,7 +466,7 @@ defined, e.g.:
 
 ```yaml
 filetote:
-    extensions: .*
+  extensions: .*
 ```
 
 #### Pairing Config Changes
@@ -491,6 +491,15 @@ filetote:
 ```
 
 Both remain optional and both default to `false`.
+
+**NOTE:** to mainting the concept of "pairs" after importing, it is strongly
+encouraged to set the `path` for the paired files to use the media files new
+name. E.g.:
+
+```yaml
+paths:
+  paired_ext:.lrc: $albumpath/$medianame_new
+```
 
 ## Thanks
 
