@@ -37,7 +37,7 @@ class FiletoteFromNestedDirectoryTest(FiletoteTestCase):
         """
         config["filetote"]["extensions"] = ".file"
 
-        self._run_importer()
+        self._run_cli_command("import")
 
         self.assert_number_of_files_in_dir(
             self._media_count + 4, self.lib_dir, b"Tag Artist", b"Tag Album"
@@ -64,7 +64,7 @@ class FiletoteFromNestedDirectoryTest(FiletoteTestCase):
             ("default", os.path.join("$artist", "$album", "$disc", "$title")),
         ]
 
-        self._run_importer()
+        self._run_cli_command("import")
 
         self.assert_number_of_files_in_dir(
             5, self.lib_dir, b"Tag Artist", b"Tag Album", b"01"

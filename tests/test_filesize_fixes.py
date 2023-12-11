@@ -32,7 +32,7 @@ class FiletoteNoFilesizeErrorTest(FiletoteTestCase):
         config["paths"]["ext:file"] = "$albumpath/filesize - ${filesize}b"
 
         with capture_log() as logs:
-            self._run_importer(operation_option="move")
+            self._run_cli_command("import", operation_option="move")
 
         self.assert_not_in_lib_dir(b"Tag Artist", b"Tag Album", b"artifact.nfo")
 

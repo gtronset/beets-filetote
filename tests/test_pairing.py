@@ -22,7 +22,7 @@ class FiletotePairingTest(FiletoteTestCase):
 
         config["filetote"]["extensions"] = ".lrc"
 
-        self._run_importer()
+        self._run_cli_command("import")
 
         self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"track_1.lrc")
         self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"artifact.lrc")
@@ -38,7 +38,7 @@ class FiletotePairingTest(FiletoteTestCase):
             "pairing_only": True,
         }
 
-        self._run_importer()
+        self._run_cli_command("import")
 
         self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"track_1.lrc")
         self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"artifact.lrc")
@@ -51,7 +51,7 @@ class FiletotePairingTest(FiletoteTestCase):
         config["filetote"]["extensions"] = ".lrc"
         config["filetote"]["pairing"]["enabled"] = False
 
-        self._run_importer()
+        self._run_cli_command("import")
 
         self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"track_1.lrc")
         self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"artifact.lrc")
@@ -64,7 +64,7 @@ class FiletotePairingTest(FiletoteTestCase):
         config["filetote"]["extensions"] = ".lrc"
         config["filetote"]["pairing"]["enabled"] = True
 
-        self._run_importer()
+        self._run_cli_command("import")
 
         self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"track_1.lrc")
         self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"track_2.lrc")
@@ -80,7 +80,7 @@ class FiletotePairingTest(FiletoteTestCase):
         config["filetote"]["extensions"] = ".lrc"
         config["filetote"]["pairing"]["enabled"] = True
 
-        self._run_importer()
+        self._run_cli_command("import")
 
         self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"artifact.lrc")
 
@@ -96,7 +96,7 @@ class FiletotePairingTest(FiletoteTestCase):
 
         self.create_file(os.path.join(self.import_dir, b"the_album"), b"track_1.lrc")
 
-        self._run_importer()
+        self._run_cli_command("import")
 
         self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"track_1.lrc")
         self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"artifact.lrc")
@@ -113,7 +113,7 @@ class FiletotePairingTest(FiletoteTestCase):
             "pairing_only": False,
         }
 
-        self._run_importer()
+        self._run_cli_command("import")
 
         self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"track_1.lrc")
         self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"track_2.lrc")
@@ -131,7 +131,7 @@ class FiletotePairingTest(FiletoteTestCase):
             "pairing_only": True,
         }
 
-        self._run_importer()
+        self._run_cli_command("import")
 
         self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"track_1.lrc")
         self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"track_2.lrc")
@@ -153,7 +153,7 @@ class FiletotePairingTest(FiletoteTestCase):
 
         self.create_file(os.path.join(self.import_dir, b"the_album"), b"track_1.lrc")
 
-        self._run_importer()
+        self._run_cli_command("import")
 
         self.assert_in_import_dir(b"the_album", b"track_1.lrc")
         self.assert_in_import_dir(b"the_album", b"artifact.lrc")
@@ -179,7 +179,7 @@ class FiletotePairingTest(FiletoteTestCase):
         for filename in new_files:
             self.create_file(os.path.join(self.import_dir, b"the_album"), filename)
 
-        self._run_importer()
+        self._run_cli_command("import")
 
         self.assert_in_import_dir(b"the_album", b"track_1.lrc")
         self.assert_in_import_dir(b"the_album", b"artifact.lrc")
@@ -209,7 +209,7 @@ class FiletotePairingTest(FiletoteTestCase):
         for filename in new_files:
             self.create_file(os.path.join(self.import_dir, b"the_album"), filename)
 
-        self._run_importer()
+        self._run_cli_command("import")
 
         self.assert_in_import_dir(b"the_album", b"track_1.lrc")
         self.assert_in_import_dir(b"the_album", b"artifact.lrc")

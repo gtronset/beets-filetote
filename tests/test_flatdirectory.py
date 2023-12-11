@@ -31,7 +31,7 @@ class FiletoteFromFlatDirectoryTest(FiletoteTestCase):
         """Test that Filetote only copies files by specific extension when set."""
         config["filetote"]["extensions"] = ".file"
 
-        self._run_importer()
+        self._run_cli_command("import")
 
         self.assert_number_of_files_in_dir(
             self._media_count + 2, self.lib_dir, b"Tag Artist", b"Tag Album"
@@ -53,7 +53,7 @@ class FiletoteFromFlatDirectoryTest(FiletoteTestCase):
 
         self.create_file(os.path.join(self.import_dir, b"the_album"), b"artifact.file2")
 
-        self._run_importer()
+        self._run_cli_command("import")
 
         self.assert_number_of_files_in_dir(
             self._media_count + 2, self.lib_dir, b"Tag Artist", b"Tag Album"
@@ -70,7 +70,7 @@ class FiletoteFromFlatDirectoryTest(FiletoteTestCase):
         config["filetote"]["extensions"] = ".file"
         config["filetote"]["exclude"] = "artifact2.file"
 
-        self._run_importer()
+        self._run_cli_command("import")
 
         self.assert_number_of_files_in_dir(
             self._media_count + 1, self.lib_dir, b"Tag Artist", b"Tag Album"
@@ -86,7 +86,7 @@ class FiletoteFromFlatDirectoryTest(FiletoteTestCase):
         """Test that only the specific file (by filename) is copied when specified."""
         config["filetote"]["filenames"] = "artifact.file"
 
-        self._run_importer()
+        self._run_cli_command("import")
 
         self.assert_number_of_files_in_dir(
             self._media_count + 1, self.lib_dir, b"Tag Artist", b"Tag Album"
@@ -105,7 +105,7 @@ class FiletoteFromFlatDirectoryTest(FiletoteTestCase):
         config["filetote"]["extensions"] = ".file"
         config["filetote"]["filenames"] = "artifact.nfo"
 
-        self._run_importer()
+        self._run_cli_command("import")
 
         self.assert_number_of_files_in_dir(
             self._media_count + 3, self.lib_dir, b"Tag Artist", b"Tag Album"
@@ -119,7 +119,7 @@ class FiletoteFromFlatDirectoryTest(FiletoteTestCase):
 
     def test_copy_no_artifacts_by_default(self) -> None:
         """Ensure that all artifacts that match the extensions are moved by default."""
-        self._run_importer()
+        self._run_cli_command("import")
 
         self.assert_number_of_files_in_dir(
             self._media_count, self.lib_dir, b"Tag Artist", b"Tag Album"
