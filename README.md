@@ -298,11 +298,12 @@ This behavior in Filetote is identical to that of beets. See the
 
 ### Other CLI Operations
 
-Additional commands such such as `move` or `modify` will also trigger Filetote
-to handle files. These commands typically work with [queries], targeting specific
-files that match the supplied query. Please note that the operation executed by
-beets for these commands do not use the value set in the config file under
-`import`, they instead are specified as part of the CLI command.
+Additional commands such such as `move`, `modify`, `update`, etc., will also
+trigger Filetote to handle files. These commands typically work with [queries],
+targeting specific files that match the supplied query. Please note that the
+operation executed by beets for these commands do not use the value set in the
+config file under `import`, they instead are specified as part of the CLI
+command.
 
 [queries]: https://beets.readthedocs.io/en/stable/reference/query.html
 
