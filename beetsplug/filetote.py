@@ -466,6 +466,15 @@ class FiletotePlugin(BeetsPlugin):
     def _update_multimove_artifacts(
         self, beets_item: "Item", source: bytes, destination: bytes
     ) -> None:
+        """
+        Updates all instances of a specific artifact collection in the processing queue
+        with a new destination and mapping.
+
+        This is necessary to handle situations where certain operations can actually
+        occur twice--the `update` CLI command, for example, first applies an update to
+        the Item then to the Album. This ensures the final destination is correctly
+        applied for the artifact.
+        """
         for index, artifact_collection in enumerate(self._process_queue):
             artifact_item_dest: bytes = artifact_collection.item_dest
 
@@ -476,6 +485,7 @@ class FiletotePlugin(BeetsPlugin):
                     source_path=artifact_collection.source_path,
                     item_dest=destination,
                 )
+                break
 
     def _is_beets_file_type(self, file_ext: Union[str, bytes]) -> bool:
         """Checks if the provided file extension is a music file/track
