@@ -8,7 +8,9 @@
 
 A plugin that moves non-music extra files, attachments, and artifacts during
 imports and CLI file manipulation actions (`move`, `modify`, reimport, etc.)
- for [beets](https://beets.io/), a music library manager (and much more!).
+for [beets](https://beets.io/), a music library manager (and much more!).
+
+This plugin is supported/runs in beets `v1.6.0`.
 
 ## Installing
 
@@ -19,27 +21,6 @@ using `pip3`:
 
 ```sh
 pip3 install beets-filetote
-```
-
-If you get permission errors, try running it with `sudo`.
-
-### Development
-
-The development version can be installed from GitHub by using these commands:
-
-```sh
-git clone https://github.com/gtronset/beets-filetote.git
-cd beets-filetote
-python3 setup.py install
-```
-
-If you get permission errors, try running it with `sudo`.
-
-Update the `config.yaml` to utilize the local plugin with:
-
-```yaml
-pluginpath:
-  - /path/to.../beets-filetote/beetsplug
 ```
 
 ## Configuration
@@ -491,6 +472,40 @@ filetote:
 ```
 
 Both remain optional and both default to `false`.
+
+## Development
+
+The development version can now be installed with [Poetry], a Python dependency
+manager that provides dependency isolation, reproducibility, and streamlined
+packaging to PyPI.
+
+**1. Install Poetry:**
+
+```sh
+python3 -m pip install poetry
+```
+
+**2. Clone the repository and install the plugin:**
+
+```sh
+git clone https://github.com/gtronset/beets-filetote.git
+cd beets-filetote
+poetry install
+```
+
+**3. Update the config.yaml to utilize the plugin:**
+
+```yaml
+pluginpath:
+  - /path/to.../beets-filetote/beetsplug
+```
+
+**Docker:**
+
+A Docker Compose configuration is available for running the plugin in a
+controlled environment. See the `docker-compose.yml` file for details.
+
+[Poetry]: https://python-poetry.org/
 
 ## Thanks
 
