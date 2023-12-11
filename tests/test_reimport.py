@@ -39,7 +39,7 @@ class FiletoteReimportTest(FiletoteTestCase):
         config["filetote"]["extensions"] = ".file"
 
         log.debug("--- initial import")
-        self._run_importer()
+        self._run_cli_command("import")
 
     def test_reimport_artifacts_with_copy(self) -> None:
         """Tests that when reimporting, copying actually results in a move. The
@@ -53,7 +53,7 @@ class FiletoteReimportTest(FiletoteTestCase):
         self._setup_import_session(autotag=False, import_dir=self.lib_dir)
 
         log.debug("--- second import")
-        self._run_importer()
+        self._run_cli_command("import")
 
         self.assert_not_in_lib_dir(b"Tag Artist", b"Tag Album", b"artifact.file")
         self.assert_in_lib_dir(b"1Tag Artist", b"Tag Album", b"artifact.file")
@@ -68,7 +68,7 @@ class FiletoteReimportTest(FiletoteTestCase):
         self._setup_import_session(autotag=False, import_dir=self.lib_dir, move=True)
 
         log.debug("--- second import")
-        self._run_importer()
+        self._run_cli_command("import")
 
         self.assert_not_in_lib_dir(b"Tag Artist", b"Tag Album", b"artifact.file")
         self.assert_in_lib_dir(b"1Tag Artist", b"Tag Album", b"artifact.file")
@@ -79,7 +79,7 @@ class FiletoteReimportTest(FiletoteTestCase):
         self._setup_import_session(autotag=False, import_dir=self.lib_dir)
 
         log.debug("--- second import")
-        self._run_importer()
+        self._run_cli_command("import")
 
         self.assert_number_of_files_in_dir(5, self.lib_dir, b"Tag Artist", b"Tag Album")
         self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"artifact.file")
@@ -91,7 +91,7 @@ class FiletoteReimportTest(FiletoteTestCase):
         self._setup_import_session(autotag=False, import_dir=self.lib_dir, move=True)
 
         log.debug("--- second import")
-        self._run_importer()
+        self._run_cli_command("import")
 
         self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"artifact.file")
         self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"artifact2.file")
@@ -102,7 +102,7 @@ class FiletoteReimportTest(FiletoteTestCase):
         self._setup_import_session(autotag=False, import_dir=self.lib_dir)
 
         log.debug("--- second import")
-        self._run_importer()
+        self._run_cli_command("import")
 
         self.assert_not_in_lib_dir(b"Tag Artist", b"Tag Album", b"artifact.file")
         self.assert_in_lib_dir(
@@ -115,7 +115,7 @@ class FiletoteReimportTest(FiletoteTestCase):
         self._setup_import_session(autotag=False, import_dir=self.lib_dir, move=True)
 
         log.debug("--- second import")
-        self._run_importer()
+        self._run_cli_command("import")
 
         self.assert_not_in_lib_dir(b"Tag Artist", b"Tag Album", b"artifact.file")
         self.assert_in_lib_dir(
@@ -132,7 +132,7 @@ class FiletoteReimportTest(FiletoteTestCase):
         self._setup_import_session(autotag=False, import_dir=self.lib_dir, move=True)
 
         log.debug("--- second import")
-        self._run_importer()
+        self._run_cli_command("import")
 
         self.assert_not_in_lib_dir(b"Tag Artist", b"Tag Album", b"artifact.file")
         self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"Tag Album.file")
@@ -149,7 +149,7 @@ class FiletoteReimportTest(FiletoteTestCase):
         config["paths"]["ext:file"] = "$albumpath/$old_filename - import I"
 
         log.debug("--- first import")
-        self._run_importer()
+        self._run_cli_command("import")
 
         self.assert_not_in_lib_dir(b"Tag Artist", b"Tag Album", b"artifact.file")
         self.assert_not_in_lib_dir(b"Tag Artist", b"Tag Album", b"artifact2.file")
@@ -167,7 +167,7 @@ class FiletoteReimportTest(FiletoteTestCase):
         )
         self._setup_import_session(autotag=False, import_dir=self.lib_dir, move=True)
         config["paths"]["ext:file"] = "$albumpath/$old_filename I"
-        self._run_importer()
+        self._run_cli_command("import")
 
         self.assert_not_in_lib_dir(
             b"1Tag Artist", b"Tag Album", b"artifact - import I.file"
@@ -189,7 +189,7 @@ class FiletoteReimportTest(FiletoteTestCase):
         )
         self._setup_import_session(autotag=False, import_dir=self.lib_dir, move=True)
 
-        self._run_importer()
+        self._run_cli_command("import")
 
         self.assert_not_in_lib_dir(
             b"2Tag Artist", b"Tag Album", b"artifact - import I I.file"
@@ -213,7 +213,7 @@ class FiletoteReimportTest(FiletoteTestCase):
         self._setup_import_session(query="artist", autotag=False, move=True)
 
         log.debug("--- second import")
-        self._run_importer()
+        self._run_cli_command("import")
 
         self.assert_not_in_lib_dir(b"Tag Artist", b"Tag Album", b"artifact.file")
         self.assert_in_lib_dir(b"New Tag Artist", b"Tag Album", b"artifact.file")

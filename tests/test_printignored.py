@@ -24,7 +24,7 @@ class FiletotePrintIgnoredTest(FiletoteTestCase):
         config["filetote"]["extensions"] = ".file"
 
         with capture_log() as logs:
-            self._run_importer()
+            self._run_cli_command("import")
 
         self.assert_not_in_lib_dir(b"Tag Artist", b"Tag Album", b"artifact.nfo")
         self.assert_not_in_lib_dir(b"Tag Artist", b"Tag Album", b"artifact.lrc")
@@ -42,7 +42,7 @@ class FiletotePrintIgnoredTest(FiletoteTestCase):
         config["filetote"]["extensions"] = ".file .lrc"
 
         with capture_log() as logs:
-            self._run_importer()
+            self._run_cli_command("import")
 
         self.assert_not_in_lib_dir(b"Tag Artist", b"Tag Album", b"artifact.nfo")
 

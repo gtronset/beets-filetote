@@ -474,14 +474,41 @@ class FiletotePlugin(BeetsPlugin):
                     # handle this file.
                     self._shared_artifacts[source_path].remove(artifact_path)
 
+            self._update_multimove_artifacts(beets_item, source, destination)
+
             if queue_artifacts:
                 self._process_queue.append(
                     FiletoteArtifactCollection(
                         artifacts=queue_artifacts,
                         mapping=self._generate_mapping(beets_item, destination),
                         source_path=source_path,
+                        item_dest=destination,
                     )
                 )
+
+    def _update_multimove_artifacts(
+        self, beets_item: "Item", source: bytes, destination: bytes
+    ) -> None:
+        """
+        Updates all instances of a specific artifact collection in the processing queue
+        with a new destination and mapping.
+
+        This is necessary to handle situations where certain operations can actually
+        occur twice--the `update` CLI command, for example, first applies an update to
+        the Item then to the Album. This ensures the final destination is correctly
+        applied for the artifact.
+        """
+        for index, artifact_collection in enumerate(self._process_queue):
+            artifact_item_dest: bytes = artifact_collection.item_dest
+
+            if artifact_item_dest == source:
+                self._process_queue[index] = FiletoteArtifactCollection(
+                    artifacts=artifact_collection.artifacts,
+                    mapping=self._generate_mapping(beets_item, destination),
+                    source_path=artifact_collection.source_path,
+                    item_dest=destination,
+                )
+                break
 
     def _is_beets_file_type(self, file_ext: Union[str, bytes]) -> bool:
         """Checks if the provided file extension is a music file/track
@@ -492,7 +519,7 @@ class FiletotePlugin(BeetsPlugin):
         )
 
     def collect_artifacts(
-        self, item: "Item", source: bytes, destination: bytes
+        self, beets_item: "Item", source: bytes, destination: bytes
     ) -> None:
         """
         Creates lists of the various extra files and artificats for processing.
@@ -510,13 +537,14 @@ class FiletotePlugin(BeetsPlugin):
 
         # Check if this path has not already been processed
         if source_path in self._dirs_seen:
-            self._collect_paired_artifacts(item, source, destination)
+            self._collect_paired_artifacts(beets_item, source, destination)
             return
 
         non_handled_files: List[bytes] = []
         for root, _dirs, files in util.sorted_walk(
             source_path, ignore=config["ignore"].as_str_seq()
         ):
+
             for filename in files:
                 source_file = os.path.join(root, filename)
                 file_name, file_ext = os.path.splitext(filename)
@@ -536,11 +564,14 @@ class FiletotePlugin(BeetsPlugin):
                 else:
                     non_handled_files.append(source_file)
 
+        self._update_multimove_artifacts(beets_item, source, destination)
+
         self._process_queue.append(
             FiletoteArtifactCollection(
                 artifacts=queue_files,
-                mapping=self._generate_mapping(item, destination),
+                mapping=self._generate_mapping(beets_item, destination),
                 source_path=source_path,
+                item_dest=destination,
             )
         )
         self._dirs_seen.append(source_path)

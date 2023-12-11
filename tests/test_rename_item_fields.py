@@ -33,7 +33,7 @@ class FiletoteRenameItemFieldsTest(FiletoteTestCase):
             "ext:file"
         ] = "$albumpath/$artist - $album - $track $title ($albumartist) newname"
 
-        self._run_importer()
+        self._run_cli_command("import")
 
         self.assert_in_lib_dir(
             b"Tag Artist",
@@ -52,7 +52,7 @@ class FiletoteRenameItemFieldsTest(FiletoteTestCase):
             " of $disctotal"
         )
 
-        self._run_importer()
+        self._run_cli_command("import")
 
         self.assert_in_lib_dir(
             b"Tag Artist",
@@ -67,7 +67,7 @@ class FiletoteRenameItemFieldsTest(FiletoteTestCase):
         config["filetote"]["extensions"] = ".file"
         config["paths"]["ext:file"] = "$albumpath/$lyrics ($comments)"
 
-        self._run_importer()
+        self._run_cli_command("import")
 
         self.assert_in_lib_dir(
             b"Tag Artist",
@@ -87,7 +87,7 @@ class FiletoteRenameItemFieldsTest(FiletoteTestCase):
             "ext:file"
         ] = "$albumpath/newname - ${bpm}bpm $length ($format) ($bitrate)"
 
-        self._run_importer()
+        self._run_cli_command("import")
 
         self.assert_in_lib_dir(
             b"Tag Artist",
@@ -107,7 +107,7 @@ class FiletoteRenameItemFieldsTest(FiletoteTestCase):
             " $mb_releasetrackid - $mb_workid"
         )
 
-        self._run_importer()
+        self._run_cli_command("import")
 
         self.assert_in_lib_dir(
             b"Tag Artist",

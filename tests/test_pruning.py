@@ -33,7 +33,7 @@ class FiletotePruningyTest(FiletoteTestCase):
         """
         config["filetote"]["extensions"] = ".*"
 
-        self._run_importer()
+        self._run_cli_command("import")
 
         self.assert_import_dir_exists()
         self.assert_not_in_import_dir(b"the_album")
@@ -49,7 +49,7 @@ class FiletotePruningyTest(FiletoteTestCase):
             move=True,
         )
         config["filetote"]["extensions"] = ".*"
-        self._run_importer()
+        self._run_cli_command("import")
 
         self.assert_import_dir_exists(new_import_dir)
 
@@ -64,7 +64,7 @@ class FiletotePruningyTest(FiletoteTestCase):
             move=True,
         )
         config["filetote"]["extensions"] = ".*"
-        self._run_importer()
+        self._run_cli_command("import")
 
         self.assert_import_dir_exists(self.import_dir)
         self.assert_in_import_dir(b"the_album")
@@ -89,7 +89,7 @@ class FiletotePruningyTest(FiletoteTestCase):
         config["filetote"]["extensions"] = ".file"
 
         log.debug("--- initial import")
-        self._run_importer()
+        self._run_cli_command("import")
 
         self.lib.path_formats[0] = (
             "default",
@@ -99,7 +99,7 @@ class FiletotePruningyTest(FiletoteTestCase):
 
         log.debug("--- second import")
 
-        self._run_importer()
+        self._run_cli_command("import")
 
         self.assert_not_in_lib_dir(b"Tag Artist", b"Tag Album")
         self.assert_not_in_lib_dir(b"Tag Artist")
@@ -126,7 +126,7 @@ class FiletotePruningyTest(FiletoteTestCase):
         config["filetote"]["extensions"] = ".file"
 
         log.debug("--- initial import")
-        self._run_importer()
+        self._run_cli_command("import")
 
         self.lib.path_formats[0] = (
             "default",
@@ -136,7 +136,7 @@ class FiletotePruningyTest(FiletoteTestCase):
 
         log.debug("--- second import")
 
-        self._run_importer()
+        self._run_cli_command("import")
 
         self.assert_not_in_lib_dir(b"Tag Artist", b"Tag Album")
         self.assert_not_in_lib_dir(b"Tag Artist")
@@ -162,7 +162,7 @@ class FiletotePruningyTest(FiletoteTestCase):
         config["filetote"]["extensions"] = ".file"
 
         log.debug("--- initial import")
-        self._run_importer()
+        self._run_cli_command("import")
 
         self.lib.path_formats = [
             ("default", os.path.join("New Tag Artist", "$album", "$title")),
@@ -170,7 +170,7 @@ class FiletotePruningyTest(FiletoteTestCase):
         self._setup_import_session(query="artist", autotag=False, move=True)
 
         log.debug("--- second import")
-        self._run_importer()
+        self._run_cli_command("import")
 
         self.assert_not_in_lib_dir(b"Tag Artist", b"Tag Album")
         self.assert_not_in_lib_dir(b"Tag Artist")
@@ -196,14 +196,14 @@ class FiletotePruningyTest(FiletoteTestCase):
         config["filetote"]["extensions"] = ".file"
 
         log.debug("--- initial import")
-        self._run_importer()
+        self._run_cli_command("import")
 
         self.lib.path_formats = [
             ("default", os.path.join("New Tag Artist", "$album", "$title")),
         ]
 
         log.debug("--- run mover")
-        self._run_mover(query="artist:'Tag Artist'")
+        self._run_cli_command("move", query="artist:'Tag Artist'")
 
         self.assert_not_in_lib_dir(b"Tag Artist", b"Tag Album")
         self.assert_not_in_lib_dir(b"Tag Artist")
@@ -229,14 +229,16 @@ class FiletotePruningyTest(FiletoteTestCase):
         config["filetote"]["extensions"] = ".file"
 
         log.debug("--- initial import")
-        self._run_importer()
+        self._run_cli_command("import")
 
         self.lib.path_formats = [
             ("default", os.path.join("$artist", "$album", "$title")),
         ]
 
         log.debug("--- run modify")
-        self._run_modify(query="artist:'Tag Artist'", mods={"artist": "New Tag Artist"})
+        self._run_cli_command(
+            "modify", query="artist:'Tag Artist'", mods={"artist": "New Tag Artist"}
+        )
 
         self.assert_not_in_lib_dir(b"Tag Artist", b"Tag Album")
         self.assert_not_in_lib_dir(b"Tag Artist")

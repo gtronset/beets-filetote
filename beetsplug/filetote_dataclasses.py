@@ -43,6 +43,7 @@ class FiletoteArtifactCollection:
     artifacts: List[FiletoteArtifact]
     mapping: FiletoteMappingModel
     source_path: bytes
+    item_dest: bytes
 
 
 @dataclass
