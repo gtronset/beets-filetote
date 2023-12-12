@@ -102,7 +102,7 @@ other matches by either `extensions` or `filenames`.
 
 [glob pattern]: https://docs.python.org/3/library/glob.html#module-glob
 
-### Matching/Handling Files
+### File Handling & Renaming
 
 In order to collect extra files and artifacts, Filetote needs to be told which types of
 files it should care about. This can be done using the following:
@@ -116,45 +116,148 @@ files it should care about. This can be done using the following:
 - Pairing: Move files with the same name as imported music items, like `.lrc` lyrics or
   album logs.
 
+#### Filetote Renaming Basics
+
+Renaming works in much the same way as beets [Path Formats], including the standard
+metadata values provided by beets. Filetote provides the below new path queries, which
+each takes a single corresponding value. These can be defined in either the top-level
+`paths` section of Beet's config or in the `paths` section of Filetote's config. Both
+of the following are equivalent:
+
+```yaml
+paths:
+  ext:.log: $albumpath/$artist - $album
+```
+
+```yaml
+filetote:
+  paths:
+    ext:.log: $albumpath/$artist - $album
+```
+
+[Path Formats]: http://beets.readthedocs.org/en/stable/reference/pathformat.html
+
+##### New path queries
+
+These are the new path queries added by Filetote, from _most_ to _least_ specific:
+
+- `filename:`
+- `paired_ext:`
+- `pattern:`
+- `ext:`
+
+This means that the `filename:` path query will take precedence over `paired_ext:`,
+`pattern:`, and `ext:` if a given file qualifies for them. This also means that
+the value in `paired_ext:` will take precedence over `pattern:` and `ext:`, and
+`pattern:` is higher priority than `ext:`.
+
+##### Renaming considerations
+
+Renaming has the following considerations:
+
+The fields available include [the standard metadata values] of the imported item
+(`$albumartist`, `$album`, `$title`, etc.), along with Filetote-specific values of:
+
+- `$albumpath`: the entire path of the new destination of the item/track (a useful
+shorthand for when the extra/artifact file will be moved allongside  the item/track).
+- `$old_filename`: the filename of the extra/artifact file before its renamed.
+- `$medianame_old`: the filename of the item/track triggering it, _before_ it's renamed.
+- `$medianame_new`: the filename of the item/track triggering it, _after_ it's renamed.
+
+The full set of [built in functions] are also supported, with the exception of
+`%aunique` - which will return an empty string.
+
+> **Important Note:** if the rename is set and there are multiple files that qualify,
+> only the first will be added to the library (new folder); other files that
+> subsequently match will not be saved/renamed. To work around this, `$old_filename`
+> can be used to help with adding uniqueness to the name.
+
+[the standard metadata values]: https://beets.readthedocs.io/en/stable/reference/pathformat.html#available-values
+[built in functions]: http://beets.readthedocs.org/en/stable/reference/pathformat.html#functions
+
 #### Extension (`ext:`)
 
 Filename can match on the extension of the file, in a space-delimited list (i.e., a
-string sequence). Take:
+string sequence). Use `.*` to match all file extensions.
+
+##### Extension Example Configuration
+
+This example will match any file which has an extension of either `.lrc` or `.log`,
+across all subfolders.
 
 ```yaml
 filetote:
   ext: .lrc .log
 ```
 
-Any file with either a `.lrc` or `.log` will match.
+##### Extension Renaming Example
 
-Use `.*` to match all file extensions.
+The following configuration or template string will be applied to `.log` files by using
+the `ext:` query and will rename log file to:
+`~/Music/Artist/2014 - Album/Artist - Album.log`
+
+```yaml
+paths:
+  ext:.log: $albumpath/$artist - $album
+```
 
 #### Filename (`filename:`)
 
 Filetote can match on the actual name (including extension) of the file, in a
-space-delimited list (string sequence). Take this example:
+space-delimited list (string sequence). `filename:` will match across any subdirectories,
+meaning targeting a filename in a specific subdirectory will not work (this functionality
+_can_ be achieved using a `pattern`, however).
+
+##### Filename Example Configuration
+
+This example will match if the filename of the given artifact or extra file matches the name
+exactly as specified, either `cover.jpg` or `artifact.nfo`.
 
 ```yaml
 filetote:
   filenames: cover.jpg artifact.nfo
 ```
 
-This will match if the filename of the given artifact or extra file matches the name
-exactly as specified, in this example either `cover.jpg` or `artifact.nfo`. This will
-match across any subdirectories, meaning targeting a filename in a specific subdirectory
-will not work (this functionality _can_ be achieved using a `pattern`, however).
+##### Filename Renaming Example
+
+The following configuration will rename the specific `artifact.nfo` file to:
+`~/Music/Artist/2014 - Album/Artist - Album.nfo`
+
+```yaml
+filetote:
+  paths:
+    filename:artifact.nfo: $albumpath/$artist - $album
+  filenames: cover.jpg artifact.nfo
+```
 
 #### Pattern (`pattern:`)
 
-Filetote can match on a given _pattern_ as specified using [glob patterns]. Paths in the
-pattern are relative to the root of the importing album. Hence, if there are
-subdirectories in the album's folder (for multidisc setups, for instance, e.g.,
-`albumpath/CD1`), the album's path would be the base/root for the pattern (ex:
-`CD1/*.jpg`). Patterns will work with or without the proceeding slash (`/`). Note:
-Windows users will need to obviously use the appropriate slash (`\`).
+Filetote can match on a given _pattern_ as specified using [glob patterns]. This allows
+for more specific matching, like grabbing only PNG artwork files. Paths in the pattern
+are relative to the root of the importing album. Hence, if there are subdirectories in
+the album's folder (for multidisc setups, for instance, e.g., `albumpath/CD1`), the
+album's path would be the base/root for the pattern (ex: `CD1/*.jpg`). Patterns will
+work with or without the proceeding slash (`/`). Note: Windows users will need to
+use the appropriate slash (`\`).
 
-Take, for example:
+Patterns specifying folders with a trailing slash will (ex: `albumpath/`) will match
+every file in that subdirectory irrespective of name or extension (it is equivalent to
+`albumpath/*.*`).
+
+Patterns are defined by a _name_ so that any customization for renaming can apply to the
+pattern when specifying the path (ex: `pattern:artworkdir`; see the section on renaming
+below).
+
+[glob patterns]: https://docs.python.org/3/library/glob.html#module-glob
+
+##### Pattern Example Configuration
+
+This example will match if the filename of the given artifact or extra file matches the name
+exactly as specified, either `cover.jpg` or `artifact.nfo`.
+
+This example will match all files within the given subdirectory of either `artwork/` or
+`Artwork/`. Since it's not otherwise specified, `[aA]rtwork/` will grab all non-media
+files in that subdirectory irrespective of name or extension.
 
 ```yaml
 filetote:
@@ -163,15 +266,19 @@ filetote:
       - "[aA]rtwork/"
 ```
 
-This will match all files within the given subdirectory of either `artwork/` or
-`Artwork/`. Unless specified, `[aA]rtwork/` will grab all non-media files in that
-subdirectory irrespective of name or extension (it is equivalent to `[aA]rtwork/*.*`).
+##### Pattern Renaming Example
 
-Patterns are defined by a _name_ so that any customization for renaming can apply to the
-pattern when specifying the path (ex: `pattern:artworkdir`; see the section on renaming
-below).
+The following pattern configuration will rename the file `artwork/cover.jpeg` to:
+`~/Music/Artist/2014 - Album/artwork/cover.jpeg`
 
-[glob patterns]: https://docs.python.org/3/library/glob.html#module-glob
+```yaml
+filetote:
+  paths:
+    pattern:artworkdir: $albumpath/artwork/$old_filename
+  patterns:
+    artworkdir:
+      - "[aA]rtwork/"
+```
 
 #### Pairing
 
@@ -212,89 +319,13 @@ filetote:
 ##### Pairing Renaming
 
 To mainting the concept of "pairs" after importing, it is strongly encouraged to set
-the `path` for the paired files to use the media files new name. E.g.:
+the `path` for the paired files to use the media files new name. This will ensure thet
+the file remains paired even after moving. E.g.:
 
 ```yaml
 paths:
   paired_ext:.lrc: $albumpath/$medianame_new
 ```
-
-### Renaming files
-
-Renaming works in much the same way as beets [Path Formats], though with only the below
-specified fields (this will change in the future). This plugin supports the below new
-path queries, which each takes a single corresponding value. These can be defined in
-either the top-level `paths` section of Beet's config or in the `paths` section of
-Filetote's config.
-
-[Path Formats]: http://beets.readthedocs.org/en/stable/reference/pathformat.html
-
-New path queries, from _most_ to _least_ specific:
-
-- `filename:`
-- `paired_ext:`
-- `pattern:`
-- `ext:`
-
-Renaming has the following considerations:
-
-- The fields available include [the standard metadata values] of the imported item
-  (`$albumartist`, `$album`, `$title`, etc.), along with Filetote-specific values of:
-  - `$albumpath`: the entire path of the new destination of the item/track (a useful
-  shorthand for when the extra/artifact file will be moved allongside  the item/track).
-  - `$old_filename`: the filename of the extra/artifact file before its renamed.
-  - `$medianame_old`: the filename of the item/track triggering it, _before_ it's renamed.
-  - `$medianame_new`: the filename of the item/track triggering it, _after_ it's renamed.
-- The full set of [built in functions] are also supported, with the exception of
-  `%aunique` - which will return an empty string.
-- `filename:` path query will take precedence over `paired_ext:`, `pattern:`, and `ext:`
-  if a given file qualifies for them. `paired_ext:` takes precedence over `pattern:` and
-  `ext:`, but is not required. `pattern:` is higher priority than `ext:`.
-
-[the standard metadata values]: https://beets.readthedocs.io/en/stable/reference/pathformat.html#available-values
-[built in functions]: http://beets.readthedocs.org/en/stable/reference/pathformat.html#functions
-
-Each template string uses a query syntax for each of the file extensions. For example
-the following template string will be applied to `.log` files by using the `ext:` query:
-
-```yaml
-paths:
-  ext:.log: $albumpath/$artist - $album
-```
-
-Or:
-
-```yaml
-filetote:
-  paths:
-    ext:.log: $albumpath/$artist - $album
-```
-
-This will rename a log file to:
-`~/Music/Artist/2014 - Album/Artist - Album.log`
-
-Or by using the `filename:` query:
-
-```yaml
-paths:
-  filename:track.log: $albumpath/$artist - $album
-```
-
-Or:
-
-```yaml
-filetote:
-  paths:
-    filename:track.log: $albumpath/$artist - $album
-```
-
-This will rename the specific `track.log` log file to:
-`~/Music/Artist/2014 - Album/Artist - Album.log`
-
-> **Note:** if the rename is set and there are multiple files that qualify, only the
-> first will be added to the library (new folder); other files that subsequently match
-> will not be saved/renamed. To work around this, `$old_filename` can be used to help
-> with adding uniqueness to the name.
 
 ### Import Operations
 
@@ -321,11 +352,11 @@ details.
 
 ### Other CLI Operations
 
-Additional commands such such as `move` or `modify` will also trigger Filetote to handle
-files. These commands typically work with [queries], targeting specific files that match
-the supplied query. Please note that the operation executed by beets for these commands
-do not use the value set in the config file under `import`, they instead are specified
-as part of the CLI command.
+Additional commands such such as `move`, `modify`, `update`, etc. will also trigger
+Filetote to handle files. These commands typically work with [queries], targeting
+specific files that match the supplied query. Please note that the operation executed
+by beets for these commands do not use the value set in the config file under `import`,
+they instead are specified as part of the CLI command.
 
 [queries]: https://beets.readthedocs.io/en/stable/reference/query.html
 
