@@ -503,7 +503,7 @@ pluginpath:
 **Docker:**
 
 A Docker Compose configuration is available for running the plugin in a
-controlled environment. See the `docker-compose.yml` file for details.
+controlled environment. See the `.dev-docker/docker-compose.yml` file for details.
 
 [Poetry]: https://python-poetry.org/
 
