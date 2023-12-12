@@ -19,6 +19,7 @@ jobs:
       - name: Lint Markdown Files
         uses: DavidAnson/markdownlint-cli2-action@v14
         with:
+          config: .markdownlint.yaml
           globs: |
             **.md
             **.markdown

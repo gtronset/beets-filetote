@@ -1,0 +1,4 @@
+MD013:
+  code_block_line_length: 88 # Override default of 80 characters
+  heading_line_length: 88 # Override default of 80 characters
+  line_length: 88 # Override default of 80 characters
