@@ -46,7 +46,7 @@ class FiletoteInlineRenameTest(FiletoteTestCase):
             os.path.join("$artist", "$album", "%if{$multidisc,Disc $disc/}$title"),
         )
 
-        self._run_importer()
+        self._run_cli_command("import")
 
         self.assert_in_lib_dir(
             b"Tag Artist", b"Tag Album", b"Disc 01", b"Disc 01 - artifact.file"

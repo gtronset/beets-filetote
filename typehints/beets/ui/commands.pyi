@@ -20,3 +20,12 @@ def modify_items(
     album: str | None = None,
     confirm: bool = False,
 ) -> None: ...
+def update_items(
+    lib: Library,
+    query: str,
+    album: str | None = None,
+    move: bool = True,
+    pretend: bool = True,
+    fields: list[str] | None = None,
+    exclude_fields: list[str] | None = None,
+) -> None: ...
