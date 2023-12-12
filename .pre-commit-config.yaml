@@ -82,3 +82,8 @@ repos:
     hooks:
       - id: typos
         exclude: "(_typos.toml|.gitignore)"
+
+  - repo: https://github.com/abravalheri/validate-pyproject
+    rev: 'v0.15'
+    hooks:
+      - id: validate-pyproject
