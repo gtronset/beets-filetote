@@ -1,6 +1,6 @@
 ast-decompiler==0.7.0 ; python_version >= "3.7" and python_version < "3.9"
 astroid==2.11.7 ; python_version >= "3.7" and python_version < "3.8"
-astroid==3.0.1 ; python_version >= "3.8" and python_version < "4.0"
+astroid==3.0.2 ; python_version >= "3.8" and python_version < "4.0"
 atomicwrites==1.4.1 ; python_version >= "3.6" and python_version < "3.7" and sys_platform == "win32"
 attrs==22.2.0 ; python_version >= "3.6" and python_version < "3.7"
 attrs==23.1.0 ; python_version >= "3.7" and python_version < "4.0"

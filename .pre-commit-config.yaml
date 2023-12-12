@@ -63,13 +63,13 @@ repos:
         stages: [push]
       - id: poetry-export
         name: poetry-export
-        stages: [push]
+        stages: [commit]
         files: (pyproject\.toml|poetry\.lock)
         args: ["--without-hashes", "-f", "requirements.txt", "-o", ".dev-docker/requirements.txt"]
       - id: poetry-export
         name: poetry-export-dev
         alias: poetry-export-dev
-        stages: [push]
+        stages: [commit]
         files: (pyproject\.toml|poetry\.lock)
         args: ["--dev", "--without-hashes", "-f", "requirements.txt", "-o", ".dev-docker/dev-requirements.txt"]
 
