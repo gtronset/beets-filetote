@@ -107,17 +107,19 @@ other matches by either `extensions` or `filenames`.
 In order to collect extra files and artifacts, Filetote needs to be told which types of
 files it should care about. This can be done using the following:
 
-- `ext`
-- `filename`
-- `pattern`
+- Extensions (`ext:`): Specify individual extensions like `.cue` or `.log`, or catch all
+  non-music files with `.*`.
+- Filenames (`filename:`): Match specific filenames like `cover.jpg` or organize artwork
+  with `[aA]rtwork/*`.
+- Patterns (`pattern:`): Use flexible glob patterns for more control, like matching all
+  logs in a subfolder: `CD1/*.log`.
+- Pairing: Move files with the same name as imported music items, like `.lrc` lyrics or
+  album logs.
 
-Filetote can also grab "paired" files, meaning those files having the same name as a
-matching media item/track.
+#### Extension (`ext:`)
 
-#### Extension (`ext`)
-
-Filename can match on the extensio) of the file, in a space-delimited list (string
-sequence). Take:
+Filename can match on the extension of the file, in a space-delimited list (i.e., a
+string sequence). Take:
 
 ```yaml
 filetote:
@@ -128,7 +130,7 @@ Any file with either a `.lrc` or `.log` will match.
 
 Use `.*` to match all file extensions.
 
-#### Filename
+#### Filename (`filename:`)
 
 Filetote can match on the actual name (including extension) of the file, in a
 space-delimited list (string sequence). Take this example:
@@ -143,7 +145,7 @@ exactly as specified, in this example either `cover.jpg` or `artifact.nfo`. This
 match across any subdirectories, meaning targeting a filename in a specific subdirectory
 will not work (this functionality _can_ be achieved using a `pattern`, however).
 
-#### Pattern
+#### Pattern (`pattern:`)
 
 Filetote can match on a given _pattern_ as specified using [glob patterns]. Paths in the
 pattern are relative to the root of the importing album. Hence, if there are
@@ -170,6 +172,52 @@ pattern when specifying the path (ex: `pattern:artworkdir`; see the section on r
 below).
 
 [glob patterns]: https://docs.python.org/3/library/glob.html#module-glob
+
+#### Pairing
+
+Filetote can specially target related files like lyrics or logs with the same name as
+music files ("paired" files). This keeps related files together, making your library
+even more organized. When enabled, it will match and move those files having the same
+name as a matching music file. Pairing can be configured to target only certain
+extensions, such as `.lrc`.
+
+**Note:** Pairing takes precedence over other Filetote rules like filename or patterns.
+
+##### Pairing Example Configuration
+
+This example configuration will grab paired `.lrc` files, along with any artwork files:
+
+```yaml
+filetote:
+  pairing:
+    enabled: true
+    extensions: ".lrc"
+  patterns:
+    artworkdir:
+          - "[aA]rtwork/"
+```
+
+Filetote can also be configured to _only_ target paired files, which will ignore other
+Filetote configurations such as filename or patterns as described above. The following
+configuration would _only_ target `.lrc` files:
+
+```yaml
+filetote:
+  pairing:
+    enabled: true
+    pairing_only: true
+    extensions: ".lrc"
+```
+
+##### Pairing Renaming
+
+To mainting the concept of "pairs" after importing, it is strongly encouraged to set
+the `path` for the paired files to use the media files new name. E.g.:
+
+```yaml
+paths:
+  paired_ext:.lrc: $albumpath/$medianame_new
+```
 
 ### Renaming files
 
@@ -329,7 +377,7 @@ filetote:
 
 ## Multi-Disc and Nested Import Directories
 
-Beets imports multi-disc albums as a single unit ([see Beets documentation]). By
+beets imports multi-disc albums as a single unit ([see beets documentation]). By
 default, this results in the media importing to a single directory in the library.
 Artifacts and extra files in the initial subdirectories will brought by Filetote to the
 destination of the file's they're near, resulting in them landing where one would expect.
@@ -504,7 +552,7 @@ environment. See the `.dev-docker/docker-compose.yml` file for details.
 This plugin originated as a hard fork from [beets-copyartifacts (copyartifacts3)].
 
 Thank you to the original work done by Sami Barakat, Adrian Sampson, along with the
-larger community on [beets](http://beets.io).
+larger [beets](http://beets.io) community.
 
 Please report any issues you may have and feel free to contribute.
 
