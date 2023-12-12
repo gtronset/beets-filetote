@@ -10,8 +10,8 @@ RUN apk update && apk add python3-dev \
 
 WORKDIR /src
 
-COPY requirements.txt .
+COPY requirements.txt dev-requirements.txt ./
 RUN pip install --upgrade pip \
-    && pip install -r requirements.txt
+    && pip install -r requirements.txt -r dev-requirements.txt
 
 COPY . /src
