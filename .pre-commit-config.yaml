@@ -61,8 +61,10 @@ repos:
         stages: [push]
       - id: poetry-lock
         stages: [push]
-      #- id: poetry-export
-      #  args: ["-f", "requirements.txt", "-o", "requirements.txt"]
+      - id: poetry-export
+        stages: [push]
+        files: (pyproject\.toml|poetry\.lock)
+        args: ["--without-hashes", "-f", "requirements.txt", "-o", ".dev-docker/requirements2.txt"]
 
   - repo: local
     hooks:
