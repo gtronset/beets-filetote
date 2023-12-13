@@ -6,4 +6,4 @@ services:
     command: tail -F anything
     restart: unless-stopped
     volumes:
-      - .:/src
+      - ../:/src

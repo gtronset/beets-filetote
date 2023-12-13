@@ -71,7 +71,7 @@ repos:
         alias: poetry-export-dev
         stages: [pre-commit]
         files: (pyproject\.toml|poetry\.lock)
-        args: ["--dev", "--without-hashes", "-f", "requirements.txt", "-o", ".dev-docker/dev-requirements.txt"]
+        args: ["--with", "dev,lint,test", "--without-hashes", "-f", "requirements.txt", "-o", ".dev-docker/dev-requirements.txt"]
 
   - repo: local
     hooks:
