@@ -547,13 +547,18 @@ Both remain optional and both default to `false`.
 
 ## Development
 
-The development version can now be installed with [Poetry], a Python dependency manager
+The development version can be installed with [Poetry], a Python dependency manager
 that provides dependency isolation, reproducibility, and streamlined packaging to PyPI.
 
-**1. Install Poetry:**
+Testing and linting is performed with [Tox].
+
+[Poetry]: https://python-poetry.org/
+[Tox]: https://tox.wiki/
+
+**1. Install Poetry & Tox:**
 
 ```sh
-python3 -m pip install poetry
+python3 -m pip install poetry tox
 ```
 
 **2. Clone the repository and install the plugin:**
@@ -571,12 +576,30 @@ pluginpath:
   - /path/to.../beets-filetote/beetsplug
 ```
 
+**4. Run or test with Poetry (and Tox):**
+
+Run beets with the following to locally develop:
+
+```sh
+poetry run beet
+```
+
+Testing can be run with Tox, ex.:
+
+```sh
+poetry run tox -e py312
+```
+
+For other linting environments, see `tox.ini`. Ex: `black`:
+
+```sh
+poetry run tox -e black
+```
+
 **Docker:**
 
 A Docker Compose configuration is available for running the plugin in a controlled
-environment. See the `.dev-docker/docker-compose.yml` file for details.
-
-[Poetry]: https://python-poetry.org/
+environment. See the `docker-compose.yml` file for details.
 
 ## Thanks
 
