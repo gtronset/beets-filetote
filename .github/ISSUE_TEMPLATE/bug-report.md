@@ -32,9 +32,16 @@ ___
 
 ## Setup
 
+<!--
+You can get your current beets and python version by running:
+
+$ beet --version
+-->
+
 * OS: ___
 * Python version: ___
 * beets version: ___
+* Filetote version: ___
 * Turning off other plugins made problem go away (yes/no): ___
 
 <!--

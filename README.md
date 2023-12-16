@@ -10,7 +10,7 @@ A plugin that moves non-music extra files, attachments, and artifacts during imp
 CLI file manipulation actions (`move`, `modify`, reimport, etc.) for [beets], a music
 library manager (and much more!).
 
-This plugin is supported/runs in beets `v1.6.0`.
+This plugin is supported/runs in beets [`v1.6.0`].
 
 [beets]: https://beets.io/
 
@@ -118,11 +118,15 @@ files it should care about. This can be done using the following:
 
 #### Filetote Renaming Basics
 
-Renaming works in much the same way as beets [Path Formats], including the standard
-metadata values provided by beets. Filetote provides the below new path queries, which
-each takes a single corresponding value. These can be defined in either the top-level
-`paths` section of Beet's config or in the `paths` section of Filetote's config. Both
-of the following are equivalent:
+Unless otherwise specified, the default name for artifacts and extra files is:
+`$albumpath/$old_filename`. This means that by default, the file is essentially
+moved/copied into destination directory of the music item it gets grabbed with.
+
+Configuration for renaming works in much the same way as beets [Path Formats], including
+the standard metadata values provided by beets. Filetote provides the below new path
+queries, which each takes a single corresponding value. These can be defined in either
+the top-level `paths` section of Beet's config or in the `paths` section of Filetote's
+config. Both of the following are equivalent:
 
 ```yaml
 paths:
@@ -555,6 +559,9 @@ Testing and linting is performed with [Tox].
 [Poetry]: https://python-poetry.org/
 [Tox]: https://tox.wiki/
 
+Filetote currently supports Python 3.6+, which aligns with the most recent version of
+beets ([`v1.6.0`]).
+
 **1. Install Poetry & Tox:**
 
 ```sh
@@ -599,7 +606,7 @@ poetry run tox -e black
 **Docker:**
 
 A Docker Compose configuration is available for running the plugin in a controlled
-environment. See the `docker-compose.yml` file for details.
+environment. Running the `docker-compose.yml` file for details.
 
 ## Thanks
 
@@ -627,3 +634,5 @@ Licensed under the [MIT license][license link].
 [pypi_version]: https://img.shields.io/pypi/v/beets-filetote
 [pypi_link]: https://pypi.org/project/beets-filetote/
 [pypi_python_versions]: https://img.shields.io/pypi/pyversions/beets-filetote
+
+[`v1.6.0`]: https://pypi.org/project/beets/1.6.0/
