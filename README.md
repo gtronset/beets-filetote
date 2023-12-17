@@ -516,7 +516,7 @@ for specific steps for each version.
 
 ### `0.4.0`
 
-#### Default extensions is now `None`
+#### Default for `extensions` is now `None`
 
 As of version `0.4.0`, Filetote no longer set the default for `extensions` to `.*`.
 Instead, setting Filetote to collect all extensions needs to be explicitly defined, e.g.:
@@ -612,7 +612,7 @@ environment. Running the `docker-compose.yml` file for details.
 
 This plugin originated as a hard fork from [beets-copyartifacts (copyartifacts3)].
 
-Thank you to the original work done by Sami Barakat, Adrian Sampson, along with the
+Thank you to the original work done by Sami Barakat and Adrian Sampson, along with the
 larger [beets](http://beets.io) community.
 
 Please report any issues you may have and feel free to contribute.
