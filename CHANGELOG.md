@@ -14,6 +14,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Add tests to ensure inline plugin works <https://github.com/gtronset/beets-filetote/pull/130>
 - Bugfix for Update CLI command <https://github.com/gtronset/beets-filetote/pull/133>
 
+### Changed
+
+- Improve README, Dev setup, & update mediafile for newer Py versions <https://github.com/gtronset/beets-filetote/pull/134>
+
 ## [0.4.6] - 2023-12-03
 
 ### Fixed

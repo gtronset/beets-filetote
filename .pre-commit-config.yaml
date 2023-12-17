@@ -61,8 +61,17 @@ repos:
         stages: [push]
       - id: poetry-lock
         stages: [push]
-      #- id: poetry-export
-      #  args: ["-f", "requirements.txt", "-o", "requirements.txt"]
+      - id: poetry-export
+        name: poetry-export
+        stages: [manual]
+        files: (pyproject\.toml|poetry\.lock)
+        args: ["--without-hashes", "-f", "requirements.txt", "-o", "requirements.txt"]
+      - id: poetry-export
+        name: poetry-export-dev
+        alias: poetry-export-dev
+        stages: [manual]
+        files: (pyproject\.toml|poetry\.lock)
+        args: ["--with", "dev,lint,test", "--without-hashes", "-f", "requirements.txt", "-o", "dev-requirements.txt"]
 
   - repo: local
     hooks:
@@ -82,3 +91,8 @@ repos:
     hooks:
       - id: typos
         exclude: "(_typos.toml|.gitignore)"
+
+  - repo: https://github.com/abravalheri/validate-pyproject
+    rev: 'v0.15'
+    hooks:
+      - id: validate-pyproject
