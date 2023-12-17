@@ -17,25 +17,25 @@ repos:
         args: ["--maxkb=500"]
 
   - repo: https://github.com/psf/black
-    rev: 23.11.0
+    rev: 23.12.0
     hooks:
-    - id: black
+      - id: black
 
   - repo: https://github.com/PyCQA/flake8
     rev: 6.1.0
     hooks:
       - id: flake8
         additional_dependencies:
-          - flake8-bugbear==23.9.16
-          - flake8-pyi==23.10.0
+          - flake8-bugbear==23.12.2
+          - flake8-pyi==23.11.0
 
   - repo: https://github.com/PyCQA/isort
-    rev: 5.12.0
+    rev: 5.13.2
     hooks:
       - id: isort
 
   - repo: https://github.com/igorshubovych/markdownlint-cli
-    rev: v0.37.0
+    rev: v0.38.0
     hooks:
       - id: markdownlint
       - id: markdownlint
@@ -45,17 +45,17 @@ repos:
         stages: [manual]
 
   - repo: https://github.com/pre-commit/pre-commit
-    rev: v3.5.0
+    rev: v3.6.0
     hooks:
       - id: validate_manifest
 
   - repo: https://github.com/pre-commit/mirrors-mypy
-    rev: 'v1.7.1'
+    rev: "v1.7.1"
     hooks:
-    - id: mypy
+      - id: mypy
 
   - repo: https://github.com/python-poetry/poetry
-    rev: '1.7.0'
+    rev: "1.7.0"
     hooks:
       - id: poetry-check
         stages: [push]
@@ -65,13 +65,29 @@ repos:
         name: poetry-export
         stages: [manual]
         files: (pyproject\.toml|poetry\.lock)
-        args: ["--without-hashes", "-f", "requirements.txt", "-o", "requirements.txt"]
+        args:
+          [
+            "--without-hashes",
+            "-f",
+            "requirements.txt",
+            "-o",
+            "requirements.txt",
+          ]
       - id: poetry-export
         name: poetry-export-dev
         alias: poetry-export-dev
         stages: [manual]
         files: (pyproject\.toml|poetry\.lock)
-        args: ["--with", "dev,lint,test", "--without-hashes", "-f", "requirements.txt", "-o", "dev-requirements.txt"]
+        args:
+          [
+            "--with",
+            "dev,lint,test",
+            "--without-hashes",
+            "-f",
+            "requirements.txt",
+            "-o",
+            "dev-requirements.txt",
+          ]
 
   - repo: local
     hooks:
@@ -81,18 +97,15 @@ repos:
         language: system
         pass_filenames: false
         types: [python]
-        args:
-          [
-            "-e pylint"
-          ]
+        args: ["-e pylint"]
 
   - repo: https://github.com/crate-ci/typos
-    rev: 'v1.16.23'
+    rev: "v1.16.25"
     hooks:
       - id: typos
         exclude: "(_typos.toml|.gitignore)"
 
   - repo: https://github.com/abravalheri/validate-pyproject
-    rev: 'v0.15'
+    rev: "v0.15"
     hooks:
       - id: validate-pyproject
