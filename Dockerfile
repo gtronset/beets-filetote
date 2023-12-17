@@ -10,8 +10,7 @@ RUN apk update && apk add python3-dev \
 
 WORKDIR /src
 
-COPY requirements.txt .
-RUN pip install --upgrade pip \
-    && pip install -r requirements.txt
-
 COPY . /src
+RUN pip install --upgrade pip \
+    && pip install poetry pre-commit tox \
+    && poetry install
