@@ -17,6 +17,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - Improve README, Dev setup, & update mediafile for newer Py versions <https://github.com/gtronset/beets-filetote/pull/134>
+- Various dependency updates
 
 ## [0.4.6] - 2023-12-03
 
