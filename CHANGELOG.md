@@ -13,6 +13,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Add Security policy <https://github.com/gtronset/beets-filetote/pull/140>
 
+### Changed
+
+- Test and ensure subdirectory with $albumpath <https://github.com/gtronset/beets-filetote/pull/141>
+
 ## [0.4.7] - 2023-12-17
 
 ### Added
