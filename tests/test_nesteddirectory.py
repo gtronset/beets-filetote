@@ -94,7 +94,7 @@ class FiletoteFromNestedDirectoryTest(FiletoteTestCase):
         """
         config["filetote"]["extensions"] = ".file"
         config["filetote"]["paths"] = {
-            "ext:file": "$albumpath/../artifacts/$old_filename",
+            "ext:file": os.path.join("$albumpath", "..", "artifacts", "$old_filename"),
         }
 
         self.lib.path_formats = [
