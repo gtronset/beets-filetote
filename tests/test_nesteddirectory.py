@@ -87,3 +87,38 @@ class FiletoteFromNestedDirectoryTest(FiletoteTestCase):
         self.assert_not_in_lib_dir(
             b"Tag Artist", b"Tag Album", b"02", b"artifact_disc2.lrc"
         )
+
+    def test_copies_file_navigate_in_nested_library(self) -> None:
+        """
+        Ensures that nested directory artifacts are relocated using `..` without issue.
+        """
+        config["filetote"]["extensions"] = ".file"
+        config["filetote"]["paths"] = {
+            "ext:file": "$albumpath/../artifacts/$old_filename",
+        }
+
+        self.lib.path_formats = [
+            ("default", os.path.join("$artist", "$album", "$disc", "$title")),
+        ]
+
+        self._run_cli_command("import")
+
+        self.assert_number_of_files_in_dir(
+            3, self.lib_dir, b"Tag Artist", b"Tag Album", b"01"
+        )
+        self.assert_number_of_files_in_dir(
+            3, self.lib_dir, b"Tag Artist", b"Tag Album", b"02"
+        )
+
+        self.assert_in_lib_dir(
+            b"Tag Artist", b"Tag Album", b"artifacts", b"artifact.file"
+        )
+        self.assert_in_lib_dir(
+            b"Tag Artist", b"Tag Album", b"artifacts", b"artifact2.file"
+        )
+        self.assert_in_lib_dir(
+            b"Tag Artist", b"Tag Album", b"artifacts", b"artifact3.file"
+        )
+        self.assert_in_lib_dir(
+            b"Tag Artist", b"Tag Album", b"artifacts", b"artifact4.file"
+        )
