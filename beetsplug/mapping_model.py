@@ -39,7 +39,7 @@ class FiletoteMappingModel(db.Model):
 class FiletoteMappingFormatted(db.FormattedMapping):
     """
     Formatted Mapping that does not replace path separators for certain keys
-    (e.g., albumpath).
+    (e.g., albumpath), when added to `whitelist_replace`.
     """
 
     ALL_KEYS: Literal["*"] = "*"

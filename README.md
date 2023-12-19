@@ -437,14 +437,19 @@ lead to the artifact to be moved. Since it's common to store multi-disc albums w
 subfolders, this means that by default the artifact or extra file in question will also
 be in a subfolder.
 
-To achieve a different location (say your media is in `Artist/Disc 01` but you want
-`Artist/Extras`), `..` can be used to navigate to the parent directory of the
-`$albumpath` so that the entirety of the media's path does not have to be recreated.
+For macOS and Linux, to achieve a different location (say the media is in
+`Artist/Disc 01` but artifacts are intended to be in `Artist/Extras`), `..` can be used
+to navigate to the parent directory of the `$albumpath` so that the entirety of the
+media's path does not have to be recreated. For Windows, the entire media path would
+need to be recreated as Windows sees `..` as an attempt to create a directory with the
+name `..` within path instead of it being a path component representing the parent.
 
-The following example will have the following results:
+#### macOS & Linux
+
+The following example will have the following results on macOS & Linux:
 
 - Music: `~/Music/Artist/2014 - Album/Disc 1/media.mp3`
-- Artifact: `~/Music/Artist/2014 - Album/example.log`
+- Artifact: `~/Music/Artist/2014 - Album/Extras/example.log`
 
 ```yaml
 plugins: filetote
@@ -456,7 +461,27 @@ paths:
 filetote:
   extensions: .log
   paths:
-    ext:log: $albumpath/../$old_filename
+    ext:log: $albumpath/../Extras/$old_filename
+```
+
+#### Windows
+
+The following example will have the following results on Windows:
+
+- Music: `~/Music/Artist/2014 - Album/Disc 1/media.mp3`
+- Artifact: `~/Music/Artist/2014 - Album/Extras/example.log`
+
+```yaml
+plugins: filetote
+
+paths:
+  default: $albumartist/$year - $album/$track - $title
+  comp: $albumartist/$year - $album/Disc $disc/$track - $title
+
+filetote:
+  extensions: .log
+  paths:
+    ext:log: $albumartist/$year - $album/Extras/$old_filename
 ```
 
 ## Why Filetote and Not Other Plugins?
