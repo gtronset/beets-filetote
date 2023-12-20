@@ -69,14 +69,9 @@ class FiletotePatternTest(FiletoteTestCase):
             "subfolder-pattern": ["/[aA]rtwork/cover.jpg"],
         }
 
-        config["paths"][
-            "pattern:subfolder-pattern"
-        ] = "$albumpath/artwork/$old_filename"
-
-        if _common.PLATFORM == "win32":
-            config["paths"][
-                "pattern:subfolder-pattern"
-            ] = "$albumpath\\artwork\\$old_filename"
+        config["paths"]["pattern:subfolder-pattern"] = os.path.join(
+            "$albumpath", "artwork", "$old_filename"
+        )
 
         self._run_cli_command("import")
 
