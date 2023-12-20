@@ -4,8 +4,10 @@ import os
 from typing import List, Optional
 
 import beets
+import pytest
 from beets import config
 
+from tests import _common
 from tests.helper import FiletoteTestCase
 
 from ._item_model import MediaMeta
@@ -68,18 +70,20 @@ class FiletoteFilename(FiletoteTestCase):
             beets.util.bytestring_path("\xe4rtifact.file"),
         )
 
+    @pytest.mark.skipif(
+        _common.PLATFORM == "win32", reason="win32"
+    )  # type:ignore[misc]
     def test_import_with_illegal_character_in_artifact_name_obeys_beets(
         self,
     ) -> None:
         """
         Tests that illegal characters in file name are replaced following beets
-        conventions.
+        conventions. This is skipped in Windows as the characters used here are
+        not allowed.
         """
         config["import"]["move"] = True
         config["filetote"]["extensions"] = ".log"
-        config["paths"]["ext:.log"] = os.path.join(
-            "$albumpath", "$album - $old_filename"
-        )
+        config["paths"]["ext:.log"] = "$albumpath/$album - $old_filename"
 
         self.lib.path_formats[0] = (
             "default",
