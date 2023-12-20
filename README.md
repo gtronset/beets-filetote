@@ -175,8 +175,8 @@ The fields available include [the standard metadata values] of the imported item
 The full set of [built in functions] are also supported, with the exception of
 `%aunique` - which will return an empty string.
 
-Please also note that the above fields are not available for use within other plugins
-such as `inline`. However, otherwise `inline` and other plugins should work as expected.
+Note that the fields mentioned above are not usable within other plugins like inline.
+But inline and other plugins should be fine otherwise.
 
 > **Important Note:** if the rename is set and there are multiple files that qualify,
 > only the first will be added to the library (new folder); other files that
