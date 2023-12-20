@@ -6,7 +6,6 @@ from typing import List, Optional
 
 from beets import config
 
-from tests import _common
 from tests.helper import FiletoteTestCase, capture_log
 
 log = logging.getLogger("beets")
@@ -69,14 +68,9 @@ class FiletotePatternTest(FiletoteTestCase):
             "subfolder-pattern": ["/[aA]rtwork/cover.jpg"],
         }
 
-        config["paths"][
-            "pattern:subfolder-pattern"
-        ] = "$albumpath/artwork/$old_filename"
-
-        if _common.PLATFORM == "win32":
-            config["paths"][
-                "pattern:subfolder-pattern"
-            ] = "$albumpath\\artwork\\$old_filename"
+        config["paths"]["pattern:subfolder-pattern"] = os.path.join(
+            "$albumpath", "artwork", "$old_filename"
+        )
 
         self._run_cli_command("import")
 
@@ -115,23 +109,13 @@ class FiletotePatternTest(FiletoteTestCase):
             "subfolder3-pattern": ["Subfolder1/Subfolder2/"],
         }
 
-        config["paths"][
-            "pattern:subfolder1-pattern"
-        ] = "$albumpath/artwork/$old_filename"
+        config["paths"]["pattern:subfolder1-pattern"] = os.path.join(
+            "$albumpath", "artwork", "$old_filename"
+        )
 
-        if _common.PLATFORM == "win32":
-            config["paths"][
-                "pattern:subfolder1-pattern"
-            ] = "$albumpath\\artwork\\$old_filename"
-
-        config["paths"][
-            "pattern:subfolder3-pattern"
-        ] = "$albumpath/sub1/sub2/$old_filename"
-
-        if _common.PLATFORM == "win32":
-            config["paths"][
-                "pattern:subfolder3-pattern"
-            ] = "$albumpath\\sub1\\sub2\\$old_filename"
+        config["paths"]["pattern:subfolder3-pattern"] = os.path.join(
+            "$albumpath", "sub1", "sub2", "$old_filename"
+        )
 
         self._run_cli_command("import")
 
