@@ -96,6 +96,8 @@ class FiletoteFromNestedDirectoryTest(FiletoteTestCase):
     def test_copies_file_navigate_in_nested_library(self) -> None:
         """
         Ensures that nested directory artifacts are relocated using `..` without issue.
+        This is skipped in Windows since `..` is taken literally instead of as a path
+        component.
         """
         config["filetote"]["extensions"] = ".file"
         config["filetote"]["paths"] = {
