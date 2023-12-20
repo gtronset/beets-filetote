@@ -69,7 +69,7 @@ class FiletotePatternTest(FiletoteTestCase):
         }
 
         config["paths"]["pattern:subfolder-pattern"] = os.path.join(
-            b"$albumpath", b"artwork", b"$old_filename"
+            "$albumpath", "artwork", "$old_filename"
         )
 
         self._run_cli_command("import")
@@ -110,11 +110,11 @@ class FiletotePatternTest(FiletoteTestCase):
         }
 
         config["paths"]["pattern:subfolder1-pattern"] = os.path.join(
-            b"$albumpath", b"artwork", b"$old_filename"
+            "$albumpath", "artwork", "$old_filename"
         )
 
         config["paths"]["pattern:subfolder3-pattern"] = os.path.join(
-            b"$albumpath", b"sub1", b"sub2", b"$old_filename"
+            "$albumpath", "sub1", "sub2", "$old_filename"
         )
 
         self._run_cli_command("import")
