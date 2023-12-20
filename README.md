@@ -163,13 +163,20 @@ The fields available include [the standard metadata values] of the imported item
 (`$albumartist`, `$album`, `$title`, etc.), along with Filetote-specific values of:
 
 - `$albumpath`: the entire path of the new destination of the item/track (a useful
-shorthand for when the extra/artifact file will be moved allongside  the item/track).
+  shorthand for when the extra/artifact file will be moved allongside  the item/track).
+    - **Note**: Beets doesn't have a strict "album" path concept. All references are
+      relative to Items (the actual media files). This is especially relevant for
+      multi-disc files/albums, but usually isn't a problem. Check the section on
+      multi-discs [here](#advanced-renaming-for-multi-disc-albums) for more details.
 - `$old_filename`: the filename of the extra/artifact file before its renamed.
 - `$medianame_old`: the filename of the item/track triggering it, _before_ it's renamed.
 - `$medianame_new`: the filename of the item/track triggering it, _after_ it's renamed.
 
 The full set of [built in functions] are also supported, with the exception of
 `%aunique` - which will return an empty string.
+
+Note that the fields mentioned above are not usable within other plugins like inline.
+But inline and other plugins should be fine otherwise.
 
 > **Important Note:** if the rename is set and there are multiple files that qualify,
 > only the first will be added to the library (new folder); other files that
@@ -425,6 +432,60 @@ expected.
 
 [see beets documentation]: https://beets.readthedocs.io/en/stable/faq.html#import-a-multi-disc-album
 [as described in the beets documentation]: https://beets.readthedocs.io/en/stable/faq.html#create-disc-n-directories-for-multi-disc-albums
+
+### Advanced renaming for multi-disc albums
+
+The value for `$albumpath` is actually based on the path for the Item (music file) the
+lead to the artifact to be moved. Since it's common to store multi-disc albums with
+subfolders, this means that by default the artifact or extra file in question will also
+be in a subfolder.
+
+For macOS and Linux, to achieve a different location (say the media is in
+`Artist/Disc 01` but artifacts are intended to be in `Artist/Extras`), `..` can be used
+to navigate to the parent directory of the `$albumpath` so that the entirety of the
+media's path does not have to be recreated. For Windows, the entire media path would
+need to be recreated as Windows sees `..` as an attempt to create a directory with the
+name `..` within path instead of it being a path component representing the parent.
+
+#### macOS & Linux
+
+The following example will have the following results on macOS & Linux:
+
+- Music: `~/Music/Artist/2014 - Album/Disc 1/media.mp3`
+- Artifact: `~/Music/Artist/2014 - Album/Extras/example.log`
+
+```yaml
+plugins: filetote
+
+paths:
+  default: $albumartist/$year - $album/$track - $title
+  comp: $albumartist/$year - $album/Disc $disc/$track - $title
+
+filetote:
+  extensions: .log
+  paths:
+    ext:log: $albumpath/../Extras/$old_filename
+```
+
+#### Windows
+
+The following example will have the following results on Windows:
+
+- Music: `~/Music/Artist/2014 - Album/Disc 1/media.mp3`
+- Artifact: `~/Music/Artist/2014 - Album/Extras/example.log`
+
+```yaml
+plugins: filetote
+
+paths:
+  default: $albumartist/$year - $album/$track - $title
+  comp: $albumartist/$year - $album/Disc $disc/$track - $title
+
+filetote:
+  extensions: .log
+  paths:
+    ext:log: $albumartist/$year - $album/Extras/$old_filename
+```
 
 ## Why Filetote and Not Other Plugins?
 

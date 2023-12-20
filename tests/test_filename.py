@@ -78,7 +78,8 @@ class FiletoteFilename(FiletoteTestCase):
     ) -> None:
         """
         Tests that illegal characters in file name are replaced following beets
-        conventions.
+        conventions. This is skipped in Windows as the characters used here are
+        not allowed.
         """
         config["import"]["move"] = True
         config["filetote"]["extensions"] = ".log"
