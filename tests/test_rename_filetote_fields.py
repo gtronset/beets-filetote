@@ -75,7 +75,7 @@ class FiletoteRenameFiletoteFieldsTest(FiletoteTestCase):
         config["filetote"]["pairing"]["enabled"] = True
 
         config["paths"]["ext:lrc"] = os.path.join(
-            "$albumpath", "subpath", "$medianame_new"
+            "$albumpath", "$subpath", "$medianame_new"
         )
 
         self._run_cli_command("import")
