@@ -1,5 +1,7 @@
 """Tests renaming Filetote custom fields for the beets-filetote plugin."""
 
+# pylint: disable=duplicate-code
+
 import logging
 from typing import List, Optional
 
@@ -20,7 +22,7 @@ class FiletoteRenameFiletoteFieldsTest(FiletoteTestCase):
         """Provides shared setup for tests."""
         super().setUp()
 
-        self._create_flat_import_dir()
+        self._create_flat_import_dir(pair_subfolders=True)
         self._setup_import_session(autotag=False, move=True)
 
     def test_rename_field_albumpath(self) -> None:
@@ -65,3 +67,34 @@ class FiletoteRenameFiletoteFieldsTest(FiletoteTestCase):
         self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"Tag Title 1.lrc")
         self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"Tag Title 2.lrc")
         self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"Tag Title 3.lrc")
+
+    def test_rename_field_subpath(self) -> None:
+        """Tests that the value of `subpath` populates in renaming."""
+        config["filetote"]["extensions"] = ".lrc"
+        config["filetote"]["pairing"]["enabled"] = True
+
+        config["paths"]["ext:lrc"] = "$albumpath/$subpath/$medianame_new"
+
+        self._run_cli_command("import")
+
+        self.assert_in_lib_dir(
+            b"Tag Artist",
+            b"Tag Album",
+            b"lyrics",
+            b"lyric-subfolder",
+            b"Tag Title 1.lrc",
+        )
+        self.assert_in_lib_dir(
+            b"Tag Artist",
+            b"Tag Album",
+            b"lyrics",
+            b"lyric-subfolder",
+            b"Tag Title 2.lrc",
+        )
+        self.assert_in_lib_dir(
+            b"Tag Artist",
+            b"Tag Album",
+            b"lyrics",
+            b"lyric-subfolder",
+            b"Tag Title 3.lrc",
+        )

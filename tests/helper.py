@@ -66,6 +66,7 @@ class MediaSetup:
     file_type: str = "mp3"
     count: int = 3
     generate_pair: bool = True
+    pair_subfolders: bool = False
 
 
 # More types may be expanded as testing becomes more sophisticated.
@@ -420,7 +421,9 @@ class FiletoteTestCase(_common.TestCase, Assertions, HelperUtils):
         )
 
     def _create_flat_import_dir(
-        self, media_files: Optional[List[MediaSetup]] = None
+        self,
+        media_files: Optional[List[MediaSetup]] = None,
+        pair_subfolders: bool = False,
     ) -> None:
         """
         Creates a directory with media files and artifacts.
@@ -444,7 +447,7 @@ class FiletoteTestCase(_common.TestCase, Assertions, HelperUtils):
         """
 
         if media_files is None:
-            media_files = [MediaSetup()]
+            media_files = [MediaSetup(pair_subfolders=pair_subfolders)]
 
         self._set_import_dir()
 
@@ -478,6 +481,7 @@ class FiletoteTestCase(_common.TestCase, Assertions, HelperUtils):
                     file_type=media_file.file_type,
                     count=media_file.count,
                     generate_pair=media_file.generate_pair,
+                    pair_subfolders=media_file.pair_subfolders,
                 )
             )
 
@@ -593,6 +597,7 @@ class FiletoteTestCase(_common.TestCase, Assertions, HelperUtils):
         album_path: bytes,
         count: int = 3,
         generate_pair: bool = True,
+        pair_subfolders: bool = False,
         filename_prefix: str = "track_",
         file_type: str = "mp3",
         title_prefix: str = "Tag Title ",
@@ -623,7 +628,14 @@ class FiletoteTestCase(_common.TestCase, Assertions, HelperUtils):
 
             if generate_pair:
                 # Create paired artifact
-                self.create_file(album_path, f"{trackname}.lrc".encode("utf-8"))
+                pair_path = album_path
+
+                if pair_subfolders:
+                    pair_path = os.path.join(album_path, b"lyrics", b"lyric-subfolder")
+
+                os.makedirs(pair_path, exist_ok=True)
+
+                self.create_file(pair_path, f"{trackname}.lrc".encode("utf-8"))
         return media_list
 
     def _create_medium(

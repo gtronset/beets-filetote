@@ -312,13 +312,8 @@ class FiletotePlugin(BeetsPlugin):
         the original filename is used with the album path.
         """
 
-        artifact_filename_no_ext: str = util.displayable_path(
-            os.path.splitext(artifact_filename)[0]
-        )
-        mapping.set("old_filename", artifact_filename_no_ext)
-
         mapping_formatted = FiletoteMappingFormatted(
-            mapping, for_path=True, whitelist_replace=["albumpath"]
+            mapping, for_path=True, whitelist_replace=["albumpath", "subpath"]
         )
 
         artifact_ext: str = util.displayable_path(
@@ -391,7 +386,7 @@ class FiletotePlugin(BeetsPlugin):
         self, beets_item: "Item", destination: bytes
     ) -> FiletoteMappingModel:
         """Creates a mapping of usable path values for renaming. Takes in an
-        Item (see https://github.com/beetbox/beets/blob/master/beets/library.py#L456).
+        Item (see https://github.com/beetbox/beets/blob/v1.6.0/beets/library.py#L450).
         """
 
         album_path: bytes = os.path.dirname(destination)
@@ -699,6 +694,7 @@ class FiletotePlugin(BeetsPlugin):
         source_artifacts: List[FiletoteArtifact],
         mapping: FiletoteMappingModel,
     ) -> None:
+        # pylint: disable=too-many-locals
         """
         Processes and prepares extra files and artifacts for subsequent manipulation.
         """
@@ -728,6 +724,17 @@ class FiletotePlugin(BeetsPlugin):
             if is_ignorable:
                 ignored_artifacts.append(artifact_filename)
                 continue
+
+            artifact_filename_no_ext: str = util.displayable_path(
+                os.path.splitext(artifact_filename)[0]
+            )
+            mapping.set("old_filename", artifact_filename_no_ext)
+
+            if artifact_path.startswith(source_path):
+                initial_subpath = artifact_path[len(source_path) :].lstrip(b"/")
+
+                subpath: str = util.displayable_path(initial_subpath)
+                mapping.set("subpath", subpath)
 
             artifact_dest: bytes = self._get_artifact_destination(
                 artifact_filename, mapping, artifact.paired, pattern_category
