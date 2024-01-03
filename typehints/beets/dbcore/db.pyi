@@ -16,7 +16,7 @@ class Model:
         self,
         included_keys: Literal["*"] | list[str] = "*",
         for_path: bool = False,
-    ) -> "FormattedMapping": ...
+    ) -> FormattedMapping: ...
 
 class FormattedMapping(Mapping[str, str]):
     model: Model
