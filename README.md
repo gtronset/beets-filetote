@@ -120,7 +120,9 @@ files it should care about. This can be done using the following:
 
 Unless otherwise specified, the default name for artifacts and extra files is:
 `$albumpath/$old_filename`. This means that by default, the file is essentially
-moved/copied into destination directory of the music item it gets grabbed with.
+moved/copied into destination directory of the music item it gets grabbed with. This
+also means that the album folder is flattened and any subdirectory is removed by
+default. To preserve subdirectories, see `$subpath` usage [here](#subpath-renaming-example).
 
 Configuration for renaming works in much the same way as beets [Path Formats], including
 the standard metadata values provided by beets. Filetote provides the below new path
@@ -168,6 +170,12 @@ The fields available include [the standard metadata values] of the imported item
       relative to Items (the actual media files). This is especially relevant for
       multi-disc files/albums, but usually isn't a problem. Check the section on
       multi-discs [here](#advanced-renaming-for-multi-disc-albums) for more details.
+- `$subpath`: Represents any subdirectories under the base album path where an
+  extra/artifact file resides. For use when it is desirable to preserve the directory
+  hierarchy in the albums. This respects the original capitalization of directory names.
+  Defaults to an empty string when no subdirectories exist.
+    - **Example:** If an extra file is located in a subdirectory named "Extras" under
+    the album path, `$subpath` would be set to "Extras/" (with the same casing).
 - `$old_filename`: the filename of the extra/artifact file before its renamed.
 - `$medianame_old`: the filename of the item/track triggering it, _before_ it's renamed.
 - `$medianame_new`: the filename of the item/track triggering it, _after_ it's renamed.
@@ -175,8 +183,8 @@ The fields available include [the standard metadata values] of the imported item
 The full set of [built in functions] are also supported, with the exception of
 `%aunique` - which will return an empty string.
 
-Note that the fields mentioned above are not usable within other plugins like inline.
-But inline and other plugins should be fine otherwise.
+Note that the fields mentioned above are not usable within other plugins like `inline`.
+But `inline` and other plugins should be fine otherwise.
 
 > **Important Note:** if the rename is set and there are multiple files that qualify,
 > only the first will be added to the library (new folder); other files that
@@ -185,6 +193,25 @@ But inline and other plugins should be fine otherwise.
 
 [the standard metadata values]: https://beets.readthedocs.io/en/stable/reference/pathformat.html#available-values
 [built in functions]: http://beets.readthedocs.org/en/stable/reference/pathformat.html#functions
+
+##### Subpath Renaming Example
+
+The following configuration or template string will be applied to `.log` files by using
+the `$subpath` and will rename log file to:
+`~/Music/Artist/2014 - Album/Extras/Artist - Album.log`
+
+This assumes that the original file is in the subdirectory (subpath) of `Extras/`. Any
+other `.log` files in other subdirectories or in the root of the album will be moved
+accordingly. If a more targeted approach is needed, this can be combined with the
+`pattern:` query.
+
+**Note:** `$subpath` automatically adds in path separators including the end one if there
+are subdirectories.
+
+```yaml
+paths:
+  ext:.log: $albumpath/$subpath$artist - $album
+```
 
 #### Extension (`ext:`)
 

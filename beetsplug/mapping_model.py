@@ -20,6 +20,7 @@ class FiletoteMappingModel(db.Model):
         "medianame_old": db_types.STRING,
         "medianame_new": db_types.STRING,
         "old_filename": db_types.STRING,
+        "subpath": db_types.STRING,
     }
 
     def set(self, key: str, value: str) -> None:
@@ -39,7 +40,7 @@ class FiletoteMappingModel(db.Model):
 class FiletoteMappingFormatted(db.FormattedMapping):
     """
     Formatted Mapping that does not replace path separators for certain keys
-    (e.g., albumpath), when added to `whitelist_replace`.
+    (e.g., `albumpath` and `subpath`), when added to `whitelist_replace`.
     """
 
     ALL_KEYS: Literal["*"] = "*"
