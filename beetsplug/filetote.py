@@ -603,6 +603,7 @@ class FiletotePlugin(BeetsPlugin):
             for pattern in patterns:
                 is_match: bool = False
 
+                # This ("/"") may need to be changed for Win32
                 if pattern.endswith("/"):
                     for path in util.ancestry(artifact_relpath):
                         if not fnmatch.fnmatch(
@@ -731,7 +732,9 @@ class FiletotePlugin(BeetsPlugin):
             mapping.set("old_filename", artifact_filename_no_ext)
 
             if artifact_path.startswith(source_path):
-                initial_subpath = artifact_path[len(source_path) :].lstrip(b"/")
+                initial_subpath = artifact_path[len(source_path) :].lstrip(
+                    os.path.sep.encode()
+                )
 
                 subpath: str = util.displayable_path(initial_subpath)
                 mapping.set("subpath", subpath)
