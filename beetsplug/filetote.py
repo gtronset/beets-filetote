@@ -312,13 +312,8 @@ class FiletotePlugin(BeetsPlugin):
         the original filename is used with the album path.
         """
 
-        artifact_filename_no_ext: str = util.displayable_path(
-            os.path.splitext(artifact_filename)[0]
-        )
-        mapping.set("old_filename", artifact_filename_no_ext)
-
         mapping_formatted = FiletoteMappingFormatted(
-            mapping, for_path=True, whitelist_replace=["albumpath"]
+            mapping, for_path=True, whitelist_replace=["albumpath", "subpath"]
         )
 
         artifact_ext: str = util.displayable_path(
@@ -391,7 +386,7 @@ class FiletotePlugin(BeetsPlugin):
         self, beets_item: "Item", destination: bytes
     ) -> FiletoteMappingModel:
         """Creates a mapping of usable path values for renaming. Takes in an
-        Item (see https://github.com/beetbox/beets/blob/master/beets/library.py#L456).
+        Item (see https://github.com/beetbox/beets/blob/v1.6.0/beets/library.py#L450).
         """
 
         album_path: bytes = os.path.dirname(destination)
@@ -608,6 +603,7 @@ class FiletotePlugin(BeetsPlugin):
             for pattern in patterns:
                 is_match: bool = False
 
+                # This ("/") may need to be changed for Win32
                 if pattern.endswith("/"):
                     for path in util.ancestry(artifact_relpath):
                         if not fnmatch.fnmatch(
@@ -617,7 +613,8 @@ class FiletotePlugin(BeetsPlugin):
                         is_match = True
                 else:
                     is_match = fnmatch.fnmatch(
-                        util.displayable_path(artifact_relpath), pattern.lstrip("/")
+                        util.displayable_path(artifact_relpath),
+                        pattern.lstrip("/"),
                     )
 
                 if is_match:
@@ -684,14 +681,41 @@ class FiletotePlugin(BeetsPlugin):
         artifact_dest: bytes,
     ) -> bool:
         """
-        Checks if the artifact/file already exists in the destination destination,
-        which would also make it ignorable.
+        Checks if the artifact/file already exists in the destination, which would also
+        make it ignorable.
         """
 
         # Skip file
         return os.path.exists(artifact_dest) and filecmp.cmp(
             artifact_source, artifact_dest
         )
+
+    def _get_artifact_subpath(
+        self,
+        source_path: bytes,
+        artifact_path: bytes,
+    ) -> str:
+        """
+        Checks if the artifact/file has a subpath in the source location and returns
+        its subpath. This also ensures a trailing separator is present if there's a
+        subpath. This is needed for renaming and templates as conditionally using the
+        `$subpath` is not supported by plugins such as `inline`.
+        """
+
+        if artifact_path.startswith(source_path):
+            initial_subpath = artifact_path[len(source_path) :].lstrip(
+                os.path.sep.encode()
+            )
+            subpath = util.displayable_path(initial_subpath)
+
+            # Ensures trailing separator is present if needed.
+            return (
+                subpath + os.path.sep
+                if initial_subpath and not subpath.endswith(os.path.sep)
+                else subpath
+            )
+
+        return ""  # No subpath found
 
     def process_artifacts(
         self,
@@ -728,6 +752,15 @@ class FiletotePlugin(BeetsPlugin):
             if is_ignorable:
                 ignored_artifacts.append(artifact_filename)
                 continue
+
+            mapping.set(
+                "old_filename",
+                util.displayable_path(os.path.splitext(artifact_filename)[0]),
+            )
+
+            mapping.set(
+                "subpath", self._get_artifact_subpath(source_path, artifact_path)
+            )
 
             artifact_dest: bytes = self._get_artifact_destination(
                 artifact_filename, mapping, artifact.paired, pattern_category

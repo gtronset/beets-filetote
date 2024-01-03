@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Allow for retaining path hierarchy <https://github.com/gtronset/beets-filetote/pull/144>
 - Add Security policy <https://github.com/gtronset/beets-filetote/pull/140>
 
 ### Changed
