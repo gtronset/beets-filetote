@@ -70,7 +70,10 @@ class FiletoteRenameFiletoteFieldsTest(FiletoteTestCase):
         self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"Tag Title 3.lrc")
 
     def test_rename_field_subpath(self) -> None:
-        """Tests that the value of `subpath` populates in renaming."""
+        """
+        Tests that the value of `subpath` populates in renaming. Also tests that the
+        default lyric file moves as expected without a trailing pah separator.
+        """
         config["filetote"]["extensions"] = ".lrc"
         config["filetote"]["pairing"]["enabled"] = True
 
