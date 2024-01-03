@@ -723,7 +723,6 @@ class FiletotePlugin(BeetsPlugin):
         source_artifacts: List[FiletoteArtifact],
         mapping: FiletoteMappingModel,
     ) -> None:
-        # pylint: disable=too-many-locals
         """
         Processes and prepares extra files and artifacts for subsequent manipulation.
         """
@@ -754,10 +753,10 @@ class FiletotePlugin(BeetsPlugin):
                 ignored_artifacts.append(artifact_filename)
                 continue
 
-            artifact_filename_no_ext: str = util.displayable_path(
-                os.path.splitext(artifact_filename)[0]
+            mapping.set(
+                "old_filename",
+                util.displayable_path(os.path.splitext(artifact_filename)[0]),
             )
-            mapping.set("old_filename", artifact_filename_no_ext)
 
             mapping.set(
                 "subpath", self._get_artifact_subpath(source_path, artifact_path)
