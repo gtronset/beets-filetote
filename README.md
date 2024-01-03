@@ -170,10 +170,12 @@ The fields available include [the standard metadata values] of the imported item
       relative to Items (the actual media files). This is especially relevant for
       multi-disc files/albums, but usually isn't a problem. Check the section on
       multi-discs [here](#advanced-renaming-for-multi-disc-albums) for more details.
-- `$subpath`: any subdirectories (subpath) under the base album path that the extra/artifact
-  file lives under. For use when it is desirable to preserve the directory hierarchy in the
-  albums. Casing is preserved for all directories. Defaults to nothing when there are no
-  subdirectories.
+- `$subpath`: Represents any subdirectories under the base album path where an
+  extra/artifact file resides. For use when it is desirable to preserve the directory
+  hierarchy in the albums. This respects the original capitalization of directory names.
+  Defaults to an empty string when no subdirectories exist.
+    - **Example:** If an extra file is located in a subdirectory named "Extras" under
+    the album path, `$subpath` would be set to "Extras/" (with the same casing).
 - `$old_filename`: the filename of the extra/artifact file before its renamed.
 - `$medianame_old`: the filename of the item/track triggering it, _before_ it's renamed.
 - `$medianame_new`: the filename of the item/track triggering it, _after_ it's renamed.
@@ -196,12 +198,15 @@ But `inline` and other plugins should be fine otherwise.
 
 The following configuration or template string will be applied to `.log` files by using
 the `$subpath` and will rename log file to:
-`~/Music/Artist/2014 - Album/Lyrics/Artist - Album.log`
+`~/Music/Artist/2014 - Album/Extras/Artist - Album.log`
 
-This assumes that the original file is in the subdirectory (subpath) of `./Lyric`. Any
+This assumes that the original file is in the subdirectory (subpath) of `Extras/`. Any
 other `.log` files in other subdirectories or in the root of the album will be moved
 accordingly. If a more targeted approach is needed, this can be combined with the
 `pattern:` query.
+
+**Note:** `$subpath` automatically adds in path separators including the end one if there
+are subdirectories.
 
 ```yaml
 paths:
