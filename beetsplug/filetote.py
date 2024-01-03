@@ -604,16 +604,17 @@ class FiletotePlugin(BeetsPlugin):
                 is_match: bool = False
 
                 # This ("/"") may need to be changed for Win32
-                if pattern.endswith("/"):
+                if pattern.endswith(os.path.sep):
                     for path in util.ancestry(artifact_relpath):
                         if not fnmatch.fnmatch(
-                            util.displayable_path(path), pattern.strip("/")
+                            util.displayable_path(path), pattern.strip(os.path.sep)
                         ):
                             continue
                         is_match = True
                 else:
                     is_match = fnmatch.fnmatch(
-                        util.displayable_path(artifact_relpath), pattern.lstrip("/")
+                        util.displayable_path(artifact_relpath),
+                        pattern.lstrip(os.path.sep),
                     )
 
                 if is_match:
@@ -680,14 +681,41 @@ class FiletotePlugin(BeetsPlugin):
         artifact_dest: bytes,
     ) -> bool:
         """
-        Checks if the artifact/file already exists in the destination destination,
-        which would also make it ignorable.
+        Checks if the artifact/file already exists in the destination, which would also
+        make it ignorable.
         """
 
         # Skip file
         return os.path.exists(artifact_dest) and filecmp.cmp(
             artifact_source, artifact_dest
         )
+
+    def _get_artifact_subpath(
+        self,
+        source_path: bytes,
+        artifact_path: bytes,
+    ) -> str:
+        """
+        Checks if the artifact/file has a subpath in the source location and returns
+        its subpath. This also ensures a trailing separator is present if there's a
+        subpath. This is needed for renaming and templates as conditionally using the
+        `$subpath` is not supported by plugins such as `inline`.
+        """
+
+        if artifact_path.startswith(source_path):
+            initial_subpath = artifact_path[len(source_path) :].lstrip(
+                os.path.sep.encode()
+            )
+            subpath = util.displayable_path(initial_subpath)
+
+            # Ensures trailing separator is present if needed.
+            return (
+                subpath + os.path.sep
+                if initial_subpath and not subpath.endswith(os.path.sep)
+                else subpath
+            )
+
+        return ""  # No subpath found
 
     def process_artifacts(
         self,
@@ -731,16 +759,9 @@ class FiletotePlugin(BeetsPlugin):
             )
             mapping.set("old_filename", artifact_filename_no_ext)
 
-            if artifact_path.startswith(source_path):
-                initial_subpath = artifact_path[len(source_path) :].lstrip(
-                    os.path.sep.encode()
-                )
-
-                if initial_subpath:
-                    initial_subpath = initial_subpath + os.path.sep.encode()
-
-                subpath: str = util.displayable_path(initial_subpath)
-                mapping.set("subpath", subpath)
+            mapping.set(
+                "subpath", self._get_artifact_subpath(source_path, artifact_path)
+            )
 
             artifact_dest: bytes = self._get_artifact_destination(
                 artifact_filename, mapping, artifact.paired, pattern_category
