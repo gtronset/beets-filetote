@@ -603,18 +603,18 @@ class FiletotePlugin(BeetsPlugin):
             for pattern in patterns:
                 is_match: bool = False
 
-                # This ("/"") may need to be changed for Win32
-                if pattern.endswith(os.path.sep):
+                # This ("/") may need to be changed for Win32
+                if pattern.endswith("/"):
                     for path in util.ancestry(artifact_relpath):
                         if not fnmatch.fnmatch(
-                            util.displayable_path(path), pattern.strip(os.path.sep)
+                            util.displayable_path(path), pattern.strip("/")
                         ):
                             continue
                         is_match = True
                 else:
                     is_match = fnmatch.fnmatch(
                         util.displayable_path(artifact_relpath),
-                        pattern.lstrip(os.path.sep),
+                        pattern.lstrip("/"),
                     )
 
                 if is_match:
