@@ -3,7 +3,6 @@
 # pylint: disable=duplicate-code
 
 import logging
-import os
 from typing import List, Optional
 
 from beets import config
@@ -74,9 +73,7 @@ class FiletoteRenameFiletoteFieldsTest(FiletoteTestCase):
         config["filetote"]["extensions"] = ".lrc"
         config["filetote"]["pairing"]["enabled"] = True
 
-        config["paths"]["ext:lrc"] = os.path.join(
-            "$albumpath", "$subpath", "$medianame_new"
-        )
+        config["paths"]["ext:lrc"] = "$albumpath/$subpath$medianame_new"
 
         self._run_cli_command("import")
 

@@ -736,6 +736,9 @@ class FiletotePlugin(BeetsPlugin):
                     os.path.sep.encode()
                 )
 
+                if initial_subpath:
+                    initial_subpath = initial_subpath + os.path.sep.encode()
+
                 subpath: str = util.displayable_path(initial_subpath)
                 mapping.set("subpath", subpath)
 
