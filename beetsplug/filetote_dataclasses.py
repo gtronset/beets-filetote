@@ -2,7 +2,6 @@
 data used in processing extra files/artifacts. """
 
 from dataclasses import asdict, dataclass, field, fields
-from sys import version_info
 from typing import Any, Dict, List, Optional, Union
 
 from beets.library import Library
@@ -11,21 +10,7 @@ from beets.util.functemplate import Template
 
 from .mapping_model import FiletoteMappingModel
 
-if version_info >= (3, 8):
-    from typing import Literal
-else:
-    from typing_extensions import Literal  # type: ignore # pylint: disable=import-error
-
-if version_info >= (3, 10):
-    from typing import TypeAlias
-else:
-    from typing_extensions import TypeAlias  # pylint: disable=import-error
-
-StrSeq: TypeAlias = List[str]
-OptionalStrSeq: TypeAlias = Union[Literal[""], StrSeq]
-
-DEFAULT_EMPTY: Literal[""] = ""
-DEFAULT_ALL_GLOB: Literal[".*"] = ".*"
+DEFAULT_ALL_GLOB: str = ".*"
 
 
 @dataclass
@@ -65,7 +50,7 @@ class FiletotePairingData:
 
     enabled: bool = False
     pairing_only: bool = False
-    extensions: Union[Literal[".*"], StrSeq] = DEFAULT_ALL_GLOB
+    extensions: Union[str, List[str]] = DEFAULT_ALL_GLOB
 
     def __post_init__(self) -> None:
         self._validate_types()
@@ -97,10 +82,10 @@ class FiletoteConfig:
     # pylint: disable=too-many-instance-attributes
 
     session: FiletoteSessionData = field(default_factory=FiletoteSessionData)
-    extensions: OptionalStrSeq = DEFAULT_EMPTY
-    filenames: OptionalStrSeq = DEFAULT_EMPTY
-    patterns: Dict[str, StrSeq] = field(default_factory=dict)
-    exclude: OptionalStrSeq = DEFAULT_EMPTY
+    extensions: Union[str, List[str]] = ""
+    filenames: Union[str, List[str]] = ""
+    patterns: Dict[str, List[str]] = field(default_factory=dict)
+    exclude: Union[str, List[str]] = ""
     pairing: FiletotePairingData = field(default_factory=FiletotePairingData)
     paths: Dict[str, Template] = field(default_factory=dict)
     print_ignored: bool = False
@@ -141,7 +126,7 @@ class FiletoteConfig:
                 _validate_types_instance([field_.name], field_value, field_type)
 
             if field_.name in ["extensions", "filenames", "exclude"]:
-                _validate_types_str_eq([field_.name], field_value, DEFAULT_EMPTY)
+                _validate_types_str_eq([field_.name], field_value, "")
 
             if field_.name == "patterns":
                 _validate_types_dict(
