@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.4.8] - 2023-01-03
+
 ### Added
 
 - Allow for retaining path hierarchy <https://github.com/gtronset/beets-filetote/pull/144>
@@ -179,7 +181,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 <!-- Release Links -->
 
-[unreleased]: https://github.com/gtronset/beets-filetote/compare/v0.4.7...HEAD
+[unreleased]: https://github.com/gtronset/beets-filetote/compare/v0.4.8...HEAD
+[0.4.8]: https://github.com/gtronset/beets-filetote/releases/tag/v0.4.8
 [0.4.7]: https://github.com/gtronset/beets-filetote/releases/tag/v0.4.7
 [0.4.6]: https://github.com/gtronset/beets-filetote/releases/tag/v0.4.6
 [0.4.5]: https://github.com/gtronset/beets-filetote/releases/tag/v0.4.5
