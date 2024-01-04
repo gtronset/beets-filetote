@@ -24,7 +24,7 @@ class FormattedMapping(Mapping[str, str]):
     def __init__(
         self,
         model: Model,
-        included_keys: Literal["*"] | list[str] = "*",
+        included_keys: str | list[str] = "*",
         for_path: bool = False,
     ): ...
     def __getitem__(self, key: str) -> str: ...

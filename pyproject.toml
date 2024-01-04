@@ -28,10 +28,6 @@ mediafile = [
     { version = "0.10.0", python = ">=3.6, <3.7" },
 ]
 dataclasses = { version = "^0.8", python = ">=3.6, <3.7" }
-typing_extensions = [
-    { version = "^4.4.0", python = ">=3.7, <3.8" },
-    { version = "^4.1.1", python = ">=3.6, <3.7" },
-]
 
 [tool.poetry.group.dev.dependencies]
 beets-audible = ">=0.1.0"
@@ -68,6 +64,10 @@ pylint = [
 mypy = [
     { version = "^1.7.1", python = ">=3.8" },
     { version = ">=0.991,<1.5", python = ">=3.7, <3.8" },
+]
+typing_extensions = [
+    { version = "^4.4.0", python = ">=3.7, <3.8" },
+    { version = "^4.1.1", python = ">=3.6, <3.7" },
 ]
 
 [tool.poetry.group.test.dependencies]

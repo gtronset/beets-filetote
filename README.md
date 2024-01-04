@@ -25,6 +25,11 @@ The stable version of the plugin is available from PyPI and can be installed usi
 pip3 install beets-filetote
 ```
 
+> **Important Note:** Python versions <3.7 will need to also install the [dataclasses]
+> module.
+
+[dataclasses]: https://pypi.org/project/dataclasses/
+
 ## Configuration
 
 You will need to enable the plugin in beets' `config.yaml`:
