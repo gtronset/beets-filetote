@@ -89,6 +89,7 @@ class FiletoteConfig:
     pairing: FiletotePairingData = field(default_factory=FiletotePairingData)
     paths: Dict[str, Template] = field(default_factory=dict)
     print_ignored: bool = False
+    incremental: bool = False
 
     def __post_init__(self) -> None:
         self._validate_types()
@@ -135,7 +136,7 @@ class FiletoteConfig:
             if field_.name == "paths":
                 _validate_types_dict([field_.name], field_value, field_type=Template)
 
-            if field_.name == "print_ignored":
+            if field_.name in ["print_ignored", "incremental"]:
                 _validate_types_instance([field_.name], field_value, field_type)
 
 

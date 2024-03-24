@@ -24,5 +24,6 @@ class LibModel(Model): ...
 
 class Item(LibModel):
     path: bytes
+    _db: Library
 
     def __init__(self) -> None: ...
