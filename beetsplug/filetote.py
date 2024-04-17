@@ -446,6 +446,9 @@ class FiletotePlugin(BeetsPlugin):
 
         queue_artifacts: list[FiletoteArtifact] = []
 
+        # Detect *potential* pairs: iterate to find all files that have matches,
+        # not just those which match the media file being moved.
+
         # Check to see if "pairing" is enabled and, if so, if there are
         # artifacts to look at
         if self.filetote.pairing.enabled and self._shared_artifacts[source_path]:
