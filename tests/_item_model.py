@@ -1,4 +1,4 @@
-""" Item Model for Filetote tests. """
+"""Item Model for Filetote tests."""
 
 from dataclasses import dataclass
 

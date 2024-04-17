@@ -142,11 +142,13 @@ class FiletotePlugin(BeetsPlugin):
         file or media, since MediaFile.TYPES isn't fundamentally a complete
         list of files by extension.
         """
-        BEETS_FILE_TYPES.update({
-            "m4a": "M4A",
-            "wma": "WMA",
-            "wave": "WAVE",
-        })
+        BEETS_FILE_TYPES.update(
+            {
+                "m4a": "M4A",
+                "wma": "WMA",
+                "wave": "WAVE",
+            }
+        )
 
         if "audible" in config["plugins"].get():
             BEETS_FILE_TYPES.update({"m4b": "M4B"})

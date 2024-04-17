@@ -44,7 +44,7 @@ class FiletotePairingTest(FiletoteTestCase):
         self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"artifact.lrc")
 
     def test_pairing_disabled_copies_all_matches(self) -> None:
-        """Ensure that when pairing is disabled it does not do anythin with pairs."""
+        """Ensure that when pairing is disabled it does not do anything with pairs."""
         self._create_flat_import_dir(media_files=[MediaSetup(count=1)])
         self._setup_import_session(autotag=False)
 

@@ -1,4 +1,4 @@
-""" "Mapping" Model for Filetote. """
+""" "Mapping" Model for Filetote."""
 
 from typing import Dict, List, Optional, Union
 

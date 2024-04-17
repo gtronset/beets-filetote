@@ -1,5 +1,5 @@
-""" Dataclasses for Filetote representing Settings/Config-related content along with
-data used in processing extra files/artifacts. """
+"""Dataclasses for Filetote representing Settings/Config-related content along with
+data used in processing extra files/artifacts."""
 
 from dataclasses import asdict, dataclass, field, fields
 from typing import Any, Dict, List, Optional, Union
