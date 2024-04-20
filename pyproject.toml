@@ -22,7 +22,7 @@ classifiers = [
 
 [tool.poetry.dependencies]
 python = "^3.6"
-beets = "^1.6.0"
+beets = ">=1.6.0"
 mediafile = [
     { version = ">=0.10.0", python = ">=3.7" },
     { version = "0.10.0", python = ">=3.6, <3.7" },
@@ -31,13 +31,13 @@ dataclasses = { version = "^0.8", python = ">=3.6, <3.7" }
 
 [tool.poetry.group.dev.dependencies]
 beets-audible = ">=0.1.0"
-reflink = { version = "^0.2.1", python = ">=3.6"}
-toml = { version = "^0.10.2",  python = ">=3.6"}
+reflink = { version = ">=0.2.1", python = ">=3.6"}
+toml = { version = ">=0.10.2",  python = ">=3.6"}
 
 [tool.poetry.group.lint.dependencies]
 black =  { version = ">=22.12,<25.0", python = ">=3.7,<4.0" }
 flake8 = [
-    { version = "^6.0.0", python = ">=3.8.1,<4.0" },
+    { version = "^7.0.0", python = ">=3.8.1,<4.0" },
     { version = "^5.0.0", python = ">=3.7,<3.8.1" },
     { version = "4.0.1", python = ">=3.6,<3.7" },
 ]

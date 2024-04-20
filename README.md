@@ -10,7 +10,8 @@ A plugin that moves non-music extra files, attachments, and artifacts during imp
 CLI file manipulation actions (`move`, `modify`, reimport, etc.) for [beets], a music
 library manager (and much more!).
 
-This plugin is supported/runs in beets [`v1.6.0`].
+This plugin is supported/runs in beets [`v1.6.0`]. The unrealease "latest" version of
+beets is not (yet) officially supported.
 
 [beets]: https://beets.io/
 
