@@ -9,11 +9,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.4.9] - 2024-04-20
+
 ### Changed
 
 - Update beets version & other dependency requirements <https://github.com/gtronset/beets-filetote/pull/155>
 
-## [0.4.8] - 2023-01-03
+## [0.4.8] - 2024-01-03
 
 ### Added
 
@@ -185,8 +187,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 <!-- Release Links -->
 
-[unreleased]: https://github.com/gtronset/beets-filetote/compare/v0.4.8...HEAD
-[0.4.8]: https://github.com/gtronset/beets-filetote/releases/tag/v0.4.8
+[unreleased]: https://github.com/gtronset/beets-filetote/compare/v0.4.9...HEAD
+[0.4.9]: https://github.com/gtronset/beets-filetote/releases/tag/v0.4.9
 [0.4.7]: https://github.com/gtronset/beets-filetote/releases/tag/v0.4.7
 [0.4.6]: https://github.com/gtronset/beets-filetote/releases/tag/v0.4.6
 [0.4.5]: https://github.com/gtronset/beets-filetote/releases/tag/v0.4.5
