@@ -398,6 +398,7 @@ class FiletoteTestCase(_common.TestCase, Assertions, HelperUtils):
             move=move,
             album=album,
             confirm=False,
+            inherit=True,
         )
 
     def _run_cli_update(
