@@ -186,8 +186,8 @@ class DummyIO:
 
     def install(self) -> None:
         """Setup stdin and stdout"""
-        sys.stdin = self.stdin  # type: ignore[assignment]
-        sys.stdout = self.stdout  # type: ignore[assignment]
+        sys.stdin = self.stdin
+        sys.stdout = self.stdout
 
     def restore(self) -> None:
         """Restores/reset both stdin and stdout"""

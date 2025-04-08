@@ -1,111 +1,111 @@
 # yaml-language-server: $schema=https://json.schemastore.org/pre-commit-config.json
 repos:
-  - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v4.6.0
-    hooks:
-      - id: check-yaml
-      - id: check-toml
-      - id: fix-encoding-pragma
-        args: [--remove]
-      - id: end-of-file-fixer
-      - id: trailing-whitespace
-        args: [--markdown-linebreak-ext=md]
-      - id: mixed-line-ending
-        args: ["--fix=lf"]
-      - id: no-commit-to-branch
-      - id: check-added-large-files
-        args: ["--maxkb=500"]
+    - repo: https://github.com/pre-commit/pre-commit-hooks
+      rev: v5.0.0
+      hooks:
+          - id: check-yaml
+          - id: check-toml
+          - id: fix-encoding-pragma
+            args: [--remove]
+          - id: end-of-file-fixer
+          - id: trailing-whitespace
+            args: [--markdown-linebreak-ext=md]
+          - id: mixed-line-ending
+            args: ["--fix=lf"]
+          - id: no-commit-to-branch
+          - id: check-added-large-files
+            args: ["--maxkb=500"]
 
-  - repo: https://github.com/psf/black
-    rev: 24.4.0
-    hooks:
-      - id: black
+    - repo: https://github.com/psf/black
+      rev: 25.1.0
+      hooks:
+          - id: black
 
-  - repo: https://github.com/PyCQA/flake8
-    rev: 7.0.0
-    hooks:
-      - id: flake8
-        additional_dependencies:
-          - flake8-bugbear==24.2.6
-          - flake8-pyi==24.4.0
+    - repo: https://github.com/PyCQA/flake8
+      rev: 7.2.0
+      hooks:
+          - id: flake8
+            additional_dependencies:
+                - flake8-bugbear==24.12.12
+                - flake8-pyi==24.9.0
 
-  - repo: https://github.com/PyCQA/isort
-    rev: 5.13.2
-    hooks:
-      - id: isort
+    - repo: https://github.com/PyCQA/isort
+      rev: 6.0.1
+      hooks:
+          - id: isort
 
-  - repo: https://github.com/igorshubovych/markdownlint-cli
-    rev: v0.39.0
-    hooks:
-      - id: markdownlint
-      - id: markdownlint
-        name: markdownlint-fix
-        alias: markdownlint-fix
-        args: ["--fix"]
-        stages: [manual]
+    - repo: https://github.com/igorshubovych/markdownlint-cli
+      rev: v0.44.0
+      hooks:
+          - id: markdownlint
+          - id: markdownlint
+            name: markdownlint-fix
+            alias: markdownlint-fix
+            args: ["--fix"]
+            stages: [manual]
 
-  - repo: https://github.com/pre-commit/pre-commit
-    rev: v3.7.0
-    hooks:
-      - id: validate_manifest
+    - repo: https://github.com/pre-commit/pre-commit
+      rev: v4.2.0
+      hooks:
+          - id: validate_manifest
 
-  - repo: https://github.com/pre-commit/mirrors-mypy
-    rev: "v1.9.0"
-    hooks:
-      - id: mypy
+    - repo: https://github.com/pre-commit/mirrors-mypy
+      rev: "v1.15.0"
+      hooks:
+          - id: mypy
 
-  - repo: https://github.com/python-poetry/poetry
-    rev: "1.8.0"
-    hooks:
-      - id: poetry-check
-        stages: [push]
-      - id: poetry-lock
-        stages: [push]
-      - id: poetry-export
-        name: poetry-export
-        stages: [manual]
-        files: (pyproject\.toml|poetry\.lock)
-        args:
-          [
-            "--without-hashes",
-            "-f",
-            "requirements.txt",
-            "-o",
-            "requirements.txt",
-          ]
-      - id: poetry-export
-        name: poetry-export-dev
-        alias: poetry-export-dev
-        stages: [manual]
-        files: (pyproject\.toml|poetry\.lock)
-        args:
-          [
-            "--with",
-            "dev,lint,test",
-            "--without-hashes",
-            "-f",
-            "requirements.txt",
-            "-o",
-            "dev-requirements.txt",
-          ]
+    - repo: https://github.com/python-poetry/poetry
+      rev: "1.8.0"
+      hooks:
+          - id: poetry-check
+            stages: [push]
+          - id: poetry-lock
+            stages: [push]
+          - id: poetry-export
+            name: poetry-export
+            stages: [manual]
+            files: (pyproject\.toml|poetry\.lock)
+            args:
+                [
+                    "--without-hashes",
+                    "-f",
+                    "requirements.txt",
+                    "-o",
+                    "requirements.txt",
+                ]
+          - id: poetry-export
+            name: poetry-export-dev
+            alias: poetry-export-dev
+            stages: [manual]
+            files: (pyproject\.toml|poetry\.lock)
+            args:
+                [
+                    "--with",
+                    "dev,lint,test",
+                    "--without-hashes",
+                    "-f",
+                    "requirements.txt",
+                    "-o",
+                    "dev-requirements.txt",
+                ]
 
-  - repo: local
-    hooks:
-      - id: pylint
-        name: pylint
-        entry: tox
-        language: system
-        pass_filenames: false
-        types: [python]
-        args: ["-e pylint"]
+    - repo: local
+      hooks:
+          - id: pylint
+            name: pylint
+            entry: tox
+            language: system
+            pass_filenames: false
+            types: [python]
+            args: ["-e pylint"]
 
-  - repo: https://github.com/crate-ci/typos
-    rev: "v1.20.8"
-    hooks:
-      - id: typos
-        exclude: "(_typos.toml|.gitignore)"
+    - repo: https://github.com/crate-ci/typos
+      rev: "v1"
+      hooks:
+          - id: typos
+            exclude: "(_typos.toml|.gitignore)"
 
-  - repo: https://github.com/abravalheri/validate-pyproject
-    rev: "v0.16"
-    hooks:
-      - id: validate-pyproject
+    - repo: https://github.com/abravalheri/validate-pyproject
+      rev: "v0.24.1"
+      hooks:
+          - id: validate-pyproject
