@@ -363,7 +363,7 @@ filetote:
 ##### Pairing Renaming
 
 To mainting the concept of "pairs" after importing, it is strongly encouraged to set
-the `path` for the paired files to use the media files new name. This will ensure thet
+the `path` for the paired files to use the media files new name. This will ensure that
 the file remains paired even after moving. E.g.:
 
 ```yaml

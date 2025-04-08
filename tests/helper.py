@@ -360,7 +360,7 @@ class FiletoteTestCase(_common.TestCase, Assertions, HelperUtils):
         pretend: bool = False,
         export: bool = False,
     ) -> None:
-        # pylint: disable=too-many-arguments
+        # pylint: disable=too-many-arguments,too-many-positional-arguments
         """Runs the "move" CLI command. This should be called with
         _run_cli_command()."""
         commands.move_items(
@@ -383,7 +383,7 @@ class FiletoteTestCase(_common.TestCase, Assertions, HelperUtils):
         move: bool = True,
         album: Optional[str] = None,
     ) -> None:
-        # pylint: disable=too-many-arguments
+        # pylint: disable=too-many-arguments,too-many-positional-arguments
         """Runs the "modify" CLI command. This should be called with
         _run_cli_command()."""
         mods = mods or {}
@@ -398,6 +398,7 @@ class FiletoteTestCase(_common.TestCase, Assertions, HelperUtils):
             move=move,
             album=album,
             confirm=False,
+            inherit=True,
         )
 
     def _run_cli_update(
@@ -408,7 +409,7 @@ class FiletoteTestCase(_common.TestCase, Assertions, HelperUtils):
         pretend: bool = False,
         fields: Optional[List[str]] = None,
     ) -> None:
-        # pylint: disable=too-many-arguments
+        # pylint: disable=too-many-arguments,too-many-positional-arguments
         """Runs the "update" CLI command. This should be called with
         _run_cli_command()."""
         commands.update_items(
@@ -603,7 +604,7 @@ class FiletoteTestCase(_common.TestCase, Assertions, HelperUtils):
         title_prefix: str = "Tag Title ",
         disc: int = 1,
     ) -> List[MediaFile]:
-        # pylint: disable=too-many-arguments
+        # pylint: disable=too-many-arguments,too-many-positional-arguments
         """
         Generates the desired number of media files and corresponding
         "paired" artifacts.
@@ -688,7 +689,7 @@ class FiletoteTestCase(_common.TestCase, Assertions, HelperUtils):
         autotag: bool = True,
         query: Optional[str] = None,
     ) -> None:
-        # pylint: disable=too-many-arguments
+        # pylint: disable=too-many-arguments,too-many-positional-arguments
 
         config["import"]["copy"] = copy
         config["import"]["delete"] = delete

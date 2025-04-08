@@ -68,27 +68,31 @@ lxml = ["lxml"]
 
 [[package]]
 name = "beets"
-version = "2.0.0"
+version = "2.2.0"
 description = "music tagger and library organizer"
 optional = false
-python-versions = "*"
+python-versions = "<4,>=3.8"
 files = [
-    {file = "beets-2.0.0-py3-none-any.whl", hash = "sha256:6fe596f578ce50652fc634d399af67bc0450b325c349989af781805599fcedb3"},
-    {file = "beets-2.0.0.tar.gz", hash = "sha256:3b1172b5bc3729e33a6ea4689f7d0236682bf828c67196b6a260f0389cb1f8cf"},
+    {file = "beets-2.2.0-py3-none-any.whl", hash = "sha256:6dddec32933278e83e4555aaba8587f125b4becd97c71bac81fe317264a0d01c"},
+    {file = "beets-2.2.0.tar.gz", hash = "sha256:cc0a277f530844575e3374021f316da16bf78ed514963c1ab1597168a8d4c715"},
 ]
 
 [package.dependencies]
+colorama = {version = "*", markers = "sys_platform == \"win32\""}
 confuse = ">=1.5.0"
 jellyfish = "*"
 mediafile = ">=0.12.0"
 munkres = ">=1.0.0"
 musicbrainzngs = ">=0.4"
+platformdirs = ">=3.5.0"
 pyyaml = "*"
-typing-extensions = "*"
+typing_extensions = {version = "*", markers = "python_full_version <= \"3.10.0\""}
 unidecode = ">=1.3.6"
 
 [package.extras]
 absubmit = ["requests"]
+aura = ["Pillow", "flask", "flask-cors"]
+autobpm = ["librosa (>=0.10.2.post1,<0.11.0)", "resampy (>=0.4.3)"]
 beatport = ["requests-oauthlib (>=0.6.1)"]
 bpd = ["PyGObject"]
 chroma = ["pyacoustid"]
@@ -96,22 +100,19 @@ discogs = ["python3-discogs-client (>=2.3.15)"]
 docs = ["pydata-sphinx-theme", "sphinx"]
 embedart = ["Pillow"]
 embyupdate = ["requests"]
-fetchart = ["Pillow", "beautifulsoup4", "requests"]
+fetchart = ["Pillow", "beautifulsoup4", "langdetect", "requests"]
 import = ["py7zr", "rarfile"]
 kodiupdate = ["requests"]
 lastgenre = ["pylast"]
 lastimport = ["pylast"]
-lint = ["flake8", "flake8-docstrings", "pep8-naming"]
 lyrics = ["beautifulsoup4", "langdetect", "requests"]
 metasync = ["dbus-python"]
 mpdstats = ["python-mpd2 (>=0.4.2)"]
-mypy = ["mypy", "types-Flask-Cors", "types-Pillow", "types-PyYAML", "types-beautifulsoup4", "types-requests", "types-urllib3"]
 plexupdate = ["requests"]
 reflink = ["reflink"]
 replaygain = ["PyGObject"]
 scrub = ["mutagen (>=1.33)"]
 sonosupdate = ["soco"]
-test = ["beautifulsoup4", "flask", "mock", "py7zr", "pylast", "pytest", "pytest-cov", "python-mpd2", "python3-discogs-client (>=2.3.15)", "pyxdg", "rarfile", "reflink", "requests-oauthlib", "responses (>=0.3.0)"]
 thumbnails = ["Pillow", "pyxdg"]
 web = ["flask", "flask-cors"]
 
@@ -1343,4 +1344,4 @@ type = ["pytest-mypy"]
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.8"
-content-hash = "4e2f4d47e624987589caf1c145a5cebca93a1ffaa36a68e0e48403c89e3f7fac"
+content-hash = "bad64cd557f25ebfcac86bf87540a8dc0de854802d95c02810852481251fc6af"
