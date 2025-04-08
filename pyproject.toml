@@ -23,12 +23,11 @@ classifiers = [
 [tool.poetry.dependencies]
 python = "^3.8"
 beets = "^2.0"
-mediafile =  ">=0.10.0"
-dataclasses = { version = "^0.8", python = ">=3.6, <3.7" }
+mediafile = ">=0.10.0"
 
 [tool.poetry.group.dev.dependencies]
 beets-audible = ">=0.1.0"
-reflink = { version = ">=0.2.1", python = ">=3.6"}
+reflink = ">=0.2.1"
 toml = ">=0.10.2"
 
 [tool.poetry.group.lint.dependencies]
@@ -49,7 +48,6 @@ flake8-bugbear =  [
 flake8-pyi =  [
     { version = "^24.4.0", python = ">=3.8.1,<4.0" },
     { version = ">=22.1.0,<=23.5.0", python = ">=3.7,<3.8.1" },
-    { version = ">=20.5.0,<=20.10.0", python = ">=3.6,<3.7" },
 ]
 isort = [
     { version = "^6.0.0", python = ">=3.9" },
@@ -62,14 +60,11 @@ pylint = [
 mypy = [
     { version = "^1.15.0", python = ">=3.9" },
     { version = "^1.9.0", python = ">=3.8,<3.9" },
-    { version = ">=0.991,<1.5", python = ">=3.7, <3.8" },
 ]
 
 [tool.poetry.group.test.dependencies]
 pytest = "^8.0.0"
-typeguard = [
-    { version = "^4.4.0", python = ">=3.8" },
-]
+typeguard = "^4.4.0"
 
 [build-system]
 requires = ["poetry-core"]
