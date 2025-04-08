@@ -1,67 +1,67 @@
 name: Release
 
 on:
-  workflow_dispatch:
+    workflow_dispatch:
 
 env:
-  PYTHON_VERSION: 3.12
-  POETRY_VERSION: 1.7.0
+    PYTHON_VERSION: 3.12
+    POETRY_VERSION: 1.7.0
 
 jobs:
-  release:
-    name: Release
-    runs-on: ubuntu-latest
+    release:
+        name: Release
+        runs-on: ubuntu-latest
 
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+        steps:
+            - name: Checkout code
+              uses: actions/checkout@v4
 
-      - name: Install Poetry
-        run: |
-          curl -sSL https://install.python-poetry.org | python3 - --version ${{ env.POETRY_VERSION }}
+            - name: Install Poetry
+              run: |
+                  curl -sSL https://install.python-poetry.org | python3 - --version ${{ env.POETRY_VERSION }}
 
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: ${{ env.PYTHON_VERSION }}
-          cache: "poetry"
+            - name: Set up Python
+              uses: actions/setup-python@v5
+              with:
+                  python-version: ${{ env.PYTHON_VERSION }}
+                  cache: "poetry"
 
-      - name: Update PATH
-        run: echo "$HOME/.local/bin" >> $GITHUB_PATH
+            - name: Update PATH
+              run: echo "$HOME/.local/bin" >> $GITHUB_PATH
 
-      - if: ${{ github.event.act }}
-        name: Set Poetry to use TestPyPi
-        run: |
-          poetry config repositories.test-pypi https://test.pypi.org/legacy/
-          poetry config pypi-token.test-pypi ${{ secrets.PYPI_TOKEN }}
-          echo "POETRY_REPO=-r test-pypi" >> $GITHUB_ENV
+            - if: ${{ github.event.act }}
+              name: Set Poetry to use TestPyPi
+              run: |
+                  poetry config repositories.test-pypi https://test.pypi.org/legacy/
+                  poetry config pypi-token.test-pypi ${{ secrets.PYPI_TOKEN }}
+                  echo "POETRY_REPO=-r test-pypi" >> $GITHUB_ENV
 
-      - name: Build project for distribution
-        run: poetry build
+            - name: Build project for distribution
+              run: poetry build
 
-      - name: Tag Name
-        id: tag-name
-        uses: SebRollen/toml-action@v1.2.0
-        with:
-          file: "pyproject.toml"
-          field: "tool.poetry.version"
+            - name: Tag Name
+              id: tag-name
+              uses: SebRollen/toml-action@v1.2.0
+              with:
+                  file: "pyproject.toml"
+                  field: "tool.poetry.version"
 
-      - name: Check Version
-        id: check-version
-        run: |
-          [[ "$(poetry version --short)" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]] || echo prerelease=true >> $GITHUB_OUTPUT
+            - name: Check Version
+              id: check-version
+              run: |
+                  [[ "$(poetry version --short)" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]] || echo prerelease=true >> $GITHUB_OUTPUT
 
-      - name: Create Release
-        uses: ncipollo/release-action@v1
-        with:
-          artifacts: "dist/*"
-          token: ${{ secrets.GITHUB_TOKEN }}
-          tag: "v${{ steps.tag-name.outputs.value }}"
-          draft: false
-          generateReleaseNotes: true
-          prerelease: steps.check-version.outputs.prerelease == 'true'
+            - name: Create Release
+              uses: ncipollo/release-action@v1
+              with:
+                  artifacts: "dist/*"
+                  token: ${{ secrets.GITHUB_TOKEN }}
+                  tag: "v${{ steps.tag-name.outputs.value }}"
+                  draft: false
+                  generateReleaseNotes: true
+                  prerelease: steps.check-version.outputs.prerelease == 'true'
 
-      - name: Publish to PyPI
-        env:
-          POETRY_PYPI_TOKEN_PYPI: ${{ secrets.PYPI_TOKEN }}
-        run: poetry publish ${{ env.POETRY_REPO }}
+            - name: Publish to PyPI
+              env:
+                  POETRY_PYPI_TOKEN_PYPI: ${{ secrets.PYPI_TOKEN }}
+              run: poetry publish ${{ env.POETRY_REPO }}
