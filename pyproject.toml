@@ -22,7 +22,7 @@ classifiers = [
 
 [tool.poetry.dependencies]
 python = "^3.6"
-beets = ">=1.6.0"
+beets = ">1.6,<=2.0"
 mediafile = [
     { version = ">=0.10.0", python = ">=3.7" },
     { version = "0.10.0", python = ">=3.6, <3.7" },
