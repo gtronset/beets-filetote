@@ -21,7 +21,7 @@ classifiers = [
 "Source" = "https://github.com/gtronset/beets-filetote"
 
 [tool.poetry.dependencies]
-python = "^3.6"
+python = "^3.8"
 beets = ">1.6,<=2.0"
 mediafile = [
     { version = ">=0.10.0", python = ">=3.7" },
