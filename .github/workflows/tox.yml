@@ -14,26 +14,22 @@ jobs:
             matrix:
                 python-version: ["3.8", "3.9", "3.10", "3.11", "3.12", "3.13"]
                 os: [ubuntu-latest, windows-latest]
-                # include:
-                #     - python-version: "3.8"
-                #       tox-env: py38
-                #     - python-version: "3.9"
-                #       tox-env: py39
-                #     - python-version: "3.10"
-                #       tox-env: py310
-                #     - python-version: "3.11"
-                #       os: ubuntu-latest
-                #       tox-env: py311
-                #     - python-version: "3.12"
-                #       os: ubuntu-latest
-                #       tox-env: py312
-                #     - python-version: "3.13"
-                #       os: ubuntu-latest
-                #       tox-env: py313
+                include:
+                    - python-version: "3.8"
+                      tox-env: py38
+                    - python-version: "3.9"
+                      tox-env: py39
+                    - python-version: "3.10"
+                      tox-env: py310
+                    - python-version: "3.11"
+                      tox-env: py311
+                    - python-version: "3.12"
+                      tox-env: py312
+                    - python-version: "3.13"
+                      tox-env: py313
         env:
             TOXENV: ${{ matrix.tox-env }}
         runs-on: ${{ matrix.os }}
-        # continue-on-error: ${{ matrix.os == 'windows-latest' && matrix.python-version == '3.11' }}
         steps:
             - uses: actions/checkout@v4
             - name: Setup Python ${{ matrix.python-version }}
