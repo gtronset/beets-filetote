@@ -1,33 +1,31 @@
 #:schema https://json.schemastore.org/pyproject.json
 
-[project]
+[tool.poetry]
 name = "beets-filetote"
 version = "0.4.9"
 description = "A beets plugin to copy/moves non-music extra files, attachments, and artifacts during the import process."
-authors = [{ name = "Gavin Tronset", email = "gtronset@gmail.com" }]
+authors = ["Gavin Tronset <gtronset@gmail.com>"]
 keywords = ["beets", "files", "artifacts", "extra"]
 license = "MIT"
 readme = "README.md"
+packages = [{ include = "beetsplug" }]
+repository = "https://github.com/gtronset/beets-filetote"
+documentation = "https://github.com/gtronset/beets-filetote"
 classifiers = [
     "Topic :: Multimedia :: Sound/Audio",
     "Topic :: Multimedia :: Sound/Audio :: Players :: MP3",
     "Environment :: Console",
     "Environment :: Web Environment",
 ]
-requires-python = ">=3.8"
-dependencies = ["beets~=2.0", "mediafile>=0.10.0"]
 
-[project.urls]
+[tool.poetry.urls]
 "Release notes" = "https://github.com/gtronset/beets-filetote/releases"
 "Source" = "https://github.com/gtronset/beets-filetote"
-documentation = "https://github.com/gtronset/beets-filetote"
-repository = "https://github.com/gtronset/beets-filetote"
 
-[tool.poetry]
-packages = [{ include = "beetsplug" }]
-
-[tool.poetry.requires-plugins]
-poetry-plugin-export = ">=1.8"
+[tool.poetry.dependencies]
+python = "^3.8"
+beets = "^2.0"
+mediafile = ">=0.10.0"
 
 [tool.poetry.group.dev.dependencies]
 beets-audible = ">=0.1.0"
@@ -71,7 +69,7 @@ pytest = "^8.0.0"
 typeguard = "^4.4.0"
 
 [build-system]
-requires = ["poetry-core>=2.0.0"]
+requires = ["poetry-core<2.0.0"]
 build-backend = "poetry.core.masonry.api"
 
 [tool.black]
