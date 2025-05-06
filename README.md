@@ -648,7 +648,7 @@ Testing and linting is performed with [Tox].
 [Tox]: https://tox.wiki/
 
 Filetote currently supports Python 3.8+, which aligns with the most recent version of
-beets ([`v2.2.0`]).
+beets (`v2.2.0`).
 
 **1. Install Poetry & Tox:**
 
