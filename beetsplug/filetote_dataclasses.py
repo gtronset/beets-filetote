@@ -2,7 +2,7 @@
 data used in processing extra files/artifacts."""
 
 from dataclasses import asdict, dataclass, field, fields
-from typing import Any, Dict, List, Optional, Union
+from typing import Any, Dict, List, Literal, Optional, Union
 
 from beets.library import Library
 from beets.util import MoveOperation
@@ -10,7 +10,8 @@ from beets.util.functemplate import Template
 
 from .mapping_model import FiletoteMappingModel
 
-DEFAULT_ALL_GLOB: str = ".*"
+DEFAULT_ALL_GLOB: Literal[".*"] = ".*"
+DEFAULT_EMPTY: Literal[""] = ""
 
 
 @dataclass
@@ -50,7 +51,7 @@ class FiletotePairingData:
 
     enabled: bool = False
     pairing_only: bool = False
-    extensions: Union[str, List[str]] = DEFAULT_ALL_GLOB
+    extensions: Union[Literal[".*"], List[str]] = DEFAULT_ALL_GLOB
 
     def __post_init__(self) -> None:
         self._validate_types()
@@ -82,10 +83,10 @@ class FiletoteConfig:
     # pylint: disable=too-many-instance-attributes
 
     session: FiletoteSessionData = field(default_factory=FiletoteSessionData)
-    extensions: Union[str, List[str]] = ""
-    filenames: Union[str, List[str]] = ""
+    extensions: Union[str, List[str]] = DEFAULT_EMPTY
+    filenames: Union[str, List[str]] = DEFAULT_EMPTY
     patterns: Dict[str, List[str]] = field(default_factory=dict)
-    exclude: Union[str, List[str]] = ""
+    exclude: Union[str, List[str]] = DEFAULT_EMPTY
     pairing: FiletotePairingData = field(default_factory=FiletotePairingData)
     paths: Dict[str, Template] = field(default_factory=dict)
     print_ignored: bool = False
@@ -125,7 +126,7 @@ class FiletoteConfig:
                 _validate_types_instance([field_.name], field_value, field_type)
 
             if field_.name in ["extensions", "filenames", "exclude"]:
-                _validate_types_str_eq([field_.name], field_value, "")
+                _validate_types_str_eq([field_.name], field_value, DEFAULT_EMPTY)
 
             if field_.name == "patterns":
                 _validate_types_dict(

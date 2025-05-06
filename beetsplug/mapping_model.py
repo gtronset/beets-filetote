@@ -1,6 +1,6 @@
 """ "Mapping" Model for Filetote."""
 
-from typing import Dict, List, Optional, Union
+from typing import Dict, List, Literal, Optional, Union
 
 from beets.dbcore import db
 from beets.dbcore import types as db_types
@@ -37,12 +37,12 @@ class FiletoteMappingFormatted(db.FormattedMapping):
     (e.g., `albumpath` and `subpath`), when added to `whitelist_replace`.
     """
 
-    ALL_KEYS: str = "*"
+    ALL_KEYS: Literal["*"] = "*"
 
     def __init__(
         self,
         model: FiletoteMappingModel,
-        included_keys: Union[str, List[str]] = ALL_KEYS,
+        included_keys: Union[Literal["*"], List[str]] = ALL_KEYS,
         for_path: bool = False,
         whitelist_replace: Optional[List[str]] = None,
     ):
