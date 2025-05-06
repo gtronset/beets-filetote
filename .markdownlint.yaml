@@ -1,15 +1,15 @@
 # MD007/ul-indent - Unordered list indentation
 MD007:
-  # Spaces for indent
-  indent: 4
+    # Spaces for indent
+    indent: 4
 # MD010/no-hard-tabs - Hard tabs
 MD010:
-  # Include code blocks
-  code_blocks: true
-  # Number of spaces for each hard tab
-  spaces_per_tab: 4
+    # Include code blocks
+    code_blocks: true
+    # Number of spaces for each hard tab
+    spaces_per_tab: 4
 # MD013/line-length - Line length
 MD013:
-  code_block_line_length: 88 # Override default of 80 characters
-  heading_line_length: 88 # Override default of 80 characters
-  line_length: 88 # Override default of 80 characters
+    code_block_line_length: 88 # Override default of 80 characters
+    heading_line_length: 88 # Override default of 80 characters
+    line_length: 88 # Override default of 80 characters
