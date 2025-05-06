@@ -715,8 +715,8 @@ Licensed under the [MIT license][license link].
 
 [license image]: https://img.shields.io/badge/License-MIT-blue.svg
 [license link]: https://github.com/gtronset/beets-filetote/blob/main/LICENSE
-[ci image]: https://github.com/gtronset/beets-filetote/actions/workflows/tox.yml/badge.svg
-[ci link]: https://github.com/gtronset/beets-filetote/actions/workflows/tox.yml
+[ci image]: https://github.com/gtronset/beets-filetote/actions/workflows/tox.yaml/badge.svg
+[ci link]: https://github.com/gtronset/beets-filetote/actions/workflows/tox.yaml
 [github image]: https://img.shields.io/github/release/gtronset/beets-filetote.svg
 [github link]: https://github.com/gtronset/beets-filetote/releases
 [pypi_version]: https://img.shields.io/pypi/v/beets-filetote
