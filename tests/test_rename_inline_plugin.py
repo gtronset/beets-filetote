@@ -25,7 +25,7 @@ class FiletoteInlineRenameTest(FiletoteTestCase):
         super().setUp(other_plugins=["inline"])
 
     def test_rename_works_with_inline_plugin(self) -> None:
-        """Ensure that Filetote can rename fields as expected whth the `inline`
+        """Ensure that Filetote can rename fields as expected with the `inline`
         plugin is enabled."""
 
         self._create_flat_import_dir()

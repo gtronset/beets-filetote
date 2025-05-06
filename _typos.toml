@@ -2,5 +2,5 @@
 extend-exclude = [
     # Exlude this file, which contains examples of typos
     "_typos.toml",
-    ".gitignore"
+    ".gitignore",
 ]

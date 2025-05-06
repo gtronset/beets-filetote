@@ -19,6 +19,7 @@ def modify_items(
     move: bool = True,
     album: str | None = None,
     confirm: bool = False,
+    inherit: bool = True,
 ) -> None: ...
 def update_items(
     lib: Library,

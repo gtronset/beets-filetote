@@ -1,0 +1,78 @@
+# yaml-language-server: $schema=https://json.schemastore.org/github-workflow.json
+
+name: CI
+
+on:
+    push:
+    pull_request:
+        types: [opened, reopened]
+
+jobs:
+    test:
+        strategy:
+            fail-fast: false
+            matrix:
+                python-version: ["3.8", "3.9", "3.10", "3.11", "3.12", "3.13"]
+                os: [ubuntu-latest, windows-latest]
+                include:
+                    - python-version: "3.8"
+                      tox-env: py38
+                    - python-version: "3.9"
+                      tox-env: py39
+                    - python-version: "3.10"
+                      tox-env: py310
+                    - python-version: "3.11"
+                      tox-env: py311
+                    - python-version: "3.12"
+                      tox-env: py312
+                    - python-version: "3.13"
+                      tox-env: py313
+        env:
+            TOXENV: ${{ matrix.tox-env }}
+        runs-on: ${{ matrix.os }}
+        steps:
+            - uses: actions/checkout@v4
+            - name: Setup Python ${{ matrix.python-version }}
+              uses: actions/setup-python@v5
+              with:
+                  python-version: ${{ matrix.python-version }}
+            - name: Install dependencies
+              run: |
+                  python -m pip install --upgrade pip tox
+            - name: Run tox
+              run: |
+                  python -m tox --discover $(which python)
+              shell: bash
+
+    lint:
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v4
+            - name: Setup Python
+              uses: actions/setup-python@v5
+              with:
+                  python-version: "3.13"
+
+            - name: Install Python dependencies
+              run: |
+                  python -m pip install --upgrade pip tox
+
+            - name: Check with black
+              if: always()
+              run: python -m tox -e black && git diff --exit-code
+
+            - name: Check with flake8
+              if: always()
+              run: python -m tox -e flake8
+
+            - name: Check with isort
+              if: always()
+              run: python -m tox -e isort && git diff --exit-code
+
+            - name: Check with mypy
+              if: always()
+              run: python -m tox -e mypy
+
+            - name: Check with pylint
+              if: always()
+              run: python -m tox -e pylint

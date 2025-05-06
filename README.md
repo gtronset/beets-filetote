@@ -10,8 +10,7 @@ A plugin that moves non-music extra files, attachments, and artifacts during imp
 CLI file manipulation actions (`move`, `modify`, reimport, etc.) for [beets], a music
 library manager (and much more!).
 
-This plugin is supported/runs in beets [`v1.6.0`]. The unrealease "latest" version of
-beets is not (yet) officially supported.
+This plugin is supported/runs in beets [`v2`] and above.
 
 [beets]: https://beets.io/
 
@@ -25,11 +24,6 @@ The stable version of the plugin is available from PyPI and can be installed usi
 ```sh
 pip3 install beets-filetote
 ```
-
-> **Important Note:** Python versions <3.7 will need to also install the [dataclasses]
-> module.
-
-[dataclasses]: https://pypi.org/project/dataclasses/
 
 ## Configuration
 
@@ -363,7 +357,7 @@ filetote:
 ##### Pairing Renaming
 
 To mainting the concept of "pairs" after importing, it is strongly encouraged to set
-the `path` for the paired files to use the media files new name. This will ensure thet
+the `path` for the paired files to use the media files new name. This will ensure that
 the file remains paired even after moving. E.g.:
 
 ```yaml
@@ -447,7 +441,7 @@ filetote:
   paths:
     pattern:artworkdir: $albumpath/artwork
     paired_ext:.lrc: $albumpath/$medianame_old
-    filename:cover.jpg: $albumpath/cover  
+    filename:cover.jpg: $albumpath/cover
 ```
 
 ## Multi-Disc and Nested Import Directories
@@ -653,8 +647,8 @@ Testing and linting is performed with [Tox].
 [Poetry]: https://python-poetry.org/
 [Tox]: https://tox.wiki/
 
-Filetote currently supports Python 3.6+, which aligns with the most recent version of
-beets ([`v1.6.0`]).
+Filetote currently supports Python 3.8+, which aligns with the most recent version of
+beets (`v2.2.0`).
 
 **1. Install Poetry & Tox:**
 
@@ -700,7 +694,7 @@ poetry run tox -e black
 **Docker:**
 
 A Docker Compose configuration is available for running the plugin in a controlled
-environment. Running the `docker-compose.yml` file for details.
+environment. Running the `compose.yaml` file for details.
 
 ## Thanks
 
@@ -728,5 +722,3 @@ Licensed under the [MIT license][license link].
 [pypi_version]: https://img.shields.io/pypi/v/beets-filetote
 [pypi_link]: https://pypi.org/project/beets-filetote/
 [pypi_python_versions]: https://img.shields.io/pypi/pyversions/beets-filetote
-
-[`v1.6.0`]: https://pypi.org/project/beets/1.6.0/

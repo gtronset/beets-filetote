@@ -73,16 +73,14 @@ class TestCase(unittest.TestCase):
         # temporary directory.
         self.temp_dir = util.bytestring_path(tempfile.mkdtemp())
 
-        config["statefile"] = util.py3_path(
-            os.path.join(self.temp_dir, b"state.pickle")
-        )
-        config["library"] = util.py3_path(os.path.join(self.temp_dir, b"library.db"))
-        config["directory"] = util.py3_path(os.path.join(self.temp_dir, b"libdir"))
+        config["statefile"] = os.fsdecode(os.path.join(self.temp_dir, b"state.pickle"))
+        config["library"] = os.fsdecode(os.path.join(self.temp_dir, b"library.db"))
+        config["directory"] = os.fsdecode(os.path.join(self.temp_dir, b"libdir"))
 
         # Set $HOME, which is used by confit's `config_dir()` to create
         # directories.
         self._old_home = os.environ.get("HOME")
-        os.environ["HOME"] = util.py3_path(self.temp_dir)
+        os.environ["HOME"] = os.fsdecode(self.temp_dir)
 
         # Initialize, but don't install, a DummyIO.
         self.in_out = DummyIO()
@@ -188,8 +186,8 @@ class DummyIO:
 
     def install(self) -> None:
         """Setup stdin and stdout"""
-        sys.stdin = self.stdin  # type: ignore[assignment]
-        sys.stdout = self.stdout  # type: ignore[assignment]
+        sys.stdin = self.stdin
+        sys.stdout = self.stdout
 
     def restore(self) -> None:
         """Restores/reset both stdin and stdout"""
