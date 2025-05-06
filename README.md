@@ -26,11 +26,6 @@ The stable version of the plugin is available from PyPI and can be installed usi
 pip3 install beets-filetote
 ```
 
-> **Important Note:** Python versions <3.7 will need to also install the [dataclasses]
-> module.
-
-[dataclasses]: https://pypi.org/project/dataclasses/
-
 ## Configuration
 
 You will need to enable the plugin in beets' `config.yaml`:
@@ -447,7 +442,7 @@ filetote:
   paths:
     pattern:artworkdir: $albumpath/artwork
     paired_ext:.lrc: $albumpath/$medianame_old
-    filename:cover.jpg: $albumpath/cover  
+    filename:cover.jpg: $albumpath/cover
 ```
 
 ## Multi-Disc and Nested Import Directories
@@ -653,8 +648,8 @@ Testing and linting is performed with [Tox].
 [Poetry]: https://python-poetry.org/
 [Tox]: https://tox.wiki/
 
-Filetote currently supports Python 3.6+, which aligns with the most recent version of
-beets ([`v1.6.0`]).
+Filetote currently supports Python 3.8+, which aligns with the most recent version of
+beets ([`v2.0.0`]).
 
 **1. Install Poetry & Tox:**
 
