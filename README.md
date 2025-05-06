@@ -10,8 +10,7 @@ A plugin that moves non-music extra files, attachments, and artifacts during imp
 CLI file manipulation actions (`move`, `modify`, reimport, etc.) for [beets], a music
 library manager (and much more!).
 
-This plugin is supported/runs in beets [`v1.6.0`]. The unrealease "latest" version of
-beets is not (yet) officially supported.
+This plugin is supported/runs in beets [`v2.0.0`] and above.
 
 [beets]: https://beets.io/
 
@@ -649,7 +648,7 @@ Testing and linting is performed with [Tox].
 [Tox]: https://tox.wiki/
 
 Filetote currently supports Python 3.8+, which aligns with the most recent version of
-beets ([`v2.0.0`]).
+beets ([`v2.2.0`]).
 
 **1. Install Poetry & Tox:**
 
@@ -723,5 +722,3 @@ Licensed under the [MIT license][license link].
 [pypi_version]: https://img.shields.io/pypi/v/beets-filetote
 [pypi_link]: https://pypi.org/project/beets-filetote/
 [pypi_python_versions]: https://img.shields.io/pypi/pyversions/beets-filetote
-
-[`v1.6.0`]: https://pypi.org/project/beets/1.6.0/
