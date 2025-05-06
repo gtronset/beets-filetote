@@ -1,29 +1,33 @@
-[tool.poetry]
+#:schema https://json.schemastore.org/pyproject.json
+
+[project]
 name = "beets-filetote"
 version = "0.4.9"
 description = "A beets plugin to copy/moves non-music extra files, attachments, and artifacts during the import process."
-authors = ["Gavin Tronset <gtronset@gmail.com>"]
+authors = [{ name = "Gavin Tronset", email = "gtronset@gmail.com" }]
 keywords = ["beets", "files", "artifacts", "extra"]
 license = "MIT"
 readme = "README.md"
-packages = [{include = "beetsplug"}]
-repository = "https://github.com/gtronset/beets-filetote"
-documentation = "https://github.com/gtronset/beets-filetote"
 classifiers = [
     "Topic :: Multimedia :: Sound/Audio",
     "Topic :: Multimedia :: Sound/Audio :: Players :: MP3",
     "Environment :: Console",
-    "Environment :: Web Environment"
+    "Environment :: Web Environment",
 ]
+requires-python = ">=3.8"
+dependencies = ["beets~=2.0", "mediafile>=0.10.0"]
 
-[tool.poetry.urls]
+[project.urls]
 "Release notes" = "https://github.com/gtronset/beets-filetote/releases"
 "Source" = "https://github.com/gtronset/beets-filetote"
+documentation = "https://github.com/gtronset/beets-filetote"
+repository = "https://github.com/gtronset/beets-filetote"
 
-[tool.poetry.dependencies]
-python = "^3.8"
-beets = "^2.0"
-mediafile = ">=0.10.0"
+[tool.poetry]
+packages = [{ include = "beetsplug" }]
+
+[tool.poetry.requires-plugins]
+poetry-plugin-export = ">=1.8"
 
 [tool.poetry.group.dev.dependencies]
 beets-audible = ">=0.1.0"
@@ -31,7 +35,7 @@ reflink = ">=0.2.1"
 toml = ">=0.10.2"
 
 [tool.poetry.group.lint.dependencies]
-black =  [
+black = [
     { version = ">=25.0.0", python = ">=3.9" },
     { version = "24.8.0", python = ">=3.8,<3.9" },
 ]
@@ -40,12 +44,12 @@ flake8 = [
     { version = "^7.1.0", python = ">=3.8.1,<3.9" },
     { version = "^5.0.0", python = ">=3.7,<3.8.1" },
 ]
-flake8-bugbear =  [
+flake8-bugbear = [
     { version = "^24.9.0", python = ">=3.9" },
     { version = "^24.2.6", python = ">=3.8.1,<3.9" },
     { version = "^22.9.23", python = ">=3.7,<3.8.1" },
 ]
-flake8-pyi =  [
+flake8-pyi = [
     { version = "^24.4.0", python = ">=3.8.1,<4.0" },
     { version = ">=22.1.0,<=23.5.0", python = ">=3.7,<3.8.1" },
 ]
@@ -83,7 +87,7 @@ profile = 'black'
 testpaths = ["./tests"]
 filterwarnings = [
     "ignore::DeprecationWarning:.*confuse",
-    "ignore::DeprecationWarning:.*mediafile"
+    "ignore::DeprecationWarning:.*mediafile",
 ]
 
 [tool.pylint.format]
@@ -93,5 +97,5 @@ output-format = 'colorized'
 
 [tool.mypy]
 mypy_path = ["./typehints"]
-strict=true
-pretty=true
+strict = true
+pretty = true

@@ -55,12 +55,16 @@ repos:
           - id: mypy
 
     - repo: https://github.com/python-poetry/poetry
-      rev: "1.8.0"
+      rev: "2.1.2"
       hooks:
           - id: poetry-check
             stages: [push]
           - id: poetry-lock
             stages: [push]
+
+    - repo: https://github.com/python-poetry/poetry-plugin-export
+      rev: "1.9.0"
+      hooks:
           - id: poetry-export
             name: poetry-export
             stages: [manual]
@@ -100,6 +104,7 @@ repos:
             args: ["-e pylint"]
 
     - repo: https://github.com/crate-ci/typos
+      # https://github.com/crate-ci/typos/issues/390
       rev: "v1"
       hooks:
           - id: typos
@@ -109,3 +114,5 @@ repos:
       rev: "v0.24.1"
       hooks:
           - id: validate-pyproject
+            additional_dependencies:
+                ["validate-pyproject[all]", "validate-pyproject-schema-store"]
