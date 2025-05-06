@@ -5,7 +5,7 @@ on:
 
 env:
     PYTHON_VERSION: 3.12
-    POETRY_VERSION: 1.7.0
+    POETRY_VERSION: 1.8.5
 
 jobs:
     release:
