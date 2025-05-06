@@ -2,6 +2,7 @@
 data used in processing extra files/artifacts."""
 
 from dataclasses import asdict, dataclass, field, fields
+from sys import version_info
 from typing import Any, Dict, List, Literal, Optional, Union
 
 from beets.library import Library
@@ -9,6 +10,14 @@ from beets.util import MoveOperation
 from beets.util.functemplate import Template
 
 from .mapping_model import FiletoteMappingModel
+
+if version_info >= (3, 10):
+    from typing import TypeAlias
+else:
+    from typing_extensions import TypeAlias  # pylint: disable=import-error
+
+StrSeq: TypeAlias = List[str]
+OptionalStrSeq: TypeAlias = Union[Literal[""], StrSeq]
 
 DEFAULT_ALL_GLOB: Literal[".*"] = ".*"
 DEFAULT_EMPTY: Literal[""] = ""
@@ -51,7 +60,7 @@ class FiletotePairingData:
 
     enabled: bool = False
     pairing_only: bool = False
-    extensions: Union[Literal[".*"], List[str]] = DEFAULT_ALL_GLOB
+    extensions: Union[Literal[".*"], StrSeq] = DEFAULT_ALL_GLOB
 
     def __post_init__(self) -> None:
         self._validate_types()
@@ -83,10 +92,10 @@ class FiletoteConfig:
     # pylint: disable=too-many-instance-attributes
 
     session: FiletoteSessionData = field(default_factory=FiletoteSessionData)
-    extensions: Union[str, List[str]] = DEFAULT_EMPTY
-    filenames: Union[str, List[str]] = DEFAULT_EMPTY
+    extensions: OptionalStrSeq = DEFAULT_EMPTY
+    filenames: OptionalStrSeq = DEFAULT_EMPTY
     patterns: Dict[str, List[str]] = field(default_factory=dict)
-    exclude: Union[str, List[str]] = DEFAULT_EMPTY
+    exclude: OptionalStrSeq = DEFAULT_EMPTY
     pairing: FiletotePairingData = field(default_factory=FiletotePairingData)
     paths: Dict[str, Template] = field(default_factory=dict)
     print_ignored: bool = False
