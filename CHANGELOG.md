@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Update Filetote to support Beets >=2.0.0 (and various cleanups) <https://github.com/gtronset/beets-filetote/pull/167>
 - Update Black version to fix vulnerability <https://github.com/gtronset/beets-filetote/pull/157>
 
 ## [0.4.9] - 2024-04-20
