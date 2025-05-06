@@ -695,7 +695,7 @@ poetry run tox -e black
 **Docker:**
 
 A Docker Compose configuration is available for running the plugin in a controlled
-environment. Running the `docker-compose.yml` file for details.
+environment. Running the `compose.yaml` file for details.
 
 ## Thanks
 

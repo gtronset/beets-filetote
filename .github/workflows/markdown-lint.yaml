@@ -16,6 +16,7 @@ jobs:
         steps:
             - name: Checkout Code
               uses: actions/checkout@v4
+
             - name: Lint Markdown Files
               uses: DavidAnson/markdownlint-cli2-action@v18
               with:
