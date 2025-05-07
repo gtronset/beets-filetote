@@ -1,6 +1,7 @@
 """Tests renaming Item fields for the beets-filetote plugin."""
 
 import logging
+
 from typing import List, Optional
 
 from beets import config
@@ -16,7 +17,7 @@ class FiletoteRenameItemFieldsTest(FiletoteTestCase):
     expected for custom path formats.
     """
 
-    def setUp(self, other_plugins: Optional[List[str]] = None) -> None:
+    def setUp(self, _other_plugins: Optional[List[str]] = None) -> None:
         """Provides shared setup for tests."""
         super().setUp()
 
@@ -29,9 +30,9 @@ class FiletoteRenameItemFieldsTest(FiletoteTestCase):
         populate in renaming.
         """
         config["filetote"]["extensions"] = ".file"
-        config["paths"][
-            "ext:file"
-        ] = "$albumpath/$artist - $album - $track $title ($albumartist) newname"
+        config["paths"]["ext:file"] = (
+            "$albumpath/$artist - $album - $track $title ($albumartist) newname"
+        )
 
         self._run_cli_command("import")
 
@@ -83,9 +84,9 @@ class FiletoteRenameItemFieldsTest(FiletoteTestCase):
         `length` will convert from `M:SS` to `M_SS` for path-friendliness.
         """
         config["filetote"]["extensions"] = ".file"
-        config["paths"][
-            "ext:file"
-        ] = "$albumpath/newname - ${bpm}bpm $length ($format) ($bitrate)"
+        config["paths"]["ext:file"] = (
+            "$albumpath/newname - ${bpm}bpm $length ($format) ($bitrate)"
+        )
 
         self._run_cli_command("import")
 

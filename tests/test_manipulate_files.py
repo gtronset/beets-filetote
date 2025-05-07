@@ -5,9 +5,11 @@
 import logging
 import os
 import stat
+
 from typing import List, Optional
 
 import pytest
+
 from beets import config, util
 
 from tests import _common
@@ -21,7 +23,7 @@ class FiletoteManipulateFiles(FiletoteTestCase):
     Tests to check that Filetote manipulates files using the correct operation.
     """
 
-    def setUp(self, other_plugins: Optional[List[str]] = None) -> None:
+    def setUp(self, _other_plugins: Optional[List[str]] = None) -> None:
         """Provides shared setup for tests."""
         super().setUp()
 
@@ -79,9 +81,7 @@ class FiletoteManipulateFiles(FiletoteTestCase):
         self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"track_1 - artifact.file")
         self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"track_1 - artifact2.file")
 
-    @pytest.mark.skipif(
-        not _common.HAVE_SYMLINK, reason="need symlinks"
-    )  # type:ignore[misc]
+    @pytest.mark.skipif(not _common.HAVE_SYMLINK, reason="need symlinks")  # type:ignore[misc]
     def test_import_symlink_files(self) -> None:
         """Tests that the `symlink` operation correctly symlinks files."""
         config["filetote"]["extensions"] = ".file"
@@ -110,9 +110,7 @@ class FiletoteManipulateFiles(FiletoteTestCase):
 
         self.assert_equal_path(util.bytestring_path(os.readlink(new_path)), old_path)
 
-    @pytest.mark.skipif(
-        not _common.HAVE_HARDLINK, reason="need hardlinks"
-    )  # type:ignore[misc]
+    @pytest.mark.skipif(not _common.HAVE_HARDLINK, reason="need hardlinks")  # type:ignore[misc]
     def test_import_hardlink_files(self) -> None:
         """Tests that the `hardlink` operation correctly hardlinks files."""
 
@@ -140,14 +138,13 @@ class FiletoteManipulateFiles(FiletoteTestCase):
 
         stat_old_path = os.stat(old_path)
         stat_new_path = os.stat(new_path)
-        self.assertTrue(
-            (stat_old_path[stat.ST_INO], stat_old_path[stat.ST_DEV])
-            == (stat_new_path[stat.ST_INO], stat_new_path[stat.ST_DEV])
+
+        assert (stat_old_path[stat.ST_INO], stat_old_path[stat.ST_DEV]) == (
+            stat_new_path[stat.ST_INO],
+            stat_new_path[stat.ST_DEV],
         )
 
-    @pytest.mark.skipif(
-        not _common.HAVE_REFLINK, reason="need reflinks"
-    )  # type:ignore[misc]
+    @pytest.mark.skipif(not _common.HAVE_REFLINK, reason="need reflinks")  # type:ignore[misc]
     def test_import_reflink_files(self) -> None:
         """Tests that the `reflink` operation correctly links files."""
 

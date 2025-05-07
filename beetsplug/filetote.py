@@ -3,6 +3,7 @@
 import filecmp
 import fnmatch
 import os
+
 from typing import TYPE_CHECKING, Any, Callable, Dict, List, Optional, Tuple, Union
 
 from beets import config, util
@@ -518,7 +519,6 @@ class FiletotePlugin(BeetsPlugin):
         for root, _dirs, files in util.sorted_walk(
             source_path, ignore=config["ignore"].as_str_seq()
         ):
-
             for filename in files:
                 source_file = os.path.join(root, filename)
                 file_name, file_ext = os.path.splitext(filename)

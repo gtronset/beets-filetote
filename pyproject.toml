@@ -64,6 +64,7 @@ mypy = [
     { version = "^1.15.0", python = ">=3.9" },
     { version = "^1.9.0", python = ">=3.8,<3.9" },
 ]
+ruff = "^0.11.8"
 
 [tool.poetry.group.test.dependencies]
 pytest = "^8.0.0"
@@ -72,6 +73,51 @@ typeguard = "^4.4.0"
 [build-system]
 requires = ["poetry-core<2.0.0"]
 build-backend = "poetry.core.masonry.api"
+
+[tool.ruff]
+line-length = 88
+# namespace-packages = ["beetsplug"]
+preview = false
+src = ["beetsplug", "tests", "typehints"]
+target-version = "py38"
+
+[tool.ruff.lint]
+select = [
+    "ARG", # flake8-unused-arguments
+    # "C4", # flake8-comprehensions
+    "E",   # pycodestyle
+    "F",   # pyflakes
+    "B",   # flake8-bugbear
+    "I",   # isort
+    "N",   # pep8-naming
+    "PL",  # pylint
+    "PT",  # flake8-pytest-style
+    "PYI", # flake8-pyi
+    "RUF", # ruff
+    "UP",  # pyupgrade
+    "W",   # pycodestyle
+]
+
+[tool.ruff.lint.isort]
+lines-between-types = 1
+known-local-folder = ["tests"]
+
+[tool.ruff.lint.per-file-ignores]
+"beetsplug/**" = ["PT"]
+
+[tool.ruff.lint.pycodestyle]
+max-line-length = 88
+
+[tool.ruff.lint.flake8-pytest-style]
+fixture-parentheses = false
+mark-parentheses = false
+parametrize-names-type = "csv"
+
+[tool.ruff.lint.flake8-unused-arguments]
+ignore-variadic-names = true
+
+[tool.ruff.lint.pep8-naming]
+extend-ignore-names = ["assert*", "getLogger"]
 
 [tool.black]
 target-version = ['py38']

@@ -4,6 +4,7 @@ plugin, when the beets-audible plugin is loaded.
 """
 
 import logging
+
 from typing import List, Optional
 
 from beets import config
@@ -19,7 +20,7 @@ class FiletoteM4BFilesIgnoredTest(FiletoteTestCase):
     beets-audible plugin is present.
     """
 
-    def setUp(self, other_plugins: Optional[List[str]] = None) -> None:
+    def setUp(self, _other_plugins: Optional[List[str]] = None) -> None:
         """Provides shared setup for tests."""
         super().setUp(other_plugins=["audible", "inline"])
 

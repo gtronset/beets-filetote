@@ -9,7 +9,7 @@ class MediaMeta:
     """
     Metadata for created media files.
     Follows typing from the [Beets Item](https://github.com/beetbox/beets/blob/9527a07767629c1ceb99c2cd681b78172a7272a0/beets/library.py#L475-L563)
-    """  # noqa: E501
+    """
 
     title: str = "Tag Title 1"
     artist: str = "Tag Artist"

@@ -15,7 +15,7 @@ class FiletoteNoFilesizeErrorTest(FiletoteTestCase):
     Tests to ensure no "could not get filesize" error occurs.
     """
 
-    def setUp(self, other_plugins: Optional[List[str]] = None) -> None:
+    def setUp(self, _other_plugins: Optional[List[str]] = None) -> None:
         """Provides shared setup for tests."""
         super().setUp()
 

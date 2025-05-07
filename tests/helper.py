@@ -3,30 +3,32 @@
 import logging
 import os
 import shutil
+
 from contextlib import contextmanager
 from dataclasses import asdict, dataclass
 from sys import version_info
 from typing import Any, Dict, Iterator, List, Optional
+
+# Make sure the local versions of the plugins are used
+import beetsplug
+
+
+# pylint & mypy don't recognize `audible` as an extended module. Also pleases Flake8
+from beetsplug import (  # type: ignore[attr-defined] # pylint: disable=no-name-in-module
+    audible,
+    filetote,
+    inline,
+)
 
 from beets import config, library, plugins, util
 from beets.importer import ImportSession
 from beets.ui import commands
 from mediafile import MediaFile
 
-# Make sure the local versions of the plugins are used
-import beetsplug  # noqa: E402
-
-# pylint & mypy don't recognize `audible` as an extended module. Also pleases Flake8
-from beetsplug import (  # type: ignore[attr-defined] # pylint: disable=no-name-in-module # noqa: E501
-    audible,
-    filetote,
-    inline,
-)
+from ._item_model import MediaMeta
 from tests import _common
 
-from ._item_model import MediaMeta
-
-if version_info >= (3, 8):
+if version_info >= (3, 8):  # noqa: UP036
     from typing import Literal
 else:
     from typing_extensions import Literal  # type: ignore # pylint: disable=import-error
@@ -144,25 +146,19 @@ class Assertions(_common.AssertionsMixin):
         Join the ``segments`` with the `lib_dir` and assert that this path is a link
         """
         if self.lib_dir:
-            self.assertions.assertTrue(
-                os.path.islink(os.path.join(self.lib_dir, *segments))
-            )
+            assert os.path.islink(os.path.join(self.lib_dir, *segments))
 
     def assert_equal_path(self, path_a: bytes, path_b: bytes) -> None:
         """Check that two paths are equal."""
-        self.assertions.assertEqual(
-            util.normpath(path_a),
-            util.normpath(path_b),
-            f"paths are not equal: {path_a!r} and {path_b!r}",
+        assert util.normpath(path_a) == util.normpath(path_b), (
+            f"paths are not equal: {path_a!r} and {path_b!r}"
         )
 
     def assert_number_of_files_in_dir(self, count: int, *segments: bytes) -> None:
         """
         Assert that there are ``count`` files in path formed by joining ``segments``
         """
-        self.assertions.assertEqual(
-            len(list(os.listdir(os.path.join(*segments)))), count
-        )
+        assert len(list(os.listdir(os.path.join(*segments)))) == count
 
 
 class HelperUtils:
@@ -351,7 +347,7 @@ class FiletoteTestCase(_common.TestCase, Assertions, HelperUtils):
 
         self.importer.run()
 
-    def _run_cli_move(
+    def _run_cli_move(  # noqa: PLR0913
         self,
         query: str,
         dest_dir: Optional[bytes] = None,
@@ -374,7 +370,7 @@ class FiletoteTestCase(_common.TestCase, Assertions, HelperUtils):
             export=export,
         )
 
-    def _run_cli_modify(
+    def _run_cli_modify(  # noqa: PLR0913
         self,
         query: str,
         mods: Optional[Dict[str, str]] = None,
@@ -593,7 +589,7 @@ class FiletoteTestCase(_common.TestCase, Assertions, HelperUtils):
         log.debug("--- import directory created")
         self.list_files(self.import_dir)
 
-    def _generate_paired_media_list(
+    def _generate_paired_media_list(  # noqa: PLR0913
         self,
         album_path: bytes,
         count: int = 3,
@@ -617,7 +613,7 @@ class FiletoteTestCase(_common.TestCase, Assertions, HelperUtils):
                 self._create_medium(
                     path=os.path.join(
                         album_path,
-                        f"{trackname}.{file_type}".encode("utf-8"),
+                        f"{trackname}.{file_type}".encode(),
                     ),
                     resource_name=self.get_rsrc_from_file_type(file_type),
                     media_meta=MediaMeta(
@@ -636,7 +632,7 @@ class FiletoteTestCase(_common.TestCase, Assertions, HelperUtils):
 
                 os.makedirs(pair_path, exist_ok=True)
 
-                self.create_file(pair_path, f"{trackname}.lrc".encode("utf-8"))
+                self.create_file(pair_path, f"{trackname}.lrc".encode())
         return media_list
 
     def _create_medium(
@@ -678,7 +674,7 @@ class FiletoteTestCase(_common.TestCase, Assertions, HelperUtils):
             shutil.rmtree(self.import_dir)
         self.import_dir = os.path.join(self.temp_dir, b"testsrc_dir")
 
-    def _setup_import_session(
+    def _setup_import_session(  # noqa: PLR0913
         self,
         import_dir: Optional[bytes] = None,
         delete: bool = False,

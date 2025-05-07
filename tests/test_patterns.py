@@ -2,6 +2,7 @@
 
 import logging
 import os
+
 from typing import List, Optional
 
 from beets import config
@@ -16,7 +17,7 @@ class FiletotePatternTest(FiletoteTestCase):
     Tests to check that Filetote grabs artfacts by user-definited patterns.
     """
 
-    def setUp(self, other_plugins: Optional[List[str]] = None) -> None:
+    def setUp(self, _other_plugins: Optional[List[str]] = None) -> None:
         """Provides shared setup for tests."""
         super().setUp()
 
@@ -131,9 +132,9 @@ class FiletotePatternTest(FiletoteTestCase):
             "file-pattern": ["[Aa]rtifact.file", "artifact[23].file"],
             "nfo-pattern": ["*.nfo"],
         }
-        config["paths"][
-            "pattern:file-pattern"
-        ] = "$albumpath/file-pattern $old_filename"
+        config["paths"]["pattern:file-pattern"] = (
+            "$albumpath/file-pattern $old_filename"
+        )
 
         config["paths"]["pattern:nfo-pattern"] = "$albumpath/nfo-pattern $old_filename"
 

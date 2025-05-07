@@ -12,7 +12,7 @@ class FiletotePrintIgnoredTest(FiletoteTestCase):
     Tests to check print ignored files functionality and configuration.
     """
 
-    def setUp(self, other_plugins: Optional[List[str]] = None) -> None:
+    def setUp(self, _other_plugins: Optional[List[str]] = None) -> None:
         """Provides shared setup for tests."""
         super().setUp()
 
@@ -31,7 +31,7 @@ class FiletotePrintIgnoredTest(FiletoteTestCase):
 
         # check output log
         logs = [line for line in logs if line.startswith("filetote:")]
-        self.assertEqual(logs, [])
+        assert logs == []
 
     def test_print_ignored(self) -> None:
         """
@@ -48,10 +48,7 @@ class FiletotePrintIgnoredTest(FiletoteTestCase):
 
         # check output log
         logs = [line for line in logs if line.startswith("filetote:")]
-        self.assertEqual(
-            logs,
-            [
-                "filetote: Ignored files:",
-                "filetote:    artifact.nfo",
-            ],
-        )
+        assert logs == [
+            "filetote: Ignored files:",
+            "filetote:    artifact.nfo",
+        ]

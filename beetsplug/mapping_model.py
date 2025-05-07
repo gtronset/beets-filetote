@@ -1,6 +1,6 @@
 """ "Mapping" Model for Filetote."""
 
-from typing import Dict, List, Literal, Optional, Union
+from typing import ClassVar, Dict, List, Literal, Optional, Union
 
 from beets.dbcore import db
 from beets.dbcore import types as db_types
@@ -9,7 +9,7 @@ from beets.dbcore import types as db_types
 class FiletoteMappingModel(db.Model):
     """Model for a FiletoteMappingFormatted."""
 
-    _fields = {
+    _fields: ClassVar = {
         "albumpath": db_types.STRING,
         "medianame_old": db_types.STRING,
         "medianame_new": db_types.STRING,

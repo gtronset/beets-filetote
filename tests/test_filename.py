@@ -1,16 +1,18 @@
 """Tests file-naming for the beets-filetote plugin."""
 
 import os
+
 from typing import List, Optional
 
-import beets
 import pytest
+
+import beets
+
 from beets import config
 
+from ._item_model import MediaMeta
 from tests import _common
 from tests.helper import FiletoteTestCase
-
-from ._item_model import MediaMeta
 
 
 class FiletoteFilename(FiletoteTestCase):
@@ -18,7 +20,7 @@ class FiletoteFilename(FiletoteTestCase):
     Tests to check handling of artifacts with filenames containing unicode characters
     """
 
-    def setUp(self, other_plugins: Optional[List[str]] = None) -> None:
+    def setUp(self, _other_plugins: Optional[List[str]] = None) -> None:
         """Provides shared setup for tests."""
         super().setUp()
 
@@ -70,9 +72,7 @@ class FiletoteFilename(FiletoteTestCase):
             beets.util.bytestring_path("\xe4rtifact.file"),
         )
 
-    @pytest.mark.skipif(
-        _common.PLATFORM == "win32", reason="win32"
-    )  # type:ignore[misc]
+    @pytest.mark.skipif(_common.PLATFORM == "win32", reason="win32")  # type:ignore[misc]
     def test_import_with_illegal_character_in_artifact_name_obeys_beets(
         self,
     ) -> None:

@@ -4,9 +4,11 @@
 
 import logging
 import os
+
 from typing import List, Optional
 
 import pytest
+
 from beets import config
 
 from tests import _common
@@ -22,7 +24,7 @@ class FiletoteFromNestedDirectoryTest(FiletoteTestCase):
     disc numbers or flat option is used
     """
 
-    def setUp(self, other_plugins: Optional[List[str]] = None) -> None:
+    def setUp(self, _other_plugins: Optional[List[str]] = None) -> None:
         """Provides shared setup for tests."""
         super().setUp()
 
@@ -90,9 +92,7 @@ class FiletoteFromNestedDirectoryTest(FiletoteTestCase):
             b"Tag Artist", b"Tag Album", b"02", b"artifact_disc2.lrc"
         )
 
-    @pytest.mark.skipif(
-        _common.PLATFORM == "win32", reason="win32"
-    )  # type:ignore[misc]
+    @pytest.mark.skipif(_common.PLATFORM == "win32", reason="win32")  # type:ignore[misc]
     def test_copies_file_navigate_in_nested_library(self) -> None:
         """
         Ensures that nested directory artifacts are relocated using `..` without issue.
