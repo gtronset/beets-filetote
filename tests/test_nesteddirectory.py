@@ -87,7 +87,7 @@ class FiletoteFromNestedDirectoryTest(FiletoteTestCase):
             b"Tag Artist", b"Tag Album", b"02", b"artifact_disc2.lrc"
         )
 
-    @pytest.mark.skipif(_common.PLATFORM == "win32", reason="win32")  # type:ignore[misc]
+    @pytest.mark.skipif(_common.PLATFORM == "win32", reason="win32")
     def test_copies_file_navigate_in_nested_library(self) -> None:
         """Ensures that nested directory artifacts are relocated using `..` without
         issue. This is skipped in Windows since `..` is taken literally instead of as

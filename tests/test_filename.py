@@ -71,7 +71,7 @@ class FiletoteFilename(FiletoteTestCase):
             beets.util.bytestring_path("\xe4rtifact.file"),
         )
 
-    @pytest.mark.skipif(_common.PLATFORM == "win32", reason="win32")  # type:ignore[misc]
+    @pytest.mark.skipif(_common.PLATFORM == "win32", reason="win32")
     def test_import_with_illegal_character_in_artifact_name_obeys_beets(
         self,
     ) -> None:

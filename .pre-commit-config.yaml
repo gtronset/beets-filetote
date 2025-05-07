@@ -50,6 +50,7 @@ repos:
       rev: "v1.15.0"
       hooks:
           - id: mypy
+            additional_dependencies: [pytest]
 
     - repo: https://github.com/python-poetry/poetry
       rev: "1.8.5"

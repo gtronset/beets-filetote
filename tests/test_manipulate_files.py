@@ -77,7 +77,7 @@ class FiletoteManipulateFiles(FiletoteTestCase):
         self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"track_1 - artifact.file")
         self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"track_1 - artifact2.file")
 
-    @pytest.mark.skipif(not _common.HAVE_SYMLINK, reason="need symlinks")  # type:ignore[misc]
+    @pytest.mark.skipif(not _common.HAVE_SYMLINK, reason="need symlinks")
     def test_import_symlink_files(self) -> None:
         """Tests that the `symlink` operation correctly symlinks files."""
         config["filetote"]["extensions"] = ".file"
@@ -106,7 +106,7 @@ class FiletoteManipulateFiles(FiletoteTestCase):
 
         self.assert_equal_path(util.bytestring_path(os.readlink(new_path)), old_path)
 
-    @pytest.mark.skipif(not _common.HAVE_HARDLINK, reason="need hardlinks")  # type:ignore[misc]
+    @pytest.mark.skipif(not _common.HAVE_HARDLINK, reason="need hardlinks")
     def test_import_hardlink_files(self) -> None:
         """Tests that the `hardlink` operation correctly hardlinks files."""
         config["filetote"]["extensions"] = ".file"
@@ -139,7 +139,7 @@ class FiletoteManipulateFiles(FiletoteTestCase):
             stat_new_path[stat.ST_DEV],
         )
 
-    @pytest.mark.skipif(not _common.HAVE_REFLINK, reason="need reflinks")  # type:ignore[misc]
+    @pytest.mark.skipif(not _common.HAVE_REFLINK, reason="need reflinks")
     def test_import_reflink_files(self) -> None:
         """Tests that the `reflink` operation correctly links files."""
         config["filetote"]["extensions"] = ".file"
