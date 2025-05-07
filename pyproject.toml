@@ -72,6 +72,7 @@ select = [
     "SLF", # flake8-self
     "UP",  # pyupgrade
     "W",   # pycodestyle
+    # "PTH", # flake8-use-pathlib
 ]
 
 [tool.ruff.lint.isort]
