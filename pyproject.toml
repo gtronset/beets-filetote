@@ -57,7 +57,7 @@ target-version = "py38"
 
 [tool.ruff.lint]
 ignore = ["D205"]
-select = [
+extend-select = [
     "ARG", # flake8-unused-arguments
     # "C4", # flake8-comprehensions
     "E",   # pycodestyle
