@@ -1,7 +1,5 @@
 """Tests manipulation of files for the beets-filetote plugin."""
 
-# pylint: disable=duplicate-code
-
 import logging
 import os
 import stat

@@ -1,7 +1,5 @@
 """Tests CLI operations supersede config for the beets-filetote plugin."""
 
-# pylint: disable=duplicate-code
-
 import os
 
 from typing import List, Optional

@@ -1,7 +1,5 @@
 """Tests renaming based on paths for the beets-filetote plugin."""
 
-# pylint: disable=duplicate-code
-
 import logging
 
 from typing import List, Optional

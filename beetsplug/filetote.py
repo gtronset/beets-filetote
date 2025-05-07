@@ -202,7 +202,7 @@ class FiletotePlugin(BeetsPlugin):
             "item_reflinked": MoveOperation.REFLINK,
         }
 
-        return mapping.get(event, None)
+        return mapping.get(event)
 
     def file_operation_event_listener(
         self, event: str, item: "Item", source: bytes, destination: bytes
@@ -306,7 +306,6 @@ class FiletotePlugin(BeetsPlugin):
         paired: bool = False,
         pattern_category: Optional[str] = None,
     ) -> bytes:
-        # pylint: disable=too-many-locals
         """
         Returns a destination path an artifact/file should be moved to. The
         artifact filename is unique to ensure files aren't overwritten. This also
@@ -334,6 +333,7 @@ class FiletotePlugin(BeetsPlugin):
         )
 
         album_path: Optional[str] = mapping_formatted.get("albumpath")
+        # Sanity check for mypy in cases where beets_lib is None
         assert album_path is not None
 
         if not selected_path_query:
@@ -344,6 +344,7 @@ class FiletotePlugin(BeetsPlugin):
             )
             return util.bytestring_path(artifact_path)
 
+        # Sanity check for mypy in cases where beets_lib is None
         assert selected_path_format is not None
         subpath_tmpl: Template = self._templatize_path_format(selected_path_format)
 
@@ -831,7 +832,7 @@ class FiletotePlugin(BeetsPlugin):
         are moved.
         """
 
-        # Sanity check for pylint in cases where beets_lib is None
+        # Sanity check for mypy in cases where beets_lib is None
         assert self.filetote.session.beets_lib is not None
 
         library_dir = self.filetote.session.beets_lib.directory
@@ -850,7 +851,7 @@ class FiletotePlugin(BeetsPlugin):
         within it, the root path is selected. Otherwise, returns None.
         """
 
-        # Sanity check for pylint in cases where beets_lib is None
+        # Sanity check for mypy in cases where beets_lib is None
         assert self.filetote.session.beets_lib is not None
 
         library_dir = self.filetote.session.beets_lib.directory

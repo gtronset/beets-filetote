@@ -14,7 +14,7 @@ from .mapping_model import FiletoteMappingModel
 if version_info >= (3, 10):
     from typing import TypeAlias
 else:
-    from typing_extensions import TypeAlias  # pylint: disable=import-error
+    from typing_extensions import TypeAlias
 
 StrSeq: TypeAlias = List[str]
 OptionalStrSeq: TypeAlias = Union[Literal[""], StrSeq]
@@ -88,8 +88,6 @@ class FiletotePairingData:
 @dataclass
 class FiletoteConfig:
     """Configuration settings for FileTote Item."""
-
-    # pylint: disable=too-many-instance-attributes
 
     session: FiletoteSessionData = field(default_factory=FiletoteSessionData)
     extensions: OptionalStrSeq = DEFAULT_EMPTY

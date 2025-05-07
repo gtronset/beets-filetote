@@ -685,10 +685,16 @@ Testing can be run with Tox, ex.:
 poetry run tox -e py312
 ```
 
-For other linting environments, see `tox.ini`. Ex: `black`:
+For other linting environments, see `tox.ini`. Ex: `lint` (courtesy of `ruff`):
 
 ```sh
-poetry run tox -e black
+poetry run tox -e lint
+```
+
+Ex: `format` (courtesy of `ruff`):
+
+```sh
+poetry run tox -e format
 ```
 
 **Docker:**

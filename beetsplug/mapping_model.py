@@ -58,7 +58,7 @@ class FiletoteMappingFormatted(db.FormattedMapping):
         separator replaced.
         """
         if key in self.whitelist_replace:
-            value = self.model._type(key).format(self.model.get(key))
+            value = self.model._type(key).format(self.model.get(key))  # noqa: SLF001
             if isinstance(value, bytes):
                 value = value.decode("utf-8", "ignore")
             return str(value)

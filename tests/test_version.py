@@ -5,7 +5,7 @@ Tests that the version specified for the plugin matches the value in pyproject.
 from typing import List, Optional
 
 import beetsplug
-import toml  # type: ignore # pylint: disable=import-error
+import toml  # type: ignore
 
 from tests.helper import FiletoteTestCase
 

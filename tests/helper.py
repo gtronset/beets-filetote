@@ -1,4 +1,5 @@
 """Helper functions for tests for the beets-filetote plugin."""
+# ruff: noqa: SLF001
 
 import logging
 import os
@@ -13,8 +14,8 @@ from typing import Any, Dict, Iterator, List, Optional
 import beetsplug
 
 
-# pylint & mypy don't recognize `audible` as an extended module. Also pleases Flake8
-from beetsplug import (  # type: ignore[attr-defined] # pylint: disable=no-name-in-module
+# mypy doesn't recognize `audible` as an extended module
+from beetsplug import (  # type: ignore[attr-defined]
     audible,
     filetote,
     inline,
@@ -31,7 +32,7 @@ from tests import _common
 if version_info >= (3, 8):  # noqa: UP036
     from typing import Literal
 else:
-    from typing_extensions import Literal  # type: ignore # pylint: disable=import-error
+    from typing_extensions import Literal  # type: ignore
 
 beetsplug.__path__ = [os.path.abspath(os.path.join(__file__, "..", "..", "beetsplug"))]
 
@@ -198,7 +199,6 @@ class HelperUtils:
 
 
 class FiletoteTestCase(_common.TestCase, Assertions, HelperUtils):
-    # pylint: disable=too-many-instance-attributes
     """
     Provides common setup and teardown, a convenience method for exercising the
     plugin/importer, tools to setup a library, a directory containing files
@@ -247,12 +247,10 @@ class FiletoteTestCase(_common.TestCase, Assertions, HelperUtils):
         return lib
 
     def tearDown(self) -> None:
-        # pylint: disable=protected-access
         self.lib._close()
         super().tearDown()
 
     def load_plugins(self, other_plugins: List[str]) -> None:
-        # pylint: disable=protected-access
         """Loads and sets up the plugin(s) for the test module."""
 
         plugin_list: List[str] = ["filetote"]
@@ -275,7 +273,6 @@ class FiletoteTestCase(_common.TestCase, Assertions, HelperUtils):
         plugins.load_plugins(plugin_list)
 
     def unload_plugins(self) -> None:
-        # pylint: disable=protected-access
         """Unload all plugins and remove the from the configuration."""
         config["plugins"] = []
         # plugins._classes = set()
@@ -356,7 +353,6 @@ class FiletoteTestCase(_common.TestCase, Assertions, HelperUtils):
         pretend: bool = False,
         export: bool = False,
     ) -> None:
-        # pylint: disable=too-many-arguments,too-many-positional-arguments
         """Runs the "move" CLI command. This should be called with
         _run_cli_command()."""
         commands.move_items(
@@ -379,7 +375,6 @@ class FiletoteTestCase(_common.TestCase, Assertions, HelperUtils):
         move: bool = True,
         album: Optional[str] = None,
     ) -> None:
-        # pylint: disable=too-many-arguments,too-many-positional-arguments
         """Runs the "modify" CLI command. This should be called with
         _run_cli_command()."""
         mods = mods or {}
@@ -405,7 +400,6 @@ class FiletoteTestCase(_common.TestCase, Assertions, HelperUtils):
         pretend: bool = False,
         fields: Optional[List[str]] = None,
     ) -> None:
-        # pylint: disable=too-many-arguments,too-many-positional-arguments
         """Runs the "update" CLI command. This should be called with
         _run_cli_command()."""
         commands.update_items(
@@ -600,7 +594,6 @@ class FiletoteTestCase(_common.TestCase, Assertions, HelperUtils):
         title_prefix: str = "Tag Title ",
         disc: int = 1,
     ) -> List[MediaFile]:
-        # pylint: disable=too-many-arguments,too-many-positional-arguments
         """
         Generates the desired number of media files and corresponding
         "paired" artifacts.
@@ -685,8 +678,6 @@ class FiletoteTestCase(_common.TestCase, Assertions, HelperUtils):
         autotag: bool = True,
         query: Optional[str] = None,
     ) -> None:
-        # pylint: disable=too-many-arguments,too-many-positional-arguments
-
         config["import"]["copy"] = copy
         config["import"]["delete"] = delete
         config["import"]["timid"] = True
