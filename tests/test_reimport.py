@@ -13,22 +13,20 @@ log = logging.getLogger("beets")
 
 
 class FiletoteReimportTest(FiletoteTestCase):
-    """
-    Tests to check that Filetote handles reimports correctly
-    """
+    """Tests to check that Filetote handles reimports correctly."""
 
     def setUp(self, _other_plugins: Optional[List[str]] = None) -> None:
-        """
-        Setup subsequent import directory of the following structure:
+        """Setup subsequent import directory of the below structure.
 
-            testlib_dir/
-                Tag Artist/
-                    Tag Album/
-                        Tag Title 1.mp3
-                        Tag Title 2.mp3
-                        Tag Title 3.mp3
-                        artifact.file
-                        artifact2.file
+        Ex:
+        testlib_dir/
+            Tag Artist/
+                Tag Album/
+                    Tag Title 1.mp3
+                    Tag Title 2.mp3
+                    Tag Title 3.mp3
+                    artifact.file
+                    artifact2.file
         """
         super().setUp()
 
@@ -43,7 +41,8 @@ class FiletoteReimportTest(FiletoteTestCase):
     def test_reimport_artifacts_with_copy(self) -> None:
         """Tests that when reimporting, copying actually results in a move. The
         operation gets changed to `move` when the media file is already in the
-        library (hence, reimport)."""
+        library (hence, reimport).
+        """
         # Cause files to relocate (move) when reimported
         self.lib.path_formats[0] = (
             "default",
@@ -74,7 +73,8 @@ class FiletoteReimportTest(FiletoteTestCase):
 
     def test_do_nothing_when_paths_do_not_change_with_copy_import(self) -> None:
         """Tests that when paths are the same (before/after), no action is
-        taken for default `copy` action."""
+        taken for default `copy` action.
+        """
         self._setup_import_session(autotag=False, import_dir=self.lib_dir)
 
         log.debug("--- second import")
@@ -86,7 +86,8 @@ class FiletoteReimportTest(FiletoteTestCase):
 
     def test_do_nothing_when_paths_do_not_change_with_move_import(self) -> None:
         """Tests that when paths are the same (before/after), no action is
-        taken for default `move` action."""
+        taken for default `move` action.
+        """
         self._setup_import_session(autotag=False, import_dir=self.lib_dir, move=True)
 
         log.debug("--- second import")
@@ -122,10 +123,9 @@ class FiletoteReimportTest(FiletoteTestCase):
         )
 
     def test_rename_when_paths_do_not_change(self) -> None:
-        """
-        This test considers the situation where the path format for a file extension
+        """This test considers the situation where the path format for a file extension
         is changed and files already in the library are reimported and renamed to
-        reflect the change
+        reflect the change.
         """
         config["paths"]["ext:file"] = os.path.join("$albumpath", "$album")
         self._setup_import_session(autotag=False, import_dir=self.lib_dir, move=True)
@@ -138,7 +138,8 @@ class FiletoteReimportTest(FiletoteTestCase):
 
     def test_multiple_reimport_artifacts_with_move(self) -> None:
         """Tests that multiple reimports work the same as the initial action or
-        a single reimport."""
+        a single reimport.
+        """
         # Cause files to relocate when reimported
         self.lib.path_formats[0] = (
             "default",

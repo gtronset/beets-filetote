@@ -13,9 +13,7 @@ log = logging.getLogger("beets")
 
 
 class FiletotePatternTest(FiletoteTestCase):
-    """
-    Tests to check that Filetote grabs artfacts by user-definited patterns.
-    """
+    """Tests to check that Filetote grabs artfacts by user-definited patterns."""
 
     def setUp(self, _other_plugins: Optional[List[str]] = None) -> None:
         """Provides shared setup for tests."""
@@ -55,7 +53,6 @@ class FiletotePatternTest(FiletoteTestCase):
 
     def test_patterns_subfolders_match(self) -> None:
         """Tests that patterns can match subdirectories/subfolders."""
-
         artwork_dir = os.path.join(self.import_dir, b"the_album", b"artwork")
         os.makedirs(artwork_dir)
 
@@ -81,7 +78,6 @@ class FiletotePatternTest(FiletoteTestCase):
 
     def test_patterns_of_folders_grab_all_files(self) -> None:
         """Tests that patterns of just folders grab all contents."""
-
         artwork_dir = os.path.join(self.import_dir, b"the_album", b"artwork")
         cd1_dir = os.path.join(self.import_dir, b"the_album", b"CD1")
         subfolder_dir = os.path.join(

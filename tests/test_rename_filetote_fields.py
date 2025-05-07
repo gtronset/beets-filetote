@@ -13,8 +13,7 @@ log = logging.getLogger("beets")
 
 
 class FiletoteRenameFiletoteFieldsTest(FiletoteTestCase):
-    """
-    Tests to check that Filetote renames using Filetote-provided fields as
+    """Tests to check that Filetote renames using Filetote-provided fields as
     expected for custom path formats.
     """
 
@@ -69,8 +68,7 @@ class FiletoteRenameFiletoteFieldsTest(FiletoteTestCase):
         self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"Tag Title 3.lrc")
 
     def test_rename_field_subpath(self) -> None:
-        """
-        Tests that the value of `subpath` populates in renaming. Also tests that the
+        """Tests that the value of `subpath` populates in renaming. Also tests that the
         default lyric file moves as expected without a trailing pah separator.
         """
         config["filetote"]["extensions"] = ".lrc"

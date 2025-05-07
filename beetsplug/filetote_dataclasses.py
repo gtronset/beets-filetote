@@ -1,5 +1,6 @@
 """Dataclasses for Filetote representing Settings/Config-related content along with
-data used in processing extra files/artifacts."""
+data used in processing extra files/artifacts.
+"""
 
 from dataclasses import asdict, dataclass, field, fields
 from sys import version_info
@@ -63,6 +64,7 @@ class FiletotePairingData:
     extensions: Union[Literal[".*"], StrSeq] = DEFAULT_ALL_GLOB
 
     def __post_init__(self) -> None:
+        """Validates types upon initialization."""
         self._validate_types()
 
     def _validate_types(self) -> None:
@@ -99,6 +101,7 @@ class FiletoteConfig:
     print_ignored: bool = False
 
     def __post_init__(self) -> None:
+        """Validates types upon initialization."""
         self._validate_types()
 
     def asdict(self) -> dict:  # type: ignore[type-arg]
@@ -108,7 +111,8 @@ class FiletoteConfig:
     def adjust(self, attr: str, value: Any) -> None:
         """Adjust provided attribute of class with provided value. For the `pairing`
         property, use the `FiletotePairingData` dataclass and expand the incoming dict
-        to arguments."""
+        to arguments.
+        """
         if attr == "pairing":
             value = FiletotePairingData(**value)
 
@@ -152,8 +156,7 @@ def _validate_types_instance(
     field_value: Any,
     field_type: Any,
 ) -> None:
-    """
-    A simple `instanceof` comparison. If present, `typewrape` will enable both
+    """A simple `instanceof` comparison. If present, `typewrape` will enable both
     `field_value` and `field_type` to be wrapped by a `type()`.
     """
     if not isinstance(field_value, field_type):

@@ -5,8 +5,8 @@ from dataclasses import dataclass
 
 @dataclass
 class MediaMeta:
-    """
-    Metadata for created media files.
+    """Metadata for created media files.
+
     Follows typing from the [Beets Item](https://github.com/beetbox/beets/blob/9527a07767629c1ceb99c2cd681b78172a7272a0/beets/library.py#L475-L563)
     """
 

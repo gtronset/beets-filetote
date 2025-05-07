@@ -17,9 +17,7 @@ log = logging.getLogger("beets")
 
 
 class FiletoteManipulateFiles(FiletoteTestCase):
-    """
-    Tests to check that Filetote manipulates files using the correct operation.
-    """
+    """Tests to check that Filetote manipulates files using the correct operation."""
 
     def setUp(self, _other_plugins: Optional[List[str]] = None) -> None:
         """Provides shared setup for tests."""
@@ -111,7 +109,6 @@ class FiletoteManipulateFiles(FiletoteTestCase):
     @pytest.mark.skipif(not _common.HAVE_HARDLINK, reason="need hardlinks")  # type:ignore[misc]
     def test_import_hardlink_files(self) -> None:
         """Tests that the `hardlink` operation correctly hardlinks files."""
-
         config["filetote"]["extensions"] = ".file"
         config["paths"]["ext:file"] = "$albumpath/newname"
         config["import"]["hardlink"] = True
@@ -145,7 +142,6 @@ class FiletoteManipulateFiles(FiletoteTestCase):
     @pytest.mark.skipif(not _common.HAVE_REFLINK, reason="need reflinks")  # type:ignore[misc]
     def test_import_reflink_files(self) -> None:
         """Tests that the `reflink` operation correctly links files."""
-
         config["filetote"]["extensions"] = ".file"
         config["paths"]["ext:file"] = "$albumpath/newname"
         config["import"]["reflink"] = True

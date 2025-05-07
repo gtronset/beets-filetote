@@ -12,8 +12,7 @@ log = logging.getLogger("beets")
 
 
 class FiletoteRenameTest(FiletoteTestCase):
-    """
-    Tests to check that Filetote renames as expected for custom path
+    """Tests to check that Filetote renames as expected for custom path
     formats (both by extension and filename).
     """
 
@@ -79,7 +78,8 @@ class FiletoteRenameTest(FiletoteTestCase):
 
     def test_rename_paired_ext_is_prioritized_over_ext(self) -> None:
         """Tests that paired path definitions supersede `ext` ones when there's
-        a collision."""
+        a collision.
+        """
         config["filetote"]["extensions"] = ".lrc"
         config["filetote"]["pairing"]["enabled"] = True
         config["paths"]["paired_ext:lrc"] = "$albumpath/$medianame_new"
@@ -94,7 +94,8 @@ class FiletoteRenameTest(FiletoteTestCase):
 
     def test_rename_filename_is_prioritized_over_paired_ext(self) -> None:
         """Tests that filename path definitions supersede `paired` ones when there's
-        a collision."""
+        a collision.
+        """
         config["filetote"]["extensions"] = ".lrc"
         config["filetote"]["pairing"]["enabled"] = True
         config["paths"]["paired_ext:lrc"] = "$albumpath/$medianame_new"
@@ -108,9 +109,7 @@ class FiletoteRenameTest(FiletoteTestCase):
         self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"Tag Title 3.lrc")
 
     def test_rename_period_is_optional_for_ext(self) -> None:
-        """
-        Tests that leading periods are options when definiting `ext` paths.
-        """
+        """Tests that leading periods are options when definiting `ext` paths."""
         config["filetote"]["extensions"] = ".file .nfo"
         config["paths"]["ext:file"] = "$albumpath/$artist - $album"
         config["paths"]["ext:.nfo"] = "$albumpath/$artist - $album 2"
@@ -130,8 +129,8 @@ class FiletoteRenameTest(FiletoteTestCase):
     def test_rename_ignores_file_when_name_conflicts(self) -> None:
         """Ensure that if there are multiple files that would rename to the
         exact same name, that only the first is renamed (moved/copied/etc.)
-        but not subsequent ones that conflict."""
-
+        but not subsequent ones that conflict.
+        """
         config["filetote"]["extensions"] = ".file"
         config["paths"]["ext:file"] = "$albumpath/$artist - $album"
         config["import"]["move"] = True
@@ -150,7 +149,8 @@ class FiletoteRenameTest(FiletoteTestCase):
 
     def test_rename_multiple_extensions(self) -> None:
         """Ensure that specifying multiple extensions and definitions properly
-        rename."""
+        rename.
+        """
         config["filetote"]["extensions"] = ".file .nfo"
         config["paths"]["ext:file"] = "$albumpath/$artist - $album"
         config["paths"]["ext:nfo"] = "$albumpath/$artist - $album"
@@ -188,7 +188,8 @@ class FiletoteRenameTest(FiletoteTestCase):
 
     def test_rename_prioritizes_filename_over_ext(self) -> None:
         """Tests that filename path definitions supersede `ext` ones when there's
-        a collision."""
+        a collision.
+        """
         config["filetote"]["extensions"] = ".file"
         config["filetote"]["filenames"] = "artifact.file"
         config["paths"]["ext:file"] = "$albumpath/$artist - $old_filename"
@@ -229,7 +230,8 @@ class FiletoteRenameTest(FiletoteTestCase):
 
     def test_rename_multiple_files_prioritizes_filename_over_ext(self) -> None:
         """Tests that multiple filename path definitions still supersede `ext`
-        ones when there's collision(s)."""
+        ones when there's collision(s).
+        """
         config["filetote"]["extensions"] = ".file"
         config["filetote"]["filenames"] = "artifact.file artifact2.file"
         config["paths"]["ext:file"] = "$albumpath/$artist - $old_filename"

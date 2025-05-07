@@ -11,14 +11,12 @@ log = logging.getLogger("beets")
 
 
 class FiletoteMusicFilesIgnoredTest(FiletoteTestCase):
-    """
-    Tests to check that Filetote only copies or moves artifact files and not
+    """Tests to check that Filetote only copies or moves artifact files and not
     music files as defined by MediaFile's TYPES and expanded list.
     """
 
     def test_default_music_file_types_are_ignored(self) -> None:
         """Ensure that mediafile types are ignored by Filetote."""
-
         media_file_list = []
 
         for beet_type in BEETS_TYPES:
@@ -47,8 +45,8 @@ class FiletoteMusicFilesIgnoredTest(FiletoteTestCase):
 
     def test_expanded_music_file_types_are_ignored(self) -> None:
         """Ensure that `.m4a`, `.alac.m4a`, `.wma`, and `.wave` file types are
-        ignored by Filetote."""
-
+        ignored by Filetote.
+        """
         media_file_list = [
             MediaSetup(file_type="m4a", count=1),
             MediaSetup(file_type="alac.m4a", count=1),

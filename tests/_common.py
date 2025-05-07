@@ -116,11 +116,11 @@ class DummyOut:
         self.buf: List[str] = []
 
     def write(self, buf_item: str) -> None:
-        """Writes to buffer"""
+        """Writes to buffer."""
         self.buf.append(buf_item)
 
     def get(self) -> str:
-        """Get from buffer"""
+        """Get from buffer."""
         return "".join(self.buf)
 
     def flush(self) -> None:
@@ -143,11 +143,11 @@ class DummyIn:
         self.out: Optional[DummyOut] = out
 
     def add(self, buf_item: str) -> None:
-        """Add buffer input"""
+        """Add buffer input."""
         self.buf.append(buf_item + "\n")
 
     def readline(self) -> str:
-        """Reads buffer line"""
+        """Reads buffer line."""
         if not self.buf:
             if self.out:
                 raise InputError(self.out.get())
@@ -175,15 +175,15 @@ class DummyIO:
         return res
 
     def readcount(self) -> int:
-        """Reads from stdin"""
+        """Reads from stdin."""
         return self.stdin.reads
 
     def install(self) -> None:
-        """Setup stdin and stdout"""
+        """Setup stdin and stdout."""
         sys.stdin = self.stdin
         sys.stdout = self.stdout
 
     def restore(self) -> None:
-        """Restores/reset both stdin and stdout"""
+        """Restores/reset both stdin and stdout."""
         sys.stdin = sys.__stdin__
         sys.stdout = sys.__stdout__

@@ -28,9 +28,11 @@ if TYPE_CHECKING:
 
 class FiletotePlugin(BeetsPlugin):
     """Plugin main class. Eventually, should encompass additional features as
-    described in https://github.com/beetbox/beets/wiki/Attachments."""
+    described in https://github.com/beetbox/beets/wiki/Attachments.
+    """
 
     def __init__(self) -> None:
+        """Initializes the plugin and sets everything in motion."""
         super().__init__()
 
         # Set default plugin config settings
@@ -68,8 +70,7 @@ class FiletotePlugin(BeetsPlugin):
         self._register_file_operation_events()
 
     def _register_file_operation_events(self) -> None:
-        """
-        Registers various file operation events and their corresponding functions.
+        """Registers various file operation events and their corresponding functions.
 
         This method creates functions for file operation events like moving, copying,
         linking, etc., and registers them as listeners for corresponding Beets events.
@@ -108,8 +109,7 @@ class FiletotePlugin(BeetsPlugin):
         self.register_listener("cli_exit", self.process_events)
 
     def _build_file_event_function(self, event: str) -> Callable[..., None]:
-        """
-        Creates a function that acts as a wrapper for specific file operation events
+        """Creates a function that acts as a wrapper for specific file operation events
         triggered by Beets, forwarding the event name to the corresponding target
         function.
         """
@@ -120,8 +120,7 @@ class FiletotePlugin(BeetsPlugin):
         return file_event_function
 
     def _get_filetote_path_formats(self, queries: List[str]) -> Dict[str, Template]:
-        """
-        Gets all `path` formats from beets and parses those set for Filetote.
+        """Gets all `path` formats from beets and parses those set for Filetote.
         First sets those from the Beet's `path` node then sets them from
         Filetote's node, overriding when needed to give priority to Filetote's
         definitions.
@@ -138,8 +137,7 @@ class FiletotePlugin(BeetsPlugin):
         return path_formats
 
     def _register_additional_file_types(self) -> None:
-        """
-        This augments the file type list of what is considered a music
+        """This augments the file type list of what is considered a music
         file or media, since MediaFile.TYPES isn't fundamentally a complete
         list of files by extension.
         """
@@ -155,11 +153,9 @@ class FiletotePlugin(BeetsPlugin):
             BEETS_FILE_TYPES.update({"m4b": "M4B"})
 
     def _register_session_settings(self, session: "ImportSession") -> None:
-        """
-        Certain settings are only available and/or finalized once the
+        """Certain settings are only available and/or finalized once the
         Beets import session begins.
         """
-
         self.filetote.session.adjust("operation", self._import_operation_type())
 
         import_path: Optional[bytes] = None
@@ -170,11 +166,9 @@ class FiletotePlugin(BeetsPlugin):
         self.filetote.session.import_path = import_path
 
     def _import_operation_type(self) -> Union[MoveOperation, None]:
-        """
-        Returns the file manipulations type. This prioritizes `move` over copy if
+        """Returns the file manipulations type. This prioritizes `move` over copy if
         present.
         """
-
         mapping = {
             "move": MoveOperation.MOVE,
             "copy": MoveOperation.COPY,
@@ -193,7 +187,6 @@ class FiletotePlugin(BeetsPlugin):
         """Returns the file manipulations type. Requires a Beets event to be provided
         and the operation type is inferred based on the event name/type.
         """
-
         mapping = {
             "before_item_moved": MoveOperation.MOVE,
             "item_copied": MoveOperation.COPY,
@@ -207,8 +200,7 @@ class FiletotePlugin(BeetsPlugin):
     def file_operation_event_listener(
         self, event: str, item: "Item", source: bytes, destination: bytes
     ) -> None:
-        """
-        Certain CLI opertations such as `move` (`mv`) don't utilize the config file's
+        """Certain CLI opertations such as `move` (`mv`) don't utilize the config file's
         `import` settings which `_operation_type()` uses by default to determine how
         Filetote should move/copy the file. Since there are not otherwise any indicators
         of this, the operation type is inferred based on the event name/type.
@@ -237,8 +229,7 @@ class FiletotePlugin(BeetsPlugin):
         paired: bool,
         pattern_category: Optional[str] = None,
     ) -> Tuple[Optional[str], Optional[Template]]:
-        """
-        Calculate the best path query format, prioritizing:
+        """Calculate the best path query format, prioritizing the below.
 
         1. `filename:`
         2. `paired_ext:`
@@ -306,14 +297,12 @@ class FiletotePlugin(BeetsPlugin):
         paired: bool = False,
         pattern_category: Optional[str] = None,
     ) -> bytes:
-        """
-        Returns a destination path an artifact/file should be moved to. The
+        """Returns a destination path an artifact/file should be moved to. The
         artifact filename is unique to ensure files aren't overwritten. This also
         checks the config for path formats based on file extension allowing the use of
         beets' template functions. If no path formats are found for the file extension
         the original filename is used with the album path.
         """
-
         mapping_formatted = FiletoteMappingFormatted(
             mapping, for_path=True, whitelist_replace=["albumpath", "subpath"]
         )
@@ -392,7 +381,6 @@ class FiletotePlugin(BeetsPlugin):
         """Creates a mapping of usable path values for renaming. Takes in an
         Item (see https://github.com/beetbox/beets/blob/v1.6.0/beets/library.py#L450).
         """
-
         album_path: bytes = os.path.dirname(destination)
 
         medianame_old: bytes
@@ -415,12 +403,10 @@ class FiletotePlugin(BeetsPlugin):
     def _collect_paired_artifacts(
         self, beets_item: "Item", source: bytes, destination: bytes
     ) -> None:
-        """
-        When file "pairing" is enabled, this function looks through available
+        """When file "pairing" is enabled, this function looks through available
         artifacts for potential matching pairs. When found, it processes the artifacts
         to be handled specifically as a "pair".
         """
-
         item_source_filename: bytes
         item_source_filename, _ = os.path.splitext(os.path.basename(source))
         source_path: bytes = os.path.dirname(source)
@@ -465,9 +451,8 @@ class FiletotePlugin(BeetsPlugin):
     def _update_multimove_artifacts(
         self, beets_item: "Item", source: bytes, destination: bytes
     ) -> None:
-        """
-        Updates all instances of a specific artifact collection in the processing queue
-        with a new destination and mapping.
+        """Updates all instances of a specific artifact collection in the processing
+        queue with a new destination and mapping.
 
         This is necessary to handle situations where certain operations can actually
         occur twice--the `update` CLI command, for example, first applies an update to
@@ -488,7 +473,8 @@ class FiletotePlugin(BeetsPlugin):
 
     def _is_beets_file_type(self, file_ext: Union[str, bytes]) -> bool:
         """Checks if the provided file extension is a music file/track
-        (i.e., already handles by Beets)."""
+        (i.e., already handles by Beets).
+        """
         return (
             len(file_ext) > 1
             and util.displayable_path(file_ext)[1:] in BEETS_FILE_TYPES
@@ -497,8 +483,7 @@ class FiletotePlugin(BeetsPlugin):
     def collect_artifacts(
         self, beets_item: "Item", source: bytes, destination: bytes
     ) -> None:
-        """
-        Creates lists of the various extra files and artificats for processing.
+        """Creates lists of the various extra files and artificats for processing.
         Since beets passes through the arguments, it's explicitly setting the Item to
         the `item` argument (as it does with the others).
 
@@ -554,8 +539,7 @@ class FiletotePlugin(BeetsPlugin):
         self._shared_artifacts[source_path] = non_handled_files
 
     def process_events(self, lib: "Library") -> None:
-        """
-        Triggered by the CLI exit event, which itself triggers the processing and
+        """Triggered by the CLI exit event, which itself triggers the processing and
         manipuation of the extra files and artificats.
         """
         # Ensure destination library settings are accessible
@@ -592,7 +576,6 @@ class FiletotePlugin(BeetsPlugin):
         self, artifact_relpath: bytes, match_category: Optional[str] = None
     ) -> Tuple[bool, Optional[str]]:
         """Check if the file is in the defined patterns."""
-
         pattern_definitions: List[Tuple[str, List[str]]] = list(
             self.filetote.patterns.items()
         )
@@ -632,11 +615,9 @@ class FiletotePlugin(BeetsPlugin):
         artifact_filename: bytes,
         artifact_paired: bool,
     ) -> Tuple[bool, Optional[str]]:
-        """
-        Compares the artifact/file to certain checks to see if it should be ignored
+        """Compares the artifact/file to certain checks to see if it should be ignored
         or skipped.
         """
-
         # Skip/ignore as another plugin or beets has already moved this file
         if not os.path.exists(artifact_source):
             return (True, None)
@@ -683,11 +664,9 @@ class FiletotePlugin(BeetsPlugin):
         artifact_source: bytes,
         artifact_dest: bytes,
     ) -> bool:
+        """Checks if the artifact/file already exists in the destination, which would
+        also make it ignorable.
         """
-        Checks if the artifact/file already exists in the destination, which would also
-        make it ignorable.
-        """
-
         # Skip file
         return os.path.exists(artifact_dest) and filecmp.cmp(
             artifact_source, artifact_dest
@@ -698,13 +677,11 @@ class FiletotePlugin(BeetsPlugin):
         source_path: bytes,
         artifact_path: bytes,
     ) -> str:
-        """
-        Checks if the artifact/file has a subpath in the source location and returns
+        """Checks if the artifact/file has a subpath in the source location and returns
         its subpath. This also ensures a trailing separator is present if there's a
         subpath. This is needed for renaming and templates as conditionally using the
         `$subpath` is not supported by plugins such as `inline`.
         """
-
         if artifact_path.startswith(source_path):
             initial_subpath = artifact_path[len(source_path) :].lstrip(
                 os.path.sep.encode()
@@ -726,8 +703,8 @@ class FiletotePlugin(BeetsPlugin):
         source_artifacts: List[FiletoteArtifact],
         mapping: FiletoteMappingModel,
     ) -> None:
-        """
-        Processes and prepares extra files and artifacts for subsequent manipulation.
+        """Processes and prepares extra files and artifacts for subsequent
+        manipulation.
         """
         if not source_artifacts:
             return
@@ -804,7 +781,6 @@ class FiletotePlugin(BeetsPlugin):
 
     def print_ignored_artifacts(self, ignored_artifacts: List[bytes]) -> None:
         """If enabled in config, output ignored files to beets logs."""
-
         if self.filetote.print_ignored and ignored_artifacts:
             self._log.warning("Ignored files:")
             for artifact_filename in ignored_artifacts:
@@ -825,13 +801,11 @@ class FiletotePlugin(BeetsPlugin):
         )
 
     def _is_reimport(self) -> bool:
-        """
-        Checks if the import is considered a "reimport".
+        """Checks if the import is considered a "reimport".
 
         Copy and link modes treat reimports specially, where in-library files
         are moved.
         """
-
         # Sanity check for mypy in cases where beets_lib is None
         assert self.filetote.session.beets_lib is not None
 
@@ -843,14 +817,12 @@ class FiletotePlugin(BeetsPlugin):
         ) or self._is_import_path_within_library(import_path, library_dir)
 
     def _get_prune_root_path(self) -> Optional[bytes]:
-        """
-        Deduces the root path for cleaning up dangling files on MOVE.
+        """Deduces the root path for cleaning up dangling files on MOVE.
 
         This method determines the root path that aids in cleaning up files
         when moving. If the import path matches the library directory or is
         within it, the root path is selected. Otherwise, returns None.
         """
-
         # Sanity check for mypy in cases where beets_lib is None
         assert self.filetote.session.beets_lib is not None
 
@@ -881,15 +853,13 @@ class FiletotePlugin(BeetsPlugin):
         artifact_dest: bytes,
         reimport: Optional[bool] = False,
     ) -> None:
-        """
-        Copy, move, link, hardlink or reflink (depending on `operation`)
+        """Copy, move, link, hardlink or reflink (depending on `operation`)
         the artifacts (as well as write metadata).
         NOTE: `operation` should be an instance of `MoveOperation`.
 
         If the operation is copy or a link but it's a reimport, move in-library
         files instead of copying.
         """
-
         if operation != MoveOperation.MOVE and reimport:
             self._log.warning(
                 f"Filetote Operation changed to MOVE from {operation} since this is a"

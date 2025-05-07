@@ -1,5 +1,4 @@
-"""
-Tests to ensure no "could not get filesize" error occurs in the beets-filetote
+"""Tests to ensure no "could not get filesize" error occurs in the beets-filetote
 plugin.
 """
 
@@ -11,9 +10,7 @@ from tests.helper import FiletoteTestCase, capture_log
 
 
 class FiletoteNoFilesizeErrorTest(FiletoteTestCase):
-    """
-    Tests to ensure no "could not get filesize" error occurs.
-    """
+    """Tests to ensure no "could not get filesize" error occurs."""
 
     def setUp(self, _other_plugins: Optional[List[str]] = None) -> None:
         """Provides shared setup for tests."""
@@ -23,8 +20,7 @@ class FiletoteNoFilesizeErrorTest(FiletoteTestCase):
         self._setup_import_session(autotag=False)
 
     def test_no_filesize_error(self) -> None:
-        """
-        Tests to ensure no "could not get filesize" error occurs by confirming no
+        """Tests to ensure no "could not get filesize" error occurs by confirming no
         warning log is emitted and ensuring the hidden filesize metadata value is
         not `0`.
         """

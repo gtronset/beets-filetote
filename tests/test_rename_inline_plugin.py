@@ -1,5 +1,4 @@
-"""
-Tests that renaming using `item_fields` work as expected, when the
+"""Tests that renaming using `item_fields` work as expected, when the
 `inline` plugin is loaded.
 """
 
@@ -16,8 +15,7 @@ log = logging.getLogger("beets")
 
 
 class FiletoteInlineRenameTest(FiletoteTestCase):
-    """
-    Tests that renaming using `item_fields` work as expected, when the
+    """Tests that renaming using `item_fields` work as expected, when the
     `inline` plugin is loaded.
     """
 
@@ -27,8 +25,8 @@ class FiletoteInlineRenameTest(FiletoteTestCase):
 
     def test_rename_works_with_inline_plugin(self) -> None:
         """Ensure that Filetote can rename fields as expected with the `inline`
-        plugin is enabled."""
-
+        plugin is enabled.
+        """
         self._create_flat_import_dir()
         self._setup_import_session(autotag=False)
 

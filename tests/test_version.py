@@ -1,6 +1,4 @@
-"""
-Tests that the version specified for the plugin matches the value in pyproject.
-"""
+"""Tests that the version specified for the plugin matches the value in pyproject."""
 
 from typing import List, Optional
 
@@ -11,9 +9,10 @@ from tests.helper import FiletoteTestCase
 
 
 class FiletoteVersionTest(FiletoteTestCase):
-    """
-    Tests that the version specified for the plugin matches the value in
+    """Tests that the version specified for the plugin matches the value in
     pyproject.
+
+    Testsdfsflskdmflksmfs.
     """
 
     def setUp(self, _other_plugins: Optional[List[str]] = None) -> None:
@@ -22,8 +21,8 @@ class FiletoteVersionTest(FiletoteTestCase):
 
     def test_version_matches(self) -> None:
         """Ensure that the Filetote version is properly reflected in the right
-        areas."""
-
+        areas.
+        """
         plugin_version = beetsplug.__version__
 
         with open("./pyproject.toml", encoding="utf-8") as pyproject_file:

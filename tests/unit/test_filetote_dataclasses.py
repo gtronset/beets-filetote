@@ -42,7 +42,8 @@ class TestTypeErrorFunctions(unittest.TestCase):
         expected_type: Any,
     ) -> None:
         """Helper Function to test that the instance function correctly checks for the
-        types."""
+        types.
+        """
         try:
             filetote_dataclasses._validate_types_instance(
                 field_name, field_value, field_type
@@ -105,7 +106,6 @@ class TestTypeErrorFunctions(unittest.TestCase):
 
     def test__validate_types_str_eq(self) -> None:
         """Ensure the str_eq correctly checks for the types."""
-
         # Test the positive outcome of a `List[str]`
         try:
             filetote_dataclasses._validate_types_str_eq(["test"], ["string"], '""')
@@ -134,8 +134,7 @@ class TestTypeErrorFunctions(unittest.TestCase):
         )
 
     def test__raise_type_validation_error(self) -> None:
-        """
-        Tests that the formatting for the TypeErrors matches depending on whether
+        """Tests that the formatting for the TypeErrors matches depending on whether
         just a value is specified or also dict keys.
         """
         with pytest.raises(TypeError) as value_test:

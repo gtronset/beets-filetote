@@ -56,10 +56,12 @@ src = ["beetsplug", "tests", "typehints"]
 target-version = "py38"
 
 [tool.ruff.lint]
+ignore = ["D205"]
 select = [
     "ARG", # flake8-unused-arguments
     # "C4", # flake8-comprehensions
     "E",   # pycodestyle
+    "D",   # pydocstyle
     "F",   # pyflakes
     "B",   # flake8-bugbear
     "I",   # isort
@@ -75,16 +77,6 @@ select = [
     # "PTH", # flake8-use-pathlib
 ]
 
-[tool.ruff.lint.isort]
-lines-between-types = 1
-known-local-folder = ["tests"]
-
-[tool.ruff.lint.per-file-ignores]
-"beetsplug/**" = ["PT"]
-
-[tool.ruff.lint.pycodestyle]
-max-line-length = 88
-
 [tool.ruff.lint.flake8-pytest-style]
 fixture-parentheses = false
 mark-parentheses = false
@@ -93,8 +85,22 @@ parametrize-names-type = "csv"
 [tool.ruff.lint.flake8-unused-arguments]
 ignore-variadic-names = true
 
+[tool.ruff.lint.isort]
+lines-between-types = 1
+known-local-folder = ["tests"]
+
+[tool.ruff.lint.per-file-ignores]
+"beetsplug/**" = ["PT"]
+
 [tool.ruff.lint.pep8-naming]
 extend-ignore-names = ["assert*", "getLogger"]
+
+[tool.ruff.lint.pycodestyle]
+max-line-length = 88
+
+[tool.ruff.lint.pydocstyle]
+# Use Google-style docstrings.
+convention = "google"
 
 [tool.pytest.ini_options]
 testpaths = ["./tests"]

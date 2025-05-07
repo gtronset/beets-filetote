@@ -12,8 +12,7 @@ log = logging.getLogger("beets")
 
 
 class FiletoteRenamePathsTest(FiletoteTestCase):
-    """
-    Tests to check that Filetote renames using custom path formats configured
+    """Tests to check that Filetote renames using custom path formats configured
     either in the `paths` scetion of the overall config or in Filetote's.
     """
 

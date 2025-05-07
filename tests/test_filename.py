@@ -16,8 +16,8 @@ from tests.helper import FiletoteTestCase
 
 
 class FiletoteFilename(FiletoteTestCase):
-    """
-    Tests to check handling of artifacts with filenames containing unicode characters
+    """Tests to check handling of artifacts with filenames containing unicode
+    characters.
     """
 
     def setUp(self, _other_plugins: Optional[List[str]] = None) -> None:
@@ -53,7 +53,6 @@ class FiletoteFilename(FiletoteTestCase):
 
     def test_import_dir_with_unicode_character_in_artifact_name_move(self) -> None:
         """Tests that unicode characters move as expected."""
-
         config["import"]["move"] = True
 
         self.create_file(
@@ -76,8 +75,7 @@ class FiletoteFilename(FiletoteTestCase):
     def test_import_with_illegal_character_in_artifact_name_obeys_beets(
         self,
     ) -> None:
-        """
-        Tests that illegal characters in file name are replaced following beets
+        """Tests that illegal characters in file name are replaced following beets
         conventions. This is skipped in Windows as the characters used here are
         not allowed.
         """
@@ -110,8 +108,7 @@ class FiletoteFilename(FiletoteTestCase):
         )
 
     def test_import_dir_with_illegal_character_in_album_name(self) -> None:
-        """
-        Tests that illegal characters in album name are replaced following beets
+        """Tests that illegal characters in album name are replaced following beets
         conventions.
         """
         config["paths"]["ext:file"] = "$albumpath/$artist - $album"
