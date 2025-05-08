@@ -141,13 +141,11 @@ class FiletotePlugin(BeetsPlugin):
         file or media, since MediaFile.TYPES isn't fundamentally a complete
         list of files by extension.
         """
-        BEETS_FILE_TYPES.update(
-            {
-                "m4a": "M4A",
-                "wma": "WMA",
-                "wave": "WAVE",
-            }
-        )
+        BEETS_FILE_TYPES.update({
+            "m4a": "M4A",
+            "wma": "WMA",
+            "wave": "WAVE",
+        })
 
         if "audible" in config["plugins"].get():
             BEETS_FILE_TYPES.update({"m4b": "M4B"})
@@ -259,27 +257,29 @@ class FiletotePlugin(BeetsPlugin):
                     selected_path_format = path_format
             elif (
                 pattern_category
-                and not query.startswith(
-                    (filename_prefix, paired_ext_prefix, ext_prefix)
-                )
+                and not query.startswith((
+                    filename_prefix,
+                    paired_ext_prefix,
+                    ext_prefix,
+                ))
                 and self.remove_prefix(query, pattern_prefix) == pattern_category
             ):
                 # This should pull the corresponding pattern def,
                 # Prioritize `filename:` and `paired_ext:` query selectory over
                 # `pattern:`
-                if selected_path_query not in [filename_prefix, paired_ext_prefix]:
+                if selected_path_query not in {filename_prefix, paired_ext_prefix}:
                     selected_path_query = pattern_prefix
                     selected_path_format = path_format
             elif query.startswith(ext_prefix) and artifact_ext == (
                 "." + self.remove_prefix(query, ext_prefix).lstrip(".")
             ):
                 # Prioritize `filename:`, `paired_ext:`, and `pattern:` query selector
-                #  over `ext:`
-                if selected_path_query not in [
+                # over `ext:`
+                if selected_path_query not in {
                     filename_prefix,
                     paired_ext_prefix,
                     pattern_prefix,
-                ]:
+                }:
                     selected_path_query = ext_prefix
                     selected_path_format = path_format
             elif query.startswith(

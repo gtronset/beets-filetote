@@ -324,7 +324,7 @@ class FiletoteTestCase(_common.TestCase, Assertions, HelperUtils):
             self.list_files(self.paths)
 
     def _run_cli_import(
-        self, operation_option: Literal["copy", "move", None] = None
+        self, operation_option: Optional[Literal["copy", "move"]] = None
     ) -> None:
         """Runs the "import" CLI command. This should be called with
         _run_cli_command().
@@ -609,7 +609,7 @@ class FiletoteTestCase(_common.TestCase, Assertions, HelperUtils):
                     ),
                 )
             )
-            count = count - 1
+            count -= 1
 
             if generate_pair:
                 # Create paired artifact

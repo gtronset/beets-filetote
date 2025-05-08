@@ -73,10 +73,10 @@ class FiletotePairingData:
             field_value = getattr(self, field_.name)
             field_type = field_.type
 
-            if field_.name in [
+            if field_.name in {
                 "enabled",
                 "pairing_only",
-            ]:
+            }:
                 _validate_types_instance(
                     ["pairing", field_.name], field_value, field_type
                 )
@@ -130,13 +130,13 @@ class FiletoteConfig:
             if target_field and field_.name != target_field:
                 continue
 
-            if field_.name in [
+            if field_.name in {
                 "session",
                 "pairing",
-            ]:
+            }:
                 _validate_types_instance([field_.name], field_value, field_type)
 
-            if field_.name in ["extensions", "filenames", "exclude"]:
+            if field_.name in {"extensions", "filenames", "exclude"}:
                 _validate_types_str_eq([field_.name], field_value, DEFAULT_EMPTY)
 
             if field_.name == "patterns":

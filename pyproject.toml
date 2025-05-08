@@ -51,12 +51,12 @@ build-backend = "poetry.core.masonry.api"
 [tool.ruff]
 line-length = 88
 # namespace-packages = ["beetsplug"]
-preview = false
+preview = true
 src = ["beetsplug", "tests", "typehints"]
 target-version = "py38"
 
 [tool.ruff.lint]
-ignore = ["D205"]
+ignore = ["D205", "PLR6301"]
 extend-select = [
     "A",    # flake8-builtins
     "ARG",  # flake8-unused-arguments
@@ -94,6 +94,7 @@ known-local-folder = ["tests"]
 
 [tool.ruff.lint.per-file-ignores]
 "beetsplug/**" = ["PT"]
+"tests/**" = ["PLR0917"]
 
 [tool.ruff.lint.pep8-naming]
 extend-ignore-names = ["assert*", "getLogger"]

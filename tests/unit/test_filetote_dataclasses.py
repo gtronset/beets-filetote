@@ -175,7 +175,9 @@ class TestTypeErrorFunctions(unittest.TestCase):
         single = filetote_dataclasses._format_config_hierarchy(["config"])
         assert single == "[config]"
 
-        multiple = filetote_dataclasses._format_config_hierarchy(
-            ["top", "middle", "end"]
-        )
+        multiple = filetote_dataclasses._format_config_hierarchy([
+            "top",
+            "middle",
+            "end",
+        ])
         assert multiple == "[top][middle][end]"
