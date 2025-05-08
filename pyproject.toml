@@ -48,6 +48,15 @@ typeguard = "^4.4.0"
 requires = ["poetry-core<2.0.0"]
 build-backend = "poetry.core.masonry.api"
 
+[tool.mypy]
+mypy_path = ["./typehints"]
+strict = true
+pretty = true
+
+[tool.pytest.ini_options]
+testpaths = ["./tests"]
+filterwarnings = ["ignore::DeprecationWarning:.*confuse"]
+
 [tool.ruff]
 line-length = 88
 # namespace-packages = ["beetsplug"]
@@ -93,12 +102,12 @@ ignore-variadic-names = true
 lines-between-types = 1
 known-local-folder = ["tests"]
 
+[tool.ruff.lint.pep8-naming]
+extend-ignore-names = ["assert*", "getLogger"]
+
 [tool.ruff.lint.per-file-ignores]
 "beetsplug/**" = ["PT"]
 "tests/**" = ["PLR0917"]
-
-[tool.ruff.lint.pep8-naming]
-extend-ignore-names = ["assert*", "getLogger"]
 
 [tool.ruff.lint.pycodestyle]
 max-line-length = 88
@@ -106,12 +115,3 @@ max-line-length = 88
 [tool.ruff.lint.pydocstyle]
 # Use Google-style docstrings.
 convention = "google"
-
-[tool.pytest.ini_options]
-testpaths = ["./tests"]
-filterwarnings = ["ignore::DeprecationWarning:.*confuse"]
-
-[tool.mypy]
-mypy_path = ["./typehints"]
-strict = true
-pretty = true
