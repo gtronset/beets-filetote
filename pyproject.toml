@@ -60,8 +60,9 @@ ignore = ["D205", "PLR6301"]
 extend-select = [
     "A",    # flake8-builtins
     "ARG",  # flake8-unused-arguments
-    "E",    # pycodestyle
+    "C4",   # flake8-comprehensions
     "D",    # pydocstyle
+    "E",    # pycodestyle
     "F",    # pyflakes
     "B",    # flake8-bugbear
     "I",    # isort
@@ -76,7 +77,6 @@ extend-select = [
     "TC",   # flake8-type-checking
     "UP",   # pyupgrade
     "W",    # pycodestyle
-    # "C4", # flake8-comprehensions
     # "PTH", # flake8-use-pathlib
 ]
 
