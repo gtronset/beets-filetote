@@ -74,6 +74,7 @@ extend-select = [
     "RUF",  # ruff
     "SIM",  # flake8-simplify
     "SLF",  # flake8-self
+    "TD",   # flake8-todos
     "TC",   # flake8-type-checking
     "UP",   # pyupgrade
     "W",    # pycodestyle

@@ -379,7 +379,7 @@ class FiletotePlugin(BeetsPlugin):
         self, beets_item: "Item", destination: bytes
     ) -> FiletoteMappingModel:
         """Creates a mapping of usable path values for renaming. Takes in an
-        Item (see https://github.com/beetbox/beets/blob/v1.6.0/beets/library.py#L450).
+        Item (see https://github.com/beetbox/beets/blob/v2.2.0/beets/library.py#L506).
         """
         album_path: bytes = os.path.dirname(destination)
 
