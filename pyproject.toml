@@ -108,10 +108,7 @@ convention = "google"
 
 [tool.pytest.ini_options]
 testpaths = ["./tests"]
-filterwarnings = [
-    "ignore::DeprecationWarning:.*confuse",
-    "ignore::DeprecationWarning:.*mediafile",
-]
+filterwarnings = ["ignore::DeprecationWarning:.*confuse"]
 
 [tool.mypy]
 mypy_path = ["./typehints"]
