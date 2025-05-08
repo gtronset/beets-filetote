@@ -1,5 +1,6 @@
 """Dataclasses for Filetote representing Settings/Config-related content along with
-data used in processing extra files/artifacts."""
+data used in processing extra files/artifacts.
+"""
 
 from dataclasses import asdict, dataclass, field, fields
 from sys import version_info
@@ -14,7 +15,7 @@ from .mapping_model import FiletoteMappingModel
 if version_info >= (3, 10):
     from typing import TypeAlias
 else:
-    from typing_extensions import TypeAlias  # pylint: disable=import-error
+    from typing_extensions import TypeAlias
 
 StrSeq: TypeAlias = List[str]
 OptionalStrSeq: TypeAlias = Union[Literal[""], StrSeq]
@@ -63,6 +64,7 @@ class FiletotePairingData:
     extensions: Union[Literal[".*"], StrSeq] = DEFAULT_ALL_GLOB
 
     def __post_init__(self) -> None:
+        """Validates types upon initialization."""
         self._validate_types()
 
     def _validate_types(self) -> None:
@@ -71,10 +73,10 @@ class FiletotePairingData:
             field_value = getattr(self, field_.name)
             field_type = field_.type
 
-            if field_.name in [
+            if field_.name in {
                 "enabled",
                 "pairing_only",
-            ]:
+            }:
                 _validate_types_instance(
                     ["pairing", field_.name], field_value, field_type
                 )
@@ -89,8 +91,6 @@ class FiletotePairingData:
 class FiletoteConfig:
     """Configuration settings for FileTote Item."""
 
-    # pylint: disable=too-many-instance-attributes
-
     session: FiletoteSessionData = field(default_factory=FiletoteSessionData)
     extensions: OptionalStrSeq = DEFAULT_EMPTY
     filenames: OptionalStrSeq = DEFAULT_EMPTY
@@ -101,6 +101,7 @@ class FiletoteConfig:
     print_ignored: bool = False
 
     def __post_init__(self) -> None:
+        """Validates types upon initialization."""
         self._validate_types()
 
     def asdict(self) -> dict:  # type: ignore[type-arg]
@@ -110,7 +111,8 @@ class FiletoteConfig:
     def adjust(self, attr: str, value: Any) -> None:
         """Adjust provided attribute of class with provided value. For the `pairing`
         property, use the `FiletotePairingData` dataclass and expand the incoming dict
-        to arguments."""
+        to arguments.
+        """
         if attr == "pairing":
             value = FiletotePairingData(**value)
 
@@ -128,13 +130,13 @@ class FiletoteConfig:
             if target_field and field_.name != target_field:
                 continue
 
-            if field_.name in [
+            if field_.name in {
                 "session",
                 "pairing",
-            ]:
+            }:
                 _validate_types_instance([field_.name], field_value, field_type)
 
-            if field_.name in ["extensions", "filenames", "exclude"]:
+            if field_.name in {"extensions", "filenames", "exclude"}:
                 _validate_types_str_eq([field_.name], field_value, DEFAULT_EMPTY)
 
             if field_.name == "patterns":
@@ -154,8 +156,7 @@ def _validate_types_instance(
     field_value: Any,
     field_type: Any,
 ) -> None:
-    """
-    A simple `instanceof` comparison. If present, `typewrape` will enable both
+    """A simple `instanceof` comparison. If present, `typewrape` will enable both
     `field_value` and `field_type` to be wrapped by a `type()`.
     """
     if not isinstance(field_value, field_type):

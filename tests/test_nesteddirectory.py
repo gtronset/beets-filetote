@@ -1,12 +1,12 @@
 """Tests nested directories for the beets-filetote plugin."""
 
-# pylint: disable=duplicate-code
-
 import logging
 import os
+
 from typing import List, Optional
 
 import pytest
+
 from beets import config
 
 from tests import _common
@@ -16,13 +16,12 @@ log = logging.getLogger("beets")
 
 
 class FiletoteFromNestedDirectoryTest(FiletoteTestCase):
-    """
-    Tests to check that Filetote copies or moves artifact files from a nested directory
-    structure. i.e. songs in an album are imported from two directories corresponding to
-    disc numbers or flat option is used
+    """Tests to check that Filetote copies or moves artifact files from a nested
+    directory structure. i.e. songs in an album are imported from two directories
+    corresponding to disc numbers or flat option is used.
     """
 
-    def setUp(self, other_plugins: Optional[List[str]] = None) -> None:
+    def setUp(self, _other_plugins: Optional[List[str]] = None) -> None:
         """Provides shared setup for tests."""
         super().setUp()
 
@@ -32,8 +31,7 @@ class FiletoteFromNestedDirectoryTest(FiletoteTestCase):
         self._base_file_count = self._media_count + self._pairs_count
 
     def test_copies_file_from_nested_to_library(self) -> None:
-        """
-        Ensures that nested directories are handled by beets and the the files
+        """Ensures that nested directories are handled by beets and the the files
         relocate as expected following the default beets behavior (moves to a
         single directory).
         """
@@ -57,8 +55,7 @@ class FiletoteFromNestedDirectoryTest(FiletoteTestCase):
         self.assert_not_in_lib_dir(b"Tag Artist", b"Tag Album", b"artifact_disc2.lrc")
 
     def test_copies_file_from_nested_to_nested_library(self) -> None:
-        """
-        Ensures that nested directory artifacts are relocated as expected
+        """Ensures that nested directory artifacts are relocated as expected
         when beets is set to use a nested library destination.
         """
         config["filetote"]["extensions"] = ".file"
@@ -90,14 +87,11 @@ class FiletoteFromNestedDirectoryTest(FiletoteTestCase):
             b"Tag Artist", b"Tag Album", b"02", b"artifact_disc2.lrc"
         )
 
-    @pytest.mark.skipif(
-        _common.PLATFORM == "win32", reason="win32"
-    )  # type:ignore[misc]
+    @pytest.mark.skipif(_common.PLATFORM == "win32", reason="win32")
     def test_copies_file_navigate_in_nested_library(self) -> None:
-        """
-        Ensures that nested directory artifacts are relocated using `..` without issue.
-        This is skipped in Windows since `..` is taken literally instead of as a path
-        component.
+        """Ensures that nested directory artifacts are relocated using `..` without
+        issue. This is skipped in Windows since `..` is taken literally instead of as
+        a path component.
         """
         config["filetote"]["extensions"] = ".file"
         config["filetote"]["paths"] = {

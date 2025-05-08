@@ -1,35 +1,32 @@
 """Helper functions for tests for the beets-filetote plugin."""
+# ruff: noqa: SLF001
 
 import logging
 import os
 import shutil
+
 from contextlib import contextmanager
 from dataclasses import asdict, dataclass
-from sys import version_info
-from typing import Any, Dict, Iterator, List, Optional
+from typing import Any, Dict, Iterator, List, Literal, Optional
+
+# Make sure the local versions of the plugins are used
+import beetsplug
+
+
+# mypy doesn't recognize `audible` as an extended module
+from beetsplug import (  # type: ignore[attr-defined]
+    audible,
+    filetote,
+    inline,
+)
 
 from beets import config, library, plugins, util
 from beets.importer import ImportSession
 from beets.ui import commands
 from mediafile import MediaFile
 
-# Make sure the local versions of the plugins are used
-import beetsplug  # noqa: E402
-
-# pylint & mypy don't recognize `audible` as an extended module. Also pleases Flake8
-from beetsplug import (  # type: ignore[attr-defined] # pylint: disable=no-name-in-module # noqa: E501
-    audible,
-    filetote,
-    inline,
-)
-from tests import _common
-
 from ._item_model import MediaMeta
-
-if version_info >= (3, 8):
-    from typing import Literal
-else:
-    from typing_extensions import Literal  # type: ignore # pylint: disable=import-error
+from tests import _common
 
 beetsplug.__path__ = [os.path.abspath(os.path.join(__file__, "..", "..", "beetsplug"))]
 
@@ -40,10 +37,12 @@ class LogCapture(logging.Handler):
     """Provides the ability to capture logs within tests."""
 
     def __init__(self) -> None:
+        """Log handler init."""
         logging.Handler.__init__(self)
         self.messages: List[str] = []
 
     def emit(self, record: logging.LogRecord) -> None:
+        """Emits a log message."""
         self.messages.append(str(record.msg))
 
 
@@ -95,74 +94,62 @@ class Assertions(_common.AssertionsMixin):
     """Helper assertions for testing."""
 
     def __init__(self) -> None:
+        """Sets up baseline variables."""
         self.lib_dir: Optional[bytes] = None
         self.import_dir: Optional[bytes] = None
 
     def assert_in_lib_dir(self, *segments: bytes) -> None:
-        """
-        Join the ``segments`` and assert that this path exists in the library
-        directory
+        """Join the ``segments`` and assert that this path exists in the library
+        directory.
         """
         if self.lib_dir:
             self.assert_exists(os.path.join(self.lib_dir, *segments))
 
     def assert_not_in_lib_dir(self, *segments: bytes) -> None:
-        """
-        Join the ``segments`` and assert that this path does not exist in
-        the library directory
+        """Join the ``segments`` and assert that this path does not exist in
+        the library directory.
         """
         if self.lib_dir:
             self.assert_does_not_exist(os.path.join(self.lib_dir, *segments))
 
     def assert_import_dir_exists(self, import_dir: Optional[bytes] = None) -> None:
-        """
-        Join the ``segments`` and assert that this path exists in the import
-        directory
-        """
+        """Asserts that the import directory exists."""
         directory = import_dir or self.import_dir
         if directory:
             self.assert_exists(directory)
 
     def assert_in_import_dir(self, *segments: bytes) -> None:
-        """
-        Join the ``segments`` and assert that this path exists in the import
-        directory
+        """Join the ``segments`` and assert that this path exists in the import
+        directory.
         """
         if self.import_dir:
             self.assert_exists(os.path.join(self.import_dir, *segments))
 
     def assert_not_in_import_dir(self, *segments: bytes) -> None:
-        """
-        Join the ``segments`` and assert that this path does not exist in
-        the library directory
+        """Join the ``segments`` and assert that this path does not exist in
+        the library directory.
         """
         if self.import_dir:
             self.assert_does_not_exist(os.path.join(self.import_dir, *segments))
 
     def assert_islink(self, *segments: bytes) -> None:
-        """
-        Join the ``segments`` with the `lib_dir` and assert that this path is a link
+        """Join the ``segments`` with the `lib_dir` and assert that this path is a
+        link.
         """
         if self.lib_dir:
-            self.assertions.assertTrue(
-                os.path.islink(os.path.join(self.lib_dir, *segments))
-            )
+            assert os.path.islink(os.path.join(self.lib_dir, *segments))
 
     def assert_equal_path(self, path_a: bytes, path_b: bytes) -> None:
         """Check that two paths are equal."""
-        self.assertions.assertEqual(
-            util.normpath(path_a),
-            util.normpath(path_b),
-            f"paths are not equal: {path_a!r} and {path_b!r}",
+        assert util.normpath(path_a) == util.normpath(path_b), (
+            f"paths are not equal: {path_a!r} and {path_b!r}"
         )
 
     def assert_number_of_files_in_dir(self, count: int, *segments: bytes) -> None:
+        """Assert that there are ``count`` files in path formed by joining
+        ``segments``.
         """
-        Assert that there are ``count`` files in path formed by joining ``segments``
-        """
-        self.assertions.assertEqual(
-            len(list(os.listdir(os.path.join(*segments)))), count
-        )
+        assert len(list(os.listdir(os.path.join(*segments)))) == count
 
 
 class HelperUtils:
@@ -179,8 +166,8 @@ class HelperUtils:
             file_handle.close()
 
     def list_files(self, startpath: bytes) -> None:
-        """
-        Provide a formatted list of files, directories, and their contents in logs.
+        """Provide a formatted list of files, directories, and their contents in
+        logs.
         """
         path = startpath.decode("utf8")
         for root, _dirs, files in os.walk(path):
@@ -197,20 +184,20 @@ class HelperUtils:
 
     def get_rsrc_from_file_type(self, filetype: str) -> bytes:
         """Gets the actual file matching extension if available, otherwise
-        default to MP3."""
+        default to MP3.
+        """
         return RSRC_TYPES.get(filetype, RSRC_TYPES["mp3"])
 
 
 class FiletoteTestCase(_common.TestCase, Assertions, HelperUtils):
-    # pylint: disable=too-many-instance-attributes
-    """
-    Provides common setup and teardown, a convenience method for exercising the
+    """Provides common setup and teardown, a convenience method for exercising the
     plugin/importer, tools to setup a library, a directory containing files
     that are to be imported and an import session. The class also provides stubs
     for the autotagging library and assertions helpers.
     """
 
     def setUp(self, other_plugins: Optional[List[str]] = None) -> None:
+        """Handles all setup for testing, including library (database)."""
         super().setUp()
 
         other_plugins = other_plugins or []
@@ -251,14 +238,12 @@ class FiletoteTestCase(_common.TestCase, Assertions, HelperUtils):
         return lib
 
     def tearDown(self) -> None:
-        # pylint: disable=protected-access
+        """Cleans up and closes the library connection."""
         self.lib._close()
         super().tearDown()
 
     def load_plugins(self, other_plugins: List[str]) -> None:
-        # pylint: disable=protected-access
         """Loads and sets up the plugin(s) for the test module."""
-
         plugin_list: List[str] = ["filetote"]
         plugin_class_list: List[Any] = [filetote.FiletotePlugin]
 
@@ -279,7 +264,6 @@ class FiletoteTestCase(_common.TestCase, Assertions, HelperUtils):
         plugins.load_plugins(plugin_list)
 
     def unload_plugins(self) -> None:
-        # pylint: disable=protected-access
         """Unload all plugins and remove the from the configuration."""
         config["plugins"] = []
         # plugins._classes = set()
@@ -303,8 +287,7 @@ class FiletoteTestCase(_common.TestCase, Assertions, HelperUtils):
     def _run_cli_command(
         self, command: Literal["import", "modify", "move", "update"], **kwargs: Any
     ) -> None:
-        """
-        Create an instance of the plugin, run the supplied command, and
+        """Create an instance of the plugin, run the supplied command, and
         remove/unregister the plugin instance so a new instance can
         be created when this method is run again.
 
@@ -335,10 +318,11 @@ class FiletoteTestCase(_common.TestCase, Assertions, HelperUtils):
             self.list_files(self.paths)
 
     def _run_cli_import(
-        self, operation_option: Literal["copy", "move", None] = None
+        self, operation_option: Optional[Literal["copy", "move"]] = None
     ) -> None:
         """Runs the "import" CLI command. This should be called with
-        _run_cli_command()."""
+        _run_cli_command().
+        """
         if not self.importer:
             return
 
@@ -351,7 +335,7 @@ class FiletoteTestCase(_common.TestCase, Assertions, HelperUtils):
 
         self.importer.run()
 
-    def _run_cli_move(
+    def _run_cli_move(  # noqa: PLR0913
         self,
         query: str,
         dest_dir: Optional[bytes] = None,
@@ -360,9 +344,9 @@ class FiletoteTestCase(_common.TestCase, Assertions, HelperUtils):
         pretend: bool = False,
         export: bool = False,
     ) -> None:
-        # pylint: disable=too-many-arguments,too-many-positional-arguments
         """Runs the "move" CLI command. This should be called with
-        _run_cli_command()."""
+        _run_cli_command().
+        """
         commands.move_items(
             lib=self.lib,
             dest=dest_dir,
@@ -374,7 +358,7 @@ class FiletoteTestCase(_common.TestCase, Assertions, HelperUtils):
             export=export,
         )
 
-    def _run_cli_modify(
+    def _run_cli_modify(  # noqa: PLR0913
         self,
         query: str,
         mods: Optional[Dict[str, str]] = None,
@@ -383,9 +367,9 @@ class FiletoteTestCase(_common.TestCase, Assertions, HelperUtils):
         move: bool = True,
         album: Optional[str] = None,
     ) -> None:
-        # pylint: disable=too-many-arguments,too-many-positional-arguments
         """Runs the "modify" CLI command. This should be called with
-        _run_cli_command()."""
+        _run_cli_command().
+        """
         mods = mods or {}
         dels = dels or {}
 
@@ -409,9 +393,9 @@ class FiletoteTestCase(_common.TestCase, Assertions, HelperUtils):
         pretend: bool = False,
         fields: Optional[List[str]] = None,
     ) -> None:
-        # pylint: disable=too-many-arguments,too-many-positional-arguments
         """Runs the "update" CLI command. This should be called with
-        _run_cli_command()."""
+        _run_cli_command().
+        """
         commands.update_items(
             lib=self.lib,
             query=query,
@@ -426,8 +410,7 @@ class FiletoteTestCase(_common.TestCase, Assertions, HelperUtils):
         media_files: Optional[List[MediaSetup]] = None,
         pair_subfolders: bool = False,
     ) -> None:
-        """
-        Creates a directory with media files and artifacts.
+        """Creates a directory with media files and artifacts.
         Sets ``self.import_dir`` to the path of the directory. Also sets
         ``self.import_media`` to a list :class:`MediaFile` for all the media files in
         the directory.
@@ -446,7 +429,6 @@ class FiletoteTestCase(_common.TestCase, Assertions, HelperUtils):
                     track_2.lrc
                     track_3.lrc
         """
-
         if media_files is None:
             media_files = [MediaSetup(pair_subfolders=pair_subfolders)]
 
@@ -499,8 +481,7 @@ class FiletoteTestCase(_common.TestCase, Assertions, HelperUtils):
         disc1_media_files: Optional[List[MediaSetup]] = None,
         disc2_media_files: Optional[List[MediaSetup]] = None,
     ) -> None:
-        """
-        Creates a directory with media files and artifacts nested in subdirectories.
+        """Creates a directory with media files and artifacts nested in subdirectories.
         Sets ``self.import_dir`` to the path of the directory. Also sets
         ``self.import_media`` to a list :class:`MediaFile` for all the media files in
         the directory.
@@ -514,7 +495,6 @@ class FiletoteTestCase(_common.TestCase, Assertions, HelperUtils):
                     track_1.mp3
                     artifact2.file
         """
-
         if disc1_media_files is None:
             disc1_media_files = [MediaSetup()]
 
@@ -593,7 +573,7 @@ class FiletoteTestCase(_common.TestCase, Assertions, HelperUtils):
         log.debug("--- import directory created")
         self.list_files(self.import_dir)
 
-    def _generate_paired_media_list(
+    def _generate_paired_media_list(  # noqa: PLR0913
         self,
         album_path: bytes,
         count: int = 3,
@@ -604,9 +584,7 @@ class FiletoteTestCase(_common.TestCase, Assertions, HelperUtils):
         title_prefix: str = "Tag Title ",
         disc: int = 1,
     ) -> List[MediaFile]:
-        # pylint: disable=too-many-arguments,too-many-positional-arguments
-        """
-        Generates the desired number of media files and corresponding
+        """Generates the desired number of media files and corresponding
         "paired" artifacts.
         """
         media_list: List[MediaFile] = []
@@ -617,7 +595,7 @@ class FiletoteTestCase(_common.TestCase, Assertions, HelperUtils):
                 self._create_medium(
                     path=os.path.join(
                         album_path,
-                        f"{trackname}.{file_type}".encode("utf-8"),
+                        f"{trackname}.{file_type}".encode(),
                     ),
                     resource_name=self.get_rsrc_from_file_type(file_type),
                     media_meta=MediaMeta(
@@ -625,7 +603,7 @@ class FiletoteTestCase(_common.TestCase, Assertions, HelperUtils):
                     ),
                 )
             )
-            count = count - 1
+            count -= 1
 
             if generate_pair:
                 # Create paired artifact
@@ -636,17 +614,15 @@ class FiletoteTestCase(_common.TestCase, Assertions, HelperUtils):
 
                 os.makedirs(pair_path, exist_ok=True)
 
-                self.create_file(pair_path, f"{trackname}.lrc".encode("utf-8"))
+                self.create_file(pair_path, f"{trackname}.lrc".encode())
         return media_list
 
     def _create_medium(
         self, path: bytes, resource_name: bytes, media_meta: Optional[MediaMeta] = None
     ) -> MediaFile:
+        """Creates and saves a media file object located at path using resource_name
+        from the beets test resources directory as initial data.
         """
-        Creates and saves a media file object located at path using resource_name
-        from the beets test resources directory as initial data
-        """
-
         if media_meta is None:
             media_meta = MediaMeta()
 
@@ -670,15 +646,13 @@ class FiletoteTestCase(_common.TestCase, Assertions, HelperUtils):
         medium.save()
 
     def _set_import_dir(self) -> None:
-        """
-        Sets the import_dir and ensures that it is empty.
-        """
+        """Sets the import_dir and ensures that it is empty."""
         self.import_dir = os.path.join(self.temp_dir, b"testsrc_dir")
         if os.path.isdir(self.import_dir):
             shutil.rmtree(self.import_dir)
         self.import_dir = os.path.join(self.temp_dir, b"testsrc_dir")
 
-    def _setup_import_session(
+    def _setup_import_session(  # noqa: PLR0913
         self,
         import_dir: Optional[bytes] = None,
         delete: bool = False,
@@ -689,8 +663,6 @@ class FiletoteTestCase(_common.TestCase, Assertions, HelperUtils):
         autotag: bool = True,
         query: Optional[str] = None,
     ) -> None:
-        # pylint: disable=too-many-arguments,too-many-positional-arguments
-
         config["import"]["copy"] = copy
         config["import"]["delete"] = delete
         config["import"]["timid"] = True

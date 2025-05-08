@@ -1,9 +1,8 @@
 """Tests renaming Filetote custom fields for the beets-filetote plugin."""
 
-# pylint: disable=duplicate-code
-
 import logging
 import os
+
 from typing import List, Optional
 
 from beets import config
@@ -14,12 +13,11 @@ log = logging.getLogger("beets")
 
 
 class FiletoteRenameFiletoteFieldsTest(FiletoteTestCase):
-    """
-    Tests to check that Filetote renames using Filetote-provided fields as
+    """Tests to check that Filetote renames using Filetote-provided fields as
     expected for custom path formats.
     """
 
-    def setUp(self, other_plugins: Optional[List[str]] = None) -> None:
+    def setUp(self, _other_plugins: Optional[List[str]] = None) -> None:
         """Provides shared setup for tests."""
         super().setUp()
 
@@ -70,8 +68,7 @@ class FiletoteRenameFiletoteFieldsTest(FiletoteTestCase):
         self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"Tag Title 3.lrc")
 
     def test_rename_field_subpath(self) -> None:
-        """
-        Tests that the value of `subpath` populates in renaming. Also tests that the
+        """Tests that the value of `subpath` populates in renaming. Also tests that the
         default lyric file moves as expected without a trailing pah separator.
         """
         config["filetote"]["extensions"] = ".lrc"

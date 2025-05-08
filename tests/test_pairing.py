@@ -11,9 +11,7 @@ log = logging.getLogger("beets")
 
 
 class FiletotePairingTest(FiletoteTestCase):
-    """
-    Tests to check that Filetote handles "pairs" of files.
-    """
+    """Tests to check that Filetote handles "pairs" of files."""
 
     def test_pairing_default_is_disabled(self) -> None:
         """Ensure that, by default, pairing is disabled."""
@@ -103,7 +101,8 @@ class FiletotePairingTest(FiletoteTestCase):
 
     def test_pairingonly_disabled_copies_all_matches(self) -> None:
         """Ensure that `pairing_only` disabled allows other matches to an
-        extension to be handled."""
+        extension to be handled.
+        """
         self._create_flat_import_dir(media_files=[MediaSetup(count=2)])
         self._setup_import_session(autotag=False)
 
@@ -121,7 +120,8 @@ class FiletotePairingTest(FiletoteTestCase):
 
     def test_pairingonly_enabled_copies_all_matches(self) -> None:
         """Test that `pairing_only` means that only pairs meeting a certain
-        extension are handled."""
+        extension are handled.
+        """
         self._create_flat_import_dir(media_files=[MediaSetup(count=2)])
         self._setup_import_session(autotag=False)
 
@@ -139,7 +139,8 @@ class FiletotePairingTest(FiletoteTestCase):
 
     def test_pairingonly_does_not_require_pairs_for_all_media(self) -> None:
         """Ensure that `pairing_only` does not require  all media files for pairs to
-        move/copy."""
+        move/copy.
+        """
         self._create_flat_import_dir(
             media_files=[MediaSetup(count=2, generate_pair=False)]
         )
@@ -191,7 +192,8 @@ class FiletotePairingTest(FiletoteTestCase):
 
     def test_pairing_extensions_are_addative_to_toplevel_extensions(self) -> None:
         """Ensure that those extensions defined in pairing extend any extensions
-        defined in the `extensions` config."""
+        defined in the `extensions` config.
+        """
         self._create_flat_import_dir(
             media_files=[MediaSetup(count=2, generate_pair=False)]
         )

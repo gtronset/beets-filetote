@@ -1,10 +1,10 @@
-"""
-Tests that renaming using `item_fields` work as expected, when the
+"""Tests that renaming using `item_fields` work as expected, when the
 `inline` plugin is loaded.
 """
 
 import logging
 import os
+
 from typing import List, Optional
 
 from beets import config
@@ -15,19 +15,18 @@ log = logging.getLogger("beets")
 
 
 class FiletoteInlineRenameTest(FiletoteTestCase):
-    """
-    Tests that renaming using `item_fields` work as expected, when the
+    """Tests that renaming using `item_fields` work as expected, when the
     `inline` plugin is loaded.
     """
 
-    def setUp(self, other_plugins: Optional[List[str]] = None) -> None:
+    def setUp(self, _other_plugins: Optional[List[str]] = None) -> None:
         """Provides shared setup for tests."""
         super().setUp(other_plugins=["inline"])
 
     def test_rename_works_with_inline_plugin(self) -> None:
         """Ensure that Filetote can rename fields as expected with the `inline`
-        plugin is enabled."""
-
+        plugin is enabled.
+        """
         self._create_flat_import_dir()
         self._setup_import_session(autotag=False)
 
@@ -35,9 +34,9 @@ class FiletoteInlineRenameTest(FiletoteTestCase):
         config["filetote"]["patterns"] = {
             "file-pattern": ["*.file"],
         }
-        config["paths"][
-            "ext:file"
-        ] = "$albumpath/%if{$multidisc,Disc $disc} - $old_filename"
+        config["paths"]["ext:file"] = (
+            "$albumpath/%if{$multidisc,Disc $disc} - $old_filename"
+        )
 
         config["item_fields"]["multidisc"] = "1 if disctotal > 1 else 0"
 

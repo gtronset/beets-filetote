@@ -5,9 +5,11 @@ import shutil
 import sys
 import tempfile
 import unittest
+
 from typing import List, Optional
 
 import reflink
+
 from beets import config, logging, util
 
 # Test resources path.
@@ -33,24 +35,16 @@ class AssertionsMixin:
 
     def assert_exists(self, path: bytes) -> None:
         """Assertion that a file exists."""
-        self.assertions.assertTrue(
-            os.path.exists(util.syspath(path)),
-            f"file does not exist: {path!r}",
-        )
+        assert os.path.exists(util.syspath(path)), f"file does not exist: {path!r}"
 
     def assert_does_not_exist(self, path: bytes) -> None:
         """Assertion that a file does not exists."""
-        self.assertions.assertFalse(
-            os.path.exists(util.syspath(path)),
-            f"file exists: {path!r}",
-        )
+        assert not os.path.exists(util.syspath(path)), f"file exists: {path!r}"
 
     def assert_equal_path(self, path_a: bytes, path_b: bytes) -> None:
         """Check that two paths are equal."""
-        self.assertions.assertEqual(
-            util.normpath(path_a),
-            util.normpath(path_b),
-            f"paths are not equal: {path_a!r} and {path_b!r}",
+        assert util.normpath(path_a) == util.normpath(path_b), (
+            f"paths are not equal: {path_a!r} and {path_b!r}"
         )
 
 
@@ -100,7 +94,7 @@ class TestCase(unittest.TestCase):
 # Mock I/O.
 
 
-class InputException(Exception):
+class InputError(Exception):
     """Provides handling of input exceptions."""
 
     def __init__(self, output: Optional[str] = None) -> None:
@@ -122,11 +116,11 @@ class DummyOut:
         self.buf: List[str] = []
 
     def write(self, buf_item: str) -> None:
-        """Writes to buffer"""
+        """Writes to buffer."""
         self.buf.append(buf_item)
 
     def get(self) -> str:
-        """Get from buffer"""
+        """Get from buffer."""
         return "".join(self.buf)
 
     def flush(self) -> None:
@@ -149,16 +143,16 @@ class DummyIn:
         self.out: Optional[DummyOut] = out
 
     def add(self, buf_item: str) -> None:
-        """Add buffer input"""
+        """Add buffer input."""
         self.buf.append(buf_item + "\n")
 
     def readline(self) -> str:
-        """Reads buffer line"""
+        """Reads buffer line."""
         if not self.buf:
             if self.out:
-                raise InputException(self.out.get())
+                raise InputError(self.out.get())
 
-            raise InputException()
+            raise InputError()
         self.reads += 1
         return self.buf.pop(0)
 
@@ -181,15 +175,15 @@ class DummyIO:
         return res
 
     def readcount(self) -> int:
-        """Reads from stdin"""
+        """Reads from stdin."""
         return self.stdin.reads
 
     def install(self) -> None:
-        """Setup stdin and stdout"""
+        """Setup stdin and stdout."""
         sys.stdin = self.stdin
         sys.stdout = self.stdout
 
     def restore(self) -> None:
-        """Restores/reset both stdin and stdout"""
+        """Restores/reset both stdin and stdout."""
         sys.stdin = sys.__stdin__
         sys.stdout = sys.__stdout__

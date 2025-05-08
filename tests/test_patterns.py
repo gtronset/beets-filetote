@@ -2,6 +2,7 @@
 
 import logging
 import os
+
 from typing import List, Optional
 
 from beets import config
@@ -12,11 +13,9 @@ log = logging.getLogger("beets")
 
 
 class FiletotePatternTest(FiletoteTestCase):
-    """
-    Tests to check that Filetote grabs artfacts by user-definited patterns.
-    """
+    """Tests to check that Filetote grabs artfacts by user-definited patterns."""
 
-    def setUp(self, other_plugins: Optional[List[str]] = None) -> None:
+    def setUp(self, _other_plugins: Optional[List[str]] = None) -> None:
         """Provides shared setup for tests."""
         super().setUp()
 
@@ -54,7 +53,6 @@ class FiletotePatternTest(FiletoteTestCase):
 
     def test_patterns_subfolders_match(self) -> None:
         """Tests that patterns can match subdirectories/subfolders."""
-
         artwork_dir = os.path.join(self.import_dir, b"the_album", b"artwork")
         os.makedirs(artwork_dir)
 
@@ -80,7 +78,6 @@ class FiletotePatternTest(FiletoteTestCase):
 
     def test_patterns_of_folders_grab_all_files(self) -> None:
         """Tests that patterns of just folders grab all contents."""
-
         artwork_dir = os.path.join(self.import_dir, b"the_album", b"artwork")
         cd1_dir = os.path.join(self.import_dir, b"the_album", b"CD1")
         subfolder_dir = os.path.join(
@@ -131,9 +128,9 @@ class FiletotePatternTest(FiletoteTestCase):
             "file-pattern": ["[Aa]rtifact.file", "artifact[23].file"],
             "nfo-pattern": ["*.nfo"],
         }
-        config["paths"][
-            "pattern:file-pattern"
-        ] = "$albumpath/file-pattern $old_filename"
+        config["paths"]["pattern:file-pattern"] = (
+            "$albumpath/file-pattern $old_filename"
+        )
 
         config["paths"]["pattern:nfo-pattern"] = "$albumpath/nfo-pattern $old_filename"
 

@@ -1,6 +1,6 @@
-""" "Mapping" Model for Filetote."""
+"""`Mapping` Model for Filetote."""
 
-from typing import Dict, List, Literal, Optional, Union
+from typing import ClassVar, Dict, List, Literal, Optional, Union
 
 from beets.dbcore import db
 from beets.dbcore import types as db_types
@@ -9,7 +9,7 @@ from beets.dbcore import types as db_types
 class FiletoteMappingModel(db.Model):
     """Model for a FiletoteMappingFormatted."""
 
-    _fields = {
+    _fields: ClassVar = {
         "albumpath": db_types.STRING,
         "medianame_old": db_types.STRING,
         "medianame_new": db_types.STRING,
@@ -32,8 +32,7 @@ class FiletoteMappingModel(db.Model):
 
 
 class FiletoteMappingFormatted(db.FormattedMapping):
-    """
-    Formatted Mapping that does not replace path separators for certain keys
+    """Formatted Mapping that does not replace path separators for certain keys
     (e.g., `albumpath` and `subpath`), when added to `whitelist_replace`.
     """
 
@@ -46,19 +45,19 @@ class FiletoteMappingFormatted(db.FormattedMapping):
         for_path: bool = False,
         whitelist_replace: Optional[List[str]] = None,
     ):
+        """Initializes the formatted Mapping."""
         super().__init__(model, included_keys, for_path)
         if whitelist_replace is None:
             whitelist_replace = []
         self.whitelist_replace = whitelist_replace
 
     def __getitem__(self, key: str) -> str:
-        """
-        Get the formatted version of model[key] as string. Any value
+        """Get the formatted version of model[key] as string. Any value
         provided in the `whitelist_replace` list will not have the path
         separator replaced.
         """
         if key in self.whitelist_replace:
-            value = self.model._type(key).format(self.model.get(key))
+            value = self.model._type(key).format(self.model.get(key))  # noqa: SLF001
             if isinstance(value, bytes):
                 value = value.decode("utf-8", "ignore")
             return str(value)

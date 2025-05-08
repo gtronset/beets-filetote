@@ -1,4 +1,5 @@
 # yaml-language-server: $schema=https://json.schemastore.org/pre-commit-config.json
+
 repos:
     - repo: https://github.com/pre-commit/pre-commit-hooks
       rev: v5.0.0
@@ -16,23 +17,20 @@ repos:
           - id: check-added-large-files
             args: ["--maxkb=500"]
 
-    - repo: https://github.com/psf/black
-      rev: 25.1.0
+    - repo: https://github.com/astral-sh/ruff-pre-commit
+      rev: v0.11.8
       hooks:
-          - id: black
-
-    - repo: https://github.com/PyCQA/flake8
-      rev: 7.2.0
-      hooks:
-          - id: flake8
-            additional_dependencies:
-                - flake8-bugbear==24.12.12
-                - flake8-pyi==24.9.0
-
-    - repo: https://github.com/PyCQA/isort
-      rev: 6.0.1
-      hooks:
-          - id: isort
+          - id: ruff
+            name: lint
+            alias: lint
+          - id: ruff
+            name: lint-fix
+            alias: lint-fix
+            args: [--fix]
+            stages: [manual]
+          - id: ruff-format
+            name: format
+            alias: format
 
     - repo: https://github.com/igorshubovych/markdownlint-cli
       rev: v0.44.0
@@ -53,6 +51,7 @@ repos:
       rev: "v1.15.0"
       hooks:
           - id: mypy
+            additional_dependencies: [pytest]
 
     - repo: https://github.com/python-poetry/poetry
       rev: "1.8.5"
@@ -88,16 +87,6 @@ repos:
                     "-o",
                     "dev-requirements.txt",
                 ]
-
-    - repo: local
-      hooks:
-          - id: pylint
-            name: pylint
-            entry: tox
-            language: system
-            pass_filenames: false
-            types: [python]
-            args: ["-e pylint"]
 
     - repo: https://github.com/crate-ci/typos
       # https://github.com/crate-ci/typos/issues/390

@@ -12,13 +12,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - Update Readme to fix link <https://github.com/gtronset/beets-filetote/pull/168>
+- Migrate to Ruff for Code Formatting and Linting <https://github.com/gtronset/beets-filetote/pull/174>
 
 ## [1.0.0] - 2025-05-06
 
 ### Changed
 
-- Update Filetote to support Beets >=2.0.0 (and various cleanups) <https://github.com/gtronset/beets-filetote/pull/167>
 - Update Black version to fix vulnerability <https://github.com/gtronset/beets-filetote/pull/157>
+- Update Filetote to support Beets >=2.0.0 (and various cleanups) <https://github.com/gtronset/beets-filetote/pull/167>
 
 ## [0.4.9] - 2024-04-20
 
@@ -30,13 +31,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- Allow for retaining path hierarchy <https://github.com/gtronset/beets-filetote/pull/144>
 - Add Security policy <https://github.com/gtronset/beets-filetote/pull/140>
+- Allow for retaining path hierarchy <https://github.com/gtronset/beets-filetote/pull/144>
 
 ### Changed
 
-- Remove need for typing_extensions in plugin <https://github.com/gtronset/beets-filetote/pull/146>
 - Test and ensure subdirectory with $albumpath <https://github.com/gtronset/beets-filetote/pull/141>
+- Remove need for typing_extensions in plugin <https://github.com/gtronset/beets-filetote/pull/146>
 
 ## [0.4.7] - 2023-12-17
 

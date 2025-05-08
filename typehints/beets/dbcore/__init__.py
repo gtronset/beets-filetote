@@ -1,2 +1,2 @@
-class Database:
+class Database:  # noqa: D101, D104
     def _close(self) -> None: ...

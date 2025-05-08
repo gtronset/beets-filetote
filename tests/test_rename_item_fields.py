@@ -1,6 +1,7 @@
 """Tests renaming Item fields for the beets-filetote plugin."""
 
 import logging
+
 from typing import List, Optional
 
 from beets import config
@@ -11,12 +12,11 @@ log = logging.getLogger("beets")
 
 
 class FiletoteRenameItemFieldsTest(FiletoteTestCase):
-    """
-    Tests to check that Filetote renames using default Item fields as
+    """Tests to check that Filetote renames using default Item fields as
     expected for custom path formats.
     """
 
-    def setUp(self, other_plugins: Optional[List[str]] = None) -> None:
+    def setUp(self, _other_plugins: Optional[List[str]] = None) -> None:
         """Provides shared setup for tests."""
         super().setUp()
 
@@ -24,14 +24,13 @@ class FiletoteRenameItemFieldsTest(FiletoteTestCase):
         self._setup_import_session(autotag=False)
 
     def test_rename_core_item_fields(self) -> None:
-        """
-        Tests that the value of `title, `artist`, `albumartist`, and `album`
+        """Tests that the value of `title, `artist`, `albumartist`, and `album`
         populate in renaming.
         """
         config["filetote"]["extensions"] = ".file"
-        config["paths"][
-            "ext:file"
-        ] = "$albumpath/$artist - $album - $track $title ($albumartist) newname"
+        config["paths"]["ext:file"] = (
+            "$albumpath/$artist - $album - $track $title ($albumartist) newname"
+        )
 
         self._run_cli_command("import")
 
@@ -42,8 +41,7 @@ class FiletoteRenameItemFieldsTest(FiletoteTestCase):
         )
 
     def test_rename_other_meta_item_fields(self) -> None:
-        """
-        Tests that the value of `year, `month`, `day`, `$track, `tracktotal`
+        """Tests that the value of `year, `month`, `day`, `$track, `tracktotal`
         and `disc`, and `disctotal` populate in renaming.
         """
         config["filetote"]["extensions"] = ".file"
@@ -61,9 +59,7 @@ class FiletoteRenameItemFieldsTest(FiletoteTestCase):
         )
 
     def test_rename_lyric_comment_item_fields(self) -> None:
-        """
-        Tests that the value of `lyric` and `comments` populate in renaming.
-        """
+        """Tests that the value of `lyric` and `comments` populate in renaming."""
         config["filetote"]["extensions"] = ".file"
         config["paths"]["ext:file"] = "$albumpath/$lyrics ($comments)"
 
@@ -76,16 +72,15 @@ class FiletoteRenameItemFieldsTest(FiletoteTestCase):
         )
 
     def test_rename_track_music_item_fields(self) -> None:
-        """
-        Tests that the value of `bpm`, `length`, `format`, and `bitrate` populate
+        """Tests that the value of `bpm`, `length`, `format`, and `bitrate` populate
         in renaming.
 
         `length` will convert from `M:SS` to `M_SS` for path-friendliness.
         """
         config["filetote"]["extensions"] = ".file"
-        config["paths"][
-            "ext:file"
-        ] = "$albumpath/newname - ${bpm}bpm $length ($format) ($bitrate)"
+        config["paths"]["ext:file"] = (
+            "$albumpath/newname - ${bpm}bpm $length ($format) ($bitrate)"
+        )
 
         self._run_cli_command("import")
 
@@ -96,8 +91,7 @@ class FiletoteRenameItemFieldsTest(FiletoteTestCase):
         )
 
     def test_rename_mb_item_fields(self) -> None:
-        """
-        Tests that the value of `mb_albumid, `mb_artistid`,
+        """Tests that the value of `mb_albumid, `mb_artistid`,
         `mb_albumartistid`, `mb_trackid`, `mb_releasetrackid`,
         and `mb_workid` populate in renaming.
         """

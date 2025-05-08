@@ -1,8 +1,7 @@
 """Tests renaming based on paths for the beets-filetote plugin."""
 
-# pylint: disable=duplicate-code
-
 import logging
+
 from typing import List, Optional
 
 from beets import config
@@ -13,12 +12,11 @@ log = logging.getLogger("beets")
 
 
 class FiletoteRenamePathsTest(FiletoteTestCase):
-    """
-    Tests to check that Filetote renames using custom path formats configured
+    """Tests to check that Filetote renames using custom path formats configured
     either in the `paths` scetion of the overall config or in Filetote's.
     """
 
-    def setUp(self, other_plugins: Optional[List[str]] = None) -> None:
+    def setUp(self, _other_plugins: Optional[List[str]] = None) -> None:
         """Provides shared setup for tests."""
         super().setUp()
 

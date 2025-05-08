@@ -34,36 +34,11 @@ reflink = ">=0.2.1"
 toml = ">=0.10.2"
 
 [tool.poetry.group.lint.dependencies]
-black = [
-    { version = ">=25.0.0", python = ">=3.9" },
-    { version = "24.8.0", python = ">=3.8,<3.9" },
-]
-flake8 = [
-    { version = "^7.0.0", python = ">=3.9" },
-    { version = "^7.1.0", python = ">=3.8.1,<3.9" },
-    { version = "^5.0.0", python = ">=3.8,<3.8.1" },
-]
-flake8-bugbear = [
-    { version = "^24.9.0", python = ">=3.9" },
-    { version = "^24.2.6", python = ">=3.8.1,<3.9" },
-    { version = "^22.9.23", python = ">=3.8,<3.8.1" },
-]
-flake8-pyi = [
-    { version = "^24.4.0", python = ">=3.8.1,<4.0" },
-    { version = ">=22.1.0,<=23.5.0", python = ">=3.8,<3.8.1" },
-]
-isort = [
-    { version = "^6.0.0", python = ">=3.9" },
-    { version = "^5.12.0", python = ">=3.8, <3.9" },
-]
-pylint = [
-    { version = "^3.0.0", python = ">=3.9" },
-    { version = "3.2.7", python = ">=3.8, <3.9" },
-]
 mypy = [
     { version = "^1.15.0", python = ">=3.9" },
     { version = "^1.9.0", python = ">=3.8,<3.9" },
 ]
+ruff = "^0.11.8"
 
 [tool.poetry.group.test.dependencies]
 pytest = "^8.0.0"
@@ -73,26 +48,68 @@ typeguard = "^4.4.0"
 requires = ["poetry-core<2.0.0"]
 build-backend = "poetry.core.masonry.api"
 
-[tool.black]
-target-version = ['py38']
-include = '\.pyi?$'
-preview = true
+[tool.ruff]
 line-length = 88
+# namespace-packages = ["beetsplug"]
+preview = true
+src = ["beetsplug", "tests", "typehints"]
+target-version = "py38"
 
-[tool.isort]
-profile = 'black'
+[tool.ruff.lint]
+ignore = ["D205", "PLR6301"]
+extend-select = [
+    "A",    # flake8-builtins
+    "ARG",  # flake8-unused-arguments
+    "C4",   # flake8-comprehensions
+    "D",    # pydocstyle
+    "E",    # pycodestyle
+    "F",    # pyflakes
+    "B",    # flake8-bugbear
+    "I",    # isort
+    "N",    # pep8-naming
+    "PERF", # perflint
+    "PL",   # pylint
+    "PT",   # flake8-pytest-style
+    "PYI",  # flake8-pyi
+    "RUF",  # ruff
+    "SIM",  # flake8-simplify
+    "SLF",  # flake8-self
+    "TD",   # flake8-todos
+    "TC",   # flake8-type-checking
+    "UP",   # pyupgrade
+    "W",    # pycodestyle
+    # "PTH", # flake8-use-pathlib
+]
+
+[tool.ruff.lint.flake8-pytest-style]
+fixture-parentheses = false
+mark-parentheses = false
+parametrize-names-type = "csv"
+
+[tool.ruff.lint.flake8-unused-arguments]
+ignore-variadic-names = true
+
+[tool.ruff.lint.isort]
+lines-between-types = 1
+known-local-folder = ["tests"]
+
+[tool.ruff.lint.per-file-ignores]
+"beetsplug/**" = ["PT"]
+"tests/**" = ["PLR0917"]
+
+[tool.ruff.lint.pep8-naming]
+extend-ignore-names = ["assert*", "getLogger"]
+
+[tool.ruff.lint.pycodestyle]
+max-line-length = 88
+
+[tool.ruff.lint.pydocstyle]
+# Use Google-style docstrings.
+convention = "google"
 
 [tool.pytest.ini_options]
 testpaths = ["./tests"]
-filterwarnings = [
-    "ignore::DeprecationWarning:.*confuse",
-    "ignore::DeprecationWarning:.*mediafile",
-]
-
-[tool.pylint.format]
-disable = ''
-max-line-length = '88'
-output-format = 'colorized'
+filterwarnings = ["ignore::DeprecationWarning:.*confuse"]
 
 [tool.mypy]
 mypy_path = ["./typehints"]

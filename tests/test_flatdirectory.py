@@ -2,6 +2,7 @@
 
 import logging
 import os
+
 from typing import List, Optional
 
 from beets import config
@@ -12,13 +13,12 @@ log = logging.getLogger("beets")
 
 
 class FiletoteFromFlatDirectoryTest(FiletoteTestCase):
-    """
-    Tests to check that Filetote copies or moves artifact files from a
+    """Tests to check that Filetote copies or moves artifact files from a
     flat directory (e.g., all songs in an album are imported from a single
     directory). Also tests `extensions` and `filenames` config options.
     """
 
-    def setUp(self, other_plugins: Optional[List[str]] = None) -> None:
+    def setUp(self, _other_plugins: Optional[List[str]] = None) -> None:
         """Provides shared setup for tests."""
         super().setUp()
 
@@ -48,7 +48,8 @@ class FiletoteFromFlatDirectoryTest(FiletoteTestCase):
 
     def test_exact_matching_configured_extension(self) -> None:
         """Test that extensions and other fields matching are exact, not just
-        partial matches."""
+        partial matches.
+        """
         config["filetote"]["extensions"] = ".file"
 
         self.create_file(os.path.join(self.import_dir, b"the_album"), b"artifact.file2")

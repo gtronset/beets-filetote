@@ -10,7 +10,7 @@ A plugin that moves non-music extra files, attachments, and artifacts during imp
 CLI file manipulation actions (`move`, `modify`, reimport, etc.) for [beets], a music
 library manager (and much more!).
 
-This plugin is supported/runs in beets [`v2`] and above.
+This plugin is supported/runs in beets `v2` and above.
 
 [beets]: https://beets.io/
 
@@ -599,7 +599,7 @@ filetote:
 
 ## Version Upgrade Instructions
 
-Certain versoins require changes to configurations as upgrades occur. Please see below
+Certain versions require changes to configurations as upgrades occur. Please see below
 for specific steps for each version.
 
 ### `0.4.0`
@@ -682,13 +682,19 @@ poetry run beet
 Testing can be run with Tox, ex.:
 
 ```sh
-poetry run tox -e py312
+poetry run tox -e py313
 ```
 
-For other linting environments, see `tox.ini`. Ex: `black`:
+For other linting environments, see `tox.ini`. Ex: `lint` (courtesy of `ruff`):
 
 ```sh
-poetry run tox -e black
+poetry run tox -e lint
+```
+
+Ex: `format` (courtesy of `ruff`):
+
+```sh
+poetry run tox -e format
 ```
 
 **Docker:**
