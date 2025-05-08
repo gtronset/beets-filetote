@@ -599,7 +599,7 @@ filetote:
 
 ## Version Upgrade Instructions
 
-Certain versoins require changes to configurations as upgrades occur. Please see below
+Certain versions require changes to configurations as upgrades occur. Please see below
 for specific steps for each version.
 
 ### `0.4.0`
@@ -682,7 +682,7 @@ poetry run beet
 Testing can be run with Tox, ex.:
 
 ```sh
-poetry run tox -e py312
+poetry run tox -e py313
 ```
 
 For other linting environments, see `tox.ini`. Ex: `lint` (courtesy of `ruff`):
