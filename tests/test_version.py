@@ -11,8 +11,6 @@ from tests.helper import FiletoteTestCase
 class FiletoteVersionTest(FiletoteTestCase):
     """Tests that the version specified for the plugin matches the value in
     pyproject.
-
-    Testsdfsflskdmflksmfs.
     """
 
     def setUp(self, _other_plugins: Optional[List[str]] = None) -> None:
