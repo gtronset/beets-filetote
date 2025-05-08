@@ -48,6 +48,16 @@ typeguard = "^4.4.0"
 requires = ["poetry-core<2.0.0"]
 build-backend = "poetry.core.masonry.api"
 
+[tool.mypy]
+mypy_path = ["./typehints"]
+modules = ["beetsplug", "tests.helper", "tests._common"]
+strict = true
+pretty = true
+
+[tool.pytest.ini_options]
+testpaths = ["./tests"]
+filterwarnings = ["ignore::DeprecationWarning:.*confuse"]
+
 [tool.ruff]
 line-length = 88
 # namespace-packages = ["beetsplug"]
@@ -93,12 +103,12 @@ ignore-variadic-names = true
 lines-between-types = 1
 known-local-folder = ["tests"]
 
+[tool.ruff.lint.pep8-naming]
+extend-ignore-names = ["assert*", "getLogger"]
+
 [tool.ruff.lint.per-file-ignores]
 "beetsplug/**" = ["PT"]
 "tests/**" = ["PLR0917"]
-
-[tool.ruff.lint.pep8-naming]
-extend-ignore-names = ["assert*", "getLogger"]
 
 [tool.ruff.lint.pycodestyle]
 max-line-length = 88
@@ -107,11 +117,39 @@ max-line-length = 88
 # Use Google-style docstrings.
 convention = "google"
 
-[tool.pytest.ini_options]
-testpaths = ["./tests"]
-filterwarnings = ["ignore::DeprecationWarning:.*confuse"]
+[tool.tox]
+requires = ["tox>=4.22"]
+min_version = "4.22"
+env_list = ["3.8", "3.9", "3.10", "3.11", "3.12", "3.13"]
 
-[tool.mypy]
-mypy_path = ["./typehints"]
-strict = true
-pretty = true
+[tool.tox.env_run_base]
+description = "Run test under {base_python}"
+deps = [
+    "beets",
+    "beets-audible",
+    "mediafile",
+    "pytest",
+    "reflink",
+    "toml",
+    "typeguard",
+]
+commands = [["pytest", "tests", "--typeguard-packages=beetsplug"]]
+
+[tool.tox.env.lint]
+commands = [["ruff", "check"]]
+deps = "ruff"
+description = "Lint source code"
+
+[tool.tox.env.lint-fix]
+commands = [["ruff", "check", "--fix"]]
+deps = { replace = "ref", env = "lint", key = "deps", extend = true }
+description = "Fixes and lint issues in source code"
+
+[tool.tox.env.format]
+commands = [["ruff", "format"]]
+deps = { replace = "ref", env = "lint", key = "deps", extend = true }
+description = "Formats source code"
+
+[tool.tox.env.mypy]
+commands = [["mypy"]]
+deps = ["mypy==1.15.0"]
