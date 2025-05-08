@@ -7,8 +7,7 @@ import shutil
 
 from contextlib import contextmanager
 from dataclasses import asdict, dataclass
-from sys import version_info
-from typing import Any, Dict, Iterator, List, Optional
+from typing import Any, Dict, Iterator, List, Literal, Optional
 
 # Make sure the local versions of the plugins are used
 import beetsplug
@@ -28,11 +27,6 @@ from mediafile import MediaFile
 
 from ._item_model import MediaMeta
 from tests import _common
-
-if version_info >= (3, 8):  # noqa: UP036
-    from typing import Literal
-else:
-    from typing_extensions import Literal  # type: ignore
 
 beetsplug.__path__ = [os.path.abspath(os.path.join(__file__, "..", "..", "beetsplug"))]
 
