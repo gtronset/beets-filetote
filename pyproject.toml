@@ -50,6 +50,7 @@ build-backend = "poetry.core.masonry.api"
 
 [tool.mypy]
 mypy_path = ["./typehints"]
+modules = ["beetsplug", "tests.helper", "tests._common"]
 strict = true
 pretty = true
 
@@ -115,3 +116,40 @@ max-line-length = 88
 [tool.ruff.lint.pydocstyle]
 # Use Google-style docstrings.
 convention = "google"
+
+[tool.tox]
+requires = ["tox>=4.22"]
+min_version = "4.22"
+env_list = ["3.8", "3.9", "3.10", "3.11", "3.12", "3.13"]
+
+[tool.tox.env_run_base]
+description = "Run test under {base_python}"
+deps = [
+    "beets",
+    "beets-audible",
+    "mediafile",
+    "pytest",
+    "reflink",
+    "toml",
+    "typeguard",
+]
+commands = [["pytest", "tests", "--typeguard-packages=beetsplug"]]
+
+[tool.tox.env.lint]
+commands = [["ruff", "check"]]
+deps = "ruff"
+description = "Lint source code"
+
+[tool.tox.env.lint-fix]
+commands = [["ruff", "check", "--fix"]]
+deps = { replace = "ref", env = "lint", key = "deps", extend = true }
+description = "Fixes and lint issues in source code"
+
+[tool.tox.env.format]
+commands = [["ruff", "format"]]
+deps = { replace = "ref", env = "lint", key = "deps", extend = true }
+description = "Formats source code"
+
+[tool.tox.env.mypy]
+commands = [["mypy"]]
+deps = ["mypy==1.15.0"]
