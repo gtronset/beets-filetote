@@ -17,10 +17,9 @@ class FiletoteMusicFilesIgnoredTest(FiletoteTestCase):
 
     def test_default_music_file_types_are_ignored(self) -> None:
         """Ensure that mediafile types are ignored by Filetote."""
-        media_file_list = []
-
-        for beet_type in BEETS_TYPES:
-            media_file_list.append(MediaSetup(file_type=beet_type, count=1))
+        media_file_list = [
+            MediaSetup(file_type=beet_type, count=1) for beet_type in BEETS_TYPES
+        ]
 
         self._create_flat_import_dir(media_files=media_file_list)
         self._setup_import_session(autotag=False)

@@ -58,22 +58,25 @@ target-version = "py38"
 [tool.ruff.lint]
 ignore = ["D205"]
 extend-select = [
-    "ARG", # flake8-unused-arguments
+    "A",    # flake8-builtins
+    "ARG",  # flake8-unused-arguments
+    "E",    # pycodestyle
+    "D",    # pydocstyle
+    "F",    # pyflakes
+    "B",    # flake8-bugbear
+    "I",    # isort
+    "N",    # pep8-naming
+    "PERF", # perflint
+    "PL",   # pylint
+    "PT",   # flake8-pytest-style
+    "PYI",  # flake8-pyi
+    "RUF",  # ruff
+    "SIM",  # flake8-simplify
+    "SLF",  # flake8-self
+    "TC",   # flake8-type-checking
+    "UP",   # pyupgrade
+    "W",    # pycodestyle
     # "C4", # flake8-comprehensions
-    "E",   # pycodestyle
-    "D",   # pydocstyle
-    "F",   # pyflakes
-    "B",   # flake8-bugbear
-    "I",   # isort
-    "N",   # pep8-naming
-    "PL",  # pylint
-    "PT",  # flake8-pytest-style
-    "PYI", # flake8-pyi
-    "RUF", # ruff
-    "SIM", # flake8-simplify
-    "SLF", # flake8-self
-    "UP",  # pyupgrade
-    "W",   # pycodestyle
     # "PTH", # flake8-use-pathlib
 ]
 

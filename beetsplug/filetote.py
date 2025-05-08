@@ -552,10 +552,10 @@ class FiletotePlugin(BeetsPlugin):
             source_path: bytes = artifact_collection.source_path
 
             if not self.filetote.pairing.pairing_only:
-                for shared_artifact in self._shared_artifacts[source_path]:
-                    artifacts.append(
-                        FiletoteArtifact(path=shared_artifact, paired=False)
-                    )
+                artifacts.extend(
+                    FiletoteArtifact(path=shared_artifact, paired=False)
+                    for shared_artifact in self._shared_artifacts[source_path]
+                )
 
             self._shared_artifacts[source_path] = []
 
