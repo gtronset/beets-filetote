@@ -1,5 +1,5 @@
 from collections.abc import Callable
-from typing import Any
+from typing import Any, Pattern
 
 from .dbcore import Database
 from .dbcore.db import Model
@@ -11,7 +11,7 @@ class Library(Database):
     path: bytes
     directory: bytes
     path_formats: list[tuple[str, str]]
-    replacements: list[str] | None
+    replacements: list[tuple[Pattern[str], str]] | None
     def __init__(
         self,
         path: bytes,

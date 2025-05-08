@@ -1,6 +1,7 @@
 """Tests file-naming for the beets-filetote plugin."""
 
 import os
+import re
 
 from typing import List, Optional
 
@@ -126,4 +127,30 @@ class FiletoteFilename(FiletoteTestCase):
 
         self.assert_in_lib_dir(
             b"Tag Artist", b"Tag Album_", b"Tag Artist - Tag Album_.file"
+        )
+
+    def test_rename_works_with_custom_replace(self) -> None:
+        """Tests that custom "replace" settings work as expected."""
+        config["paths"]["ext:file"] = "$albumpath/$title"
+        config["replace"][r"\?"] = "\uff1f"
+
+        self.lib.replacements = [
+            (re.compile(r"\:"), "_"),
+            (re.compile(r"\?"), "\uff1f"),
+        ]
+
+        self.create_file(self.album_path, beets.util.bytestring_path("artifact.file"))
+        medium = self._create_medium(
+            os.path.join(self.album_path, b"track_1.mp3"),
+            self.rsrc_mp3,
+            MediaMeta(title="Tag: Title?"),
+        )
+        self.import_media = [medium]
+
+        self._run_cli_command("import")
+
+        self.assert_in_lib_dir(
+            b"Tag Artist",
+            b"Tag Album",
+            beets.util.bytestring_path("Tag_ Title\uff1f.file"),
         )

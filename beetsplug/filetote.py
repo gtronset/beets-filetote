@@ -322,7 +322,7 @@ class FiletotePlugin(BeetsPlugin):
         )
 
         album_path: Optional[str] = mapping_formatted.get("albumpath")
-        # Sanity check for mypy in cases where beets_lib is None
+        # Sanity check for mypy in cases where album_path is None
         assert album_path is not None
 
         if not selected_path_query:
@@ -333,7 +333,7 @@ class FiletotePlugin(BeetsPlugin):
             )
             return util.bytestring_path(artifact_path)
 
-        # Sanity check for mypy in cases where beets_lib is None
+        # Sanity check for mypy in cases where selected_path_format is None
         assert selected_path_format is not None
         subpath_tmpl: Template = self._templatize_path_format(selected_path_format)
 
@@ -344,9 +344,14 @@ class FiletotePlugin(BeetsPlugin):
             + artifact_ext
         )
 
+        # Sanity check for mypy in cases where beets_lib is None
+        assert self.filetote.session.beets_lib is not None
+
+        replacements = self.filetote.session.beets_lib.replacements
+
         # Sanitize filename
         artifact_filename_sanitized: str = util.sanitize_path(
-            os.path.basename(artifact_path)
+            os.path.basename(artifact_path), replacements
         )
         dirname: str = os.path.dirname(artifact_path)
         artifact_path_sanitized: str = os.path.join(
@@ -743,7 +748,10 @@ class FiletotePlugin(BeetsPlugin):
             )
 
             artifact_dest: bytes = self._get_artifact_destination(
-                artifact_filename, mapping, artifact.paired, pattern_category
+                artifact_filename,
+                mapping,
+                artifact.paired,
+                pattern_category,
             )
 
             if self._artifact_exists_in_dest(

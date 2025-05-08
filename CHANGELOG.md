@@ -16,6 +16,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Move tox config to pyproject.toml & add CONTRIBUTING <https://github.com/gtronset/beets-filetote/pull/175>
 - Allow contents write permission in release workflow <https://github.com/gtronset/beets-filetote/pull/176>
 
+### Fixed
+
+- Bugfix: Apply `replace` settings when renaming artifacts <https://github.com/gtronset/beets-filetote/pull/177>
+
 ## [1.0.0] - 2025-05-06
 
 ### Changed
