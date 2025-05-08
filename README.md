@@ -125,10 +125,10 @@ also means that the album folder is flattened and any subdirectory is removed by
 default. To preserve subdirectories, see `$subpath` usage [here](#subpath-renaming-example).
 
 Configuration for renaming works in much the same way as beets [Path Formats], including
-the standard metadata values provided by beets. Filetote provides the below new path
-queries, which each takes a single corresponding value. These can be defined in either
-the top-level `paths` section of Beet's config or in the `paths` section of Filetote's
-config. Both of the following are equivalent:
+the standard metadata values provided by beets along with `replace` settings. Filetote
+provides the below new path queries, which each takes a single corresponding value.
+These can be defined in either the top-level `paths` section of Beet's config or in the
+`paths` section of Filetote's config. Both of the following are equivalent:
 
 ```yaml
 paths:
