@@ -14,6 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Update Readme to fix link <https://github.com/gtronset/beets-filetote/pull/168>
 - Migrate to Ruff for Code Formatting and Linting <https://github.com/gtronset/beets-filetote/pull/174>
 - Move tox config to pyproject.toml & add CONTRIBUTING <https://github.com/gtronset/beets-filetote/pull/175>
+- Allow contents write permission in release workflow <https://github.com/gtronset/beets-filetote/pull/176>
 
 ## [1.0.0] - 2025-05-06
 
