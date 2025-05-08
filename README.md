@@ -637,70 +637,12 @@ filetote:
 
 Both remain optional and both default to `false`.
 
-## Development
+## Development & Contributing
 
-The development version can be installed with [Poetry], a Python dependency manager
-that provides dependency isolation, reproducibility, and streamlined packaging to PyPI.
+Thank you for considering contributing to Filetote! Information on how you can
+contribute, develop, or help can be found in [CONTRIBUTING.md].
 
-Testing and linting is performed with [Tox].
-
-[Poetry]: https://python-poetry.org/
-[Tox]: https://tox.wiki/
-
-Filetote currently supports Python 3.8+, which aligns with the most recent version of
-beets (`v2.2.0`).
-
-**1. Install Poetry & Tox:**
-
-```sh
-python3 -m pip install poetry tox
-```
-
-**2. Clone the repository and install the plugin:**
-
-```sh
-git clone https://github.com/gtronset/beets-filetote.git
-cd beets-filetote
-poetry install
-```
-
-**3. Update the config.yaml to utilize the plugin:**
-
-```yaml
-pluginpath:
-  - /path/to.../beets-filetote/beetsplug
-```
-
-**4. Run or test with Poetry (and Tox):**
-
-Run beets with the following to locally develop:
-
-```sh
-poetry run beet
-```
-
-Testing can be run with Tox, ex.:
-
-```sh
-poetry run tox -e py313
-```
-
-For other linting environments, see `tox.ini`. Ex: `lint` (courtesy of `ruff`):
-
-```sh
-poetry run tox -e lint
-```
-
-Ex: `format` (courtesy of `ruff`):
-
-```sh
-poetry run tox -e format
-```
-
-**Docker:**
-
-A Docker Compose configuration is available for running the plugin in a controlled
-environment. Running the `compose.yaml` file for details.
+[CONTRIBUTING.md]: CONTRIBUTING.md
 
 ## Thanks
 
@@ -715,7 +657,7 @@ Please report any issues you may have and feel free to contribute.
 
 ## License
 
-Copyright (c) 2022 Gavin Tronset
+Copyright (c) 2022-2025 Gavin Tronset
 
 Licensed under the [MIT license][license link].
 

@@ -1,0 +1,81 @@
+# Development & Contributing
+
+The development version can be installed with [Poetry], a Python dependency manager
+that provides dependency isolation, reproducibility, and streamlined packaging to PyPI.
+Filetote currently support Poetry `v1.8`.
+
+Testing and linting is performed with [Tox] (`v4.12`+).
+
+[Poetry]: https://python-poetry.org/
+[Tox]: https://tox.wiki/
+
+It is also highly recommended to [install `pre-commit`], which will help automatically
+lint before committing.
+
+Filetote currently supports Python `3.8`+, which aligns with the most recent version of
+beets (`v2.2.0`).
+
+For general information of working with Beets plugins, see the Beets documumentation
+[For Developers]
+
+[install `pre-commit`]: https://pre-commit.com/#install
+[For Developers]: https://beets.readthedocs.io/en/stable/dev/
+
+**1. Install Poetry & Tox:**
+
+```sh
+python3 -m pip install poetry tox
+```
+
+**2. Clone the repository and install the plugin:**
+
+```sh
+git clone https://github.com/gtronset/beets-filetote.git
+cd beets-filetote
+poetry install
+```
+
+**3. Update the config.yaml to utilize the plugin:**
+
+```yaml
+pluginpath:
+  - /path/to.../beets-filetote/beetsplug
+```
+
+**4. Run or test with Poetry (and Tox):**
+
+Run beets with the following to locally develop:
+
+```sh
+poetry run beet
+```
+
+Testing can be run with Tox, ex.:
+
+```sh
+poetry run tox -e 3.13
+```
+
+For other linting environments, see `tox.ini`. Ex: `lint` (courtesy of `ruff`):
+
+```sh
+poetry run tox -e lint
+```
+
+Ex: `format` (courtesy of `ruff`):
+
+```sh
+poetry run tox -e format
+```
+
+Running `poetry run` before every command can be tedious. Instead, you can activate the
+virtual environment in your shell with:
+
+```sh
+poetry shell
+```
+
+**Docker:**
+
+A Docker Compose configuration is available for running the plugin in a controlled
+environment. Running the `compose.yaml` file for details.
