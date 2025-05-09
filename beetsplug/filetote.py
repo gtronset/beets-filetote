@@ -152,14 +152,16 @@ class FiletotePlugin(BeetsPlugin):
                 if beets_path_format[0].startswith(query):
                     path_formats[beets_path_format[0]] = beets_path_format[1]
 
-                if beets_path_format[0] == "ext:.*":
-                    raise AssertionError(
-                        "Error: path query `ext:.*` is not valid. If you are trying to"
-                        " set a default/fallback, please user `filetote:default`"
-                        " instead."
-                    )
-
         path_formats.update(self.filetote.paths)
+
+        # Validate all collected paths
+        for path in path_formats:
+            if path == "ext:.*":
+                raise AssertionError(
+                    "Error: path query `ext:.*` is not valid. If you are trying to"
+                    " set a default/fallback, please user `filetote:default`"
+                    " instead."
+                )
 
         return path_formats
 
@@ -404,12 +406,6 @@ class FiletotePlugin(BeetsPlugin):
         """Ensures that the path format is a Beets Template."""
         templatized_paths: Dict[str, Template] = {}
         for path_key, path_value in paths.items():
-            if path_key == "ext:.*":
-                raise AssertionError(
-                    "Error: path query `ext:.*` is not valid. If you are trying to"
-                    " set a default/fallback, please user `filetote:default`"
-                    " instead."
-                )
             templatized_paths[path_key] = self._templatize_path_format(path_value)
         return templatized_paths
 
