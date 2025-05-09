@@ -10,7 +10,7 @@ import beets
 
 from beets import config
 
-from tests.helper import FiletoteTestCase
+from tests.helper import FiletoteTestCase, capture_log
 
 
 class FiletoteExcludeTest(FiletoteTestCase):
@@ -42,7 +42,8 @@ class FiletoteExcludeTest(FiletoteTestCase):
             self.album_path, beets.util.bytestring_path("nottobemoved.lrc")
         )
 
-        self._run_cli_command("import")
+        with capture_log() as logs:
+            self._run_cli_command("import")
 
         self.assert_in_import_dir(
             b"the_album",
@@ -55,6 +56,17 @@ class FiletoteExcludeTest(FiletoteTestCase):
             b"nottobemoved.lrc",
         )
         self.assert_not_in_lib_dir(b"Tag Artist", b"Tag Album", b"nottobemoved.lrc")
+
+        # Ensure the deprecation warning is present
+        logs = [line for line in logs if line.startswith("filetote:")]
+        assert logs == [
+            (
+                "filetote: Depreaction warning: The `exclude` plugin should now use the"
+                " explicit settings of `filenames`, `extensions`, and/or `patterns`."
+                " See the `exclude` documentation for more details:"
+                " https://github.com/gtronset/beets-filetote#excluding-files"
+            )
+        ]
 
     def test_exclude_dict_with_filenames_extensions(self) -> None:
         """Tests to ensure the `exclude` config registers dictionary of `filenames`

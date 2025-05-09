@@ -60,6 +60,8 @@ class FiletoteExcludeData:
     """Configuration settings for Filetote Exclude. Accepts either a sequence/list of
     strings (type `List[str]`, for backwards compatibility) or a dict with `filenames`,
     `extensions`, and/or `patterns` specified.
+
+    `filenames` is intentionally placed first to ensure backwards compatibility.
     """
 
     filenames: OptionalStrSeq = DEFAULT_EMPTY

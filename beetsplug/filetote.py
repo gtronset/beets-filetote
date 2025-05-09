@@ -59,6 +59,13 @@ class FiletotePlugin(BeetsPlugin):
 
         if isinstance(self.config["exclude"].get(), str):
             self.filetote.adjust("exclude", self.config["exclude"].as_str_seq())
+
+            self._log.warning(
+                "Depreaction warning: The `exclude` plugin should now use the explicit"
+                " settings of `filenames`, `extensions`, and/or `patterns`. See the"
+                " `exclude` documentation for more details:"
+                " https://github.com/gtronset/beets-filetote#excluding-files"
+            )
         else:
             self.filetote.adjust("exclude", self.config["exclude"].get(dict))
 
