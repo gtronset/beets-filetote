@@ -4,6 +4,8 @@ import logging
 
 from typing import List, Optional
 
+import pytest
+
 from beets import config
 
 from tests.helper import FiletoteTestCase
@@ -246,3 +248,19 @@ class FiletoteRenameTest(FiletoteTestCase):
 
         self.assert_not_in_import_dir(b"the_album", b"artifact1.file")
         self.assert_not_in_import_dir(b"the_album", b"artifact2.file")
+
+    def test_rename_wildcard_extension_halts(self) -> None:
+        """Ensure that specifying `ext:.*` extensions results in an exception."""
+        config["filetote"]["extensions"] = ".file .nfo"
+        config["paths"]["ext:.*"] = "$albumpath/$old_filename"
+        config["import"]["move"] = True
+
+        with pytest.raises(AssertionError) as assert_test_message:
+            self._run_cli_command("import")
+
+        assertion_msg: str = (
+            "Error: path query `ext:.*` is not valid. If you are"
+            " trying to set a default/fallback, please user `filetote:default` instead."
+        )
+
+        assert str(assert_test_message.value) == assertion_msg

@@ -152,6 +152,13 @@ class FiletotePlugin(BeetsPlugin):
                 if beets_path_format[0].startswith(query):
                     path_formats[beets_path_format[0]] = beets_path_format[1]
 
+                if beets_path_format[0] == "ext:.*":
+                    raise AssertionError(
+                        "Error: path query `ext:.*` is not valid. If you are trying to"
+                        " set a default/fallback, please user `filetote:default`"
+                        " instead."
+                    )
+
         path_formats.update(self.filetote.paths)
 
         return path_formats
