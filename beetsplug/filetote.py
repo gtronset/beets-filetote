@@ -604,7 +604,7 @@ class FiletotePlugin(BeetsPlugin):
         match_category: Optional[str] = None,
     ) -> Tuple[bool, Optional[str]]:
         """Check if the file is in the defined patterns."""
-        pattern_definitions: List[tuple[str, List[str]]] = list(patterns_dict.items())
+        pattern_definitions: List[Tuple[str, List[str]]] = list(patterns_dict.items())
 
         if match_category:
             pattern_definitions = [
