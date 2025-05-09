@@ -64,7 +64,7 @@ class FiletoteExcludeData:
 
     filenames: OptionalStrSeq = DEFAULT_EMPTY
     extensions: OptionalStrSeq = DEFAULT_EMPTY
-    # patterns: Dict[str, List[str]] = field(default_factory=dict)
+    patterns: Dict[str, List[str]] = field(default_factory=dict)
 
     def __post_init__(self) -> None:
         """Validates types upon initialization."""

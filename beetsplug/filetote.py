@@ -4,7 +4,16 @@ import filecmp
 import fnmatch
 import os
 
-from typing import TYPE_CHECKING, Any, Callable, Dict, List, Optional, Tuple, Union
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    Callable,
+    Dict,
+    List,
+    Optional,
+    Tuple,
+    Union,
+)
 
 from beets import config, util
 from beets.library import DefaultTemplateFunctions
@@ -582,12 +591,13 @@ class FiletotePlugin(BeetsPlugin):
         )
 
     def _is_pattern_match(
-        self, artifact_relpath: bytes, match_category: Optional[str] = None
+        self,
+        artifact_relpath: bytes,
+        patterns_dict: Dict[str, List[str]],
+        match_category: Optional[str] = None,
     ) -> Tuple[bool, Optional[str]]:
         """Check if the file is in the defined patterns."""
-        pattern_definitions: List[Tuple[str, List[str]]] = list(
-            self.filetote.patterns.items()
-        )
+        pattern_definitions: List[tuple[str, List[str]]] = list(patterns_dict.items())
 
         if match_category:
             pattern_definitions = [
@@ -631,8 +641,15 @@ class FiletotePlugin(BeetsPlugin):
         if not os.path.exists(artifact_source):
             return (True, None)
 
+        relpath: bytes = os.path.relpath(artifact_source, start=source_path)
+
         artifact_file_ext: str = util.displayable_path(
             os.path.splitext(artifact_filename)[1]
+        )
+
+        is_exclude_pattern_match: bool
+        is_exclude_pattern_match, _category = self._is_pattern_match(
+            artifact_relpath=relpath, patterns_dict=self.filetote.exclude.patterns
         )
 
         # Skip if filename is explicitly in `exclude`
@@ -640,6 +657,7 @@ class FiletotePlugin(BeetsPlugin):
             util.displayable_path(artifact_file_ext) in self.filetote.exclude.extensions
             or util.displayable_path(artifact_filename)
             in self.filetote.exclude.filenames
+            or is_exclude_pattern_match
         ):
             return (True, None)
 
@@ -649,11 +667,11 @@ class FiletotePlugin(BeetsPlugin):
         # - non-paired files
         # - artifacts not matching patterns
 
-        relpath: bytes = os.path.relpath(artifact_source, start=source_path)
-
         is_pattern_match: bool
         category: Optional[str]
-        is_pattern_match, category = self._is_pattern_match(artifact_relpath=relpath)
+        is_pattern_match, category = self._is_pattern_match(
+            artifact_relpath=relpath, patterns_dict=self.filetote.patterns
+        )
 
         if (
             ".*" not in self.filetote.extensions
