@@ -33,7 +33,7 @@ You will need to enable the plugin in beets' `config.yaml`:
 plugins: filetote
 ```
 
-It can copy files by file extension:
+It can copy files by file [extension](#extension-extensions):
 
 ```yaml
 filetote:
@@ -47,14 +47,14 @@ filetote:
   extensions: .*
 ```
 
-Or copy files by filename:
+Or copy files by [filename](#filename-filenames):
 
 ```yaml
 filetote:
   filenames: song.log
 ```
 
-Or match based on a "pattern" ([glob pattern]):
+Or match based on a ["pattern"](#pattern-patterns) (via [glob pattern]):
 
 ```yaml
 filetote:
@@ -63,8 +63,8 @@ filetote:
       - "[aA]rtwork/"
 ```
 
-It can look for and target "pairs" (files having the same name as a matching or "paired"
-media item/track):
+It can look for and target ["pairs"](#pairing-pairing) (files having the same name as a matching
+or "paired" media item/track):
 
 ```yaml
 filetote:
@@ -72,8 +72,8 @@ filetote:
     enabled: true
 ```
 
-You can specify pairing to happen to certain extensions, and even target/include only
-paired files:
+You can specify [pairing to happen to certain extensions](#pairing-example-configuration),
+and even target/include only paired files:
 
 ```yaml
 filetote:
@@ -83,11 +83,12 @@ filetote:
     extensions: ".lrc"
 ```
 
-It can also exclude files by name:
+It can also [exclude files](#excluding-files-exclude) that are otherwise matched:
 
 ```yaml
 filetote:
-  exclude: song_lyrics.nfo
+  exclude:
+    filenames: song_lyrics.nfo
 ```
 
 And print what got left:
@@ -97,9 +98,6 @@ filetote:
   print_ignored: true
 ```
 
-`exclude`-d files take precedence over other matching, meaning exclude will override
-other matches by either `extensions` or `filenames`.
-
 [glob pattern]: https://docs.python.org/3/library/glob.html#module-glob
 
 ### File Handling & Renaming
@@ -107,11 +105,11 @@ other matches by either `extensions` or `filenames`.
 In order to collect extra files and artifacts, Filetote needs to be told which types of
 files it should care about. This can be done using the following:
 
-- Extensions (`ext:`): Specify individual extensions like `.cue` or `.log`, or catch all
-  non-music files with `.*`.
-- Filenames (`filename:`): Match specific filenames like `cover.jpg` or organize artwork
+- Extensions (`extensions:`): Specify individual extensions like `.cue` or `.log`, or
+  use a catch-all for all non-music files with `.*`.
+- Filenames (`filenames:`): Match specific filenames like `cover.jpg` or organize artwork
   with `[aA]rtwork/*`.
-- Patterns (`pattern:`): Use flexible glob patterns for more control, like matching all
+- Patterns (`patterns:`): Use flexible glob patterns for more control, like matching all
   logs in a subfolder: `CD1/*.log`.
 - Pairing: Move files with the same name as imported music items, like `.lrc` lyrics or
   album logs.
@@ -174,22 +172,25 @@ The fields available include [the standard metadata values] of the imported item
   extra/artifact file resides. For use when it is desirable to preserve the directory
   hierarchy in the albums. This respects the original capitalization of directory names.
   Defaults to an empty string when no subdirectories exist.
-    - **Example:** If an extra file is located in a subdirectory named "Extras" under
-    the album path, `$subpath` would be set to "Extras/" (with the same casing).
+    - **Example:** If an extra file is located in a subdirectory named `Extras` under
+    the album path, `$subpath` would be set to `Extras/` (with the same casing).
 - `$old_filename`: the filename of the extra/artifact file before its renamed.
 - `$medianame_old`: the filename of the item/track triggering it, _before_ it's renamed.
 - `$medianame_new`: the filename of the item/track triggering it, _after_ it's renamed.
 
+> [!WARNING]
+> The fields mentioned above are not usable within other plugins such as `inline`.
+> That said, `inline` and other plugins should be fine otherwise.
+
 The full set of [built in functions] are also supported, with the exception of
 `%aunique` - which will return an empty string.
 
-Note that the fields mentioned above are not usable within other plugins like `inline`.
-But `inline` and other plugins should be fine otherwise.
-
-> **Important Note:** if the rename is set and there are multiple files that qualify,
-> only the first will be added to the library (new folder); other files that
-> subsequently match will not be saved/renamed. To work around this, `$old_filename`
-> can be used to help with adding uniqueness to the name.
+> [!IMPORTANT]
+> If there are rename rules set that result with multiple files that will have the
+> exact same filename, only the first file will be added to the library; other files
+> that subsequently match will not be saved/renamed. To work around this,
+> `$old_filename` can be used in conjunction with other fields to help with adding
+> uniqueness to each name.
 
 [the standard metadata values]: https://beets.readthedocs.io/en/stable/reference/pathformat.html#available-values
 [built in functions]: http://beets.readthedocs.org/en/stable/reference/pathformat.html#functions
@@ -205,15 +206,16 @@ other `.log` files in other subdirectories or in the root of the album will be m
 accordingly. If a more targeted approach is needed, this can be combined with the
 `pattern:` query.
 
-**Note:** `$subpath` automatically adds in path separators including the end one if there
-are subdirectories.
+> [!NOTE]
+> `$subpath` automatically adds in path separators, including the end one if there are
+> subdirectories.
 
 ```yaml
 paths:
   ext:.log: $albumpath/$subpath$artist - $album
 ```
 
-#### Extension (`ext:`)
+#### Extension (`extensions:`)
 
 Filename can match on the extension of the file, in a space-delimited list (i.e., a
 string sequence). Use `.*` to match all file extensions.
@@ -225,7 +227,7 @@ across all subfolders.
 
 ```yaml
 filetote:
-  ext: .lrc .log
+  extensions: .lrc .log
 ```
 
 ##### Extension Renaming Example
@@ -239,10 +241,10 @@ paths:
   ext:.log: $albumpath/$artist - $album
 ```
 
-#### Filename (`filename:`)
+#### Filename (`filenames:`)
 
 Filetote can match on the actual name (including extension) of the file, in a
-space-delimited list (string sequence). `filename:` will match across any subdirectories,
+space-delimited list (string sequence). `filenames:` will match across any subdirectories,
 meaning targeting a filename in a specific subdirectory will not work (this functionality
 _can_ be achieved using a `pattern`, however).
 
@@ -268,15 +270,15 @@ filetote:
   filenames: cover.jpg artifact.nfo
 ```
 
-#### Pattern (`pattern:`)
+#### Pattern (`patterns:`)
 
 Filetote can match on a given _pattern_ as specified using [glob patterns]. This allows
 for more specific matching, like grabbing only PNG artwork files. Paths in the pattern
 are relative to the root of the importing album. Hence, if there are subdirectories in
 the album's folder (for multidisc setups, for instance, e.g., `albumpath/CD1`), the
 album's path would be the base/root for the pattern (ex: `CD1/*.jpg`). Patterns will
-work with or without the proceeding slash (`/`). Note: Windows users will need to
-use the appropriate slash (`\`).
+work with or without the proceeding slash (`/`) (Windows users will need to
+use the appropriate slash `\`).
 
 Patterns specifying folders with a trailing slash will (ex: `albumpath/`) will match
 every file in that subdirectory irrespective of name or extension (it is equivalent to
@@ -318,7 +320,7 @@ filetote:
       - "[aA]rtwork/"
 ```
 
-#### Pairing
+#### Pairing (`pairing:`)
 
 Filetote can specially target related files like lyrics or logs with the same name as
 music files ("paired" files). This keeps related files together, making your library
@@ -326,7 +328,8 @@ even more organized. When enabled, it will match and move those files having the
 name as a matching music file. Pairing can be configured to target only certain
 extensions, such as `.lrc`.
 
-**Note:** Pairing takes precedence over other Filetote rules like filename or patterns.
+> [!NOTE]
+> Pairing takes precedence over other Filetote rules like filename or patterns.
 
 ##### Pairing Example Configuration
 
@@ -364,6 +367,57 @@ the file remains paired even after moving. E.g.:
 paths:
   paired_ext:.lrc: $albumpath/$medianame_new
 ```
+
+### Excluding Files (`exclude:`)
+
+Certain artifact files can be excluded/ignored by specifying settings under the
+`exclude` via `filenames`, `extensions`, and/or `patterns`. For example, to always
+exclude files named either `song_lyrics.nfo` or `album_description.nfo`, you can
+specify:
+
+```yaml
+filetote:
+  exclude:
+    filenames: song_lyrics.nfo album_description.nfo
+```
+
+Likewise, to more broadly exclude extensions `.nfo` and `.lrc`, specify:
+
+```yaml
+filetote:
+  exclude:
+    extensions: .nfo .lrc
+```
+
+Likewise, patterns can be used to perform more specialized exclusons, such as excluding
+all files in a subdirectory. For example, to exclude all artifact files in the
+subdirectories `artwork` and/or `Artwork`:
+
+```yaml
+filetote:
+  exclude:
+    patterns:
+      artworkdir:
+        - "[aA]rtwork/"
+```
+
+`exclude` patterns follow the same glob rules specified the [higher-level `patterns` config](#pattern-patterns).
+
+These can be combined to exclude any combination. For example, you can exclude by
+filename and pattern:
+
+```yaml
+filetote:
+  exclude:
+    filenames: song_lyrics.nfo
+    patterns:
+      artworkdir:
+        - "[aA]rtwork/"
+```
+
+> [!IMPORTANT]
+> `exclude`-d files take precedence over other matching, meaning exclude will override
+other matches by either `extensions` or `filenames`.
 
 ### Import Operations
 
@@ -412,8 +466,8 @@ paths:
   filename:cover.jpg: $albumpath/cover
 
 filetote:
-  extensions: .cue .log .jpg
-  filename: "cover.jpg"
+  extensions: .cue .log .png
+  filenames: cover.jpg
   pairing:
     enabled: true
     extensions: ".lrc"
@@ -430,14 +484,16 @@ paths:
   singleton: Singletons/$artist - $title
 
 filetote:
-  extensions: .cue
+  extensions: .txt .cue
   patterns:
     artworkdir:
       - "[sS]cans/"
       - "[aA]rtwork/"
+  exclude:
+    filenames: "copyright.txt"
   pairing:
     enabled: true
-    extensions: ".lrc"
+    extensions: .lrc
   paths:
     pattern:artworkdir: $albumpath/artwork
     paired_ext:.lrc: $albumpath/$medianame_old
@@ -591,8 +647,8 @@ Path definitions can also be specified in the way that `extrafiles` does, e.g.:
 filetote:
   patterns:
     artworkdir:
-      - '[sS]cans/'
-      - '[aA]rtwork/'
+      - "[sS]cans/"
+      - "[aA]rtwork/"
   paths:
     artworkdir: $albumpath/artwork
 ```
@@ -601,6 +657,23 @@ filetote:
 
 Certain versions require changes to configurations as upgrades occur. Please see below
 for specific steps for each version.
+
+### `1.0.2`
+
+#### Config format for `exclude` now expects explicit `filenames`, `extensions`, and/or `patterns`
+
+As of version `1.0.2`, Filetote now emits a deprecation warning for configurations
+setting `exclude` to a simple list of filenames. Instead, Filetote now expects explici
+`filenames`, `extensions`, and/or `patterns`, e.g.:
+
+```yaml
+filetote:
+  exclude:
+    filenames: song_lyrics.nfo album_description.nfo
+```
+
+For now, the old configuration style is still supported but logged as depreacated. In a
+future version this setting will no longer be backwards compatible.
 
 ### `0.4.0`
 

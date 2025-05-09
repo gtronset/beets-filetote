@@ -26,7 +26,7 @@ DEFAULT_EMPTY: Literal[""] = ""
 
 @dataclass
 class FiletoteArtifact:
-    """An individual FileTote Artifact item for processing."""
+    """An individual Filetote Artifact item for processing."""
 
     path: bytes
     paired: bool
@@ -34,7 +34,7 @@ class FiletoteArtifact:
 
 @dataclass
 class FiletoteArtifactCollection:
-    """An individual FileTote Item collection for processing."""
+    """An individual Filetote Item collection for processing."""
 
     artifacts: List[FiletoteArtifact]
     mapping: FiletoteMappingModel
@@ -44,7 +44,7 @@ class FiletoteArtifactCollection:
 
 @dataclass
 class FiletoteSessionData:
-    """Configuration settings for FileTote Item."""
+    """Configuration settings for Filetote Item."""
 
     operation: Optional[MoveOperation] = None
     beets_lib: Optional[Library] = None
@@ -56,8 +56,48 @@ class FiletoteSessionData:
 
 
 @dataclass
+class FiletoteExcludeData:
+    """Configuration settings for Filetote Exclude. Accepts either a sequence/list of
+    strings (type `List[str]`, for backwards compatibility) or a dict with `filenames`,
+    `extensions`, and/or `patterns` specified.
+
+    `filenames` is intentionally placed first to ensure backwards compatibility.
+    """
+
+    filenames: OptionalStrSeq = DEFAULT_EMPTY
+    extensions: OptionalStrSeq = DEFAULT_EMPTY
+    patterns: Dict[str, List[str]] = field(default_factory=dict)
+
+    def __post_init__(self) -> None:
+        """Validates types upon initialization."""
+        self._validate_types()
+
+    def _validate_types(self) -> None:
+        """Validate types for Filetote Pairing settings."""
+        for field_ in fields(self):
+            field_value = getattr(self, field_.name)
+            # field_type = field_.type
+
+            if field_.name in {
+                "filenames",
+                "extensions",
+            }:
+                _validate_types_str_eq(
+                    ["exclude", field_.name], field_value, DEFAULT_EMPTY
+                )
+
+            if field_.name == "patterns":
+                _validate_types_dict(
+                    ["exclude", field_.name],
+                    field_value,
+                    field_type=List,
+                    list_subtype=str,
+                )
+
+
+@dataclass
 class FiletotePairingData:
-    """Configuration settings for FileTote Pairing."""
+    """Configuration settings for Filetote Pairing."""
 
     enabled: bool = False
     pairing_only: bool = False
@@ -68,7 +108,7 @@ class FiletotePairingData:
         self._validate_types()
 
     def _validate_types(self) -> None:
-        """Validate types for FileTote Pairing settings."""
+        """Validate types for Filetote Pairing settings."""
         for field_ in fields(self):
             field_value = getattr(self, field_.name)
             field_type = field_.type
@@ -89,13 +129,13 @@ class FiletotePairingData:
 
 @dataclass
 class FiletoteConfig:
-    """Configuration settings for FileTote Item."""
+    """Configuration settings for Filetote Item."""
 
     session: FiletoteSessionData = field(default_factory=FiletoteSessionData)
     extensions: OptionalStrSeq = DEFAULT_EMPTY
     filenames: OptionalStrSeq = DEFAULT_EMPTY
     patterns: Dict[str, List[str]] = field(default_factory=dict)
-    exclude: OptionalStrSeq = DEFAULT_EMPTY
+    exclude: FiletoteExcludeData = field(default_factory=FiletoteExcludeData)
     pairing: FiletotePairingData = field(default_factory=FiletotePairingData)
     paths: Dict[str, Template] = field(default_factory=dict)
     print_ignored: bool = False
@@ -110,9 +150,15 @@ class FiletoteConfig:
 
     def adjust(self, attr: str, value: Any) -> None:
         """Adjust provided attribute of class with provided value. For the `pairing`
-        property, use the `FiletotePairingData` dataclass and expand the incoming dict
-        to arguments.
+        and `exclude` properties, use the corresponding dataclass and expand the
+        incoming value to the proper to arguments.
         """
+        if attr == "exclude":
+            if isinstance(value, list):
+                value = FiletoteExcludeData(value)
+            else:
+                value = FiletoteExcludeData(**value)
+
         if attr == "pairing":
             value = FiletotePairingData(**value)
 
@@ -122,7 +168,7 @@ class FiletoteConfig:
     def _validate_types(
         self, target_field: Optional[str] = None, target_value: Any = None
     ) -> None:
-        """Validate types for FileTote Config settings."""
+        """Validate types for Filetote Config settings."""
         for field_ in fields(self):
             field_value = target_value or getattr(self, field_.name)
             field_type = field_.type
@@ -131,12 +177,13 @@ class FiletoteConfig:
                 continue
 
             if field_.name in {
+                "exclude",
                 "session",
                 "pairing",
             }:
                 _validate_types_instance([field_.name], field_value, field_type)
 
-            if field_.name in {"extensions", "filenames", "exclude"}:
+            if field_.name in {"extensions", "filenames"}:
                 _validate_types_str_eq([field_.name], field_value, DEFAULT_EMPTY)
 
             if field_.name == "patterns":
