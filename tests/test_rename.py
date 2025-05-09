@@ -264,3 +264,36 @@ class FiletoteRenameTest(FiletoteTestCase):
         )
 
         assert str(assert_test_message.value) == assertion_msg
+
+    def test_rename_filetote_paths_wildcard_extension_halts(self) -> None:
+        """Ensure that specifying `ext:.*` extensions results in an exception."""
+        config["filetote"]["extensions"] = ".file .nfo"
+        config["filetote"]["paths"]["ext:.*"] = "$albumpath/$old_filename"
+        config["import"]["move"] = True
+
+        with pytest.raises(AssertionError) as assert_test_message:
+            self._run_cli_command("import")
+
+        assertion_msg: str = (
+            "Error: path query `ext:.*` is not valid. If you are"
+            " trying to set a default/fallback, please user `filetote:default` instead."
+        )
+
+        assert str(assert_test_message.value) == assertion_msg
+
+    # def test_rename_filetote_default(self) -> None:
+    #     """Ensure that specifying `ext:.*` extensions results in an exception."""
+    #     config["filetote"]["extensions"] = ".file .nfo"
+    #     config["paths"]["filetote:default"] = "$albumpath/$old_filename"
+    #     config["import"]["move"] = True
+
+    #     with pytest.raises(AssertionError) as assert_test_message:
+    #         self._run_cli_command("import")
+
+    #     assertion_msg: str = (
+    #         "Error: path query `ext:.*` is not valid. If you are"
+    #         " trying to set a default/fallback, please user `filetote:default`"
+    #         " instead."
+    #     )
+
+    #     assert str(assert_test_message.value) == assertion_msg
