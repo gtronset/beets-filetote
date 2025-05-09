@@ -55,3 +55,38 @@ class FiletoteExcludeTest(FiletoteTestCase):
             b"nottobecopied.lrc",
         )
         self.assert_not_in_lib_dir(b"Tag Artist", b"Tag Album", b"nottobecopied.lrc")
+
+    def test_exclude_dict_of_options(self) -> None:
+        """Tests to ensure the `exclude` config registers as a strseg (string
+        sequence) of filenames.
+        """
+        config["filetote"]["extensions"] = ".*"
+        config["paths"]["ext:.*"] = "$albumpath/$artist - $old_filename"
+        # config["filetote"]["exclude"] = "nottobecopied.file nottobecopied.lrc"
+
+        config["filetote"]["exclude"] = {
+            "filename": "nottobecopied.file",
+            "extension": ".lrc",
+        }
+
+        self.create_file(
+            self.album_path, beets.util.bytestring_path("nottobecopied.file")
+        )
+
+        self.create_file(
+            self.album_path, beets.util.bytestring_path("nottobecopied.lrc")
+        )
+
+        self._run_cli_command("import")
+
+        # self.assert_in_import_dir(
+        #     b"the_album",
+        #     b"nottobecopied.file",
+        # )
+        # self.assert_not_in_lib_dir(b"Tag Artist", b"Tag Album", b"nottobecopied.file")
+
+        # self.assert_in_import_dir(
+        #     b"the_album",
+        #     b"nottobecopied.lrc",
+        # )
+        # self.assert_not_in_lib_dir(b"Tag Artist", b"Tag Album", b"nottobecopied.lrc")
