@@ -28,12 +28,54 @@ class FiletoteExcludeTest(FiletoteTestCase):
 
         self._setup_import_session(move=True, autotag=False)
 
-    def test_exclude_strseq_of_filenames(self) -> None:
+    def test_exclude_strseq_of_filenames_by_string(self) -> None:
         """Tests to ensure the `exclude` config registers as a strseq (string
         sequence) of filenames.
         """
         config["filetote"]["extensions"] = ".file .lrc"
         config["filetote"]["exclude"] = "nottobemoved.file nottobemoved.lrc"
+        config["paths"]["ext:file"] = "$albumpath/$old_filename"
+
+        self.create_file(
+            self.album_path, beets.util.bytestring_path("nottobemoved.file")
+        )
+
+        self.create_file(
+            self.album_path, beets.util.bytestring_path("nottobemoved.lrc")
+        )
+
+        with capture_log() as logs:
+            self._run_cli_command("import")
+
+        self.assert_in_import_dir(
+            b"the_album",
+            b"nottobemoved.file",
+        )
+        self.assert_not_in_lib_dir(b"Tag Artist", b"Tag Album", b"nottobemoved.file")
+
+        self.assert_in_import_dir(
+            b"the_album",
+            b"nottobemoved.lrc",
+        )
+        self.assert_not_in_lib_dir(b"Tag Artist", b"Tag Album", b"nottobemoved.lrc")
+
+        # Ensure the deprecation warning is present
+        logs = [line for line in logs if line.startswith("filetote:")]
+        assert logs == [
+            (
+                "filetote: Depreaction warning: The `exclude` plugin should now use the"
+                " explicit settings of `filenames`, `extensions`, and/or `patterns`."
+                " See the `exclude` documentation for more details:"
+                " https://github.com/gtronset/beets-filetote#excluding-files"
+            )
+        ]
+
+    def test_exclude_strseq_of_filenames_by_list(self) -> None:
+        """Tests to ensure the `exclude` config registers as a strseq (string
+        sequence) of filenames.
+        """
+        config["filetote"]["extensions"] = ".file .lrc"
+        config["filetote"]["exclude"] = ["nottobemoved.file", "nottobemoved.lrc"]
         config["paths"]["ext:file"] = "$albumpath/$old_filename"
 
         self.create_file(
