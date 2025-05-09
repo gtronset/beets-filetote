@@ -663,13 +663,20 @@ for specific steps for each version.
 #### Config format for `exclude` now expects explicit `filenames`, `extensions`, and/or `patterns`
 
 As of version `1.0.2`, Filetote now emits a deprecation warning for configurations
-setting `exclude` to a simple list of filenames. Instead, Filetote now expects explici
+setting `exclude` to a simple list of filenames. Instead, Filetote now expects explicit
 `filenames`, `extensions`, and/or `patterns`, e.g.:
 
 ```yaml
 filetote:
   exclude:
     filenames: song_lyrics.nfo album_description.nfo
+```
+
+Contrast to the previous configuration (now deprecated):
+
+```yaml
+filetote:
+  exclude: song_lyrics.nfo album_description.nfo
 ```
 
 For now, the old configuration style is still supported but logged as depreacated. In a
