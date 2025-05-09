@@ -102,9 +102,7 @@ class FiletoteExcludeTest(FiletoteTestCase):
         self.assert_not_in_lib_dir(b"Tag Artist", b"Tag Album", b"nottobemoved.lrc")
 
     def test_exclude_dict_with_patterns(self) -> None:
-        """Tests to ensure the `exclude` config registers as a strseg (string
-        sequence) of filenames.
-        """
+        """Tests to ensure the `exclude` config and works with and patterns."""
         config["filetote"]["extensions"] = ".*"
 
         config["filetote"]["exclude"]["patterns"] = {
