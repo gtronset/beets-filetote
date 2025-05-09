@@ -33,7 +33,7 @@ You will need to enable the plugin in beets' `config.yaml`:
 plugins: filetote
 ```
 
-It can copy files by file extension:
+It can copy files by file [extension](#extension-extensions):
 
 ```yaml
 filetote:
@@ -47,14 +47,14 @@ filetote:
   extensions: .*
 ```
 
-Or copy files by filename:
+Or copy files by [filename](#filename-filenames):
 
 ```yaml
 filetote:
   filenames: song.log
 ```
 
-Or match based on a "pattern" ([glob pattern]):
+Or match based on a ["pattern"](#pattern-patterns) (via [glob pattern]):
 
 ```yaml
 filetote:
@@ -63,8 +63,8 @@ filetote:
       - "[aA]rtwork/"
 ```
 
-It can look for and target "pairs" (files having the same name as a matching or "paired"
-media item/track):
+It can look for and target ["pairs"](#pairing-pairing) (files having the same name as a matching
+or "paired" media item/track):
 
 ```yaml
 filetote:
@@ -72,8 +72,8 @@ filetote:
     enabled: true
 ```
 
-You can specify pairing to happen to certain extensions, and even target/include only
-paired files:
+You can specify [pairing to happen to certain extensions](#pairing-example-configuration),
+and even target/include only paired files:
 
 ```yaml
 filetote:
@@ -83,7 +83,7 @@ filetote:
     extensions: ".lrc"
 ```
 
-It can also exclude files by name:
+It can also [exclude files](#excluding-files-exclude) that are otherwise matched:
 
 ```yaml
 filetote:
@@ -105,11 +105,11 @@ filetote:
 In order to collect extra files and artifacts, Filetote needs to be told which types of
 files it should care about. This can be done using the following:
 
-- Extensions (`ext:`): Specify individual extensions like `.cue` or `.log`, or catch all
-  non-music files with `.*`.
-- Filenames (`filename:`): Match specific filenames like `cover.jpg` or organize artwork
+- Extensions (`extensions:`): Specify individual extensions like `.cue` or `.log`, or
+  use a catch-all for all non-music files with `.*`.
+- Filenames (`filenames:`): Match specific filenames like `cover.jpg` or organize artwork
   with `[aA]rtwork/*`.
-- Patterns (`pattern:`): Use flexible glob patterns for more control, like matching all
+- Patterns (`patterns:`): Use flexible glob patterns for more control, like matching all
   logs in a subfolder: `CD1/*.log`.
 - Pairing: Move files with the same name as imported music items, like `.lrc` lyrics or
   album logs.
@@ -215,7 +215,7 @@ paths:
   ext:.log: $albumpath/$subpath$artist - $album
 ```
 
-#### Extension (`ext:`)
+#### Extension (`extensions:`)
 
 Filename can match on the extension of the file, in a space-delimited list (i.e., a
 string sequence). Use `.*` to match all file extensions.
@@ -227,7 +227,7 @@ across all subfolders.
 
 ```yaml
 filetote:
-  ext: .lrc .log
+  extensions: .lrc .log
 ```
 
 ##### Extension Renaming Example
@@ -241,10 +241,10 @@ paths:
   ext:.log: $albumpath/$artist - $album
 ```
 
-#### Filename (`filename:`)
+#### Filename (`filenames:`)
 
 Filetote can match on the actual name (including extension) of the file, in a
-space-delimited list (string sequence). `filename:` will match across any subdirectories,
+space-delimited list (string sequence). `filenames:` will match across any subdirectories,
 meaning targeting a filename in a specific subdirectory will not work (this functionality
 _can_ be achieved using a `pattern`, however).
 
@@ -270,7 +270,7 @@ filetote:
   filenames: cover.jpg artifact.nfo
 ```
 
-#### Pattern (`pattern:`)
+#### Pattern (`patterns:`)
 
 Filetote can match on a given _pattern_ as specified using [glob patterns]. This allows
 for more specific matching, like grabbing only PNG artwork files. Paths in the pattern
@@ -320,7 +320,7 @@ filetote:
       - "[aA]rtwork/"
 ```
 
-#### Pairing
+#### Pairing (`pairing:`)
 
 Filetote can specially target related files like lyrics or logs with the same name as
 music files ("paired" files). This keeps related files together, making your library
@@ -368,7 +368,7 @@ paths:
   paired_ext:.lrc: $albumpath/$medianame_new
 ```
 
-### Excluding Files
+### Excluding Files (`exclude:`)
 
 Certain artifact files can be excluded/ignored by specifying settings under the
 `exclude` via `filenames`, `extensions`, and/or `patterns`. For example, to always
@@ -401,7 +401,7 @@ filetote:
         - "[aA]rtwork/"
 ```
 
-`exclude` patterns follow the same glob rules specified the [higher-level `pattern` config](#pattern-pattern).
+`exclude` patterns follow the same glob rules specified the [higher-level `patterns` config](#pattern-patterns).
 
 These can be combined to exclude any combination. For example, you can exclude by
 filename and pattern:
@@ -467,7 +467,7 @@ paths:
 
 filetote:
   extensions: .cue .log .png
-  filename: cover.jpg
+  filenames: cover.jpg
   pairing:
     enabled: true
     extensions: ".lrc"
