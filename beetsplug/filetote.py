@@ -12,6 +12,7 @@ from beets.plugins import BeetsPlugin
 from beets.ui import get_path_formats
 from beets.util import MoveOperation
 from beets.util.functemplate import Template
+from confuse.templates import OneOf, StrSeq
 from mediafile import TYPES as BEETS_FILE_TYPES
 
 from .filetote_dataclasses import (
@@ -45,7 +46,7 @@ class FiletotePlugin(BeetsPlugin):
             filenames=self.config["filenames"].as_str_seq(),
             patterns=self.config["patterns"].get(dict),
             paths=self._templatize_config_paths(config_paths),
-            exclude=self.config["exclude"].as_str_seq(),
+            exclude=self.config["exclude"].get(OneOf([StrSeq(), dict])),
             print_ignored=self.config["print_ignored"].get(bool),
         )
 
