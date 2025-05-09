@@ -82,7 +82,7 @@ class FiletoteExcludeData:
                 "filenames",
                 "extensions",
             }:
-                _validate_types_str_eq(
+                _validate_types_str_seq(
                     ["exclude", field_.name], field_value, DEFAULT_EMPTY
                 )
 
@@ -122,7 +122,7 @@ class FiletotePairingData:
                 )
 
             if field_.name == "extensions":
-                _validate_types_str_eq(
+                _validate_types_str_seq(
                     ["pairing", field_.name], field_value, DEFAULT_ALL_GLOB
                 )
 
@@ -184,7 +184,7 @@ class FiletoteConfig:
                 _validate_types_instance([field_.name], field_value, field_type)
 
             if field_.name in {"extensions", "filenames"}:
-                _validate_types_str_eq([field_.name], field_value, DEFAULT_EMPTY)
+                _validate_types_str_seq([field_.name], field_value, DEFAULT_EMPTY)
 
             if field_.name == "patterns":
                 _validate_types_dict(
@@ -242,7 +242,7 @@ def _validate_types_dict(
                     )
 
 
-def _validate_types_str_eq(
+def _validate_types_str_seq(
     field_name: List[str],
     field_value: Any,
     optional_default: str,

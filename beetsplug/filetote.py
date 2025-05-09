@@ -57,7 +57,7 @@ class FiletotePlugin(BeetsPlugin):
             print_ignored=self.config["print_ignored"].get(bool),
         )
 
-        if isinstance(self.config["exclude"].get(), str):
+        if isinstance(self.config["exclude"].get(), (str, list)):
             self.filetote.adjust("exclude", self.config["exclude"].as_str_seq())
 
             self._log.warning(

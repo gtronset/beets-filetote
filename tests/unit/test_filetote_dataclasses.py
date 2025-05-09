@@ -104,17 +104,17 @@ class TestTypeErrorFunctions(unittest.TestCase):
             " element of the list) <class 'str'>, got `<class 'int'>`"
         )
 
-    def test__validate_types_str_eq(self) -> None:
-        """Ensure the str_eq correctly checks for the types."""
+    def test__validate_types_str_seq(self) -> None:
+        """Ensure the str_seq correctly checks for the types."""
         # Test the positive outcome of a `List[str]`
         try:
-            filetote_dataclasses._validate_types_str_eq(["test"], ["string"], '""')
+            filetote_dataclasses._validate_types_str_seq(["test"], ["string"], '""')
         except TypeError as e:
             self.fail(f"Exception {type(e)} was raised unexpectedly: {e}")
 
         # Fail if the value isn't a List
         with pytest.raises(TypeError) as non_list_test:
-            filetote_dataclasses._validate_types_str_eq(["test"], dict, '""')
+            filetote_dataclasses._validate_types_str_seq(["test"], dict, '""')
 
         assert (
             str(non_list_test.value)
@@ -125,7 +125,7 @@ class TestTypeErrorFunctions(unittest.TestCase):
 
         # Fail the the inner list value isn't a string
         with pytest.raises(TypeError) as non_string_item_test:
-            filetote_dataclasses._validate_types_str_eq(["test"], [123], '""')
+            filetote_dataclasses._validate_types_str_seq(["test"], [123], '""')
 
         assert (
             str(non_string_item_test.value)
