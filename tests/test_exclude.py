@@ -1,4 +1,4 @@
-"""Tests to ensure no "could not get filesize" error occurs in the beets-filetote
+"""Tests to ensure the `exclude` settings properly excludes files in the beets-filetote
 plugin.
 """
 
@@ -14,7 +14,9 @@ from tests.helper import FiletoteTestCase, capture_log
 
 
 class FiletoteExcludeTest(FiletoteTestCase):
-    """Tests to ensure no "could not get filesize" error occurs."""
+    """Tests to ensure the `exclude` settings properly excludes files in the
+    beets-filetote plugin.
+    """
 
     def setUp(self, _other_plugins: Optional[List[str]] = None) -> None:
         """Provides shared setup for tests."""
