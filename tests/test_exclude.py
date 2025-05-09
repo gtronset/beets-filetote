@@ -62,11 +62,10 @@ class FiletoteExcludeTest(FiletoteTestCase):
         """
         config["filetote"]["extensions"] = ".*"
         config["paths"]["ext:.*"] = "$albumpath/$artist - $old_filename"
-        # config["filetote"]["exclude"] = "nottobecopied.file nottobecopied.lrc"
 
         config["filetote"]["exclude"] = {
-            "filename": "nottobecopied.file",
-            "extension": ".lrc",
+            "filenames": ["nottobecopied.file"],
+            "extensions": [".lrc"],
         }
 
         self.create_file(
@@ -79,14 +78,14 @@ class FiletoteExcludeTest(FiletoteTestCase):
 
         self._run_cli_command("import")
 
-        # self.assert_in_import_dir(
-        #     b"the_album",
-        #     b"nottobecopied.file",
-        # )
-        # self.assert_not_in_lib_dir(b"Tag Artist", b"Tag Album", b"nottobecopied.file")
+        self.assert_in_import_dir(
+            b"the_album",
+            b"nottobecopied.file",
+        )
+        self.assert_not_in_lib_dir(b"Tag Artist", b"Tag Album", b"nottobecopied.file")
 
-        # self.assert_in_import_dir(
-        #     b"the_album",
-        #     b"nottobecopied.lrc",
-        # )
-        # self.assert_not_in_lib_dir(b"Tag Artist", b"Tag Album", b"nottobecopied.lrc")
+        self.assert_in_import_dir(
+            b"the_album",
+            b"nottobecopied.lrc",
+        )
+        self.assert_not_in_lib_dir(b"Tag Artist", b"Tag Album", b"nottobecopied.lrc")

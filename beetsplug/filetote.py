@@ -12,7 +12,6 @@ from beets.plugins import BeetsPlugin
 from beets.ui import get_path_formats
 from beets.util import MoveOperation
 from beets.util.functemplate import Template
-from confuse.templates import OneOf, StrSeq
 from mediafile import TYPES as BEETS_FILE_TYPES
 
 from .filetote_dataclasses import (
@@ -46,9 +45,13 @@ class FiletotePlugin(BeetsPlugin):
             filenames=self.config["filenames"].as_str_seq(),
             patterns=self.config["patterns"].get(dict),
             paths=self._templatize_config_paths(config_paths),
-            exclude=self.config["exclude"].get(OneOf([StrSeq(), dict])),
             print_ignored=self.config["print_ignored"].get(bool),
         )
+
+        if isinstance(self.config["exclude"].get(), str):
+            self.filetote.adjust("exclude", self.config["exclude"].as_str_seq())
+        else:
+            self.filetote.adjust("exclude", self.config["exclude"].get(dict))
 
         self.filetote.adjust(
             "pairing",
@@ -628,8 +631,16 @@ class FiletotePlugin(BeetsPlugin):
         if not os.path.exists(artifact_source):
             return (True, None)
 
+        artifact_file_ext: str = util.displayable_path(
+            os.path.splitext(artifact_filename)[1]
+        )
+
         # Skip if filename is explicitly in `exclude`
-        if util.displayable_path(artifact_filename) in self.filetote.exclude:
+        if (
+            util.displayable_path(artifact_file_ext) in self.filetote.exclude.extensions
+            or util.displayable_path(artifact_filename)
+            in self.filetote.exclude.filenames
+        ):
             return (True, None)
 
         # Skip:
@@ -637,10 +648,6 @@ class FiletotePlugin(BeetsPlugin):
         # - filenames not explicitly in `filenames`
         # - non-paired files
         # - artifacts not matching patterns
-
-        artifact_file_ext: str = util.displayable_path(
-            os.path.splitext(artifact_filename)[1]
-        )
 
         relpath: bytes = os.path.relpath(artifact_source, start=source_path)
 
