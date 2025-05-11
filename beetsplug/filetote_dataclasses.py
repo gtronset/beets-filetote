@@ -8,7 +8,6 @@ from typing import Any, Dict, List, Literal, Optional, Union
 
 from beets.library import Library
 from beets.util import MoveOperation
-from beets.util.functemplate import Template
 
 from .mapping_model import FiletoteMappingModel
 
@@ -137,7 +136,7 @@ class FiletoteConfig:
     patterns: Dict[str, List[str]] = field(default_factory=dict)
     exclude: FiletoteExcludeData = field(default_factory=FiletoteExcludeData)
     pairing: FiletotePairingData = field(default_factory=FiletotePairingData)
-    paths: Dict[str, Template] = field(default_factory=dict)
+    paths: Dict[str, str] = field(default_factory=dict)
     print_ignored: bool = False
 
     def __post_init__(self) -> None:
@@ -192,7 +191,7 @@ class FiletoteConfig:
                 )
 
             if field_.name == "paths":
-                _validate_types_dict([field_.name], field_value, field_type=Template)
+                _validate_types_dict([field_.name], field_value, field_type=str)
 
             if field_.name == "print_ignored":
                 _validate_types_instance([field_.name], field_value, field_type)

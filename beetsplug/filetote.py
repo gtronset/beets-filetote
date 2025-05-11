@@ -64,13 +64,11 @@ class FiletotePlugin(BeetsPlugin):
         # Set default plugin config settings
         self.config.add(FiletoteConfig().asdict())
 
-        config_paths: Dict[str, Any] = self.config["paths"].get(dict)
-
         self.filetote: FiletoteConfig = FiletoteConfig(
             extensions=self.config["extensions"].as_str_seq(),
             filenames=self.config["filenames"].as_str_seq(),
             patterns=self.config["patterns"].get(dict),
-            paths=self._templatize_config_paths(config_paths),
+            paths=self.config["paths"].get(dict),
             print_ignored=self.config["print_ignored"].get(bool),
         )
 
@@ -171,7 +169,9 @@ class FiletotePlugin(BeetsPlugin):
         Filetote's node, overriding when needed to give priority to Filetote's
         definitions.
         """
-        path_formats: Dict[str, Template] = {"filetote:default": self._path_default}
+        path_formats: Dict[str, Union[str, Template]] = {
+            "filetote:default": self._path_default
+        }
 
         for beets_path_format in get_path_formats():
             for query in queries:
@@ -181,15 +181,18 @@ class FiletotePlugin(BeetsPlugin):
         path_formats.update(self.filetote.paths)
 
         # Validate all collected paths
-        for path in path_formats:
-            if path == "ext:.*":
-                raise AssertionError(
-                    "Error: path query `ext:.*` is not valid. If you are trying to"
-                    " set a default/fallback, please user `filetote:default`"
-                    " instead."
-                )
+        if "ext:.*" in path_formats:
+            raise AssertionError(
+                "Error: path query `ext:.*` is not valid. If you are trying to"
+                " set a default/fallback, please user `filetote:default`"
+                " instead."
+            )
 
-        return path_formats
+        # Ensure all returned path queries are a `Template`
+        return {
+            path_key: self._templatize_path_format(query)
+            for path_key, query in path_formats.items()
+        }
 
     def _register_additional_file_types(self) -> None:
         """This augments the file type list of what is considered a music
@@ -372,7 +375,7 @@ class FiletotePlugin(BeetsPlugin):
             os.path.splitext(artifact_filename)[1]
         )
 
-        selected_path_format = self._get_path_query_format_match(
+        selected_path_template = self._get_path_query_format_match(
             util.displayable_path(artifact_filename),
             artifact_ext,
             paired,
@@ -383,12 +386,10 @@ class FiletotePlugin(BeetsPlugin):
         # Sanity check for mypy in cases where album_path is None
         assert album_path is not None
 
-        subpath_tmpl: Template = self._templatize_path_format(selected_path_format)
-
         # Get template funcs and evaluate against mapping
         template_functions = DefaultTemplateFunctions().functions()
         artifact_path = (
-            subpath_tmpl.substitute(mapping_formatted, template_functions)
+            selected_path_template.substitute(mapping_formatted, template_functions)
             + artifact_ext
         )
 
@@ -418,15 +419,6 @@ class FiletotePlugin(BeetsPlugin):
             subpath_tmpl = Template(path_format)
 
         return subpath_tmpl
-
-    def _templatize_config_paths(
-        self, paths: Dict[str, Union[str, Template]]
-    ) -> Dict[str, Template]:
-        """Ensures that the path format is a Beets Template."""
-        templatized_paths: Dict[str, Template] = {}
-        for path_key, path_value in paths.items():
-            templatized_paths[path_key] = self._templatize_path_format(path_value)
-        return templatized_paths
 
     def _generate_mapping(
         self, beets_item: "Item", destination: bytes
