@@ -16,6 +16,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - Bugfix: allow list of strings for deprecated `exclude` config <https://github.com/gtronset/beets-filetote/pull/180>
+- Update Pre-commit Updated permissions to allow write <https://github.com/gtronset/beets-filetote/pull/182>
 
 ## [1.0.1] - 2025-05-08
 
