@@ -103,6 +103,7 @@ class FiletotePlugin(BeetsPlugin):
             "filetote:default",
         ]
 
+        self._path_default: Template = Template("$albumpath/$old_filename")
         self._path_formats: Dict[str, Template] = self._get_filetote_path_formats(
             queries
         )
@@ -170,9 +171,7 @@ class FiletotePlugin(BeetsPlugin):
         Filetote's node, overriding when needed to give priority to Filetote's
         definitions.
         """
-        path_formats: Dict[str, Template] = {
-            "filetote:default": Template("$albumpath/$old_filename")
-        }
+        path_formats: Dict[str, Template] = {"filetote:default": self._path_default}
 
         for beets_path_format in get_path_formats():
             for query in queries:
