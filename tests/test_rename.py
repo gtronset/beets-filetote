@@ -1,6 +1,7 @@
 """Tests renaming for the beets-filetote plugin."""
 
 import logging
+import os
 
 from typing import List, Optional
 
@@ -299,7 +300,9 @@ class FiletoteRenameTest(FiletoteTestCase):
         """
         config["filetote"]["extensions"] = ".file"
 
-        config["paths"]["filetote:default"] = "$albumpath/New/$old_filename"
+        config["paths"]["filetote:default"] = os.path.join(
+            "$albumpath", "New", "$old_filename"
+        )
 
         config["import"]["move"] = True
 
@@ -314,7 +317,9 @@ class FiletoteRenameTest(FiletoteTestCase):
         """
         config["filetote"]["extensions"] = ".file"
 
-        config["filetote"]["paths"]["filetote:default"] = "$albumpath/New/$old_filename"
+        config["filetote"]["paths"]["filetote:default"] = os.path.join(
+            "$albumpath", "New", "$old_filename"
+        )
 
         config["import"]["move"] = True
 
@@ -330,9 +335,11 @@ class FiletoteRenameTest(FiletoteTestCase):
         """
         config["filetote"]["extensions"] = ".file"
 
-        config["paths"]["filetote:default"] = "$albumpath/Paths/$old_filename"
-        config["filetote"]["paths"]["filetote:default"] = (
-            "$albumpath/Filetote/$old_filename"
+        config["paths"]["filetote:default"] = os.path.join(
+            "$albumpath", "Paths", "$old_filename"
+        )
+        config["filetote"]["paths"]["filetote:default"] = os.path.join(
+            "$albumpath", "Filetote", "$old_filename"
         )
 
         config["import"]["move"] = True
