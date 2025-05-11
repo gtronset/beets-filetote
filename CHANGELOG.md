@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - Improve the `exclude` setting to allow filenames, extensions, and patterns <https://github.com/gtronset/beets-filetote/pull/179>
+- Update `ruff` to `0.11.9` <https://github.com/gtronset/beets-filetote/pull/183>
 
 ### Fixed
 
