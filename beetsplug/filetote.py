@@ -4,12 +4,14 @@ import filecmp
 import fnmatch
 import os
 
+from sys import version_info
 from typing import (
     TYPE_CHECKING,
     Any,
     Callable,
     Dict,
     List,
+    Literal,
     Optional,
     Tuple,
     Union,
@@ -33,6 +35,21 @@ from .mapping_model import FiletoteMappingFormatted, FiletoteMappingModel
 if TYPE_CHECKING:
     from beets.importer import ImportSession
     from beets.library import Item, Library
+
+if version_info >= (3, 10):
+    from typing import TypeAlias
+else:
+    from typing_extensions import TypeAlias
+
+FileToteQueries: TypeAlias = List[
+    Literal[
+        "ext:",
+        "filename:",
+        "paired_ext:",
+        "pattern:",
+        "filetote:default",
+    ]
+]
 
 
 class FiletotePlugin(BeetsPlugin):
@@ -78,7 +95,13 @@ class FiletotePlugin(BeetsPlugin):
             },
         )
 
-        queries: List[str] = ["ext:", "filename:", "paired_ext:", "pattern:"]
+        queries: FileToteQueries = [
+            "ext:",
+            "filename:",
+            "paired_ext:",
+            "pattern:",
+            "filetote:default",
+        ]
 
         self._path_formats: Dict[str, Template] = self._get_filetote_path_formats(
             queries
@@ -139,13 +162,17 @@ class FiletotePlugin(BeetsPlugin):
 
         return file_event_function
 
-    def _get_filetote_path_formats(self, queries: List[str]) -> Dict[str, Template]:
+    def _get_filetote_path_formats(
+        self, queries: FileToteQueries
+    ) -> Dict[str, Template]:
         """Gets all `path` formats from beets and parses those set for Filetote.
         First sets those from the Beet's `path` node then sets them from
         Filetote's node, overriding when needed to give priority to Filetote's
         definitions.
         """
-        path_formats: Dict[str, Template] = {}
+        path_formats: Dict[str, Template] = {
+            "filetote:default": Template("$albumpath/$old_filename")
+        }
 
         for beets_path_format in get_path_formats():
             for query in queries:
@@ -255,13 +282,14 @@ class FiletotePlugin(BeetsPlugin):
         artifact_ext: str,
         paired: bool,
         pattern_category: Optional[str] = None,
-    ) -> Tuple[Optional[str], Optional[Template]]:
+    ) -> Template:
         """Calculate the best path query format, prioritizing the below.
 
         1. `filename:`
         2. `paired_ext:`
         3. `pattern:`
         4. `ext:`
+        5. `filetote:default`
         """
         full_filename: str = util.displayable_path(artifact_filename)
 
@@ -269,10 +297,10 @@ class FiletotePlugin(BeetsPlugin):
         selected_path_format: Optional[Template] = None
 
         for query, path_format in self._path_formats.items():
-            filename_prefix: str = "filename:"
-            paired_ext_prefix: str = "paired_ext:"
-            pattern_prefix: str = "pattern:"
-            ext_prefix: str = "ext:"
+            filename_prefix: Literal["filename:"] = "filename:"
+            paired_ext_prefix: Literal["paired_ext:"] = "paired_ext:"
+            pattern_prefix: Literal["pattern:"] = "pattern:"
+            ext_prefix: Literal["ext:"] = "ext:"
 
             if (
                 paired
@@ -317,7 +345,12 @@ class FiletotePlugin(BeetsPlugin):
                 selected_path_query = filename_prefix
                 selected_path_format = path_format
 
-        return (selected_path_query, selected_path_format)
+        # No query matched and no path format provided; use value provided by
+        # `filetote:default` which defaults original filename if not present.
+        if not selected_path_format:
+            selected_path_format = self._path_formats["filetote:default"]
+
+        return selected_path_format
 
     def _get_artifact_destination(
         self,
@@ -340,10 +373,7 @@ class FiletotePlugin(BeetsPlugin):
             os.path.splitext(artifact_filename)[1]
         )
 
-        (
-            selected_path_query,
-            selected_path_format,
-        ) = self._get_path_query_format_match(
+        selected_path_format = self._get_path_query_format_match(
             util.displayable_path(artifact_filename),
             artifact_ext,
             paired,
@@ -354,16 +384,6 @@ class FiletotePlugin(BeetsPlugin):
         # Sanity check for mypy in cases where album_path is None
         assert album_path is not None
 
-        if not selected_path_query:
-            # No query matched; use original filename
-            artifact_path: str = os.path.join(
-                album_path,
-                util.displayable_path(artifact_filename),
-            )
-            return util.bytestring_path(artifact_path)
-
-        # Sanity check for mypy in cases where selected_path_format is None
-        assert selected_path_format is not None
         subpath_tmpl: Template = self._templatize_path_format(selected_path_format)
 
         # Get template funcs and evaluate against mapping
