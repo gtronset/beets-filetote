@@ -76,7 +76,7 @@ class FiletotePlugin(BeetsPlugin):
             self.filetote.adjust("exclude", self.config["exclude"].as_str_seq())
 
             self._log.warning(
-                "Depreaction warning: The `exclude` plugin should now use the explicit"
+                "Deprecation warning: The `exclude` plugin should now use the explicit"
                 " settings of `filenames`, `extensions`, and/or `patterns`. See the"
                 " `exclude` documentation for more details:"
                 " https://github.com/gtronset/beets-filetote#excluding-files"
@@ -257,7 +257,7 @@ class FiletotePlugin(BeetsPlugin):
     def file_operation_event_listener(
         self, event: str, item: "Item", source: bytes, destination: bytes
     ) -> None:
-        """Certain CLI opertations such as `move` (`mv`) don't utilize the config file's
+        """Certain CLI operations such as `move` (`mv`) don't utilize the config file's
         `import` settings which `_operation_type()` uses by default to determine how
         Filetote should move/copy the file. Since there are not otherwise any indicators
         of this, the operation type is inferred based on the event name/type.
@@ -266,7 +266,7 @@ class FiletotePlugin(BeetsPlugin):
         media files, and this should only have to fall back to infer from event types
         for similar aforementioned CLI commands.
         """
-        # Detmine the opteration type if not already present
+        # Determine the operation type if not already present
         if not self.filetote.session.operation:
             self.filetote.session.adjust("operation", self._event_operation_type(event))
 
@@ -311,7 +311,7 @@ class FiletotePlugin(BeetsPlugin):
                 and artifact_ext
                 == ("." + self.remove_prefix(query, paired_ext_prefix).lstrip("."))
             ):
-                # Prioritize `filename:` query selectory over `paired_ext:`
+                # Prioritize `filename:` query selector over `paired_ext:`
                 if selected_path_query != filename_prefix:
                     selected_path_query = paired_ext_prefix
                     selected_path_format = path_format
@@ -325,7 +325,7 @@ class FiletotePlugin(BeetsPlugin):
                 and self.remove_prefix(query, pattern_prefix) == pattern_category
             ):
                 # This should pull the corresponding pattern def,
-                # Prioritize `filename:` and `paired_ext:` query selectory over
+                # Prioritize `filename:` and `paired_ext:` query selector over
                 # `pattern:`
                 if selected_path_query not in {filename_prefix, paired_ext_prefix}:
                     selected_path_query = pattern_prefix
@@ -387,7 +387,7 @@ class FiletotePlugin(BeetsPlugin):
         # Sanity check for mypy in cases where album_path is None
         assert album_path is not None
 
-        # Get template funcs and evaluate against mapping
+        # Get template functions and evaluate against mapping
         template_functions = DefaultTemplateFunctions().functions()
         artifact_path = (
             selected_path_template.substitute(mapping_formatted, template_functions)
@@ -412,14 +412,14 @@ class FiletotePlugin(BeetsPlugin):
 
     def _templatize_path_format(self, path_format: Union[str, Template]) -> Template:
         """Ensures that the path format is a Beets Template."""
-        subpath_tmpl: Template
+        subpath_template: Template
 
         if isinstance(path_format, Template):
-            subpath_tmpl = path_format
+            subpath_template = path_format
         else:
-            subpath_tmpl = Template(path_format)
+            subpath_template = Template(path_format)
 
-        return subpath_tmpl
+        return subpath_template
 
     def _generate_mapping(
         self, beets_item: "Item", destination: bytes
@@ -529,7 +529,7 @@ class FiletotePlugin(BeetsPlugin):
     def collect_artifacts(
         self, beets_item: "Item", source: bytes, destination: bytes
     ) -> None:
-        """Creates lists of the various extra files and artificats for processing.
+        """Creates lists of the various extra files and artifacts for processing.
         Since beets passes through the arguments, it's explicitly setting the Item to
         the `item` argument (as it does with the others).
 
@@ -586,7 +586,7 @@ class FiletotePlugin(BeetsPlugin):
 
     def process_events(self, lib: "Library") -> None:
         """Triggered by the CLI exit event, which itself triggers the processing and
-        manipuation of the extra files and artificats.
+        manipulation of the extra files and artifacts.
         """
         # Ensure destination library settings are accessible
         self.filetote.session.adjust("beets_lib", lib)
@@ -941,4 +941,4 @@ class FiletotePlugin(BeetsPlugin):
         elif operation == MoveOperation.REFLINK_AUTO:
             util.reflink(artifact_source, artifact_dest, fallback=True)
         else:
-            raise AssertionError(f"unknown MoveOperation {operation}")
+            raise AssertionError(f"Unknown `MoveOperation`: {operation}")

@@ -225,9 +225,7 @@ def _validate_types_instance(
     field_value: Any,
     field_type: Any,
 ) -> None:
-    """A simple `instanceof` comparison. If present, `typewrape` will enable both
-    `field_value` and `field_type` to be wrapped by a `type()`.
-    """
+    """A simple `instanceof` comparison."""
     if not isinstance(field_value, field_type):
         _raise_type_validation_error(
             field_name,
