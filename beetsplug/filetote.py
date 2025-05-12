@@ -41,7 +41,7 @@ if version_info >= (3, 10):
 else:
     from typing_extensions import TypeAlias
 
-FileToteQueries: TypeAlias = List[
+FiletoteQueries: TypeAlias = List[
     Literal[
         "ext:",
         "filename:",
@@ -93,18 +93,19 @@ class FiletotePlugin(BeetsPlugin):
             },
         )
 
-        queries: FileToteQueries = [
+        queries: FiletoteQueries = [
             "ext:",
             "filename:",
             "paired_ext:",
             "pattern:",
             "filetote:default",
         ]
+        path_default: Template = Template("$albumpath/$old_filename")
 
-        self._path_default: Template = Template("$albumpath/$old_filename")
         self._path_formats: Dict[str, Template] = self._get_filetote_path_formats(
-            queries
+            queries, path_default
         )
+
         self._process_queue: List[FiletoteArtifactCollection] = []
         self._shared_artifacts: Dict[bytes, List[bytes]] = {}
         self._dirs_seen: List[bytes] = []
@@ -162,7 +163,7 @@ class FiletotePlugin(BeetsPlugin):
         return file_event_function
 
     def _get_filetote_path_formats(
-        self, queries: FileToteQueries
+        self, queries: FiletoteQueries, path_default: Template
     ) -> Dict[str, Template]:
         """Gets all `path` formats from beets and parses those set for Filetote.
         First sets those from the Beet's `path` node then sets them from
@@ -170,7 +171,7 @@ class FiletotePlugin(BeetsPlugin):
         definitions.
         """
         path_formats: Dict[str, Union[str, Template]] = {
-            "filetote:default": self._path_default
+            "filetote:default": path_default
         }
 
         for beets_path_format in get_path_formats():
