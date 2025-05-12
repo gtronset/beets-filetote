@@ -8,7 +8,6 @@ from typing import Any, Dict, List, Literal, Optional, Union
 
 from beets.library import Library
 from beets.util import MoveOperation
-from beets.util.functemplate import Template
 
 from .mapping_model import FiletoteMappingModel
 
@@ -76,7 +75,6 @@ class FiletoteExcludeData:
         """Validate types for Filetote Pairing settings."""
         for field_ in fields(self):
             field_value = getattr(self, field_.name)
-            # field_type = field_.type
 
             if field_.name in {
                 "filenames",
@@ -97,7 +95,14 @@ class FiletoteExcludeData:
 
 @dataclass
 class FiletotePairingData:
-    """Configuration settings for Filetote Pairing."""
+    """Configuration settings for Filetote Pairing.
+
+    Attributes:
+        enabled (bool): Whether `pairing` should apply.
+        pairing_only (bool): Override setting to _only_ target paired files.
+        extensions (Union[Literal[".*"], StrSeq]): Extensions to target. Defaults to
+          _all_ extensions (`.*`).
+    """
 
     enabled: bool = False
     pairing_only: bool = False
@@ -129,7 +134,24 @@ class FiletotePairingData:
 
 @dataclass
 class FiletoteConfig:
-    """Configuration settings for Filetote Item."""
+    """Configuration settings for Filetote Item.
+
+    Attributes:
+        session (FiletoteSessionData): Beets import session data. Populated once the
+          `import_begin` is triggered.
+        extensions (OptionalStrSeq): List of extensions of artifacts to target.
+        filenames (OptionalStrSeq): List of filenames of artifacts to target.
+        patterns (Dict[str, List[str]]): Dictionary of `glob` pattern-matched patterns
+          of artifacts to target.
+        exclude (FiletoteExcludeData): Filenames, extensions, and/or patterns of
+          artifacts to exclude.
+        pairing (FiletotePairingData): Settings that control whether to look for pairs
+          and how to handle them.
+        paths (Dict[str, str]): Filetote-level configuration of target queries and
+          paths to define how artifact files should be renamed.
+        print_ignored (bool): Whether to output lists of ignored artifacts to the
+          console as imports finish.
+    """
 
     session: FiletoteSessionData = field(default_factory=FiletoteSessionData)
     extensions: OptionalStrSeq = DEFAULT_EMPTY
@@ -137,7 +159,7 @@ class FiletoteConfig:
     patterns: Dict[str, List[str]] = field(default_factory=dict)
     exclude: FiletoteExcludeData = field(default_factory=FiletoteExcludeData)
     pairing: FiletotePairingData = field(default_factory=FiletotePairingData)
-    paths: Dict[str, Template] = field(default_factory=dict)
+    paths: Dict[str, str] = field(default_factory=dict)
     print_ignored: bool = False
 
     def __post_init__(self) -> None:
@@ -192,7 +214,7 @@ class FiletoteConfig:
                 )
 
             if field_.name == "paths":
-                _validate_types_dict([field_.name], field_value, field_type=Template)
+                _validate_types_dict([field_.name], field_value, field_type=str)
 
             if field_.name == "print_ignored":
                 _validate_types_instance([field_.name], field_value, field_type)
@@ -203,9 +225,7 @@ def _validate_types_instance(
     field_value: Any,
     field_type: Any,
 ) -> None:
-    """A simple `instanceof` comparison. If present, `typewrape` will enable both
-    `field_value` and `field_type` to be wrapped by a `type()`.
-    """
+    """A simple `instanceof` comparison."""
     if not isinstance(field_value, field_type):
         _raise_type_validation_error(
             field_name,

@@ -1,8 +1,11 @@
 """Tests renaming for the beets-filetote plugin."""
 
 import logging
+import os
 
 from typing import List, Optional
+
+import pytest
 
 from beets import config
 
@@ -246,3 +249,104 @@ class FiletoteRenameTest(FiletoteTestCase):
 
         self.assert_not_in_import_dir(b"the_album", b"artifact1.file")
         self.assert_not_in_import_dir(b"the_album", b"artifact2.file")
+
+    def test_rename_wildcard_extension_halts(self) -> None:
+        """Ensure that specifying `ext:.*` extensions results in an exception."""
+        config["filetote"]["extensions"] = ".file .nfo"
+        config["paths"]["ext:.*"] = "$albumpath/$old_filename"
+        config["import"]["move"] = True
+
+        with pytest.raises(AssertionError) as assert_test_message:
+            self._run_cli_command("import")
+
+        assertion_msg: str = (
+            "Error: path query `ext:.*` is not valid. If you are"
+            " trying to set a default/fallback, please use `filetote:default` instead."
+        )
+
+        assert str(assert_test_message.value) == assertion_msg
+
+    def test_rename_filetote_paths_wildcard_extension_halts(self) -> None:
+        """Ensure that specifying `ext:.*` extensions results in an exception."""
+        config["filetote"]["extensions"] = ".file .nfo"
+        config["filetote"]["paths"]["ext:.*"] = "$albumpath/$old_filename"
+        config["import"]["move"] = True
+
+        with pytest.raises(AssertionError) as assert_test_message:
+            self._run_cli_command("import")
+
+        assertion_msg: str = (
+            "Error: path query `ext:.*` is not valid. If you are"
+            " trying to set a default/fallback, please use `filetote:default` instead."
+        )
+
+        assert str(assert_test_message.value) == assertion_msg
+
+    def test_rename_filetote_default(self) -> None:
+        """Ensure that the default value for a path query of an otherwise not specified
+        artifact is `$albumpath/$old_filename`.
+        """
+        config["filetote"]["extensions"] = ".file"
+        config["import"]["move"] = True
+
+        self._run_cli_command("import")
+
+        self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"artifact.file")
+        self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"artifact2.file")
+
+    def test_rename_filetote_custom_default(self) -> None:
+        """Ensure that the default value for a path query for artifacts
+        (`filetote:default`) can be updated via the root `paths` setting.
+        """
+        config["filetote"]["extensions"] = ".file"
+
+        config["paths"]["filetote:default"] = os.path.join(
+            "$albumpath", "New", "$old_filename"
+        )
+
+        config["import"]["move"] = True
+
+        self._run_cli_command("import")
+
+        self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"New", b"artifact.file")
+        self.assert_not_in_lib_dir(b"Tag Artist", b"Tag Album", b"artifact.file")
+
+    def test_rename_filetote_custom_default_filetote_paths(self) -> None:
+        """Ensure that the default value for a path query for artifacts
+        (`filetote:default`) can be updated via the Filetote `paths` setting.
+        """
+        config["filetote"]["extensions"] = ".file"
+
+        config["filetote"]["paths"]["filetote:default"] = os.path.join(
+            "$albumpath", "New", "$old_filename"
+        )
+
+        config["import"]["move"] = True
+
+        self._run_cli_command("import")
+
+        self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"New", b"artifact.file")
+        self.assert_not_in_lib_dir(b"Tag Artist", b"Tag Album", b"artifact.file")
+
+    def test_rename_filetote_custom_default_priority(self) -> None:
+        """Ensure that the default value for a path query for artifacts
+        (`filetote:default`) prioritizes the Filetote `paths` setting over the
+        root `paths` setting.
+        """
+        config["filetote"]["extensions"] = ".file"
+
+        config["paths"]["filetote:default"] = os.path.join(
+            "$albumpath", "Paths", "$old_filename"
+        )
+        config["filetote"]["paths"]["filetote:default"] = os.path.join(
+            "$albumpath", "Filetote", "$old_filename"
+        )
+
+        config["import"]["move"] = True
+
+        self._run_cli_command("import")
+
+        self.assert_in_lib_dir(
+            b"Tag Artist", b"Tag Album", b"Filetote", b"artifact.file"
+        )
+        self.assert_not_in_lib_dir(b"Tag Artist", b"Tag Album", b"artifact.file")
