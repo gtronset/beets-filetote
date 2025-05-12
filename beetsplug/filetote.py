@@ -31,6 +31,7 @@ from .filetote_dataclasses import (
     FiletoteArtifact,
     FiletoteArtifactCollection,
     FiletoteConfig,
+    PathBytes,
 )
 from .mapping_model import FiletoteMappingFormatted, FiletoteMappingModel
 
@@ -52,7 +53,6 @@ FiletoteQueries: TypeAlias = List[
         "filetote:default",
     ]
 ]
-PathBytes: TypeAlias = bytes
 
 
 class FiletotePlugin(BeetsPlugin):
