@@ -75,7 +75,6 @@ class FiletoteExcludeData:
         """Validate types for Filetote Pairing settings."""
         for field_ in fields(self):
             field_value = getattr(self, field_.name)
-            # field_type = field_.type
 
             if field_.name in {
                 "filenames",
@@ -96,7 +95,14 @@ class FiletoteExcludeData:
 
 @dataclass
 class FiletotePairingData:
-    """Configuration settings for Filetote Pairing."""
+    """Configuration settings for Filetote Pairing.
+
+    Attributes:
+        enabled (bool): Whether `pairing` should apply.
+        pairing_only (bool): Override setting to _only_ target paired files.
+        extensions (Union[Literal[".*"], StrSeq]): Extensions to target. Defaults to
+          _all_ extensions (`.*`).
+    """
 
     enabled: bool = False
     pairing_only: bool = False
@@ -128,7 +134,24 @@ class FiletotePairingData:
 
 @dataclass
 class FiletoteConfig:
-    """Configuration settings for Filetote Item."""
+    """Configuration settings for Filetote Item.
+
+    Attributes:
+        session (FiletoteSessionData): Beets import session data. Populated once the
+          `import_begin` is triggered.
+        extensions (OptionalStrSeq): List of extensions of artifacts to target.
+        filenames (OptionalStrSeq): List of filenames of artifacts to target.
+        patterns (Dict[str, List[str]]): Dictionary of `glob` pattern-matched patterns
+          of artifacts to target.
+        exclude (FiletoteExcludeData): Filenames, extensions, and/or patterns of
+          artifacts to exclude.
+        pairing (FiletotePairingData): Settings that control whether to look for pairs
+          and how to handle them.
+        paths (Dict[str, str]): Filetote-level configuration of target queries and
+          paths to define how artifact files should be renamed.
+        print_ignored (bool): Whether to output lists of ignored artifacts to the
+          console as imports finish.
+    """
 
     session: FiletoteSessionData = field(default_factory=FiletoteSessionData)
     extensions: OptionalStrSeq = DEFAULT_EMPTY
