@@ -185,7 +185,7 @@ class FiletotePlugin(BeetsPlugin):
         if "ext:.*" in path_formats:
             raise AssertionError(
                 "Error: path query `ext:.*` is not valid. If you are trying to"
-                " set a default/fallback, please user `filetote:default`"
+                " set a default/fallback, please use `filetote:default`"
                 " instead."
             )
 

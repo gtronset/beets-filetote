@@ -33,15 +33,15 @@ class FiletoteExcludeTest(FiletoteTestCase):
         sequence) of filenames.
         """
         config["filetote"]["extensions"] = ".file .lrc"
-        config["filetote"]["exclude"] = "nottobemoved.file nottobemoved.lrc"
+        config["filetote"]["exclude"] = "not_to_be_moved.file not_to_be_moved.lrc"
         config["paths"]["ext:file"] = "$albumpath/$old_filename"
 
         self.create_file(
-            self.album_path, beets.util.bytestring_path("nottobemoved.file")
+            self.album_path, beets.util.bytestring_path("not_to_be_moved.file")
         )
 
         self.create_file(
-            self.album_path, beets.util.bytestring_path("nottobemoved.lrc")
+            self.album_path, beets.util.bytestring_path("not_to_be_moved.lrc")
         )
 
         with capture_log() as logs:
@@ -49,15 +49,15 @@ class FiletoteExcludeTest(FiletoteTestCase):
 
         self.assert_in_import_dir(
             b"the_album",
-            b"nottobemoved.file",
+            b"not_to_be_moved.file",
         )
-        self.assert_not_in_lib_dir(b"Tag Artist", b"Tag Album", b"nottobemoved.file")
+        self.assert_not_in_lib_dir(b"Tag Artist", b"Tag Album", b"not_to_be_moved.file")
 
         self.assert_in_import_dir(
             b"the_album",
-            b"nottobemoved.lrc",
+            b"not_to_be_moved.lrc",
         )
-        self.assert_not_in_lib_dir(b"Tag Artist", b"Tag Album", b"nottobemoved.lrc")
+        self.assert_not_in_lib_dir(b"Tag Artist", b"Tag Album", b"not_to_be_moved.lrc")
 
         # Ensure the deprecation warning is present
         logs = [line for line in logs if line.startswith("filetote:")]
@@ -75,15 +75,15 @@ class FiletoteExcludeTest(FiletoteTestCase):
         sequence) of filenames.
         """
         config["filetote"]["extensions"] = ".file .lrc"
-        config["filetote"]["exclude"] = ["nottobemoved.file", "nottobemoved.lrc"]
+        config["filetote"]["exclude"] = ["not_to_be_moved.file", "not_to_be_moved.lrc"]
         config["paths"]["ext:file"] = "$albumpath/$old_filename"
 
         self.create_file(
-            self.album_path, beets.util.bytestring_path("nottobemoved.file")
+            self.album_path, beets.util.bytestring_path("not_to_be_moved.file")
         )
 
         self.create_file(
-            self.album_path, beets.util.bytestring_path("nottobemoved.lrc")
+            self.album_path, beets.util.bytestring_path("not_to_be_moved.lrc")
         )
 
         with capture_log() as logs:
@@ -91,15 +91,15 @@ class FiletoteExcludeTest(FiletoteTestCase):
 
         self.assert_in_import_dir(
             b"the_album",
-            b"nottobemoved.file",
+            b"not_to_be_moved.file",
         )
-        self.assert_not_in_lib_dir(b"Tag Artist", b"Tag Album", b"nottobemoved.file")
+        self.assert_not_in_lib_dir(b"Tag Artist", b"Tag Album", b"not_to_be_moved.file")
 
         self.assert_in_import_dir(
             b"the_album",
-            b"nottobemoved.lrc",
+            b"not_to_be_moved.lrc",
         )
-        self.assert_not_in_lib_dir(b"Tag Artist", b"Tag Album", b"nottobemoved.lrc")
+        self.assert_not_in_lib_dir(b"Tag Artist", b"Tag Album", b"not_to_be_moved.lrc")
 
         # Ensure the deprecation warning is present
         logs = [line for line in logs if line.startswith("filetote:")]
@@ -119,31 +119,31 @@ class FiletoteExcludeTest(FiletoteTestCase):
         config["filetote"]["extensions"] = ".*"
 
         config["filetote"]["exclude"] = {
-            "filenames": ["nottobemoved.file"],
+            "filenames": ["not_to_be_moved.file"],
             "extensions": [".lrc"],
         }
 
         self.create_file(
-            self.album_path, beets.util.bytestring_path("nottobemoved.file")
+            self.album_path, beets.util.bytestring_path("not_to_be_moved.file")
         )
 
         self.create_file(
-            self.album_path, beets.util.bytestring_path("nottobemoved.lrc")
+            self.album_path, beets.util.bytestring_path("not_to_be_moved.lrc")
         )
 
         self._run_cli_command("import")
 
         self.assert_in_import_dir(
             b"the_album",
-            b"nottobemoved.file",
+            b"not_to_be_moved.file",
         )
-        self.assert_not_in_lib_dir(b"Tag Artist", b"Tag Album", b"nottobemoved.file")
+        self.assert_not_in_lib_dir(b"Tag Artist", b"Tag Album", b"not_to_be_moved.file")
 
         self.assert_in_import_dir(
             b"the_album",
-            b"nottobemoved.lrc",
+            b"not_to_be_moved.lrc",
         )
-        self.assert_not_in_lib_dir(b"Tag Artist", b"Tag Album", b"nottobemoved.lrc")
+        self.assert_not_in_lib_dir(b"Tag Artist", b"Tag Album", b"not_to_be_moved.lrc")
 
     def test_exclude_dict_with_patterns(self) -> None:
         """Tests to ensure the `exclude` config and works with and patterns."""
@@ -154,10 +154,12 @@ class FiletoteExcludeTest(FiletoteTestCase):
             "nfo-pattern": ["*.lrc"],
         }
 
-        self.create_file(self.album_path, beets.util.bytestring_path("tobemoved.file"))
+        self.create_file(
+            self.album_path, beets.util.bytestring_path("to_be_moved.file")
+        )
 
         self.create_file(
-            self.album_path, beets.util.bytestring_path("nottobemoved.lrc")
+            self.album_path, beets.util.bytestring_path("not_to_be_moved.lrc")
         )
 
         self._run_cli_command("import")
@@ -165,8 +167,8 @@ class FiletoteExcludeTest(FiletoteTestCase):
         self.assert_in_lib_dir(
             b"Tag Artist",
             b"Tag Album",
-            b"tobemoved.file",
+            b"to_be_moved.file",
         )
         self.assert_not_in_lib_dir(b"Tag Artist", b"Tag Album", b"artifact.file")
-        self.assert_not_in_lib_dir(b"Tag Artist", b"Tag Album", b"nottobemoved.lrc")
+        self.assert_not_in_lib_dir(b"Tag Artist", b"Tag Album", b"not_to_be_moved.lrc")
         self.assert_not_in_lib_dir(b"Tag Artist", b"Tag Album", b"artifact.lrc")

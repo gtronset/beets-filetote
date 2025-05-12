@@ -261,7 +261,7 @@ class FiletoteRenameTest(FiletoteTestCase):
 
         assertion_msg: str = (
             "Error: path query `ext:.*` is not valid. If you are"
-            " trying to set a default/fallback, please user `filetote:default` instead."
+            " trying to set a default/fallback, please use `filetote:default` instead."
         )
 
         assert str(assert_test_message.value) == assertion_msg
@@ -277,7 +277,7 @@ class FiletoteRenameTest(FiletoteTestCase):
 
         assertion_msg: str = (
             "Error: path query `ext:.*` is not valid. If you are"
-            " trying to set a default/fallback, please user `filetote:default` instead."
+            " trying to set a default/fallback, please use `filetote:default` instead."
         )
 
         assert str(assert_test_message.value) == assertion_msg
