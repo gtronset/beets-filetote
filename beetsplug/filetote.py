@@ -1,10 +1,14 @@
 """beets-filetote plugin for beets."""
 
+from __future__ import annotations
+
 import filecmp
 import fnmatch
 import os
 
 from sys import version_info
+
+# Dict, List, and Tuple are needed for py38
 from typing import (
     TYPE_CHECKING,
     Any,
@@ -12,9 +16,7 @@ from typing import (
     Dict,
     List,
     Literal,
-    Optional,
     Tuple,
-    Union,
 )
 
 from beets import config, util
@@ -29,6 +31,7 @@ from .filetote_dataclasses import (
     FiletoteArtifact,
     FiletoteArtifactCollection,
     FiletoteConfig,
+    PathBytes,
 )
 from .mapping_model import FiletoteMappingFormatted, FiletoteMappingModel
 
@@ -102,13 +105,13 @@ class FiletotePlugin(BeetsPlugin):
         ]
         path_default: Template = Template("$albumpath/$old_filename")
 
-        self._path_formats: Dict[str, Template] = self._get_filetote_path_formats(
+        self._path_formats: dict[str, Template] = self._get_filetote_path_formats(
             queries, path_default
         )
 
-        self._process_queue: List[FiletoteArtifactCollection] = []
-        self._shared_artifacts: Dict[bytes, List[bytes]] = {}
-        self._dirs_seen: List[bytes] = []
+        self._process_queue: list[FiletoteArtifactCollection] = []
+        self._shared_artifacts: dict[PathBytes, list[PathBytes]] = {}
+        self._dirs_seen: list[PathBytes] = []
 
         self._register_file_operation_events()
 
@@ -128,7 +131,7 @@ class FiletotePlugin(BeetsPlugin):
         Note: The `file_operation_event_functions` dictionary stores the event name and
         its corresponding generated function.
         """
-        file_operation_events: List[str] = [
+        file_operation_events: list[str] = [
             "before_item_moved",
             "item_copied",
             "item_linked",
@@ -170,9 +173,7 @@ class FiletotePlugin(BeetsPlugin):
         Filetote's node, overriding when needed to give priority to Filetote's
         definitions.
         """
-        path_formats: Dict[str, Union[str, Template]] = {
-            "filetote:default": path_default
-        }
+        path_formats: Dict[str, str | Template] = {"filetote:default": path_default}
 
         for beets_path_format in get_path_formats():
             for query in queries:
@@ -209,20 +210,20 @@ class FiletotePlugin(BeetsPlugin):
         if "audible" in config["plugins"].get():
             BEETS_FILE_TYPES.update({"m4b": "M4B"})
 
-    def _register_session_settings(self, session: "ImportSession") -> None:
+    def _register_session_settings(self, session: ImportSession) -> None:
         """Certain settings are only available and/or finalized once the
         Beets import session begins.
         """
         self.filetote.session.adjust("operation", self._import_operation_type())
 
-        import_path: Optional[bytes] = None
+        import_path: PathBytes | None = None
 
         if session.paths:
             import_path = os.path.expanduser(session.paths[0])
 
         self.filetote.session.import_path = import_path
 
-    def _import_operation_type(self) -> Union[MoveOperation, None]:
+    def _import_operation_type(self) -> MoveOperation | None:
         """Returns the file manipulations type. This prioritizes `move` over copy if
         present.
         """
@@ -240,7 +241,7 @@ class FiletotePlugin(BeetsPlugin):
 
         return None
 
-    def _event_operation_type(self, event: str) -> Union[MoveOperation, None]:
+    def _event_operation_type(self, event: str) -> MoveOperation | None:
         """Returns the file manipulations type. Requires a Beets event to be provided
         and the operation type is inferred based on the event name/type.
         """
@@ -255,7 +256,7 @@ class FiletotePlugin(BeetsPlugin):
         return mapping.get(event)
 
     def file_operation_event_listener(
-        self, event: str, item: "Item", source: bytes, destination: bytes
+        self, event: str, item: Item, source: PathBytes, destination: PathBytes
     ) -> None:
         """Certain CLI operations such as `move` (`mv`) don't utilize the config file's
         `import` settings which `_operation_type()` uses by default to determine how
@@ -284,7 +285,7 @@ class FiletotePlugin(BeetsPlugin):
         artifact_filename: str,
         artifact_ext: str,
         paired: bool,
-        pattern_category: Optional[str] = None,
+        pattern_category: str | None = None,
     ) -> Template:
         """Calculate the best path query format, prioritizing the below.
 
@@ -296,8 +297,8 @@ class FiletotePlugin(BeetsPlugin):
         """
         full_filename: str = util.displayable_path(artifact_filename)
 
-        selected_path_query: Optional[str] = None
-        selected_path_format: Optional[Template] = None
+        selected_path_query: str | None = None
+        selected_path_format: Template | None = None
 
         for query, path_format in self._path_formats.items():
             filename_prefix: Literal["filename:"] = "filename:"
@@ -357,11 +358,11 @@ class FiletotePlugin(BeetsPlugin):
 
     def _get_artifact_destination(
         self,
-        artifact_filename: bytes,
+        artifact_filename: PathBytes,
         mapping: FiletoteMappingModel,
         paired: bool = False,
-        pattern_category: Optional[str] = None,
-    ) -> bytes:
+        pattern_category: str | None = None,
+    ) -> PathBytes:
         """Returns a destination path an artifact/file should be moved to. The
         artifact filename is unique to ensure files aren't overwritten. This also
         checks the config for path formats based on file extension allowing the use of
@@ -383,7 +384,7 @@ class FiletotePlugin(BeetsPlugin):
             pattern_category,
         )
 
-        album_path: Optional[str] = mapping_formatted.get("albumpath")
+        album_path: str | None = mapping_formatted.get("albumpath")
         # Sanity check for mypy in cases where album_path is None
         assert album_path is not None
 
@@ -393,9 +394,6 @@ class FiletotePlugin(BeetsPlugin):
             selected_path_template.substitute(mapping_formatted, template_functions)
             + artifact_ext
         )
-
-        # Sanity check for mypy in cases where beets_lib is None
-        assert self.filetote.session.beets_lib is not None
 
         replacements = self.filetote.session.beets_lib.replacements
 
@@ -410,7 +408,7 @@ class FiletotePlugin(BeetsPlugin):
 
         return util.bytestring_path(artifact_path_sanitized)
 
-    def _templatize_path_format(self, path_format: Union[str, Template]) -> Template:
+    def _templatize_path_format(self, path_format: str | Template) -> Template:
         """Ensures that the path format is a Beets Template."""
         subpath_template: Template
 
@@ -422,17 +420,17 @@ class FiletotePlugin(BeetsPlugin):
         return subpath_template
 
     def _generate_mapping(
-        self, beets_item: "Item", destination: bytes
+        self, beets_item: Item, destination: PathBytes
     ) -> FiletoteMappingModel:
         """Creates a mapping of usable path values for renaming. Takes in an
         Item (see https://github.com/beetbox/beets/blob/v2.2.0/beets/library.py#L506).
         """
-        album_path: bytes = os.path.dirname(destination)
+        album_path: PathBytes = os.path.dirname(destination)
 
-        medianame_old: bytes
+        medianame_old: PathBytes
         medianame_old, _ = os.path.splitext(os.path.basename(beets_item.path))
 
-        medianame_new: bytes
+        medianame_new: PathBytes
         medianame_new, _ = os.path.splitext(os.path.basename(destination))
 
         mapping_meta = {
@@ -447,25 +445,25 @@ class FiletotePlugin(BeetsPlugin):
         return FiletoteMappingModel(**mapping_meta)
 
     def _collect_paired_artifacts(
-        self, beets_item: "Item", source: bytes, destination: bytes
+        self, beets_item: Item, source: PathBytes, destination: PathBytes
     ) -> None:
         """When file "pairing" is enabled, this function looks through available
         artifacts for potential matching pairs. When found, it processes the artifacts
         to be handled specifically as a "pair".
         """
-        item_source_filename: bytes
+        item_source_filename: PathBytes
         item_source_filename, _ = os.path.splitext(os.path.basename(source))
-        source_path: bytes = os.path.dirname(source)
+        source_path: PathBytes = os.path.dirname(source)
 
         queue_artifacts: list[FiletoteArtifact] = []
 
-        # Check to see if "pairing" is enabled and, if so, if there are
+        # Check to see if "pairing" is enabled and, if so, check if there are
         # artifacts to look at
         if self.filetote.pairing.enabled and self._shared_artifacts[source_path]:
             # Iterate through shared artifacts to find paired matches
             for artifact_path in self._shared_artifacts[source_path]:
-                artifact_filename: bytes
-                artifact_ext: bytes
+                artifact_filename: PathBytes
+                artifact_ext: PathBytes
                 artifact_filename, artifact_ext = os.path.splitext(
                     os.path.basename(artifact_path)
                 )
@@ -495,7 +493,7 @@ class FiletotePlugin(BeetsPlugin):
                 )
 
     def _update_multimove_artifacts(
-        self, beets_item: "Item", source: bytes, destination: bytes
+        self, beets_item: Item, source: PathBytes, destination: PathBytes
     ) -> None:
         """Updates all instances of a specific artifact collection in the processing
         queue with a new destination and mapping.
@@ -506,7 +504,7 @@ class FiletotePlugin(BeetsPlugin):
         applied for the artifact.
         """
         for index, artifact_collection in enumerate(self._process_queue):
-            artifact_item_dest: bytes = artifact_collection.item_dest
+            artifact_item_dest: PathBytes = artifact_collection.item_dest
 
             if artifact_item_dest == source:
                 self._process_queue[index] = FiletoteArtifactCollection(
@@ -517,7 +515,7 @@ class FiletotePlugin(BeetsPlugin):
                 )
                 break
 
-    def _is_beets_file_type(self, file_ext: Union[str, bytes]) -> bool:
+    def _is_beets_file_type(self, file_ext: str | PathBytes) -> bool:
         """Checks if the provided file extension is a music file/track
         (i.e., already handles by Beets).
         """
@@ -527,18 +525,18 @@ class FiletotePlugin(BeetsPlugin):
         )
 
     def collect_artifacts(
-        self, beets_item: "Item", source: bytes, destination: bytes
+        self, beets_item: Item, source: PathBytes, destination: PathBytes
     ) -> None:
         """Creates lists of the various extra files and artifacts for processing.
         Since beets passes through the arguments, it's explicitly setting the Item to
         the `item` argument (as it does with the others).
 
         `source` is a `PathType`, which according to the beets docs:
-        > are represented as `bytes` objects, in keeping with the Unix filesystem
+        > are represented as `PathBytes` objects, in keeping with the Unix filesystem
         > abstraction.
         """
-        item_source_filename: bytes = os.path.splitext(os.path.basename(source))[0]
-        source_path: bytes = os.path.dirname(source)
+        item_source_filename: PathBytes = os.path.splitext(os.path.basename(source))[0]
+        source_path: PathBytes = os.path.dirname(source)
 
         queue_files: list[FiletoteArtifact] = []
 
@@ -547,7 +545,7 @@ class FiletotePlugin(BeetsPlugin):
             self._collect_paired_artifacts(beets_item, source, destination)
             return
 
-        non_handled_files: List[bytes] = []
+        non_handled_files: list[PathBytes] = []
         for root, _dirs, files in util.sorted_walk(
             source_path, ignore=config["ignore"].as_str_seq()
         ):
@@ -584,18 +582,18 @@ class FiletotePlugin(BeetsPlugin):
 
         self._shared_artifacts[source_path] = non_handled_files
 
-    def process_events(self, lib: "Library") -> None:
+    def process_events(self, lib: Library) -> None:
         """Triggered by the CLI exit event, which itself triggers the processing and
         manipulation of the extra files and artifacts.
         """
         # Ensure destination library settings are accessible
-        self.filetote.session.adjust("beets_lib", lib)
+        self.filetote.session.adjust("_beets_lib", lib)
 
         artifact_collection: FiletoteArtifactCollection
         for artifact_collection in self._process_queue:
-            artifacts: List[FiletoteArtifact] = artifact_collection.artifacts
+            artifacts: list[FiletoteArtifact] = artifact_collection.artifacts
 
-            source_path: bytes = artifact_collection.source_path
+            source_path: PathBytes = artifact_collection.source_path
 
             if not self.filetote.pairing.pairing_only:
                 artifacts.extend(
@@ -611,7 +609,7 @@ class FiletotePlugin(BeetsPlugin):
                 mapping=artifact_collection.mapping,
             )
 
-    def _is_valid_paired_extension(self, artifact_file_ext: Union[str, bytes]) -> bool:
+    def _is_valid_paired_extension(self, artifact_file_ext: str | PathBytes) -> bool:
         return (
             ".*" in self.filetote.pairing.extensions
             or util.displayable_path(artifact_file_ext)
@@ -620,12 +618,12 @@ class FiletotePlugin(BeetsPlugin):
 
     def _is_pattern_match(
         self,
-        artifact_relpath: bytes,
-        patterns_dict: Dict[str, List[str]],
-        match_category: Optional[str] = None,
-    ) -> Tuple[bool, Optional[str]]:
+        artifact_relpath: PathBytes,
+        patterns_dict: Dict[str, list[str]],
+        match_category: str | None = None,
+    ) -> Tuple[bool, str | None]:
         """Check if the file is in the defined patterns."""
-        pattern_definitions: List[Tuple[str, List[str]]] = list(patterns_dict.items())
+        pattern_definitions: list[Tuple[str, list[str]]] = list(patterns_dict.items())
 
         if match_category:
             pattern_definitions = [
@@ -657,11 +655,11 @@ class FiletotePlugin(BeetsPlugin):
 
     def _is_artifact_ignorable(
         self,
-        source_path: bytes,
-        artifact_source: bytes,
-        artifact_filename: bytes,
+        source_path: PathBytes,
+        artifact_source: PathBytes,
+        artifact_filename: PathBytes,
         artifact_paired: bool,
-    ) -> Tuple[bool, Optional[str]]:
+    ) -> Tuple[bool, str | None]:
         """Compares the artifact/file to certain checks to see if it should be ignored
         or skipped.
         """
@@ -669,7 +667,7 @@ class FiletotePlugin(BeetsPlugin):
         if not os.path.exists(artifact_source):
             return (True, None)
 
-        relpath: bytes = os.path.relpath(artifact_source, start=source_path)
+        relpath: PathBytes = os.path.relpath(artifact_source, start=source_path)
 
         artifact_file_ext: str = util.displayable_path(
             os.path.splitext(artifact_filename)[1]
@@ -696,7 +694,7 @@ class FiletotePlugin(BeetsPlugin):
         # - artifacts not matching patterns
 
         is_pattern_match: bool
-        category: Optional[str]
+        category: str | None
         is_pattern_match, category = self._is_pattern_match(
             artifact_relpath=relpath, patterns_dict=self.filetote.patterns
         )
@@ -712,7 +710,7 @@ class FiletotePlugin(BeetsPlugin):
         ):
             return (True, None)
 
-        matched_category: Optional[str] = None
+        matched_category: str | None = None
         if is_pattern_match:
             matched_category = category
 
@@ -720,8 +718,8 @@ class FiletotePlugin(BeetsPlugin):
 
     def _artifact_exists_in_dest(
         self,
-        artifact_source: bytes,
-        artifact_dest: bytes,
+        artifact_source: PathBytes,
+        artifact_dest: PathBytes,
     ) -> bool:
         """Checks if the artifact/file already exists in the destination, which would
         also make it ignorable.
@@ -733,8 +731,8 @@ class FiletotePlugin(BeetsPlugin):
 
     def _get_artifact_subpath(
         self,
-        source_path: bytes,
-        artifact_path: bytes,
+        source_path: PathBytes,
+        artifact_path: PathBytes,
     ) -> str:
         """Checks if the artifact/file has a subpath in the source location and returns
         its subpath. This also ensures a trailing separator is present if there's a
@@ -758,8 +756,8 @@ class FiletotePlugin(BeetsPlugin):
 
     def process_artifacts(
         self,
-        source_path: bytes,
-        source_artifacts: List[FiletoteArtifact],
+        source_path: PathBytes,
+        source_artifacts: list[FiletoteArtifact],
         mapping: FiletoteMappingModel,
     ) -> None:
         """Processes and prepares extra files and artifacts for subsequent
@@ -768,19 +766,19 @@ class FiletotePlugin(BeetsPlugin):
         if not source_artifacts:
             return
 
-        ignored_artifacts: List[bytes] = []
+        ignored_artifacts: list[PathBytes] = []
 
         for artifact in source_artifacts:
-            artifact_source: bytes = artifact.path
+            artifact_source: PathBytes = artifact.path
 
-            artifact_path: bytes = os.path.dirname(artifact_source)
+            artifact_path: PathBytes = os.path.dirname(artifact_source)
 
             # os.path.basename() not suitable here as files may be contained
             # within dir of source_path
-            artifact_filename: bytes = artifact_source[len(artifact_path) + 1 :]
+            artifact_filename: PathBytes = artifact_source[len(artifact_path) + 1 :]
 
             is_ignorable: bool
-            pattern_category: Optional[str]
+            pattern_category: str | None
             is_ignorable, pattern_category = self._is_artifact_ignorable(
                 source_path=source_path,
                 artifact_source=artifact_source,
@@ -801,7 +799,7 @@ class FiletotePlugin(BeetsPlugin):
                 "subpath", self._get_artifact_subpath(source_path, artifact_path)
             )
 
-            artifact_dest: bytes = self._get_artifact_destination(
+            artifact_dest: PathBytes = self._get_artifact_destination(
                 artifact_filename,
                 mapping,
                 artifact.paired,
@@ -822,7 +820,7 @@ class FiletotePlugin(BeetsPlugin):
             # files. (Out-of-library files are copied/moved as usual).
             reimport: bool = self._is_reimport()
 
-            operation: Optional[MoveOperation] = self.filetote.session.operation
+            operation: MoveOperation | None = self.filetote.session.operation
 
             self.manipulate_artifact(
                 operation, artifact_source, artifact_dest, reimport
@@ -831,7 +829,7 @@ class FiletotePlugin(BeetsPlugin):
             if operation == MoveOperation.MOVE or reimport:
                 # Prune vacated directory. Depending on the type of operation,
                 # this might be a specific import path, the base library, etc.
-                root_path: Optional[bytes] = self._get_prune_root_path()
+                root_path: PathBytes | None = self._get_prune_root_path()
 
                 util.prune_dirs(
                     source_path,
@@ -841,7 +839,7 @@ class FiletotePlugin(BeetsPlugin):
 
         self.print_ignored_artifacts(ignored_artifacts)
 
-    def print_ignored_artifacts(self, ignored_artifacts: List[bytes]) -> None:
+    def print_ignored_artifacts(self, ignored_artifacts: list[PathBytes]) -> None:
         """If enabled in config, output ignored files to beets logs."""
         if self.filetote.print_ignored and ignored_artifacts:
             self._log.warning("Ignored files:")
@@ -849,13 +847,13 @@ class FiletotePlugin(BeetsPlugin):
                 self._log.warning("   {0}", os.path.basename(artifact_filename))
 
     def _is_import_path_same_as_library_dir(
-        self, import_path: Optional[bytes], library_dir: bytes
+        self, import_path: PathBytes | None, library_dir: PathBytes
     ) -> bool:
         """Checks if the import path matches the library directory."""
         return import_path is not None and import_path == library_dir
 
     def _is_import_path_within_library(
-        self, import_path: Optional[bytes], library_dir: bytes
+        self, import_path: PathBytes | None, library_dir: PathBytes
     ) -> bool:
         """Checks if the import path is within the library directory."""
         return import_path is not None and str(library_dir) in util.ancestry(
@@ -868,9 +866,6 @@ class FiletotePlugin(BeetsPlugin):
         Copy and link modes treat reimports specially, where in-library files
         are moved.
         """
-        # Sanity check for mypy in cases where beets_lib is None
-        assert self.filetote.session.beets_lib is not None
-
         library_dir = self.filetote.session.beets_lib.directory
         import_path = self.filetote.session.import_path
 
@@ -878,20 +873,17 @@ class FiletotePlugin(BeetsPlugin):
             import_path, library_dir
         ) or self._is_import_path_within_library(import_path, library_dir)
 
-    def _get_prune_root_path(self) -> Optional[bytes]:
+    def _get_prune_root_path(self) -> PathBytes | None:
         """Deduces the root path for cleaning up dangling files on MOVE.
 
         This method determines the root path that aids in cleaning up files
         when moving. If the import path matches the library directory or is
         within it, the root path is selected. Otherwise, returns None.
         """
-        # Sanity check for mypy in cases where beets_lib is None
-        assert self.filetote.session.beets_lib is not None
-
         library_dir = self.filetote.session.beets_lib.directory
         import_path = self.filetote.session.import_path
 
-        root_path: Optional[bytes] = None
+        root_path: PathBytes | None = None
 
         if import_path is None:
             # If there's not a import path (query, other CLI, etc.), use the
@@ -910,10 +902,10 @@ class FiletotePlugin(BeetsPlugin):
 
     def manipulate_artifact(
         self,
-        operation: Optional[MoveOperation],
-        artifact_source: bytes,
-        artifact_dest: bytes,
-        reimport: Optional[bool] = False,
+        operation: MoveOperation | None,
+        artifact_source: PathBytes,
+        artifact_dest: PathBytes,
+        reimport: bool | None = False,
     ) -> None:
         """Copy, move, link, hardlink or reflink (depending on `operation`)
         the artifacts (as well as write metadata).

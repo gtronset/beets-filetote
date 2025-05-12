@@ -2,14 +2,29 @@
 data used in processing extra files/artifacts.
 """
 
+from __future__ import annotations
+
 from dataclasses import asdict, dataclass, field, fields
 from sys import version_info
-from typing import Any, Dict, List, Literal, Optional, Union
 
-from beets.library import Library
-from beets.util import MoveOperation
+# Dict and List are needed for py38
+# Optional and Union are needed for <py310
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    Dict,
+    List,
+    Literal,
+    Optional,
+    Union,
+    get_type_hints,
+)
 
-from .mapping_model import FiletoteMappingModel
+if TYPE_CHECKING:
+    from beets.library import Library
+    from beets.util import MoveOperation
+
+    from .mapping_model import FiletoteMappingModel
 
 if version_info >= (3, 10):
     from typing import TypeAlias
@@ -18,6 +33,8 @@ else:
 
 StrSeq: TypeAlias = List[str]
 OptionalStrSeq: TypeAlias = Union[Literal[""], StrSeq]
+PatternsDict: TypeAlias = Dict[str, List[str]]
+PathBytes: TypeAlias = bytes
 
 DEFAULT_ALL_GLOB: Literal[".*"] = ".*"
 DEFAULT_EMPTY: Literal[""] = ""
@@ -27,7 +44,7 @@ DEFAULT_EMPTY: Literal[""] = ""
 class FiletoteArtifact:
     """An individual Filetote Artifact item for processing."""
 
-    path: bytes
+    path: PathBytes
     paired: bool
 
 
@@ -35,10 +52,10 @@ class FiletoteArtifact:
 class FiletoteArtifactCollection:
     """An individual Filetote Item collection for processing."""
 
-    artifacts: List[FiletoteArtifact]
+    artifacts: list[FiletoteArtifact]
     mapping: FiletoteMappingModel
-    source_path: bytes
-    item_dest: bytes
+    source_path: PathBytes
+    item_dest: PathBytes
 
 
 @dataclass
@@ -46,8 +63,14 @@ class FiletoteSessionData:
     """Configuration settings for Filetote Item."""
 
     operation: Optional[MoveOperation] = None
-    beets_lib: Optional[Library] = None
-    import_path: Optional[bytes] = None
+    _beets_lib: Optional[Library] = None
+    import_path: Optional[PathBytes] = None
+
+    @property
+    def beets_lib(self) -> Library:
+        """Ensures the Beets Library is accessible and present."""
+        assert self._beets_lib is not None
+        return self._beets_lib
 
     def adjust(self, attr: str, value: Any) -> None:
         """Adjust provided attribute of class with provided value."""
@@ -57,7 +80,7 @@ class FiletoteSessionData:
 @dataclass
 class FiletoteExcludeData:
     """Configuration settings for Filetote Exclude. Accepts either a sequence/list of
-    strings (type `List[str]`, for backwards compatibility) or a dict with `filenames`,
+    strings (type `list[str]`, for backwards compatibility) or a dict with `filenames`,
     `extensions`, and/or `patterns` specified.
 
     `filenames` is intentionally placed first to ensure backwards compatibility.
@@ -65,7 +88,7 @@ class FiletoteExcludeData:
 
     filenames: OptionalStrSeq = DEFAULT_EMPTY
     extensions: OptionalStrSeq = DEFAULT_EMPTY
-    patterns: Dict[str, List[str]] = field(default_factory=dict)
+    patterns: PatternsDict = field(default_factory=dict)
 
     def __post_init__(self) -> None:
         """Validates types upon initialization."""
@@ -88,7 +111,7 @@ class FiletoteExcludeData:
                 _validate_types_dict(
                     ["exclude", field_.name],
                     field_value,
-                    field_type=List,
+                    field_type=list,
                     list_subtype=str,
                 )
 
@@ -98,10 +121,10 @@ class FiletotePairingData:
     """Configuration settings for Filetote Pairing.
 
     Attributes:
-        enabled (bool): Whether `pairing` should apply.
-        pairing_only (bool): Override setting to _only_ target paired files.
-        extensions (Union[Literal[".*"], StrSeq]): Extensions to target. Defaults to
-          _all_ extensions (`.*`).
+        enabled: Whether `pairing` should apply.
+        pairing_only: Override setting to _only_ target paired files.
+        extensions: Extensions to target. Defaults to
+            _all_ extensions (`.*`).
     """
 
     enabled: bool = False
@@ -116,7 +139,7 @@ class FiletotePairingData:
         """Validate types for Filetote Pairing settings."""
         for field_ in fields(self):
             field_value = getattr(self, field_.name)
-            field_type = field_.type
+            field_type = get_type_hints(FiletotePairingData)[field_.name]
 
             if field_.name in {
                 "enabled",
@@ -137,26 +160,26 @@ class FiletoteConfig:
     """Configuration settings for Filetote Item.
 
     Attributes:
-        session (FiletoteSessionData): Beets import session data. Populated once the
-          `import_begin` is triggered.
-        extensions (OptionalStrSeq): List of extensions of artifacts to target.
-        filenames (OptionalStrSeq): List of filenames of artifacts to target.
-        patterns (Dict[str, List[str]]): Dictionary of `glob` pattern-matched patterns
-          of artifacts to target.
-        exclude (FiletoteExcludeData): Filenames, extensions, and/or patterns of
-          artifacts to exclude.
-        pairing (FiletotePairingData): Settings that control whether to look for pairs
-          and how to handle them.
-        paths (Dict[str, str]): Filetote-level configuration of target queries and
-          paths to define how artifact files should be renamed.
-        print_ignored (bool): Whether to output lists of ignored artifacts to the
-          console as imports finish.
+        session: Beets import session data. Populated once the
+            `import_begin` is triggered.
+        extensions: List of extensions of artifacts to target.
+        filenames: List of filenames of artifacts to target.
+        patterns: Dictionary of `glob` pattern-matched patterns
+            of artifacts to target.
+        exclude: Filenames, extensions, and/or patterns of
+            artifacts to exclude.
+        pairing: Settings that control whether to look for pairs
+            and how to handle them.
+        paths: Filetote-level configuration of target queries and
+            paths to define how artifact files should be renamed.
+        print_ignored: Whether to output lists of ignored artifacts to the
+            console as imports finish.
     """
 
     session: FiletoteSessionData = field(default_factory=FiletoteSessionData)
     extensions: OptionalStrSeq = DEFAULT_EMPTY
     filenames: OptionalStrSeq = DEFAULT_EMPTY
-    patterns: Dict[str, List[str]] = field(default_factory=dict)
+    patterns: PatternsDict = field(default_factory=dict)
     exclude: FiletoteExcludeData = field(default_factory=FiletoteExcludeData)
     pairing: FiletotePairingData = field(default_factory=FiletotePairingData)
     paths: Dict[str, str] = field(default_factory=dict)
@@ -188,12 +211,12 @@ class FiletoteConfig:
         setattr(self, attr, value)
 
     def _validate_types(
-        self, target_field: Optional[str] = None, target_value: Any = None
+        self, target_field: str | None = None, target_value: Any = None
     ) -> None:
         """Validate types for Filetote Config settings."""
         for field_ in fields(self):
             field_value = target_value or getattr(self, field_.name)
-            field_type = field_.type
+            field_type = get_type_hints(FiletoteConfig)[field_.name]
 
             if target_field and field_.name != target_field:
                 continue
@@ -210,7 +233,7 @@ class FiletoteConfig:
 
             if field_.name == "patterns":
                 _validate_types_dict(
-                    [field_.name], field_value, field_type=List, list_subtype=str
+                    [field_.name], field_value, field_type=list, list_subtype=str
                 )
 
             if field_.name == "paths":
@@ -221,7 +244,7 @@ class FiletoteConfig:
 
 
 def _validate_types_instance(
-    field_name: List[str],
+    field_name: list[str],
     field_value: Any,
     field_type: Any,
 ) -> None:
@@ -235,10 +258,10 @@ def _validate_types_instance(
 
 
 def _validate_types_dict(
-    field_name: List[str],
+    field_name: list[str],
     field_value: Dict[Any, Any],
     field_type: Any,
-    list_subtype: Optional[Any] = None,
+    list_subtype: Any | None = None,
 ) -> None:
     for key, value in field_value.items():
         if not isinstance(key, str):
@@ -263,7 +286,7 @@ def _validate_types_dict(
 
 
 def _validate_types_str_seq(
-    field_name: List[str],
+    field_name: list[str],
     field_value: Any,
     optional_default: str,
 ) -> None:
@@ -272,7 +295,7 @@ def _validate_types_str_seq(
             _raise_type_validation_error(
                 field_name,
                 f"literal `{optional_default}`, an empty list, or sequence/list of"
-                " strings (type `List[str]`)",
+                " strings (type `list[str]`)",
                 field_value,
             )
 
@@ -280,17 +303,17 @@ def _validate_types_str_seq(
             if not isinstance(elem, str):
                 _raise_type_validation_error(
                     field_name,
-                    "sequence/list of strings (type `List[str]`)",
+                    "sequence/list of strings (type `list[str]`)",
                     elem,
                 )
 
 
 def _raise_type_validation_error(
-    field_name: List[str],
+    field_name: list[str],
     expected_type: Any,
     value: Any = None,
-    key_name: Optional[Any] = None,
-    check_keys_value: Optional[bool] = False,
+    key_name: Any | None = None,
+    check_keys_value: bool | None = False,
 ) -> None:
     part_type: str = "Value"
     received_type: Any = type(value)
@@ -309,5 +332,5 @@ def _raise_type_validation_error(
     )
 
 
-def _format_config_hierarchy(parts: List[str]) -> str:
+def _format_config_hierarchy(parts: list[str]) -> str:
     return "".join([f"[{part}]" for part in parts])

@@ -15,3 +15,4 @@ env/
 .actrc
 .mypy_cache
 .ruff_cache
+.tool-versions

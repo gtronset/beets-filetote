@@ -74,6 +74,7 @@ extend-select = [
     "D",    # pydocstyle
     "E",    # pycodestyle
     "F",    # pyflakes
+    "FA",   # flake8-future-annotations
     "B",    # flake8-bugbear
     "I",    # isort
     "N",    # pep8-naming
@@ -116,6 +117,10 @@ max-line-length = 88
 [tool.ruff.lint.pydocstyle]
 # Use Google-style docstrings.
 convention = "google"
+
+[tool.ruff.lint.pyupgrade]
+# Preserve types, even if a file imports `from __future__ import annotations`.
+keep-runtime-typing = true
 
 [tool.tox]
 requires = ["tox>=4.22"]
