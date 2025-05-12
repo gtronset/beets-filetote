@@ -63,8 +63,14 @@ class FiletoteSessionData:
     """Configuration settings for Filetote Item."""
 
     operation: Optional[MoveOperation] = None
-    beets_lib: Optional[Library] = None
+    _beets_lib: Optional[Library] = None
     import_path: Optional[PathBytes] = None
+
+    @property
+    def beets_lib(self) -> Library:
+        """Ensures the Beets Library is accessible and present."""
+        assert self._beets_lib is not None
+        return self._beets_lib
 
     def adjust(self, attr: str, value: Any) -> None:
         """Adjust provided attribute of class with provided value."""

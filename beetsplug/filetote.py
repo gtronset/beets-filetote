@@ -395,9 +395,6 @@ class FiletotePlugin(BeetsPlugin):
             + artifact_ext
         )
 
-        # Sanity check for mypy in cases where beets_lib is None
-        assert self.filetote.session.beets_lib is not None
-
         replacements = self.filetote.session.beets_lib.replacements
 
         # Sanitize filename
@@ -590,7 +587,7 @@ class FiletotePlugin(BeetsPlugin):
         manipulation of the extra files and artifacts.
         """
         # Ensure destination library settings are accessible
-        self.filetote.session.adjust("beets_lib", lib)
+        self.filetote.session.adjust("_beets_lib", lib)
 
         artifact_collection: FiletoteArtifactCollection
         for artifact_collection in self._process_queue:
@@ -869,9 +866,6 @@ class FiletotePlugin(BeetsPlugin):
         Copy and link modes treat reimports specially, where in-library files
         are moved.
         """
-        # Sanity check for mypy in cases where beets_lib is None
-        assert self.filetote.session.beets_lib is not None
-
         library_dir = self.filetote.session.beets_lib.directory
         import_path = self.filetote.session.import_path
 
@@ -886,9 +880,6 @@ class FiletotePlugin(BeetsPlugin):
         when moving. If the import path matches the library directory or is
         within it, the root path is selected. Otherwise, returns None.
         """
-        # Sanity check for mypy in cases where beets_lib is None
-        assert self.filetote.session.beets_lib is not None
-
         library_dir = self.filetote.session.beets_lib.directory
         import_path = self.filetote.session.import_path
 
