@@ -1,9 +1,9 @@
 """Tests renaming for the beets-filetote plugin."""
 
+from __future__ import annotations
+
 import logging
 import os
-
-from typing import List, Optional
 
 import pytest
 
@@ -19,7 +19,7 @@ class FiletoteRenameTest(FiletoteTestCase):
     formats (both by extension and filename).
     """
 
-    def setUp(self, _other_plugins: Optional[List[str]] = None) -> None:
+    def setUp(self, _other_plugins: list[str] | None = None) -> None:
         """Provides shared setup for tests."""
         super().setUp()
 

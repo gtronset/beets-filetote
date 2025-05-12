@@ -1,11 +1,13 @@
 """Test for functions in `filetote_dataclasses`, esp. TypeError validations."""
 # ruff: noqa: SLF001
 
+from __future__ import annotations
+
 import os
 import sys
 import unittest
 
-from typing import Any, List
+from typing import Any
 
 import pytest
 
@@ -36,7 +38,7 @@ class TestTypeErrorFunctions(unittest.TestCase):
 
     def _test_instance_validation(
         self,
-        field_name: List[str],
+        field_name: list[str],
         field_value: Any,
         field_type: Any,
         expected_type: Any,
@@ -106,7 +108,7 @@ class TestTypeErrorFunctions(unittest.TestCase):
 
     def test__validate_types_str_seq(self) -> None:
         """Ensure the str_seq correctly checks for the types."""
-        # Test the positive outcome of a `List[str]`
+        # Test the positive outcome of a `list[str]`
         try:
             filetote_dataclasses._validate_types_str_seq(["test"], ["string"], '""')
         except TypeError as e:
@@ -119,7 +121,7 @@ class TestTypeErrorFunctions(unittest.TestCase):
         assert (
             str(non_list_test.value)
             == 'Value for Filetote config key "[test]" should be of type literal `""`,'
-            " an empty list, or sequence/list of strings (type `List[str]`), got"
+            " an empty list, or sequence/list of strings (type `list[str]`), got"
             " `<class 'type'>`"
         )
 
@@ -130,7 +132,7 @@ class TestTypeErrorFunctions(unittest.TestCase):
         assert (
             str(non_string_item_test.value)
             == 'Value for Filetote config key "[test]" should be of type'
-            " sequence/list of strings (type `List[str]`), got `<class 'int'>`"
+            " sequence/list of strings (type `list[str]`), got `<class 'int'>`"
         )
 
     def test__raise_type_validation_error(self) -> None:
