@@ -1,5 +1,7 @@
 """Tests renaming for the beets-filetote plugin."""
 
+# ruff: noqa: PLR0904
+
 from __future__ import annotations
 
 import logging
@@ -282,6 +284,28 @@ class FiletoteRenameTest(FiletoteTestCase):
 
         assert str(assert_test_message.value) == assertion_msg
 
+    def test_filetote_paths_priority_over_beets_paths(self) -> None:
+        """Ensure that the Filetote `paths` settings take priority over
+        any matching-specified ones in Beets' `paths` settings.
+        """
+        config["filetote"]["extensions"] = ".file"
+
+        config["filetote"]["paths"]["filetote:default"] = os.path.join(
+            "$albumpath", "Filetote", "$old_filename"
+        )
+        config["paths"]["filetote:default"] = os.path.join(
+            "$albumpath", "Beets", "$old_filename"
+        )
+
+        config["import"]["move"] = True
+
+        self._run_cli_command("import")
+
+        self.assert_in_lib_dir(
+            b"Tag Artist", b"Tag Album", b"Filetote", b"artifact.file"
+        )
+        self.assert_not_in_lib_dir(b"Tag Artist", b"Tag Album", b"artifact.file")
+
     def test_rename_filetote_default(self) -> None:
         """Ensure that the default value for a path query of an otherwise not specified
         artifact is `$albumpath/$old_filename`.
@@ -350,3 +374,65 @@ class FiletoteRenameTest(FiletoteTestCase):
             b"Tag Artist", b"Tag Album", b"Filetote", b"artifact.file"
         )
         self.assert_not_in_lib_dir(b"Tag Artist", b"Tag Album", b"artifact.file")
+
+    def test_rename_respect_defined_order(self) -> None:
+        """Tests that patterns of just folders grab all contents."""
+        import_dir = os.path.join(self.import_dir, b"the_album")
+        scans_dir = os.path.join(self.import_dir, b"the_album", b"scans")
+
+        os.makedirs(scans_dir)
+
+        self.create_file(
+            path=scans_dir,
+            filename=b"scan-1.jpg",
+        )
+
+        self.create_file(
+            path=import_dir,
+            filename=b"cover.jpg",
+        )
+
+        self.create_file(
+            path=import_dir,
+            filename=b"sub.cue",
+        )
+
+        self.create_file(
+            path=import_dir,
+            filename=b"md5.sum",
+        )
+
+        config["filetote"]["extensions"] = ".*"
+        config["filetote"]["exclude"] = {"extensions": [".sum"]}
+
+        config["filetote"]["patterns"] = {
+            "scans": ["[sS]cans/"],
+            "artwork": ["[sS]cans/"],
+            "cover": ["*.jpg"],
+            "cue": ["*.cue"],
+        }
+
+        config["paths"] = {
+            "pattern:cover": os.path.join(
+                "$albumpath", "${album} - $old_filename - cover"
+            ),
+            "filetote:default": os.path.join("$albumpath", "default", "$old_filename"),
+            "pattern:cue": os.path.join("$albumpath", "${album} - $old_filename - cue"),
+        }
+
+        config["filetote"]["paths"] = {
+            "pattern:artwork": os.path.join("$albumpath", "$old_filename - artwork"),
+            "pattern:scans": os.path.join("$albumpath", "scans", "$old_filename"),
+        }
+
+        self._run_cli_command("import")
+
+        self.assert_not_in_lib_dir(b"Tag Artist", b"Tag Album", b"Artwork", b"md5.sum")
+
+        self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"scans", b"scan-1.jpg")
+        self.assert_in_lib_dir(
+            b"Tag Artist", b"Tag Album", b"Tag Album - sub - cue.cue"
+        )
+        self.assert_in_lib_dir(
+            b"Tag Artist", b"Tag Album", b"Tag Album - cover - cover.jpg"
+        )
