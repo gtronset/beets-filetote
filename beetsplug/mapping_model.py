@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import ClassVar, Literal
+from typing import ClassVar, Dict, Literal
 
 from beets.dbcore import db
 from beets.dbcore import types as db_types
@@ -24,7 +24,7 @@ class FiletoteMappingModel(db.Model):
         super().__setitem__(key, value)
 
     @classmethod
-    def _getters(cls) -> dict[None, None]:
+    def _getters(cls) -> Dict[None, None]:
         """Return "blank" for getter functions."""
         return {}
 

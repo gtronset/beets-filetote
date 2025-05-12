@@ -248,7 +248,7 @@ def _validate_types_instance(
 
 def _validate_types_dict(
     field_name: list[str],
-    field_value: dict[Any, Any],
+    field_value: Dict[Any, Any],
     field_type: Any,
     list_subtype: Any | None = None,
 ) -> None:
