@@ -122,6 +122,10 @@ moved/copied into destination directory of the music item it gets grabbed with. 
 also means that the album folder is flattened and any subdirectory is removed by
 default. To preserve subdirectories, see `$subpath` usage [here](#subpath-renaming-example).
 
+> [!NOTE]
+> To update the default renaming from `$albumpath/$old_filename`, use the
+> `filetote:default` path specification.
+
 Configuration for renaming works in much the same way as beets [Path Formats], including
 the standard metadata values provided by beets along with `replace` settings. Filetote
 provides the below new path queries, which each takes a single corresponding value.
@@ -139,6 +143,14 @@ filetote:
     ext:.log: $albumpath/$artist - $album
 ```
 
+> [!IMPORTANT]
+> If you have the same path specified in both the top-level `paths` section of Beet's
+> config and in the `paths` section of Filetote's config, the Filetote's specification
+> will take precedence. There should not be a normal scenario where this is
+> intentionally utilized with Filetote's [new path queries](#new-path-queries), but it
+> may be needed if there's a conflict/overlap with another plugin; this allows you to
+> specify renaming rules that will _only_ impact Filetote and not other plugins.
+
 [Path Formats]: http://beets.readthedocs.org/en/stable/reference/pathformat.html
 
 ##### New path queries
@@ -154,6 +166,10 @@ This means that the `filename:` path query will take precedence over `paired_ext
 `pattern:`, and `ext:` if a given file qualifies for them. This also means that
 the value in `paired_ext:` will take precedence over `pattern:` and `ext:`, and
 `pattern:` is higher priority than `ext:`.
+
+> [!WARNING]
+> `ext:.*` is _not_ a valid query. If you need to update the default renaming, [please
+> use `filetote:default`](#filetote-renaming-basics).
 
 ##### Renaming considerations
 
