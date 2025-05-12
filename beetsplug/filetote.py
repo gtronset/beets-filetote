@@ -169,18 +169,26 @@ class FiletotePlugin(BeetsPlugin):
         self, queries: FiletoteQueries, path_default: Template
     ) -> Dict[str, Template]:
         """Gets all `path` formats from beets and parses those set for Filetote.
-        First sets those from the Beet's `path` node then sets them from
-        Filetote's node, overriding when needed to give priority to Filetote's
-        definitions.
+
+        Sets a default value for artifacts, then sets those paths from the Filetote's
+        `paths` node. After, then adds any applicable paths from Beets' `path` node,
+        unless there's already a representation from Filetote's node to give priority
+        to Filetote's definitions.
         """
         path_formats: Dict[str, str | Template] = {"filetote:default": path_default}
 
-        for beets_path_format in get_path_formats():
-            for query in queries:
-                if beets_path_format[0].startswith(query):
-                    path_formats[beets_path_format[0]] = beets_path_format[1]
-
         path_formats.update(self.filetote.paths)
+
+        beets_path_query: str
+        beets_path_format: Template
+
+        for beets_path_query, beets_path_format in get_path_formats():
+            for filetote_query in queries:
+                if (
+                    beets_path_query.startswith(filetote_query)
+                    and beets_path_query not in self.filetote.paths
+                ):
+                    path_formats[beets_path_query] = beets_path_format
 
         # Validate all collected paths
         if "ext:.*" in path_formats:
