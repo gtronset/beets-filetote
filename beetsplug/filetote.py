@@ -457,7 +457,7 @@ class FiletotePlugin(BeetsPlugin):
 
         queue_artifacts: list[FiletoteArtifact] = []
 
-        # Check to see if "pairing" is enabled and, if so, if there are
+        # Check to see if "pairing" is enabled and, if so, check if there are
         # artifacts to look at
         if self.filetote.pairing.enabled and self._shared_artifacts[source_path]:
             # Iterate through shared artifacts to find paired matches
