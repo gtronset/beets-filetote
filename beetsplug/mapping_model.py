@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+# Dict is needed for py38
 from typing import ClassVar, Dict, Literal
 
 from beets.dbcore import db

@@ -7,7 +7,17 @@ import fnmatch
 import os
 
 from sys import version_info
-from typing import TYPE_CHECKING, Any, Callable, Dict, List, Literal, Tuple
+
+# Dict, List, and Tuple are needed for py38
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    Callable,
+    Dict,
+    List,
+    Literal,
+    Tuple,
+)
 
 from beets import config, util
 from beets.library import DefaultTemplateFunctions
