@@ -31,6 +31,7 @@ if version_info >= (3, 10):
 else:
     from typing_extensions import TypeAlias
 
+PatternsDict: TypeAlias = Dict[str, List[str]]
 StrSeq: TypeAlias = List[str]
 OptionalStrSeq: TypeAlias = Union[Literal[""], StrSeq]
 
@@ -80,7 +81,7 @@ class FiletoteExcludeData:
 
     filenames: OptionalStrSeq = DEFAULT_EMPTY
     extensions: OptionalStrSeq = DEFAULT_EMPTY
-    patterns: Dict[str, List[str]] = field(default_factory=dict)
+    patterns: PatternsDict = field(default_factory=dict)
 
     def __post_init__(self) -> None:
         """Validates types upon initialization."""
@@ -171,7 +172,7 @@ class FiletoteConfig:
     session: FiletoteSessionData = field(default_factory=FiletoteSessionData)
     extensions: OptionalStrSeq = DEFAULT_EMPTY
     filenames: OptionalStrSeq = DEFAULT_EMPTY
-    patterns: Dict[str, List[str]] = field(default_factory=dict)
+    patterns: PatternsDict = field(default_factory=dict)
     exclude: FiletoteExcludeData = field(default_factory=FiletoteExcludeData)
     pairing: FiletotePairingData = field(default_factory=FiletotePairingData)
     paths: Dict[str, str] = field(default_factory=dict)
