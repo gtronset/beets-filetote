@@ -416,7 +416,7 @@ class FiletoteRenameTest(FiletoteTestCase):
             "pattern:cover": os.path.join(
                 "$albumpath", "${album} - $old_filename - cover"
             ),
-            "filetote:default": "$albumpath/default/$old_filename",
+            "filetote:default": os.path.join("$albumpath", "default", "$old_filename"),
             "pattern:cue": os.path.join("$albumpath", "${album} - $old_filename - cue"),
         }
 

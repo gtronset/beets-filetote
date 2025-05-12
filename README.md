@@ -304,6 +304,29 @@ Patterns are defined by a _name_ so that any customization for renaming can appl
 pattern when specifying the path (ex: `pattern:artworkdir`; see the section on renaming
 below).
 
+> [!IMPORTANT]
+> Patterns process in order from top to bottom, and once matched will determine which
+> path to apply during renaming. This is important in cases where theoretically a file
+> could match to multiple patterns. For example, if you have a file here:
+> `albumpath/artwork/cover.jpg`, the pattern it'll match to is the first (`artworkdir`)
+> in the following config:
+>
+> ```yaml
+> filetote:
+>  patterns:
+>    artworkdir:
+>      - "[aA]rtwork/"
+>    images:
+>      - "*.jpg"
+>      - "*.jpeg"
+>      - "*.png"
+> ```
+>
+> Thus, it will only match the pattern `path` of `pattern:artworkdir` and _not_
+> `pattern:images`. Please note that irrespective if it matches a pattern, if
+> there is a more specific path [per the renaming rules](#new-path-queries) it'll use
+> that instead.
+
 [glob patterns]: https://docs.python.org/3/library/glob.html#module-glob
 
 ##### Pattern Example Configuration
