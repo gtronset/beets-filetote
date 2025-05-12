@@ -31,9 +31,10 @@ if version_info >= (3, 10):
 else:
     from typing_extensions import TypeAlias
 
-PatternsDict: TypeAlias = Dict[str, List[str]]
 StrSeq: TypeAlias = List[str]
 OptionalStrSeq: TypeAlias = Union[Literal[""], StrSeq]
+PatternsDict: TypeAlias = Dict[str, List[str]]
+PathBytes: TypeAlias = bytes
 
 DEFAULT_ALL_GLOB: Literal[".*"] = ".*"
 DEFAULT_EMPTY: Literal[""] = ""
@@ -43,7 +44,7 @@ DEFAULT_EMPTY: Literal[""] = ""
 class FiletoteArtifact:
     """An individual Filetote Artifact item for processing."""
 
-    path: bytes
+    path: PathBytes
     paired: bool
 
 
@@ -53,8 +54,8 @@ class FiletoteArtifactCollection:
 
     artifacts: list[FiletoteArtifact]
     mapping: FiletoteMappingModel
-    source_path: bytes
-    item_dest: bytes
+    source_path: PathBytes
+    item_dest: PathBytes
 
 
 @dataclass
@@ -63,7 +64,7 @@ class FiletoteSessionData:
 
     operation: Optional[MoveOperation] = None
     beets_lib: Optional[Library] = None
-    import_path: Optional[bytes] = None
+    import_path: Optional[PathBytes] = None
 
     def adjust(self, attr: str, value: Any) -> None:
         """Adjust provided attribute of class with provided value."""
