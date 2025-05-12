@@ -6,7 +6,16 @@ from __future__ import annotations
 
 from dataclasses import asdict, dataclass, field, fields
 from sys import version_info
-from typing import TYPE_CHECKING, Any, Literal, Optional, Union, get_type_hints
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    Dict,
+    List,
+    Literal,
+    Optional,
+    Union,
+    get_type_hints,
+)
 
 if TYPE_CHECKING:
     from beets.library import Library
@@ -19,7 +28,7 @@ if version_info >= (3, 10):
 else:
     from typing_extensions import TypeAlias
 
-StrSeq: TypeAlias = list[str]
+StrSeq: TypeAlias = List[str]
 OptionalStrSeq: TypeAlias = Union[Literal[""], StrSeq]
 
 DEFAULT_ALL_GLOB: Literal[".*"] = ".*"
@@ -68,7 +77,7 @@ class FiletoteExcludeData:
 
     filenames: OptionalStrSeq = DEFAULT_EMPTY
     extensions: OptionalStrSeq = DEFAULT_EMPTY
-    patterns: dict[str, list[str]] = field(default_factory=dict)
+    patterns: Dict[str, List[str]] = field(default_factory=dict)
 
     def __post_init__(self) -> None:
         """Validates types upon initialization."""
@@ -159,10 +168,10 @@ class FiletoteConfig:
     session: FiletoteSessionData = field(default_factory=FiletoteSessionData)
     extensions: OptionalStrSeq = DEFAULT_EMPTY
     filenames: OptionalStrSeq = DEFAULT_EMPTY
-    patterns: dict[str, list[str]] = field(default_factory=dict)
+    patterns: Dict[str, List[str]] = field(default_factory=dict)
     exclude: FiletoteExcludeData = field(default_factory=FiletoteExcludeData)
     pairing: FiletotePairingData = field(default_factory=FiletotePairingData)
-    paths: dict[str, str] = field(default_factory=dict)
+    paths: Dict[str, str] = field(default_factory=dict)
     print_ignored: bool = False
 
     def __post_init__(self) -> None:
