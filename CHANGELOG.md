@@ -15,6 +15,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Explicitly set `permissions` on all Workflows <https://github.com/gtronset/beets-filetote/pull/187>
+
+### Fixed
+
+- Handle `convert` temp file locations overriding `Item.path` <https://github.com/gtronset/beets-filetote/pull/188>
+
+## [1.0.2] - 2025-05-14
+
+### Changed
+
 - Improve the `exclude` setting to allow filenames, extensions, and patterns <https://github.com/gtronset/beets-filetote/pull/179>
 - Update `ruff` to `0.11.9` <https://github.com/gtronset/beets-filetote/pull/183>
 - Provide `filetote:default` to configure custom default renaming for otherwise

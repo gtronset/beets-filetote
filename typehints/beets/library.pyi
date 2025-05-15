@@ -23,6 +23,7 @@ class Library(Database):
 class LibModel(Model): ...
 
 class Item(LibModel):
+    id: int
     path: bytes
 
     def __init__(self) -> None: ...
