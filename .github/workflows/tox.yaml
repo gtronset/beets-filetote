@@ -66,7 +66,15 @@ jobs:
         steps:
             - uses: actions/checkout@v4
 
+            - name: Cache Primes
+              id: cache-system-deps
+              uses: actions/cache@v4
+              with:
+                  path: "$HOME/.local/bin"
+                  key: ${{ runner.os }}-python_${{ env.PYTHON_VERSION }}-poetry_${{ env.POETRY_VERSION }}-system-deps
+
             - name: Install Poetry
+              if: steps.cache-system-deps.outputs.cache-hit != 'true'
               run: |
                   pipx install poetry==${{ env.POETRY_VERSION }}
 
