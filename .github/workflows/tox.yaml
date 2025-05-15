@@ -66,11 +66,11 @@ jobs:
         steps:
             - uses: actions/checkout@v4
 
-            - name: Cache Primes
+            - name: Cache System Deps
               id: cache-system-deps
               uses: actions/cache@v4
               with:
-                  path: "$HOME/.local/bin"
+                  path: "/root/.local/bin"
                   key: ${{ runner.os }}-python_${{ env.PYTHON_VERSION }}-poetry_${{ env.POETRY_VERSION }}-system-deps
 
             - name: Install Poetry
