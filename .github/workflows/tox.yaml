@@ -41,10 +41,10 @@ jobs:
 
             - name: Install Poetry
               run: |
-                  curl -sSL https://install.python-poetry.org | python3 - --version ${{ env.POETRY_VERSION }}
+                  pipx install poetry==${{ env.POETRY_VERSION }}
 
             - name: Update PATH
-              run: echo "/root/.local/bin" >> $GITHUB_PATH
+              run: echo "$HOME/.local/bin" >> $GITHUB_PATH
 
             - name: Setup Python ${{ matrix.python-version }}
               uses: actions/setup-python@v5
@@ -68,7 +68,7 @@ jobs:
 
             - name: Install Poetry
               run: |
-                  curl -sSL https://install.python-poetry.org | python3 - --version ${{ env.POETRY_VERSION }}
+                  pipx install poetry==${{ env.POETRY_VERSION }}
 
             - name: Update PATH
               run: echo "$HOME/.local/bin" >> $GITHUB_PATH
