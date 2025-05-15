@@ -66,15 +66,30 @@ jobs:
         steps:
             - uses: actions/checkout@v4
 
-            - name: Cache System Deps
-              id: cache-system-deps
+            - name: Setup pipx environment Variables
+              id: pipx-env-setup
+              # pipx default home and bin dir are not writable by the cache action
+              # so override them here and add the bin dir to PATH for later steps.
+              run: |
+                  SEP="${{ !startsWith(runner.os, 'windows') && '/' || '\\' }}"
+                  PIPX_CACHE="${{ github.workspace }}${SEP}pipx_cache"
+                  echo "pipx-cache-path=${PIPX_CACHE}" >> $GITHUB_OUTPUT
+                  echo "pipx-version=$(pipx --version)" >> $GITHUB_OUTPUT
+                  echo "PIPX_HOME=${PIPX_CACHE}${SEP}home" >> $GITHUB_ENV
+                  echo "PIPX_BIN_DIR=${PIPX_CACHE}${SEP}bin" >> $GITHUB_ENV
+                  echo "PIPX_MAN_DIR=${PIPX_CACHE}${SEP}man" >> $GITHUB_ENV
+                  echo "${PIPX_CACHE}${SEP}bin" >> $GITHUB_PATH
+              shell: bash
+
+            - name: Cache Pipx
+              id: cache-pipx
               uses: actions/cache@v4
               with:
-                  path: "/root/.local/bin"
-                  key: ${{ runner.os }}-python_${{ env.PYTHON_VERSION }}-poetry_${{ env.POETRY_VERSION }}-system-deps
+                  path: ${{ steps.pipx-env-setup.outputs.pipx-cache-path }}
+                  key: ${{ runner.os }}-python_${{ env.PYTHON_VERSION }}-pipx_${{ steps.pipx-env-setup.outputs.pipx-version }}-poetry_${{ env.POETRY_VERSION }}-system-deps
 
-            - name: Install Poetry
-              if: steps.cache-system-deps.outputs.cache-hit != 'true'
+            - name: Install Poetry & Tox
+              if: steps.cache-pipx.outputs.cache-hit != 'true'
               run: |
                   pipx install poetry==${{ env.POETRY_VERSION }}
                   pipx install tox
