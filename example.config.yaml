@@ -1,0 +1,69 @@
+plugins: convert filetote
+
+pluginpath:
+    - /src/beetsplug
+
+library: /beets/library.db
+
+directory: /beets/library
+
+filetote:
+    extensions: .*
+    filename:
+        - "folder.jpg"
+        - "Folder.jpg"
+        - "cover.jpg"
+        - "Cover.jpg"
+    print_ignored: true
+    paths:
+        pattern:logfolder: $albumpath/Log/$old_filename
+        pattern:cuefolder: $albumpath/Cue/$old_filename
+        pattern:logcuefolder: $albumpath/Log & Cue/$old_filename
+        pattern:scansfolder: $albumpath/Scans/$old_filename.duplicated
+        ext:7z: $albumpath/Data/$old_filename
+        ext:log: $albumpath/Data/$catalognum
+        ext:doc: $albumpath/Data/$old_filename
+        ext:rtf: $albumpath/Data/$old_filename
+        ext:html: $albumpath/Data/$old_filename
+        ext:m3u8: $albumpath/Data/$old_filename
+        ext:accurip: $albumpath/Data/$old_filename
+        ext:sha: $albumpath/Data/$old_filename
+        ext:pls: $albumpath/Data/$old_filename
+        ext:cue: $albumpath/Data/$catalognum
+        ext:zip: $albumpath/Data/$old_filename
+        ext:txt: $albumpath/Data/$old_filename
+        ext:sfv: $albumpath/Data/$old_filename
+        ext:iso: $albumpath/Data/$old_filename
+        ext:nfo: $albumpath/Data/$old_filename
+        ext:md5: $albumpath/Data/$old_filename
+        ext:m3u: $albumpath/Data/$old_filename
+        ext:tif: $albumpath/Scans/$old_filename.imported
+        ext:jpg: $albumpath/Scans/$old_filename.imported
+        ext:psd: $albumpath/Scans/$old_filename.imported
+        ext:png: $albumpath/Scans/$old_filename.imported
+        ext:bmp: $albumpath/Scans/$old_filename.imported
+        ext:gif: $albumpath/Scans/$old_filename.imported
+        ext:pdf: $albumpath/Scans/$old_filename
+        ext:tiff: $albumpath/Scans/$old_filename.imported
+        ext:jpeg: $albumpath/Scans/$old_filename.imported
+        ext:url: $albumpath/Album info
+        filename:folder.jpg: $albumpath/folder
+        filename:Folder.jpg: $albumpath/folder
+        filename:cover.jpg: $albumpath/folder
+        filename:Cover.jpg: $albumpath/folder
+    patterns:
+        logfolder:
+            - "[lL]og/"
+        cuefolder:
+            - "[cC]ue/"
+        logcuefolder:
+            - "[lL]og & Cue/"
+        scansfolder:
+            - "[sS]cans/"
+convert:
+    auto: yes
+    format: flac
+    copy_album_art: yes
+    delete_originals: no
+    never_convert_lossy_files: no
+    quiet: no

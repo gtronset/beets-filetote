@@ -16,6 +16,7 @@ import beetsplug
 # mypy doesn't recognize `audible` as an extended module
 from beetsplug import (  # type: ignore[attr-defined]
     audible,
+    convert,
     filetote,
     inline,
 )
@@ -84,7 +85,7 @@ RSRC_TYPES = {
     # 'asf':  b"full.asf",
     # 'aiff': b"full.aiff",
     # 'dsf':  b"full.dsf",
-    # 'wav':  b"full.wav",
+    "wav": b"full.wav",
     # 'wave':  b"full.wave",
     # 'wma':  b"full.wma",
 }
@@ -249,6 +250,7 @@ class FiletoteTestCase(_common.TestCase, Assertions, HelperUtils):
 
         approved_plugins: Dict[str, Any] = {
             "audible": audible.Audible,
+            "convert": convert.ConvertPlugin,
             "inline": inline.InlinePlugin,
         }
 

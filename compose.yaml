@@ -1,9 +1,9 @@
-version: "3.9"
 services:
-  beets-filetote:
-    container_name: beets-filetote
-    build: .
-    command: tail -F anything
-    restart: unless-stopped
-    volumes:
-      - .:/src
+    beets-filetote:
+        container_name: beets-filetote
+        build: .
+        command: tail -F anything
+        restart: unless-stopped
+        volumes:
+            - .:/src
+            - ./example.config.yaml:/root/.config/beets/config.yaml

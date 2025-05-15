@@ -21,7 +21,7 @@ from typing import (
 
 from beets import config, util
 from beets.library import DefaultTemplateFunctions
-from beets.plugins import BeetsPlugin
+from beets.plugins import BeetsPlugin, find_plugins
 from beets.ui import get_path_formats
 from beets.util import MoveOperation
 from beets.util.functemplate import Template
@@ -36,7 +36,7 @@ from .filetote_dataclasses import (
 from .mapping_model import FiletoteMappingFormatted, FiletoteMappingModel
 
 if TYPE_CHECKING:
-    from beets.importer import ImportSession
+    from beets.importer import ImportSession, ImportTask
     from beets.library import Item, Library
 
 if version_info >= (3, 10):
@@ -109,11 +109,42 @@ class FiletotePlugin(BeetsPlugin):
             queries, path_default
         )
 
+        self._imported_items_paths: dict[int, PathBytes] = {}
         self._process_queue: list[FiletoteArtifactCollection] = []
         self._shared_artifacts: dict[PathBytes, list[PathBytes]] = {}
         self._dirs_seen: list[PathBytes] = []
 
+        self.early_import_stages = [self._get_imported_items_paths]
+
+        self._convert_early_import_stages: list[Callable[..., None]] = []
+
         self._register_file_operation_events()
+
+    def _get_imported_items_paths(
+        self, session: ImportSession, task: ImportTask
+    ) -> None:
+        """Registers the original import path for each Items that are potentially
+        going to be added to the Library.
+
+        Called as an `early_import_stage` that occurs before other plugin events.
+
+        Organizes into a dictionary that can be later accessible via the Item.id.
+        This is needed to accommodate certain plugins such as `convert` which
+        dynamically mutates the Item.path (and thus the typical `source`). Without
+        grabbing the original `path` here, Filetote would end up looking for artifacts
+        in other, then incorrect locations.
+
+        Also runs/initializes any early stages that `convert` provides, if it is loaded.
+        """
+        self._imported_items_paths = {
+            item.id: item.path for item in task.imported_items()
+        }
+
+        # If `convert` is not loaded, `self._convert_early_import_stages` is empty
+        [
+            convert_early_stage(session, task)
+            for convert_early_stage in self._convert_early_import_stages
+        ]
 
     def _register_file_operation_events(self) -> None:
         """Registers various file operation events and their corresponding functions.
@@ -148,7 +179,7 @@ class FiletotePlugin(BeetsPlugin):
 
             self.register_listener(event, file_operation_event_functions[event])
 
-        self.register_listener("pluginload", self._register_additional_file_types)
+        self.register_listener("pluginload", self._register_pluginload_handling)
 
         self.register_listener("import_begin", self._register_session_settings)
 
@@ -204,7 +235,7 @@ class FiletotePlugin(BeetsPlugin):
             for path_key, query in path_formats.items()
         }
 
-    def _register_additional_file_types(self) -> None:
+    def _register_pluginload_handling(self) -> None:
         """This augments the file type list of what is considered a music
         file or media, since MediaFile.TYPES isn't fundamentally a complete
         list of files by extension.
@@ -215,8 +246,17 @@ class FiletotePlugin(BeetsPlugin):
             "wave": "WAVE",
         })
 
-        if "audible" in config["plugins"].get():
-            BEETS_FILE_TYPES.update({"m4b": "M4B"})
+        for plugin in find_plugins():
+            if plugin.name == "convert":
+                self._log.warning(str(plugin.early_import_stages))
+
+                convert_early_import_stages = plugin.early_import_stages
+                plugin.early_import_stages = []
+
+                self._convert_early_import_stages = convert_early_import_stages
+
+            if plugin.name == "audible":
+                BEETS_FILE_TYPES.update({"m4b": "M4B"})
 
     def _register_session_settings(self, session: ImportSession) -> None:
         """Certain settings are only available and/or finalized once the
@@ -278,6 +318,12 @@ class FiletotePlugin(BeetsPlugin):
         # Determine the operation type if not already present
         if not self.filetote.session.operation:
             self.filetote.session.adjust("operation", self._event_operation_type(event))
+
+        # Needed to in cases where another plugin has overridden the Item.path
+        # (ex: `convert`), otherwise, the path is a temp directory.
+        imported_item_path: PathBytes = self._imported_items_paths[item.id]
+        if imported_item_path != source:
+            source = imported_item_path
 
         # Find and collect all non-media file artifacts
         self.collect_artifacts(item, source, destination)
