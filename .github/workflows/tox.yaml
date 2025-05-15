@@ -77,6 +77,7 @@ jobs:
               if: steps.cache-system-deps.outputs.cache-hit != 'true'
               run: |
                   pipx install poetry==${{ env.POETRY_VERSION }}
+                  pipx install tox
 
             - name: Update PATH
               run: echo "$HOME/.local/bin" >> $GITHUB_PATH
@@ -87,18 +88,6 @@ jobs:
                   python-version: ${{ env.PYTHON_VERSION }}
                   cache: poetry
 
-            - name: Install Python dependencies
-              run: |
-                  python -m pip install tox
-
-            - name: Check Ruff (Lint)
+            - name: Check Ruff (Lint & Format) & mypy
               if: always()
-              run: python -m tox -e lint
-
-            - name: Check Ruff (Format)
-              if: always()
-              run: python -m tox -e format
-
-            - name: Check with mypy
-              if: always()
-              run: python -m tox -e mypy
+              run: tox -p -e lint,format,mypy
