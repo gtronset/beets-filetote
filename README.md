@@ -196,7 +196,8 @@ The fields available include [the standard metadata values] of the imported item
 
 > [!WARNING]
 > The fields mentioned above are not usable within other plugins such as `inline`.
-> That said, `inline` and other plugins should be fine otherwise.
+> That said, `inline` and other plugins should work without issue [unless otherwise
+> specified here](#filetote-compatibility-with-other-plugins).
 
 The full set of [built in functions] are also supported, with the exception of
 `%aunique` - which will return an empty string.
@@ -609,7 +610,22 @@ filetote:
     ext:log: $albumartist/$year - $album/Extras/$old_filename
 ```
 
-## Why Filetote and Not Other Plugins?
+## Filetote Compatibility with Other Plugins
+
+Other plugins, including `inline` and `convert`, should be fully compatible with
+Filetote. That said, sometimes there are small considerations. For example, the new
+fields mentioned in [Renaming Considerations](#renaming-considerations) are _not_
+usable by other plugins (such as `inline`). If you experience any issues with any
+other plugins, please
+
+> [!IMPORTANT]
+> `convert` is only compatible with Filetote v1.0.3+. `convert` performs conversion
+> very early in the import process, before other plugins. In prior versions of Filetote
+> this would cause Filetote to look into the wrong location (the temporary file
+> location on the newly converted media file), instead of the original source the media
+> file came from. A special workaround was needed which was introduced in v1.0.3.
+
+## Why Filetote and Not Other Similar Plugins?
 
 Filetote serves the same core purpose as the [`copyfilertifacts` plugin] and the
 [`extrafiles` plugin], however both have lacked in maintenance over the last few years.
