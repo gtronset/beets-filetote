@@ -321,9 +321,10 @@ class FiletotePlugin(BeetsPlugin):
 
         # Needed to in cases where another plugin has overridden the Item.path
         # (ex: `convert`), otherwise, the path is a temp directory.
-        imported_item_path: PathBytes = self._imported_items_paths[item.id]
-        if imported_item_path != source:
-            source = imported_item_path
+        if item.id in self._imported_items_paths:
+            imported_item_path: PathBytes = self._imported_items_paths[item.id]
+            if imported_item_path != source:
+                source = imported_item_path
 
         # Find and collect all non-media file artifacts
         self.collect_artifacts(item, source, destination)
