@@ -23,13 +23,29 @@ jobs:
         runs-on: ${{ matrix.os }}
         steps:
             - uses: actions/checkout@v4
+
+            - name: Install ffmpeg & other dependencies on Ubuntu
+              if: matrix.os == 'ubuntu-latest'
+              run: |
+                  sudo apt update
+                  sudo apt install -y ffmpeg
+
+            - name: Install `poetry`
+              run: pipx install poetry
+
+            - name: Add `poetry` to the PATH
+              run: echo "/root/.local/bin" >> $GITHUB_PATH
+
             - name: Setup Python ${{ matrix.python-version }}
               uses: actions/setup-python@v5
               with:
                   python-version: ${{ matrix.python-version }}
-            - name: Install dependencies
+                  cache: poetry
+
+            - name: Install Python dependencies
               run: |
-                  python -m pip install --upgrade pip tox
+                  python -m pip install tox
+
             - name: Run tox
               run: |
                   python -m tox --discover $(which python)
