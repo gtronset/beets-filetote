@@ -11,8 +11,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Explicitly set `permissions` on all Workflows <https://github.com/gtronset/beets-filetote/pull/187>
 
-## [1.0.2] - 2025-05-14
-
 ### Changed
 
 - Explicitly set `permissions` on all Workflows <https://github.com/gtronset/beets-filetote/pull/187>
@@ -20,6 +18,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - Handle `convert` temp file locations overriding `Item.path` <https://github.com/gtronset/beets-filetote/pull/188>
+- Fix CHANGELOG (duplicate heading) <https://github.com/gtronset/beets-filetote/pull/189>
 
 ## [1.0.2] - 2025-05-14
 
