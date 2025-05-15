@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.0.2] - 2025-05-14
+
 ### Changed
 
 - Improve the `exclude` setting to allow filenames, extensions, and patterns <https://github.com/gtronset/beets-filetote/pull/179>
@@ -221,7 +223,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 <!-- Release Links -->
 
-[unreleased]: https://github.com/gtronset/beets-filetote/compare/v1.0.1...HEAD
+[unreleased]: https://github.com/gtronset/beets-filetote/compare/v1.0.2...HEAD
+[1.0.2]: https://github.com/gtronset/beets-filetote/releases/tag/v1.0.2
 [1.0.1]: https://github.com/gtronset/beets-filetote/releases/tag/v1.0.1
 [1.0.0]: https://github.com/gtronset/beets-filetote/releases/tag/v1.0.0
 [0.4.9]: https://github.com/gtronset/beets-filetote/releases/tag/v0.4.9
