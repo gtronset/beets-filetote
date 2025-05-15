@@ -1,14 +1,15 @@
 # yaml-language-server: $schema=https://json.schemastore.org/github-workflow.json
 
 name: Pre-commit Updater
-on:
-    schedule:
-        - cron: "0 4 * * 0"
-    workflow_dispatch:
 
 permissions:
     contents: write
     pull-requests: write
+
+on:
+    schedule:
+        - cron: "0 4 * * 0"
+    workflow_dispatch:
 
 jobs:
     auto-update:
