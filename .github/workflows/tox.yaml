@@ -30,6 +30,11 @@ jobs:
                   sudo apt update
                   sudo apt install -y ffmpeg
 
+            - name: Install ffmpeg & other dependencies on Windows
+              if: matrix.os == 'windows-latest'
+              run: |
+                  choco install ffmpeg
+
             - name: Install `poetry`
               run: pipx install poetry
 
