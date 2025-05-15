@@ -2,6 +2,9 @@
 
 name: Typos Check
 
+permissions:
+    contents: read
+
 on:
     push:
     pull_request:

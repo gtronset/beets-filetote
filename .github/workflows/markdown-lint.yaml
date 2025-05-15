@@ -2,6 +2,9 @@
 
 name: Markdown Lint
 
+permissions:
+    contents: read
+
 on:
     push:
         paths: ["**.md", "**.markdown"]
