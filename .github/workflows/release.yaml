@@ -29,6 +29,7 @@ jobs:
               run: |
                   PATH_SEP="${{ !startsWith(runner.os, 'windows') && '/' || '\\' }}"
                   echo "PATH_SEP=${PATH_SEP}" >> $GITHUB_ENV
+
                   PIPX_CACHE="${{ github.workspace }}${PATH_SEP}pipx_cache"
                   echo "pipx-cache-path=${PIPX_CACHE}" >> $GITHUB_OUTPUT
                   echo "pipx-version=$(pipx --version)" >> $GITHUB_OUTPUT
