@@ -14,6 +14,10 @@ env:
     PYTHON_VERSION: 3.13
     POETRY_VERSION: 1.8.5
 
+defaults:
+    run:
+        shell: bash
+
 jobs:
     test:
         strategy:
@@ -24,7 +28,9 @@ jobs:
 
         env:
             TOXENV: ${{ matrix.python-version }}
+
         runs-on: ${{ matrix.os }}
+
         steps:
             - uses: actions/checkout@v4
 
@@ -53,7 +59,6 @@ jobs:
                   echo "PIPX_BIN_DIR=${PIPX_CACHE}${PATH_SEP}bin" >> $GITHUB_ENV
                   echo "PIPX_MAN_DIR=${PIPX_CACHE}${PATH_SEP}man" >> $GITHUB_ENV
                   echo "${PIPX_CACHE}${PATH_SEP}bin" >> $GITHUB_PATH
-              shell: bash
 
             - name: Cache Pipx
               id: cache-pipx
@@ -81,7 +86,6 @@ jobs:
               run: |
                   TOX_CACHE="${{ github.workspace }}${{ env.PATH_SEP }}.tox"
                   echo "tox-cache-path=${TOX_CACHE}" >> $GITHUB_OUTPUT
-              shell: bash
 
             - name: Cache Tox
               id: cache-tox
@@ -93,7 +97,6 @@ jobs:
             - name: Run tox
               run: |
                   tox --discover $(which python)
-              shell: bash
 
     lint:
         runs-on: ubuntu-latest
@@ -113,7 +116,6 @@ jobs:
                   echo "PIPX_BIN_DIR=${PIPX_CACHE}${PATH_SEP}bin" >> $GITHUB_ENV
                   echo "PIPX_MAN_DIR=${PIPX_CACHE}${PATH_SEP}man" >> $GITHUB_ENV
                   echo "${PIPX_CACHE}${PATH_SEP}bin" >> $GITHUB_PATH
-              shell: bash
 
             - name: Cache Pipx
               id: cache-pipx
