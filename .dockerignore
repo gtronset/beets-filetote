@@ -13,6 +13,7 @@ beets/
 *.pyc
 *.swp
 .act-secrets
+.act-variables
 .actrc
 .mypy_cache
 .ruff_cache

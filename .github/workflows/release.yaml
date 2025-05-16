@@ -48,6 +48,7 @@ jobs:
               if: steps.cache-pipx.outputs.cache-hit != 'true'
               run: |
                   pipx install poetry==${{ env.POETRY_VERSION }}
+                  pipx install tox
 
             - name: Set up Python
               uses: actions/setup-python@v5
@@ -55,8 +56,8 @@ jobs:
                   python-version: ${{ env.PYTHON_VERSION }}
                   cache: "poetry"
 
-            - if: ${{ github.event.act }}
-              name: Set Poetry to use TestPyPi to allow building against the test env
+            - name: Set Poetry to use TestPyPi to allow building against the test env
+              if: ${{ github.event.act }}
               run: |
                   poetry config repositories.test-pypi https://test.pypi.org/legacy/
                   poetry config pypi-token.test-pypi ${{ secrets.PYPI_TOKEN }}
@@ -78,6 +79,7 @@ jobs:
                   [[ "$(poetry version --short)" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]] || echo prerelease=true >> $GITHUB_OUTPUT
 
             - name: Create Release
+              if: ${{ !github.event.act }}
               uses: ncipollo/release-action@v1
               with:
                   artifacts: "dist/*"
