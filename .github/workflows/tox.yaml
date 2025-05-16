@@ -37,8 +37,6 @@ jobs:
 
             - name: Setup FFmpeg Environment Variables
               id: ffmpeg-env-setup
-              # pipx default home and bin dir are not writable by the cache action
-              # so override them here and add the bin dir to PATH for later steps.
               run: |
                   PATH_SEP="${{ !startsWith(runner.os, 'windows') && '/' || '\\' }}"
                   echo "PATH_SEP=${PATH_SEP}" >> $GITHUB_ENV
@@ -139,25 +137,6 @@ jobs:
                   python-version: ${{ matrix.python-version }}
                   cache: poetry
 
-            - name: Setup Tox Bnvironment Variables
-              id: tox-env-setup
-              # pipx default home and bin dir are not writable by the cache action
-              # so override them here and add the bin dir to PATH for later steps.
-              run: |
-                  TOX_CACHE="${{ github.workspace }}${{ env.PATH_SEP }}.tox"
-                  echo "tox-cache-path=${TOX_CACHE}" >> $GITHUB_OUTPUT
-
-            - name: Cache Tox
-              id: cache-tox
-              uses: actions/cache@v4
-              with:
-                  path: ${{ steps.tox-env-setup.outputs.tox-cache-path }}
-                  key: ${{ runner.os }}-python_${{ matrix.python-version }}-pipx_${{ steps.pipx-env-setup.outputs.pipx-version }}-poetry_${{ env.POETRY_VERSION }}-pyproject_${{ hashFiles('pyproject.toml') }}
-
-            # - name: Run tox
-            #   run: |
-            #       tox --discover $(which python)
-
             - name: Install poetry Dependencies
               run: poetry install
 
@@ -203,10 +182,8 @@ jobs:
                   python-version: ${{ env.PYTHON_VERSION }}
                   cache: poetry
 
-            - name: Setup Tox Bnvironment Variables
+            - name: Setup Tox Environment Variables
               id: tox-env-setup
-              # pipx default home and bin dir are not writable by the cache action
-              # so override them here and add the bin dir to PATH for later steps.
               run: |
                   TOX_CACHE="${{ github.workspace }}${{ env.PATH_SEP }}.tox"
                   echo "tox-cache-path=${TOX_CACHE}" >> $GITHUB_OUTPUT
