@@ -35,7 +35,7 @@ jobs:
         steps:
             - uses: actions/checkout@v4
 
-            - name: Setup FFMPEG Environment Variables
+            - name: Setup FFmpeg Environment Variables
               id: ffmpeg-env-setup
               # pipx default home and bin dir are not writable by the cache action
               # so override them here and add the bin dir to PATH for later steps.
@@ -48,13 +48,13 @@ jobs:
                   echo "ffmpeg-cache-path=${ffmpeg_dir}" >> $GITHUB_OUTPUT
                   echo "$ffmpeg_dir" >> $GITHUB_PATH
 
-            - name: Cache FFMPEG
+            - name: Cache FFmpeg
               uses: actions/cache@v4
               with:
                   path: ${{ steps.ffmpeg-env-setup.outputs.ffmpeg-cache-path }}
                   key: ${{ runner.os }}-ffmpeg-${{ env.FFMPEG_VERSION }}
 
-            - name: Install FFMPEG (Ubuntu)
+            - name: Install FFmpeg (Ubuntu)
               if: matrix.os == 'ubuntu-latest'
               run: |
                   # ffmpeg_linux_version=$(curl -L https://johnvansickle.com/ffmpeg/release-readme.txt 2> /dev/null | grep "version: " | cut -c 24-)
@@ -82,7 +82,7 @@ jobs:
                     rm -rf "$temp_ffmpeg_archive"
                   fi
 
-            - name: Install FFMPEG (Windows)
+            - name: Install FFmpeg (Windows)
               if: matrix.os == 'windows-latest'
               run: |
                   # ffmpeg_win_version=$(curl -L https://www.gyan.dev/ffmpeg/builds/release-version 2> /dev/null | cut -d "-" -f 1)
