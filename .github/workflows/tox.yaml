@@ -19,11 +19,11 @@ jobs:
         strategy:
             fail-fast: false
             matrix:
-                # python-version: ["3.8", "3.9", "3.10", "3.11", "3.12", "3.13"]
+                python-version: ["3.8", "3.9", "3.10", "3.11", "3.12", "3.13"]
                 os: [ubuntu-latest, windows-latest]
 
-        # env:
-        #     TOXENV: ${{ matrix.python-version }}
+        env:
+            TOXENV: ${{ matrix.python-version }}
         runs-on: ${{ matrix.os }}
         steps:
             - uses: actions/checkout@v4
@@ -59,7 +59,7 @@ jobs:
               uses: actions/cache@v4
               with:
                   path: ${{ steps.pipx-env-setup.outputs.pipx-cache-path }}
-                  key: ${{ runner.os }}-pipx_${{ steps.pipx-env-setup.outputs.pipx-version }}-poetry_${{ env.POETRY_VERSION }}
+                  key: ${{ runner.os }}-python_${{ env.PYTHON_VERSION }}-pipx_${{ steps.pipx-env-setup.outputs.pipx-version }}-poetry_${{ env.POETRY_VERSION }}
 
             - name: Install Poetry & Tox
               if: steps.cache-pipx.outputs.cache-hit != 'true'
@@ -67,21 +67,31 @@ jobs:
                   pipx install poetry==${{ env.POETRY_VERSION }}
                   pipx install tox
 
-            - name: Setup Python
+            - name: Setup Python ${{ env.PYTHON_VERSION }}
               uses: actions/setup-python@v5
               with:
-                  python-version: |
-                      3.8
-                      3.9
-                      3.10
-                      3.11
-                      3.12
-                      3.13
+                  python-version: ${{ env.PYTHON_VERSION }}
                   cache: poetry
+
+            - name: Setup Tox Bnvironment Variables
+              id: tox-env-setup
+              # pipx default home and bin dir are not writable by the cache action
+              # so override them here and add the bin dir to PATH for later steps.
+              run: |
+                  SEP="${{ !startsWith(runner.os, 'windows') && '/' || '\\' }}"
+                  TOX_CACHE="${{ github.workspace }}${SEP}.tox"
+                  echo "tox-cache-path=${TOX_CACHE}" >> $GITHUB_OUTPUT
+
+            - name: Cache Tox
+              id: cache-tox
+              uses: actions/cache@v4
+              with:
+                  path: ${{ steps.tox-env-setup.outputs.tox-cache-path }}
+                  key: ${{ runner.os }}-python_${{ env.PYTHON_VERSION }}-pipx_${{ steps.pipx-env-setup.outputs.pipx-version }}-poetry_${{ env.POETRY_VERSION }}-pyproject_${{ hashFiles('pyproject.yaml') }}
 
             - name: Run tox
               run: |
-                  tox -p --discover $(which python)
+                  tox --discover $(which python)
               shell: bash
 
     lint:
@@ -109,7 +119,7 @@ jobs:
               uses: actions/cache@v4
               with:
                   path: ${{ steps.pipx-env-setup.outputs.pipx-cache-path }}
-                  key: ${{ runner.os }}-pipx_${{ steps.pipx-env-setup.outputs.pipx-version }}-poetry_${{ env.POETRY_VERSION }}
+                  key: ${{ runner.os }}-python_${{ env.PYTHON_VERSION }}-pipx_${{ steps.pipx-env-setup.outputs.pipx-version }}-poetry_${{ env.POETRY_VERSION }}
 
             - name: Install Poetry & Tox
               if: steps.cache-pipx.outputs.cache-hit != 'true'
