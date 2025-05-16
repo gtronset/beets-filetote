@@ -9,8 +9,8 @@ on:
     workflow_dispatch:
 
 env:
-    PYTHON_VERSION: 3.13
     POETRY_VERSION: 1.8.5
+    PYTHON_VERSION: 3.13
 
 jobs:
     release:
@@ -24,8 +24,6 @@ jobs:
 
             - name: Setup pipx environment Variables
               id: pipx-env-setup
-              # pipx default home and bin dir are not writable by the cache action
-              # so override them here and add the bin dir to PATH for later steps.
               run: |
                   PATH_SEP="${{ !startsWith(runner.os, 'windows') && '/' || '\\' }}"
                   echo "PATH_SEP=${PATH_SEP}" >> $GITHUB_ENV
@@ -55,7 +53,7 @@ jobs:
               uses: actions/setup-python@v5
               with:
                   python-version: ${{ env.PYTHON_VERSION }}
-                  cache: "poetry"
+                  cache: poetry
 
             - name: Set Poetry to use TestPyPi to allow building against the test env
               if: ${{ github.event.act }}

@@ -12,8 +12,8 @@ on:
 
 env:
     FFMPEG_VERSION: 7.0.2
-    PYTHON_VERSION: 3.13
     POETRY_VERSION: 1.8.5
+    PYTHON_VERSION: 3.13
 
 defaults:
     run:
@@ -60,7 +60,7 @@ jobs:
 
                   echo "$ffmpeg_dir" >> "$GITHUB_PATH"
 
-                  # Only install if ffmpeg is not available
+                  # Only install if FFmpeg is not available
                   if ! $(ffmpeg -version >/dev/null 2>&1) ; then
                     linux_url='https://johnvansickle.com/ffmpeg/releases/ffmpeg-${{ env.FFMPEG_VERSION }}-amd64-static.tar.xz'
 
@@ -88,7 +88,7 @@ jobs:
 
                   echo "$ffmpeg_dir" >> "$GITHUB_PATH"
 
-                  # Only install if ffmpeg is not available
+                  # Only install if FFmpeg is not available
                   if ! $(ffmpeg -version >/dev/null 2>&1) ; then
                     win32_url="https://www.gyan.dev/ffmpeg/builds/packages/ffmpeg-${{ env.FFMPEG_VERSION }}-full_build.7z"
                     temp_ffmpeg_archive="${{ github.workspace }}\temp_ffmpeg_archive.7z"
@@ -104,8 +104,6 @@ jobs:
 
             - name: Setup Pipx Environment Variables
               id: pipx-env-setup
-              # pipx default home and bin dir are not writable by the cache action
-              # so override them here and add the bin dir to PATH for later steps.
               run: |
                   PATH_SEP="${{ !startsWith(runner.os, 'windows') && '/' || '\\' }}"
                   echo "PATH_SEP=${PATH_SEP}" >> $GITHUB_ENV
@@ -150,8 +148,6 @@ jobs:
 
             - name: Setup Pipx Environment Variables
               id: pipx-env-setup
-              # pipx default home and bin dir are not writable by the cache action
-              # so override them here and add the bin dir to PATH for later steps.
               run: |
                   PATH_SEP="${{ !startsWith(runner.os, 'windows') && '/' || '\\' }}"
 
