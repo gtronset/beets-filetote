@@ -49,7 +49,7 @@ jobs:
                   PATH_SEP="${{ !startsWith(runner.os, 'windows') && '/' || '\\' }}"
                   echo "PATH_SEP=${PATH_SEP}" >> $GITHUB_ENV
 
-                  ffmpeg_dir="${{ github.workspace }}${PATH_SEP}$ffmpeg_cache"
+                  ffmpeg_dir="${{ github.workspace }}${PATH_SEP}ffmpeg_cache"
 
                   echo "ffmpeg-cache-path=${ffmpeg_dir}" >> $GITHUB_OUTPUT
                   echo "$ffmpeg_dir" >> $GITHUB_PATH
