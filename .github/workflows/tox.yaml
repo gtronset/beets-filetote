@@ -69,7 +69,7 @@ jobs:
                   echo "$ffmpeg_dir" >> "$GITHUB_PATH"
 
                   # Only install if ffmpeg is not available
-                  if ! $(ffmpeg -version) ; then
+                  if ! $(ffmpeg -version >/dev/null 2>&1) ; then
                     win32_url="https://www.gyan.dev/ffmpeg/builds/ffmpeg-release-full.7z"
                     win32_temp_archive="${{ github.workspace }}${{ env.PATH_SEP }}ffmpeg-release-full.7z"
 
