@@ -44,21 +44,22 @@ jobs:
             - name: Install ffmpeg & other dependencies on Windows
               if: matrix.os == 'windows-latest'
               run: |
-                  FFMPEG_WIN_VERSION=`curl -L https://www.gyan.dev/ffmpeg/builds/release-version 2> /dev/null | cut -d "-" -f 1`
-                  echo "FFMPEG_WIN_VERSION=${FFMPEG_WIN_VERSION}" >> $GITHUB_ENV
+                  ffmpeg_win_version=$(curl -L https://www.gyan.dev/ffmpeg/builds/release-version 2> /dev/null | cut -d "-" -f 1)
 
-                  win32_url='https://www.gyan.dev/ffmpeg/builds/ffmpeg-release-full.7z'
-                  win32_temp_archive='"${{ github.workspace }}\ffmpeg-release-full.7z'
-                  win32_name='ffmpeg-win32-x64'
+                  win32_url="https://www.gyan.dev/ffmpeg/builds/ffmpeg-release-full.7z"
+                  win32_temp_archive="${{ github.workspace }}\ffmpeg-release-full.7z"
+                  win32_name="ffmpeg-win32-x64"
                   ffmpeg_dir="${{ github.workspace }}\\$win32_name"
 
-                  curl -L $win32_url -o $win32_temp_archive
-                  mkdir $ffmpeg_dir || true
+                  curl -L "$win32_url" -o "$win32_temp_archive"
+                  mkdir "$ffmpeg_dir" || true
 
-                  7z e $win32_temp_archive "-o$ffmpeg_dir" "**\\bin\\ffmpeg.exe" "**\\bin\\ffprobe.exe" "**\\LICENSE" "**\\README.txt"
+                  7z e "$win32_temp_archive" "-o$ffmpeg_dir" "**\\bin\\ffmpeg.exe" "**\\bin\\ffprobe.exe" "**\\LICENSE" "**\\README.txt"
 
-                  rm -rf $win32_temp_archive
+                  rm -rf "$win32_temp_archive"
 
+                  echo "ffmpeg-cache-path=${ffmpeg_dir}" >> $GITHUB_OUTPUT
+                  echo "ffmpeg-version=${ffmpeg_win_version}" >> $GITHUB_OUTPUT
                   echo "$ffmpeg_dir\\bin" >> "$GITHUB_PATH"
 
             - name: Setup pipx environment Variables
