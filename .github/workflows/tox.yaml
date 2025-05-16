@@ -57,7 +57,7 @@ jobs:
             - name: Install FFMPEG (Ubuntu)
               if: matrix.os == 'ubuntu-latest'
               run: |
-                  ffmpeg_linux_version=$(curl -L https://johnvansickle.com/ffmpeg/release-readme.txt 2> /dev/null | grep "version: " | cut -c 24-)
+                  # ffmpeg_linux_version=$(curl -L https://johnvansickle.com/ffmpeg/release-readme.txt 2> /dev/null | grep "version: " | cut -c 24-)
                   ffmpeg_dir="${{ steps.ffmpeg-env-setup.outputs.ffmpeg-cache-path }}"
 
                   echo "$ffmpeg_dir" >> "$GITHUB_PATH"
@@ -83,7 +83,7 @@ jobs:
                   fi
 
                   echo "ffmpeg-cache-path=${ffmpeg_dir}" >> $GITHUB_OUTPUT
-                  echo "ffmpeg-version=${ffmpeg_linux_version}" >> $GITHUB_OUTPUT
+                  # echo "ffmpeg-version=${ffmpeg_linux_version}" >> $GITHUB_OUTPUT
 
             - name: Install FFMPEG (Windows)
               if: matrix.os == 'windows-latest'
