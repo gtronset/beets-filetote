@@ -44,14 +44,15 @@ jobs:
               # pipx default home and bin dir are not writable by the cache action
               # so override them here and add the bin dir to PATH for later steps.
               run: |
-                  SEP="${{ !startsWith(runner.os, 'windows') && '/' || '\\' }}"
-                  PIPX_CACHE="${{ github.workspace }}${SEP}pipx_cache"
+                  PATH_SEP="${{ !startsWith(runner.os, 'windows') && '/' || '\\' }}"
+                  echo "PATH_SEP=${PATH_SEP}" >> $GITHUB_ENV
+                  PIPX_CACHE="${{ github.workspace }}${PATH_SEP}pipx_cache"
                   echo "pipx-cache-path=${PIPX_CACHE}" >> $GITHUB_OUTPUT
                   echo "pipx-version=$(pipx --version)" >> $GITHUB_OUTPUT
-                  echo "PIPX_HOME=${PIPX_CACHE}${SEP}home" >> $GITHUB_ENV
-                  echo "PIPX_BIN_DIR=${PIPX_CACHE}${SEP}bin" >> $GITHUB_ENV
-                  echo "PIPX_MAN_DIR=${PIPX_CACHE}${SEP}man" >> $GITHUB_ENV
-                  echo "${PIPX_CACHE}${SEP}bin" >> $GITHUB_PATH
+                  echo "PIPX_HOME=${PIPX_CACHE}${PATH_SEP}home" >> $GITHUB_ENV
+                  echo "PIPX_BIN_DIR=${PIPX_CACHE}${PATH_SEP}bin" >> $GITHUB_ENV
+                  echo "PIPX_MAN_DIR=${PIPX_CACHE}${PATH_SEP}man" >> $GITHUB_ENV
+                  echo "${PIPX_CACHE}${PATH_SEP}bin" >> $GITHUB_PATH
               shell: bash
 
             - name: Cache Pipx
@@ -78,8 +79,7 @@ jobs:
               # pipx default home and bin dir are not writable by the cache action
               # so override them here and add the bin dir to PATH for later steps.
               run: |
-                  SEP="${{ !startsWith(runner.os, 'windows') && '/' || '\\' }}"
-                  TOX_CACHE="${{ github.workspace }}${SEP}.tox"
+                  TOX_CACHE="${{ github.workspace }}${{ env.PATH_SEP }}.tox"
                   echo "tox-cache-path=${TOX_CACHE}" >> $GITHUB_OUTPUT
               shell: bash
 
@@ -105,14 +105,14 @@ jobs:
               # pipx default home and bin dir are not writable by the cache action
               # so override them here and add the bin dir to PATH for later steps.
               run: |
-                  SEP="${{ !startsWith(runner.os, 'windows') && '/' || '\\' }}"
-                  PIPX_CACHE="${{ github.workspace }}${SEP}pipx_cache"
+                  PATH_SEP="${{ !startsWith(runner.os, 'windows') && '/' || '\\' }}"
+                  PIPX_CACHE="${{ github.workspace }}${PATH_SEP}pipx_cache"
                   echo "pipx-cache-path=${PIPX_CACHE}" >> $GITHUB_OUTPUT
                   echo "pipx-version=$(pipx --version)" >> $GITHUB_OUTPUT
-                  echo "PIPX_HOME=${PIPX_CACHE}${SEP}home" >> $GITHUB_ENV
-                  echo "PIPX_BIN_DIR=${PIPX_CACHE}${SEP}bin" >> $GITHUB_ENV
-                  echo "PIPX_MAN_DIR=${PIPX_CACHE}${SEP}man" >> $GITHUB_ENV
-                  echo "${PIPX_CACHE}${SEP}bin" >> $GITHUB_PATH
+                  echo "PIPX_HOME=${PIPX_CACHE}${PATH_SEP}home" >> $GITHUB_ENV
+                  echo "PIPX_BIN_DIR=${PIPX_CACHE}${PATH_SEP}bin" >> $GITHUB_ENV
+                  echo "PIPX_MAN_DIR=${PIPX_CACHE}${PATH_SEP}man" >> $GITHUB_ENV
+                  echo "${PIPX_CACHE}${PATH_SEP}bin" >> $GITHUB_PATH
               shell: bash
 
             - name: Cache Pipx
