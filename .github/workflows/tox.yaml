@@ -154,9 +154,15 @@ jobs:
                   path: ${{ steps.tox-env-setup.outputs.tox-cache-path }}
                   key: ${{ runner.os }}-python_${{ matrix.python-version }}-pipx_${{ steps.pipx-env-setup.outputs.pipx-version }}-poetry_${{ env.POETRY_VERSION }}-pyproject_${{ hashFiles('pyproject.toml') }}
 
-            - name: Run tox
-              run: |
-                  tox --discover $(which python)
+            # - name: Run tox
+            #   run: |
+            #       tox --discover $(which python)
+
+            - name: Install poetry Dependencies
+              run: poetry install
+
+            - name: Run Tests
+              run: poetry run pytest
 
     lint:
         runs-on: ubuntu-latest
