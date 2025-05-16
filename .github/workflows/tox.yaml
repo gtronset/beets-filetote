@@ -71,13 +71,13 @@ jobs:
                   # Only install if ffmpeg is not available
                   if ! $(ffmpeg -version >/dev/null 2>&1) ; then
                     win32_url="https://www.gyan.dev/ffmpeg/builds/ffmpeg-release-full.7z"
-                    win32_temp_archive="${{ github.workspace }}${{ env.PATH_SEP }}ffmpeg-release-full.7z"
+                    win32_temp_archive="${{ github.workspace }}\ffmpeg-release-full.7z"
 
                     curl -L "$win32_url" -o "$win32_temp_archive"
                     mkdir "$ffmpeg_dir" || true
 
-                    7z e "$win32_temp_archive" "-o$ffmpeg_dir" "**${{ env.PATH_SEP }}bin${{ env.PATH_SEP }}ffmpeg.exe" \
-                        "**${{ env.PATH_SEP }}bin${{ env.PATH_SEP }}ffprobe.exe" "**${{ env.PATH_SEP }}LICENSE" "**${{ env.PATH_SEP }}README.txt"
+                    7z e "$win32_temp_archive" "-o$ffmpeg_dir" "**\bin\ffmpeg.exe" \
+                        "**\bin\ffprobe.exe" "**\LICENSE" "**\README.txt"
 
                     rm -rf "$win32_temp_archive"
                   fi
