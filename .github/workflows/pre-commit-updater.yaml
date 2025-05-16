@@ -11,8 +11,11 @@ on:
         - cron: "0 4 * * 0"
     workflow_dispatch:
 
+env:
+    PYTHON_VERSION: 3.13
+
 jobs:
-    auto-update:
+    autoupdate-precommit:
         runs-on: ubuntu-latest
         steps:
             - uses: actions/checkout@v4
@@ -20,7 +23,8 @@ jobs:
             - name: Set up Python
               uses: actions/setup-python@v5
               with:
-                  python-version: "3.13"
+                  python-version: ${{ env.PYTHON_VERSION }}
+                  cache: pip
 
             - name: Install pre-commit
               run: pip install pre-commit
