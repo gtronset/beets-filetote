@@ -41,25 +41,43 @@ jobs:
                   sudo apt update
                   sudo apt install -y ffmpeg
 
+            - name: Setup FFMPEG Environment Variables
+              id: ffmpeg-env-setup
+              # pipx default home and bin dir are not writable by the cache action
+              # so override them here and add the bin dir to PATH for later steps.
+              run: |
+                  PATH_SEP="${{ !startsWith(runner.os, 'windows') && '/' || '\\' }}"
+                  echo "PATH_SEP=${PATH_SEP}" >> $GITHUB_ENV
+
+                  ffmpeg_dir="${{ github.workspace }}${PATH_SEP}$ffmpeg_cache"
+
+                  echo "ffmpeg-cache-path=${ffmpeg_dir}" >> $GITHUB_OUTPUT
+                  echo "$ffmpeg_dir" >> $GITHUB_PATH
+
+            - name: Cache FFMPEG
+              uses: actions/cache@v4
+              with:
+                  path: ${{ steps.ffmpeg-env-setup.outputs.ffmpeg-cache-path }}
+                  key: ${{ runner.os }}-ffmpeg
+
             - name: Install ffmpeg & other dependencies on Windows
               if: matrix.os == 'windows-latest'
               run: |
                   ffmpeg_win_version=$(curl -L https://www.gyan.dev/ffmpeg/builds/release-version 2> /dev/null | cut -d "-" -f 1)
-                  PATH_SEP="\\"
-                  ffmpeg_dir="${{ github.workspace }}${PATH_SEP}$win32_name"
+                  ffmpeg_dir="${{ steps.ffmpeg-env-setup.outputs.ffmpeg-cache-path }}"
+
                   echo "$ffmpeg_dir" >> "$GITHUB_PATH"
 
                   # Only install if ffmpeg is not available
                   if ! $(ffmpeg -version) ; then
                     win32_url="https://www.gyan.dev/ffmpeg/builds/ffmpeg-release-full.7z"
-                    win32_temp_archive="${{ github.workspace }}${PATH_SEP}ffmpeg-release-full.7z"
-                    win32_name="ffmpeg-win32-x64"
+                    win32_temp_archive="${{ github.workspace }}${{ env.PATH_SEP }}ffmpeg-release-full.7z"
 
                     curl -L "$win32_url" -o "$win32_temp_archive"
                     mkdir "$ffmpeg_dir" || true
 
-                    7z e "$win32_temp_archive" "-o$ffmpeg_dir" "**${PATH_SEP}bin${PATH_SEP}ffmpeg.exe" \
-                        "**${PATH_SEP}bin${PATH_SEP}ffprobe.exe" "**${PATH_SEP}LICENSE" "**${PATH_SEP}README.txt"
+                    7z e "$win32_temp_archive" "-o$ffmpeg_dir" "**${{ env.PATH_SEP }}bin${{ env.PATH_SEP }}ffmpeg.exe" \
+                        "**${{ env.PATH_SEP }}bin${{ env.PATH_SEP }}ffprobe.exe" "**${{ env.PATH_SEP }}LICENSE" "**${{ env.PATH_SEP }}README.txt"
 
                     rm -rf "$win32_temp_archive"
                   fi
@@ -67,7 +85,7 @@ jobs:
                   echo "ffmpeg-cache-path=${ffmpeg_dir}" >> $GITHUB_OUTPUT
                   echo "ffmpeg-version=${ffmpeg_win_version}" >> $GITHUB_OUTPUT
 
-            - name: Setup pipx environment Variables
+            - name: Setup Pipx Environment Variables
               id: pipx-env-setup
               # pipx default home and bin dir are not writable by the cache action
               # so override them here and add the bin dir to PATH for later steps.
@@ -126,7 +144,7 @@ jobs:
         steps:
             - uses: actions/checkout@v4
 
-            - name: Setup pipx environment Variables
+            - name: Setup Pipx Environment Variables
               id: pipx-env-setup
               # pipx default home and bin dir are not writable by the cache action
               # so override them here and add the bin dir to PATH for later steps.
