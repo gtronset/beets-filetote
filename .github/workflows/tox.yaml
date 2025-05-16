@@ -11,7 +11,7 @@ on:
         types: [opened, reopened]
 
 env:
-    FFMPEG_VERSION: 7.1.1
+    FFMPEG_VERSION: 7.0.2
     PYTHON_VERSION: 3.13
     POETRY_VERSION: 1.8.5
 
@@ -52,7 +52,7 @@ jobs:
               uses: actions/cache@v4
               with:
                   path: ${{ steps.ffmpeg-env-setup.outputs.ffmpeg-cache-path }}
-                  key: ${{ runner.os }}-ffmpeg
+                  key: ${{ runner.os }}-ffmpeg-${{ env.FFMPEG_VERSION }}
 
             - name: Install FFMPEG (Ubuntu)
               if: matrix.os == 'ubuntu-latest'
@@ -64,7 +64,7 @@ jobs:
 
                   # Only install if ffmpeg is not available
                   if ! $(ffmpeg -version >/dev/null 2>&1) ; then
-                    linux_url='https://johnvansickle.com/ffmpeg/releases/ffmpeg-release-amd64-static.tar.xz'
+                    linux_url='https://johnvansickle.com/ffmpeg/releases/ffmpeg-${{ env.FFMPEG_VERSION }}-amd64-static.tar.xz'
 
                     temp_ffmpeg_archive="${{ github.workspace }}\temp_ffmpeg_archive.tar.xz"
 
@@ -82,20 +82,17 @@ jobs:
                     rm -rf "$temp_ffmpeg_archive"
                   fi
 
-                  echo "ffmpeg-cache-path=${ffmpeg_dir}" >> $GITHUB_OUTPUT
-                  # echo "ffmpeg-version=${ffmpeg_linux_version}" >> $GITHUB_OUTPUT
-
             - name: Install FFMPEG (Windows)
               if: matrix.os == 'windows-latest'
               run: |
-                  ffmpeg_win_version=$(curl -L https://www.gyan.dev/ffmpeg/builds/release-version 2> /dev/null | cut -d "-" -f 1)
+                  # ffmpeg_win_version=$(curl -L https://www.gyan.dev/ffmpeg/builds/release-version 2> /dev/null | cut -d "-" -f 1)
                   ffmpeg_dir="${{ steps.ffmpeg-env-setup.outputs.ffmpeg-cache-path }}"
 
                   echo "$ffmpeg_dir" >> "$GITHUB_PATH"
 
                   # Only install if ffmpeg is not available
                   if ! $(ffmpeg -version >/dev/null 2>&1) ; then
-                    win32_url="https://www.gyan.dev/ffmpeg/builds/ffmpeg-release-full.7z"
+                    win32_url="https://www.gyan.dev/ffmpeg/builds/ffmpeg-${{ env.FFMPEG_VERSION }}-full_build.7z.sha256"
                     temp_ffmpeg_archive="${{ github.workspace }}\temp_ffmpeg_archive.7z"
 
                     curl -L "$win32_url" -o "$temp_ffmpeg_archive"
@@ -106,9 +103,6 @@ jobs:
 
                     rm -rf "$temp_ffmpeg_archive"
                   fi
-
-                  echo "ffmpeg-cache-path=${ffmpeg_dir}" >> $GITHUB_OUTPUT
-                  echo "ffmpeg-version=${ffmpeg_win_version}" >> $GITHUB_OUTPUT
 
             - name: Setup Pipx Environment Variables
               id: pipx-env-setup
