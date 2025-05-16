@@ -12,7 +12,7 @@ env/
 .vscode/
 .DS_Store
 .act-secrets
-.actrc
+.act-variables
 .mypy_cache
 .ruff_cache
 .tool-versions

@@ -1,0 +1,5 @@
+-e .act/.act-payload.json
+--secret-file .act/.act-secrets
+--var-file .act/.act-variables
+--artifact-server-addr host.docker.internal
+--cache-server-addr host.docker.internal

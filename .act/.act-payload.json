@@ -1,5 +1,5 @@
 {
-    "//comment": "Event payload for local GitHub Action testing. See: https://github.com/nektos/act",
+    "//comment": "Event payload for local GitHub Action testing. See: https://nektosact.com/usage/index.html#events",
     "act": true,
     "repository": {
         "full_name": "gtronset/beets-filetote"
