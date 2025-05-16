@@ -46,6 +46,7 @@ jobs:
               run: |
                   ffmpeg_win_version=$(curl -L https://www.gyan.dev/ffmpeg/builds/release-version 2> /dev/null | cut -d "-" -f 1)
 
+                  PATH_SEP="\\"
                   win32_url="https://www.gyan.dev/ffmpeg/builds/ffmpeg-release-full.7z"
                   win32_temp_archive="${{ github.workspace }}\ffmpeg-release-full.7z"
                   win32_name="ffmpeg-win32-x64"
@@ -56,11 +57,14 @@ jobs:
 
                   7z e "$win32_temp_archive" "-o$ffmpeg_dir" "**\\bin\\ffmpeg.exe" "**\\bin\\ffprobe.exe" "**\\LICENSE" "**\\README.txt"
 
+                  ls "$ffmpeg_dir"
+                  ls "$ffmpeg_dir${PATH_SEP}bin"
+
                   rm -rf "$win32_temp_archive"
 
                   echo "ffmpeg-cache-path=${ffmpeg_dir}" >> $GITHUB_OUTPUT
                   echo "ffmpeg-version=${ffmpeg_win_version}" >> $GITHUB_OUTPUT
-                  echo "$ffmpeg_dir\\bin" >> "$GITHUB_PATH"
+                  echo "$ffmpeg_dir${PATH_SEP}bin" >> "$GITHUB_PATH"
 
             - name: Setup pipx environment Variables
               id: pipx-env-setup
