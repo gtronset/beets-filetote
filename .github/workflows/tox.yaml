@@ -81,6 +81,7 @@ jobs:
                   SEP="${{ !startsWith(runner.os, 'windows') && '/' || '\\' }}"
                   TOX_CACHE="${{ github.workspace }}${SEP}.tox"
                   echo "tox-cache-path=${TOX_CACHE}" >> $GITHUB_OUTPUT
+              shell: bash
 
             - name: Cache Tox
               id: cache-tox
