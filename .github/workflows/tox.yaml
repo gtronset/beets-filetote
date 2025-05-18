@@ -181,9 +181,17 @@ jobs:
             - name: Install poetry Dependencies
               run: poetry install
 
-            - name: Check Ruff (Lint & Format) & mypy
+            - name: Check mypy
               if: always()
               run: |
                   poetry run mypy
+
+            - name: Check Ruff (Lint)
+              if: always()
+              run: |
                   poetry run ruff check
+
+            - name: Check Ruff (Format)
+              if: always()
+              run: |
                   poetry run ruff format
