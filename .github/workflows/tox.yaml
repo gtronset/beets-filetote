@@ -178,27 +178,11 @@ jobs:
                   python-version: ${{ env.PYTHON_VERSION }}
                   cache: poetry
 
-            - name: Setup Tox Environment Variables
-              id: tox-env-setup
-              run: |
-                  TOX_CACHE="${{ github.workspace }}${{ env.PATH_SEP }}.tox"
-                  echo "tox-cache-path=${TOX_CACHE}" >> $GITHUB_OUTPUT
-
-            - name: Cache Tox
-              id: cache-tox
-              uses: actions/cache@v4
-              with:
-                  path: ${{ steps.tox-env-setup.outputs.tox-cache-path }}
-                  key: ${{ runner.os }}-python_${{ env.PYTHON_VERSION }}-pipx_${{ steps.pipx-env-setup.outputs.pipx-version }}-poetry_${{ env.POETRY_VERSION }}-pyproject_${{ hashFiles('pyproject.toml') }}
-
-            # - name: Check Ruff (Lint & Format) & mypy
-            #   if: always()
-            #   run: tox -p -e lint,format,mypy
-
             - name: Install poetry Dependencies
               run: poetry install
 
-            - name: Run Tests
+            - name: Check Ruff (Lint & Format) & mypy
+              if: always()
               run: |
                   poetry run mypy
                   poetry run ruff check
