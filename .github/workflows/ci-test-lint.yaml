@@ -1,6 +1,6 @@
 # yaml-language-server: $schema=https://json.schemastore.org/github-workflow.json
 
-name: CI
+name: CI - Test & Lint
 
 permissions:
     contents: read
@@ -127,7 +127,6 @@ jobs:
               if: steps.cache-pipx.outputs.cache-hit != 'true'
               run: |
                   pipx install poetry==${{ env.POETRY_VERSION }}
-                  pipx install tox
 
             - name: Setup Python ${{ matrix.python-version }}
               uses: actions/setup-python@v5
@@ -170,7 +169,6 @@ jobs:
               if: steps.cache-pipx.outputs.cache-hit != 'true'
               run: |
                   pipx install poetry==${{ env.POETRY_VERSION }}
-                  pipx install tox
 
             - name: Setup Python ${{ env.PYTHON_VERSION }}
               uses: actions/setup-python@v5
