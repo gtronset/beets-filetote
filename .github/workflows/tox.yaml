@@ -191,6 +191,15 @@ jobs:
                   path: ${{ steps.tox-env-setup.outputs.tox-cache-path }}
                   key: ${{ runner.os }}-python_${{ env.PYTHON_VERSION }}-pipx_${{ steps.pipx-env-setup.outputs.pipx-version }}-poetry_${{ env.POETRY_VERSION }}-pyproject_${{ hashFiles('pyproject.toml') }}
 
-            - name: Check Ruff (Lint & Format) & mypy
-              if: always()
-              run: tox -p -e lint,format,mypy
+            # - name: Check Ruff (Lint & Format) & mypy
+            #   if: always()
+            #   run: tox -p -e lint,format,mypy
+
+            - name: Install poetry Dependencies
+              run: poetry install
+
+            - name: Run Tests
+              run: |
+                  poetry run mypy
+                  poetry run ruff check
+                  poetry run ruff format
