@@ -9,11 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-- Explicitly set `permissions` on all Workflows <https://github.com/gtronset/beets-filetote/pull/187>
-
 ### Changed
 
 - Explicitly set `permissions` on all Workflows <https://github.com/gtronset/beets-filetote/pull/187>
+- Add better Workflow caching & other CI performance tweaks <https://github.com/gtronset/beets-filetote/pull/191>
 
 ### Fixed
 
