@@ -54,6 +54,20 @@ modules = ["beetsplug", "tests.helper", "tests._common"]
 strict = true
 pretty = true
 
+[tool.pre-commit-update]
+dry_run = false
+all_versions = false
+verbose = true
+warnings = true
+preview = false
+jobs = 10
+keep = ["poetry"]
+
+[tool.pre-commit-update.yaml]
+mapping = 2
+sequence = 6
+offset = 4
+
 [tool.pytest.ini_options]
 testpaths = ["./tests"]
 filterwarnings = ["ignore::DeprecationWarning:.*confuse"]
@@ -142,7 +156,7 @@ commands = [["pytest", "tests", "--typeguard-packages=beetsplug"]]
 
 [tool.tox.env.lint]
 commands = [["ruff", "check"]]
-deps = "ruff==0.11.9"
+deps = "ruff==0.11.10"
 description = "Lint source code"
 
 [tool.tox.env.lint-fix]

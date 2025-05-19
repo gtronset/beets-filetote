@@ -120,7 +120,7 @@ Unless otherwise specified, the default name for artifacts and extra files is:
 `$albumpath/$old_filename`. This means that by default, the file is essentially
 moved/copied into destination directory of the music item it gets grabbed with. This
 also means that the album folder is flattened and any subdirectory is removed by
-default. To preserve subdirectories, see `$subpath` usage [here](#subpath-renaming-example).
+default. To preserve subdirectories, [see `$subpath` usage](#subpath-renaming-example).
 
 > [!NOTE]
 > To update the default renaming from `$albumpath/$old_filename`, use the
@@ -182,8 +182,8 @@ The fields available include [the standard metadata values] of the imported item
   shorthand for when the extra/artifact file will be moved allongside  the item/track).
     - **Note**: Beets doesn't have a strict "album" path concept. All references are
       relative to Items (the actual media files). This is especially relevant for
-      multi-disc files/albums, but usually isn't a problem. Check the section on
-      multi-discs [here](#advanced-renaming-for-multi-disc-albums) for more details.
+      multi-disc files/albums, but usually isn't a problem. [Check the section on
+      multi-discs](#advanced-renaming-for-multi-disc-albums) for more details.
 - `$subpath`: Represents any subdirectories under the base album path where an
   extra/artifact file resides. For use when it is desirable to preserve the directory
   hierarchy in the albums. This respects the original capitalization of directory names.

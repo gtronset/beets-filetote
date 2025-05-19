@@ -18,7 +18,7 @@ repos:
             args: ["--maxkb=500"]
 
     - repo: https://github.com/astral-sh/ruff-pre-commit
-      rev: v0.11.9
+      rev: v0.11.10
       hooks:
           - id: ruff
             name: lint
@@ -33,7 +33,7 @@ repos:
             alias: format
 
     - repo: https://github.com/igorshubovych/markdownlint-cli
-      rev: v0.44.0
+      rev: v0.45.0
       hooks:
           - id: markdownlint
           - id: markdownlint
@@ -48,13 +48,19 @@ repos:
           - id: validate_manifest
 
     - repo: https://github.com/pre-commit/mirrors-mypy
-      rev: "v1.15.0"
+      rev: v1.15.0
       hooks:
           - id: mypy
             additional_dependencies: [pytest]
 
+    - repo: https://gitlab.com/vojko.pribudic.foss/pre-commit-update
+      rev: v0.7.0
+      hooks:
+          - id: pre-commit-update
+            stages: [manual]
+
     - repo: https://github.com/python-poetry/poetry
-      rev: "1.8.5"
+      rev: 1.8.5
       hooks:
           - id: poetry-check
             stages: [push]
@@ -65,39 +71,36 @@ repos:
             stages: [manual]
             files: (pyproject\.toml|poetry\.lock)
             args:
-                [
-                    "--without-hashes",
-                    "-f",
-                    "requirements.txt",
-                    "-o",
-                    "requirements.txt",
-                ]
+                - "--without-hashes"
+                - "-f"
+                - "requirements.txt"
+                - "-o"
+                - "requirements.txt"
           - id: poetry-export
             name: poetry-export-dev
             alias: poetry-export-dev
             stages: [manual]
             files: (pyproject\.toml|poetry\.lock)
             args:
-                [
-                    "--with",
-                    "dev,lint,test",
-                    "--without-hashes",
-                    "-f",
-                    "requirements.txt",
-                    "-o",
-                    "dev-requirements.txt",
-                ]
+                - "--with"
+                - "dev,lint,test"
+                - "--without-hashes"
+                - "-f"
+                - "requirements.txt"
+                - "-o"
+                - "dev-requirements.txt"
 
     - repo: https://github.com/crate-ci/typos
       # https://github.com/crate-ci/typos/issues/390
-      rev: "v1"
+      rev: v1.32.0
       hooks:
           - id: typos
             exclude: "(_typos.toml|.gitignore)"
 
     - repo: https://github.com/abravalheri/validate-pyproject
-      rev: "v0.24.1"
+      rev: v0.24.1
       hooks:
           - id: validate-pyproject
             additional_dependencies:
-                ["validate-pyproject[all]", "validate-pyproject-schema-store"]
+                - "validate-pyproject[all]"
+                - "validate-pyproject-schema-store"
