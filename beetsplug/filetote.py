@@ -248,8 +248,6 @@ class FiletotePlugin(BeetsPlugin):
 
         for plugin in find_plugins():
             if plugin.name == "convert":
-                self._log.warning(str(plugin.early_import_stages))
-
                 convert_early_import_stages = plugin.early_import_stages
                 plugin.early_import_stages = []
 

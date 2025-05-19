@@ -9,8 +9,8 @@ on:
     workflow_dispatch:
 
 env:
-    PYTHON_VERSION: 3.13
     POETRY_VERSION: 1.8.5
+    PYTHON_VERSION: 3.13
 
 jobs:
     release:
@@ -22,21 +22,40 @@ jobs:
             - name: Checkout code
               uses: actions/checkout@v4
 
-            - name: Install Poetry
+            - name: Setup pipx environment Variables
+              id: pipx-env-setup
               run: |
-                  curl -sSL https://install.python-poetry.org | python3 - --version ${{ env.POETRY_VERSION }}
+                  PATH_SEP="${{ !startsWith(runner.os, 'windows') && '/' || '\\' }}"
+                  echo "PATH_SEP=${PATH_SEP}" >> $GITHUB_ENV
+
+                  PIPX_CACHE="${{ github.workspace }}${PATH_SEP}pipx_cache"
+                  echo "pipx-cache-path=${PIPX_CACHE}" >> $GITHUB_OUTPUT
+                  echo "pipx-version=$(pipx --version)" >> $GITHUB_OUTPUT
+                  echo "PIPX_HOME=${PIPX_CACHE}${PATH_SEP}home" >> $GITHUB_ENV
+                  echo "PIPX_BIN_DIR=${PIPX_CACHE}${PATH_SEP}bin" >> $GITHUB_ENV
+                  echo "PIPX_MAN_DIR=${PIPX_CACHE}${PATH_SEP}man" >> $GITHUB_ENV
+                  echo "${PIPX_CACHE}${PATH_SEP}bin" >> $GITHUB_PATH
+
+            - name: Cache Pipx
+              id: cache-pipx
+              uses: actions/cache@v4
+              with:
+                  path: ${{ steps.pipx-env-setup.outputs.pipx-cache-path }}
+                  key: ${{ runner.os }}-python_${{ env.PYTHON_VERSION }}-pipx_${{ steps.pipx-env-setup.outputs.pipx-version }}-poetry_${{ env.POETRY_VERSION }}
+
+            - name: Install Poetry & Tox
+              if: steps.cache-pipx.outputs.cache-hit != 'true'
+              run: |
+                  pipx install poetry==${{ env.POETRY_VERSION }}
 
             - name: Set up Python
               uses: actions/setup-python@v5
               with:
                   python-version: ${{ env.PYTHON_VERSION }}
-                  cache: "poetry"
+                  cache: poetry
 
-            - name: Update PATH
-              run: echo "$HOME/.local/bin" >> $GITHUB_PATH
-
-            - if: ${{ github.event.act }}
-              name: Set Poetry to use TestPyPi
+            - name: Set Poetry to use TestPyPi to allow building against the test env
+              if: ${{ github.event.act }}
               run: |
                   poetry config repositories.test-pypi https://test.pypi.org/legacy/
                   poetry config pypi-token.test-pypi ${{ secrets.PYPI_TOKEN }}
@@ -58,6 +77,7 @@ jobs:
                   [[ "$(poetry version --short)" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]] || echo prerelease=true >> $GITHUB_OUTPUT
 
             - name: Create Release
+              if: ${{ !github.event.act }}
               uses: ncipollo/release-action@v1
               with:
                   artifacts: "dist/*"
