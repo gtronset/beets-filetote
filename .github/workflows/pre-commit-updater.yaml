@@ -27,10 +27,10 @@ jobs:
                   cache: pip
 
             - name: Install pre-commit
-              run: pip install pre-commit
+              run: pip install pre-commit-update
 
             - name: Run pre-commit autoupdate
-              run: pre-commit autoupdate
+              run: pre-commit-update
 
             - name: Create Pull Request
               uses: peter-evans/create-pull-request@v7
