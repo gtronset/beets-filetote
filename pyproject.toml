@@ -143,9 +143,8 @@ env_list = ["3.8", "3.9", "3.10", "3.11", "3.12", "3.13"]
 
 [tool.tox.env_run_base]
 description = "Run test under {base_python}"
-skip_install = true
 allowlist_externals = ["poetry", "pytest"]
-commands_pre = [["poetry", "install"]]
+commands_pre = [["poetry", "install", "--no-root", "--sync"]]
 commands = [
     [
         "poetry",
