@@ -15,4 +15,4 @@ env/
 .act-variables
 .mypy_cache
 .ruff_cache
-.tool-versions
+.venv/

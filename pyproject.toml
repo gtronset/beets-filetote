@@ -143,32 +143,32 @@ env_list = ["3.8", "3.9", "3.10", "3.11", "3.12", "3.13"]
 
 [tool.tox.env_run_base]
 description = "Run test under {base_python}"
-deps = [
-    "beets",
-    "beets-audible",
-    "mediafile",
-    "pytest",
-    "reflink",
-    "toml",
-    "typeguard",
+skip_install = true
+allowlist_externals = ["poetry", "pytest"]
+commands_pre = [["poetry", "install"]]
+commands = [
+    [
+        "poetry",
+        "run",
+        "pytest",
+        "tests",
+        "--typeguard-packages=beetsplug",
+    ],
 ]
-commands = [["pytest", "tests", "--typeguard-packages=beetsplug"]]
 
 [tool.tox.env.lint]
-commands = [["ruff", "check"]]
-deps = "ruff==0.11.10"
 description = "Lint source code"
+commands = [["poetry", "run", "ruff", "check"]]
 
 [tool.tox.env.lint-fix]
-commands = [["ruff", "check", "--fix"]]
-deps = { replace = "ref", env = "lint", key = "deps", extend = true }
 description = "Fixes and lint issues in source code"
+commands = [["poetry", "run", "ruff", "check", "--fix"]]
+
 
 [tool.tox.env.format]
-commands = [["ruff", "format"]]
-deps = { replace = "ref", env = "lint", key = "deps", extend = true }
 description = "Formats source code"
+commands = [["poetry", "run", "ruff", "format"]]
 
 [tool.tox.env.mypy]
-commands = [["mypy"]]
-deps = ["mypy==1.15.0"]
+description = "Checks types in source code"
+commands = [["poetry", "run", "mypy"]]
