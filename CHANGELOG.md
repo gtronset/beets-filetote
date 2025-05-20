@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.0.3] - 2025-05-19
+
 ### Changed
 
 - Explicitly set `permissions` on all Workflows <https://github.com/gtronset/beets-filetote/pull/187>
@@ -235,7 +237,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 <!-- Release Links -->
 
-[unreleased]: https://github.com/gtronset/beets-filetote/compare/v1.0.2...HEAD
+[unreleased]: https://github.com/gtronset/beets-filetote/compare/v1.0.3...HEAD
+[1.0.3]: https://github.com/gtronset/beets-filetote/releases/tag/v1.0.3
 [1.0.2]: https://github.com/gtronset/beets-filetote/releases/tag/v1.0.2
 [1.0.1]: https://github.com/gtronset/beets-filetote/releases/tag/v1.0.1
 [1.0.0]: https://github.com/gtronset/beets-filetote/releases/tag/v1.0.0
