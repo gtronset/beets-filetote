@@ -17,3 +17,4 @@ beets/
 .actrc
 .mypy_cache
 .ruff_cache
+.venv

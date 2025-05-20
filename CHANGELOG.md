@@ -14,6 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Explicitly set `permissions` on all Workflows <https://github.com/gtronset/beets-filetote/pull/187>
 - Add better Workflow caching & other CI performance tweaks <https://github.com/gtronset/beets-filetote/pull/191>
 - Switch to using `pre-commit-update` instead of `pre-commit autoupdate` <https://github.com/gtronset/beets-filetote/pull/193>
+- Use Poetry to manage Tox dependencies <https://github.com/gtronset/beets-filetote/pull/194>
 
 ### Fixed
 

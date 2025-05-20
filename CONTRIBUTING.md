@@ -56,7 +56,7 @@ Testing can be run with Tox, ex.:
 poetry run tox -e 3.13
 ```
 
-For other linting environments, see `tox.ini`. Ex: `lint` (courtesy of `ruff`):
+For other linting environments, see `pyproject.toml`. Ex: `lint` (courtesy of `ruff`):
 
 ```sh
 poetry run tox -e lint
@@ -74,6 +74,17 @@ virtual environment in your shell with:
 ```sh
 poetry shell
 ```
+
+Configuration of Tox follows [Poetry's recommended strategy #2], which allows Poetry
+to manage dependencies but still allow Tox to manage a distinct environment. Test for
+all supported Python versions can be run with the base `tox` command, and can be run in
+parallel via `tox -p`, i.e.:
+
+```sh
+poetry run tox -p
+```
+
+[Poetry's recommended strategy #2]: https://python-poetry.org/docs/1.8/faq/#use-case-2
 
 **Docker:**
 
