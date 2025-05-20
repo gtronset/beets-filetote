@@ -2,7 +2,7 @@
 
 [tool.poetry]
 name = "beets-filetote"
-version = "1.0.2"
+version = "1.0.3"
 description = "A beets plugin to copy/moves non-music extra files, attachments, and artifacts during the import process."
 authors = ["Gavin Tronset <gtronset@gmail.com>"]
 keywords = ["beets", "files", "artifacts", "extra"]
