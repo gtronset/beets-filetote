@@ -35,6 +35,56 @@ class FiletotePruningyTest(FiletoteTestCase):
         self.assert_import_dir_exists()
         self.assert_not_in_import_dir(b"the_album")
 
+    def test_prune_import_directory_with_subdirectory(self) -> None:
+        """Check that plugin does not interfere with normal
+        pruning of emptied import directories.
+        """
+        config["filetote"]["extensions"] = ".*"
+
+        scans_dir = os.path.join(self.import_dir, b"the_album", b"scans")
+
+        os.makedirs(scans_dir)
+
+        self.create_file(
+            path=scans_dir,
+            filename=b"scan-1.jpg",
+        )
+
+        self._run_cli_command("import")
+
+        self.assert_import_dir_exists()
+        self.assert_not_in_import_dir(b"the_album")
+
+    def test_prune_import_directory_with_only_subdirectory(self) -> None:
+        """Check that plugin does not interfere with normal
+        pruning of emptied import directories.
+        """
+        config["filetote"]["extensions"] = ".*"
+
+        album_path = os.path.join(self.import_dir, b"the_album")
+
+        scans_dir = os.path.join(album_path, b"scans")
+
+        os.remove(os.path.join(album_path, b"track_1.lrc"))
+        os.remove(os.path.join(album_path, b"track_2.lrc"))
+        os.remove(os.path.join(album_path, b"track_3.lrc"))
+        os.remove(os.path.join(album_path, b"artifact.file"))
+        os.remove(os.path.join(album_path, b"artifact.lrc"))
+        os.remove(os.path.join(album_path, b"artifact.nfo"))
+        os.remove(os.path.join(album_path, b"artifact2.file"))
+
+        os.makedirs(scans_dir)
+
+        self.create_file(
+            path=scans_dir,
+            filename=b"scan-1.jpg",
+        )
+
+        self._run_cli_command("import")
+
+        self.assert_import_dir_exists()
+        self.assert_not_in_import_dir(b"the_album")
+
     def test_prune_import_subdirectory_only_not_above(self) -> None:
         """Check that plugin only prunes nested folder when specified."""
         self._setup_import_session(

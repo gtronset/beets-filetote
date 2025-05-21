@@ -789,7 +789,7 @@ class FiletotePlugin(BeetsPlugin):
     ) -> str:
         """Checks if the artifact/file has a subpath in the source location and returns
         its subpath. This also ensures a trailing separator is present if there's a
-        subpath. This is needed for renaming and templates as conditionally using the
+        subpath. This is needed for renaming and templates, as conditionally using the
         `$subpath` is not supported by plugins such as `inline`.
         """
         if artifact_path.startswith(source_path):
@@ -882,10 +882,13 @@ class FiletotePlugin(BeetsPlugin):
             if operation == MoveOperation.MOVE or reimport:
                 # Prune vacated directory. Depending on the type of operation,
                 # this might be a specific import path, the base library, etc.
-                root_path: PathBytes | None = self._get_prune_root_path()
+                root_path: PathBytes | None = self._get_prune_root_path(artifact_path)
+
+                # self._log.warning(f"source_path: {source_path!s}")
+                # self._log.warning(f"artifact_path: {artifact_path!s}")
 
                 util.prune_dirs(
-                    source_path,
+                    artifact_path,
                     root=root_path,
                     clutter=config["clutter"].as_str_seq(),
                 )
@@ -909,8 +912,17 @@ class FiletotePlugin(BeetsPlugin):
         self, import_path: PathBytes | None, library_dir: PathBytes
     ) -> bool:
         """Checks if the import path is within the library directory."""
-        return import_path is not None and str(library_dir) in util.ancestry(
-            import_path
+        return import_path is not None and library_dir in util.ancestry(import_path)
+
+    def _is_artifact_path_subdir_of_import(
+        self, artifact_path: PathBytes, import_path: PathBytes | None
+    ) -> bool:
+        """Checks if the import path is within the library directory."""
+        ancestry: list[PathBytes] = util.ancestry(artifact_path)
+        return (
+            import_path is not None
+            and import_path != ancestry[-1]
+            and import_path in ancestry
         )
 
     def _is_reimport(self) -> bool:
@@ -926,7 +938,7 @@ class FiletotePlugin(BeetsPlugin):
             import_path, library_dir
         ) or self._is_import_path_within_library(import_path, library_dir)
 
-    def _get_prune_root_path(self) -> PathBytes | None:
+    def _get_prune_root_path(self, artifact_path: PathBytes) -> PathBytes | None:
         """Deduces the root path for cleaning up dangling files on MOVE.
 
         This method determines the root path that aids in cleaning up files
@@ -936,6 +948,8 @@ class FiletotePlugin(BeetsPlugin):
         library_dir = self.filetote.session.beets_lib.directory
         import_path = self.filetote.session.import_path
 
+        # Default to no "root" path, so that the targeted prune path is the highest
+        # pruned path.
         root_path: PathBytes | None = None
 
         if import_path is None:
@@ -950,6 +964,12 @@ class FiletotePlugin(BeetsPlugin):
         elif self._is_import_path_within_library(import_path, library_dir):
             # Otherwise, prune all the way up to the import path.
             root_path = import_path
+        elif self._is_artifact_path_subdir_of_import(artifact_path, import_path):
+            root_path = import_path
+
+        # self._log.warning(f"root_path: {root_path!s}")
+        # self._log.warning(f"import_path: {import_path!s}")
+        # self._log.warning(f"library_dir: {library_dir!s}")
 
         return root_path
 
