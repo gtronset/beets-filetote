@@ -880,12 +880,10 @@ class FiletotePlugin(BeetsPlugin):
             )
 
             if operation == MoveOperation.MOVE or reimport:
-                # Prune vacated directory. Depending on the type of operation,
-                # this might be a specific import path, the base library, etc.
+                # Prune vacated directory of the artifact and up to a certain path
+                # depending on the appropriate `root_path`. The type of operation
+                # dictates if this prunes to the import path, the base library, etc.
                 root_path: PathBytes | None = self._get_prune_root_path(artifact_path)
-
-                # self._log.warning(f"source_path: {source_path!s}")
-                # self._log.warning(f"artifact_path: {artifact_path!s}")
 
                 util.prune_dirs(
                     artifact_path,
@@ -905,19 +903,28 @@ class FiletotePlugin(BeetsPlugin):
     def _is_import_path_same_as_library_dir(
         self, import_path: PathBytes | None, library_dir: PathBytes
     ) -> bool:
-        """Checks if the import path matches the library directory."""
+        """Checks if the import path is present and is the same as the library
+        directory.
+        """
         return import_path is not None and import_path == library_dir
 
     def _is_import_path_within_library(
         self, import_path: PathBytes | None, library_dir: PathBytes
     ) -> bool:
-        """Checks if the import path is within the library directory."""
+        """Checks if the import path present and is within the library directory."""
         return import_path is not None and library_dir in util.ancestry(import_path)
 
     def _is_artifact_path_subdir_of_import(
         self, artifact_path: PathBytes, import_path: PathBytes | None
     ) -> bool:
-        """Checks if the import path is within the library directory."""
+        """Checks if the artifact path is a subdirectory of the import path.
+
+        Ensures that the import path is not `null`. Since the default behavior of
+        Beet's `util.prune_dirs()` is to set the input path as the root when `root`
+        is `null`, it is sufficient to check that `import_path` is present in the
+        artifact's ancestors if we are going to set the `root_path` to `import_path`
+        when this function returns `True`.
+        """
         ancestry: list[PathBytes] = util.ancestry(artifact_path)
         return (
             import_path is not None
@@ -961,15 +968,15 @@ class FiletotePlugin(BeetsPlugin):
             # If the import path is the same as the Library's, allow for
             # pruning all the way to the library path.
             root_path = os.path.dirname(import_path)
-        elif self._is_import_path_within_library(import_path, library_dir):
-            # Otherwise, prune all the way up to the import path.
+        elif self._is_import_path_within_library(
+            import_path, library_dir
+        ) or self._is_artifact_path_subdir_of_import(artifact_path, import_path):
+            # Otherwise, prune all the way up to the import path in cases that it's
+            # a reimport from within the library itself or, in cases of an artifact
+            # being found in a subdirectory, explicitly provide the import path as
+            # the highest pruned path to ensure empty subdirectories are correctly
+            # pruned.
             root_path = import_path
-        elif self._is_artifact_path_subdir_of_import(artifact_path, import_path):
-            root_path = import_path
-
-        # self._log.warning(f"root_path: {root_path!s}")
-        # self._log.warning(f"import_path: {import_path!s}")
-        # self._log.warning(f"library_dir: {library_dir!s}")
 
         return root_path
 
