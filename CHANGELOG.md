@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## Fixed
 
 - Fix Readme CI URLs for new Workflow name <https://github.com/gtronset/beets-filetote/pull/196>
+- Allow building with Poetry v1 and v2 <https://github.com/gtronset/beets-filetote/pull/202>
 
 ## [1.0.3] - 2025-05-19
 
