@@ -20,7 +20,7 @@ from typing import (
 )
 
 from beets import config, util
-from beets.library import DefaultTemplateFunctions
+from beets.library.model import DefaultTemplateFunctions
 from beets.plugins import BeetsPlugin, find_plugins
 from beets.ui import get_path_formats
 from beets.util import MoveOperation
