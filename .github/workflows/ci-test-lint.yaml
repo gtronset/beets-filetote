@@ -129,7 +129,7 @@ jobs:
                   pipx install poetry==${{ env.POETRY_VERSION }}
 
             - name: Setup Python ${{ matrix.python-version }}
-              uses: actions/setup-python@v5
+              uses: actions/setup-python@v6
               with:
                   python-version: ${{ matrix.python-version }}
                   cache: poetry
@@ -171,7 +171,7 @@ jobs:
                   pipx install poetry==${{ env.POETRY_VERSION }}
 
             - name: Setup Python ${{ env.PYTHON_VERSION }}
-              uses: actions/setup-python@v5
+              uses: actions/setup-python@v6
               with:
                   python-version: ${{ env.PYTHON_VERSION }}
                   cache: poetry
