@@ -5,9 +5,10 @@ import logging
 import os
 import shutil
 
+from collections.abc import Iterator
 from contextlib import contextmanager
 from dataclasses import asdict, dataclass
-from typing import Any, Dict, Iterator, List, Literal, Optional
+from typing import Any, Literal, Optional
 
 # Make sure the local versions of the plugins are used
 import beetsplug
@@ -40,7 +41,7 @@ class LogCapture(logging.Handler):
     def __init__(self) -> None:
         """Log handler init."""
         logging.Handler.__init__(self)
-        self.messages: List[str] = []
+        self.messages: list[str] = []
 
     def emit(self, record: logging.LogRecord) -> None:
         """Emits a log message."""
@@ -48,7 +49,7 @@ class LogCapture(logging.Handler):
 
 
 @contextmanager
-def capture_log(logger: str = "beets") -> Iterator[List[str]]:
+def capture_log(logger: str = "beets") -> Iterator[list[str]]:
     """Adds handler to capture beets' logs."""
     capture = LogCapture()
     logs = logging.getLogger(logger)
@@ -197,7 +198,7 @@ class FiletoteTestCase(_common.TestCase, Assertions, HelperUtils):
     for the autotagging library and assertions helpers.
     """
 
-    def setUp(self, other_plugins: Optional[List[str]] = None) -> None:
+    def setUp(self, other_plugins: Optional[list[str]] = None) -> None:
         """Handles all setup for testing, including library (database)."""
         super().setUp()
 
@@ -215,7 +216,7 @@ class FiletoteTestCase(_common.TestCase, Assertions, HelperUtils):
         self._pairs_count: int = 0
 
         self.import_dir: bytes = b""
-        self.import_media: Optional[List[MediaFile]] = None
+        self.import_media: Optional[list[MediaFile]] = None
         self.importer: Optional[ImportSession] = None
         self.paths: Optional[bytes] = None
 
@@ -243,12 +244,12 @@ class FiletoteTestCase(_common.TestCase, Assertions, HelperUtils):
         self.lib._close()
         super().tearDown()
 
-    def load_plugins(self, other_plugins: List[str]) -> None:
+    def load_plugins(self, other_plugins: list[str]) -> None:
         """Loads and sets up the plugin(s) for the test module."""
-        plugin_list: List[str] = ["filetote"]
-        plugin_class_list: List[Any] = [filetote.FiletotePlugin]
+        plugin_list: list[str] = ["filetote"]
+        plugin_class_list: list[Any] = [filetote.FiletotePlugin]
 
-        approved_plugins: Dict[str, Any] = {
+        approved_plugins: dict[str, Any] = {
             "audible": audible.Audible,
             "convert": convert.ConvertPlugin,
             "inline": inline.InlinePlugin,
@@ -363,8 +364,8 @@ class FiletoteTestCase(_common.TestCase, Assertions, HelperUtils):
     def _run_cli_modify(  # noqa: PLR0913
         self,
         query: str,
-        mods: Optional[Dict[str, str]] = None,
-        dels: Optional[Dict[str, str]] = None,
+        mods: Optional[dict[str, str]] = None,
+        dels: Optional[dict[str, str]] = None,
         write: bool = True,
         move: bool = True,
         album: Optional[str] = None,
@@ -393,7 +394,7 @@ class FiletoteTestCase(_common.TestCase, Assertions, HelperUtils):
         album: Optional[str] = None,
         move: bool = True,
         pretend: bool = False,
-        fields: Optional[List[str]] = None,
+        fields: Optional[list[str]] = None,
     ) -> None:
         """Runs the "update" CLI command. This should be called with
         _run_cli_command().
@@ -409,7 +410,7 @@ class FiletoteTestCase(_common.TestCase, Assertions, HelperUtils):
 
     def _create_flat_import_dir(
         self,
-        media_files: Optional[List[MediaSetup]] = None,
+        media_files: Optional[list[MediaSetup]] = None,
         pair_subfolders: bool = False,
     ) -> None:
         """Creates a directory with media files and artifacts.
@@ -455,7 +456,7 @@ class FiletoteTestCase(_common.TestCase, Assertions, HelperUtils):
 
         media_file_count: int = 0
 
-        media_list: List[MediaFile] = []
+        media_list: list[MediaFile] = []
 
         for media_file in media_files:
             media_file_count += media_file.count
@@ -480,8 +481,8 @@ class FiletoteTestCase(_common.TestCase, Assertions, HelperUtils):
 
     def _create_nested_import_dir(
         self,
-        disc1_media_files: Optional[List[MediaSetup]] = None,
-        disc2_media_files: Optional[List[MediaSetup]] = None,
+        disc1_media_files: Optional[list[MediaSetup]] = None,
+        disc2_media_files: Optional[list[MediaSetup]] = None,
     ) -> None:
         """Creates a directory with media files and artifacts nested in subdirectories.
         Sets ``self.import_dir`` to the path of the directory. Also sets
@@ -537,7 +538,7 @@ class FiletoteTestCase(_common.TestCase, Assertions, HelperUtils):
 
         media_file_count: int = 0
 
-        media_list: List[MediaFile] = []
+        media_list: list[MediaFile] = []
 
         for media_file in disc1_media_files:
             media_file_count += media_file.count
@@ -585,11 +586,11 @@ class FiletoteTestCase(_common.TestCase, Assertions, HelperUtils):
         file_type: str = "mp3",
         title_prefix: str = "Tag Title ",
         disc: int = 1,
-    ) -> List[MediaFile]:
+    ) -> list[MediaFile]:
         """Generates the desired number of media files and corresponding
         "paired" artifacts.
         """
-        media_list: List[MediaFile] = []
+        media_list: list[MediaFile] = []
 
         while count > 0:
             trackname = f"{filename_prefix}{count}"
@@ -640,7 +641,7 @@ class FiletoteTestCase(_common.TestCase, Assertions, HelperUtils):
 
         return medium
 
-    def _update_medium(self, path: bytes, meta_updates: Dict[str, str]) -> None:
+    def _update_medium(self, path: bytes, meta_updates: dict[str, str]) -> None:
         medium = MediaFile(path)
 
         for item, value in meta_updates.items():
@@ -679,7 +680,7 @@ class FiletoteTestCase(_common.TestCase, Assertions, HelperUtils):
 
         self.paths = import_dir
 
-        import_path: List[bytes] = [import_dir] if import_dir else []
+        import_path: list[bytes] = [import_dir] if import_dir else []
 
         self.importer = ImportSession(
             self.lib,

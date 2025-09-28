@@ -13,10 +13,7 @@ from typing import (
     TYPE_CHECKING,
     Any,
     Callable,
-    Dict,
-    List,
     Literal,
-    Tuple,
 )
 
 from beets import config, util
@@ -44,7 +41,7 @@ if version_info >= (3, 10):
 else:
     from typing_extensions import TypeAlias
 
-FiletoteQueries: TypeAlias = List[
+FiletoteQueries: TypeAlias = list[
     Literal[
         "ext:",
         "filename:",
@@ -170,7 +167,7 @@ class FiletotePlugin(BeetsPlugin):
             "item_reflinked",
         ]
 
-        file_operation_event_functions: Dict[str, Callable[..., None]] = {}
+        file_operation_event_functions: dict[str, Callable[..., None]] = {}
 
         for event in file_operation_events:
             file_operation_event_functions[event] = self._build_file_event_function(
@@ -198,7 +195,7 @@ class FiletotePlugin(BeetsPlugin):
 
     def _get_filetote_path_formats(
         self, queries: FiletoteQueries, path_default: Template
-    ) -> Dict[str, Template]:
+    ) -> dict[str, Template]:
         """Gets all `path` formats from beets and parses those set for Filetote.
 
         Sets a default value for artifacts, then sets those paths from the Filetote's
@@ -206,7 +203,7 @@ class FiletotePlugin(BeetsPlugin):
         unless there's already a representation from Filetote's node to give priority
         to Filetote's definitions.
         """
-        path_formats: Dict[str, str | Template] = {"filetote:default": path_default}
+        path_formats: dict[str, str | Template] = {"filetote:default": path_default}
 
         path_formats.update(self.filetote.paths)
 
@@ -672,11 +669,11 @@ class FiletotePlugin(BeetsPlugin):
     def _is_pattern_match(
         self,
         artifact_relpath: PathBytes,
-        patterns_dict: Dict[str, list[str]],
+        patterns_dict: dict[str, list[str]],
         match_category: str | None = None,
-    ) -> Tuple[bool, str | None]:
+    ) -> tuple[bool, str | None]:
         """Check if the file is in the defined patterns."""
-        pattern_definitions: list[Tuple[str, list[str]]] = list(patterns_dict.items())
+        pattern_definitions: list[tuple[str, list[str]]] = list(patterns_dict.items())
 
         if match_category:
             pattern_definitions = [
@@ -712,7 +709,7 @@ class FiletotePlugin(BeetsPlugin):
         artifact_source: PathBytes,
         artifact_filename: PathBytes,
         artifact_paired: bool,
-    ) -> Tuple[bool, str | None]:
+    ) -> tuple[bool, str | None]:
         """Compares the artifact/file to certain checks to see if it should be ignored
         or skipped.
         """

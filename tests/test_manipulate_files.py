@@ -4,7 +4,7 @@ import logging
 import os
 import stat
 
-from typing import List, Optional
+from typing import Optional
 
 import pytest
 
@@ -19,7 +19,7 @@ log = logging.getLogger("beets")
 class FiletoteManipulateFiles(FiletoteTestCase):
     """Tests to check that Filetote manipulates files using the correct operation."""
 
-    def setUp(self, _other_plugins: Optional[List[str]] = None) -> None:
+    def setUp(self, _other_plugins: Optional[list[str]] = None) -> None:
         """Provides shared setup for tests."""
         super().setUp()
 

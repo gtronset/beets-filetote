@@ -5,7 +5,7 @@
 import logging
 import os
 
-from typing import List, Optional
+from typing import Optional
 
 from beets import config
 
@@ -19,7 +19,7 @@ class FiletoteConvertRenameTest(FiletoteTestCase):
     `convert` plugin is loaded.
     """
 
-    def setUp(self, _other_plugins: Optional[List[str]] = None) -> None:
+    def setUp(self, _other_plugins: Optional[list[str]] = None) -> None:
         """Provides shared setup for tests."""
         super().setUp(other_plugins=["convert"])
 

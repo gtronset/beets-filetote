@@ -6,7 +6,7 @@ import sys
 import tempfile
 import unittest
 
-from typing import List, Optional
+from typing import Optional
 
 import reflink
 
@@ -113,7 +113,7 @@ class DummyOut:
     encoding = "utf-8"
 
     def __init__(self) -> None:
-        self.buf: List[str] = []
+        self.buf: list[str] = []
 
     def write(self, buf_item: str) -> None:
         """Writes to buffer."""
@@ -138,7 +138,7 @@ class DummyIn:
     encoding = "utf-8"
 
     def __init__(self, out: Optional[DummyOut] = None) -> None:
-        self.buf: List[str] = []
+        self.buf: list[str] = []
         self.reads: int = 0
         self.out: Optional[DummyOut] = out
 
