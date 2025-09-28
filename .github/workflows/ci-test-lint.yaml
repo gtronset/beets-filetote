@@ -73,8 +73,7 @@ jobs:
 
                     tar -xf "$temp_ffmpeg_archive" --wildcards -O "**/ffmpeg" > "$ffmpeg_dir/ffmpeg"
                     tar -xf "$temp_ffmpeg_archive" --wildcards -O "**/ffprobe" > "$ffmpeg_dir/ffprobe"
-                    tar -xf "$temp_ffmpeg_archive" --wildcards -O "**/GPLv3.txt" > "$ffmpeg_dir/LICENSE"
-                    tar -xf "$temp_ffmpeg_archive" --wildcards -O "**/readme.txt" > "$ffmpeg_dir/README.txt"
+                    tar -xf "$temp_ffmpeg_archive" --wildcards -O "**/LICENSE.txt" > "$ffmpeg_dir/LICENSE"
 
                     # Ensure these can be executed
                     chmod +x "$ffmpeg_dir/ffmpeg" "$ffmpeg_dir/ffprobe"
@@ -100,7 +99,7 @@ jobs:
                     mkdir "$ffmpeg_dir" || true
 
                     7z e "$temp_ffmpeg_archive" "-o$ffmpeg_dir" "**\bin\ffmpeg.exe" \
-                        "**\bin\ffprobe.exe" "**\LICENSE" "**\README.txt"
+                        "**\bin\ffprobe.exe" "**\LICENSE.txt"
 
                     rm -rf "$temp_ffmpeg_archive"
                   fi
