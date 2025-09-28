@@ -977,6 +977,10 @@ class FiletotePlugin(BeetsPlugin):
             # the highest pruned path to ensure empty subdirectories are correctly
             # pruned.
             root_path = import_path
+        else:
+            self._log.error("HELP")
+            self._log.error(str(library_dir))
+            self._log.error(str(import_path))
 
         return root_path
 
