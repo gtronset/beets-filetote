@@ -203,7 +203,7 @@ class FiletotePlugin(BeetsPlugin):
         """
         path_formats: dict[str, str | Template] = {"filetote:default": path_default}
 
-        path_formats.update(self.filetote.paths)
+        path_formats |= self.filetote.paths
 
         beets_path_query: str
         beets_path_format: Template
@@ -235,11 +235,11 @@ class FiletotePlugin(BeetsPlugin):
         file or media, since MediaFile.TYPES isn't fundamentally a complete
         list of files by extension.
         """
-        BEETS_FILE_TYPES.update({
+        BEETS_FILE_TYPES |= {  # noqa: N806
             "m4a": "M4A",
             "wma": "WMA",
             "wave": "WAVE",
-        })
+        }
 
         for plugin in find_plugins():
             if plugin.name == "convert":
@@ -249,7 +249,7 @@ class FiletotePlugin(BeetsPlugin):
                 self._convert_early_import_stages = convert_early_import_stages
 
             if plugin.name == "audible":
-                BEETS_FILE_TYPES.update({"m4b": "M4B"})
+                BEETS_FILE_TYPES |= {"m4b": "M4B"}  # noqa: N806
 
     def _register_session_settings(self, session: ImportSession) -> None:
         """Certain settings are only available and/or finalized once the
@@ -482,7 +482,7 @@ class FiletotePlugin(BeetsPlugin):
         }
 
         # Include all normal Item fields, using the formatted values
-        mapping_meta.update(beets_item.formatted())
+        mapping_meta |= beets_item.formatted()
 
         return FiletoteMappingModel(**mapping_meta)
 
