@@ -7,7 +7,6 @@ from __future__ import annotations
 from dataclasses import asdict, dataclass, field, fields
 from sys import version_info
 
-# Dict and List are needed for py38
 # Optional and Union are needed for <py310
 from typing import (
     TYPE_CHECKING,

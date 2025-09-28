@@ -7,8 +7,6 @@ import fnmatch
 import os
 
 from sys import version_info
-
-# Dict, List, and Tuple are needed for py38
 from typing import (
     TYPE_CHECKING,
     Any,
@@ -324,12 +322,6 @@ class FiletotePlugin(BeetsPlugin):
         # Find and collect all non-media file artifacts
         self.collect_artifacts(item, source, destination)
 
-    def remove_prefix(self, text: str, prefix: str) -> str:
-        """Removes the prefix of given text."""
-        if text.startswith(prefix):
-            return text[len(prefix) :]
-        return text
-
     def _get_path_query_format_match(
         self,
         artifact_filename: str,
@@ -360,7 +352,7 @@ class FiletotePlugin(BeetsPlugin):
                 paired
                 and query.startswith(paired_ext_prefix)
                 and artifact_ext
-                == ("." + self.remove_prefix(query, paired_ext_prefix).lstrip("."))
+                == ("." + query.removeprefix(paired_ext_prefix).lstrip("."))
             ):
                 # Prioritize `filename:` query selector over `paired_ext:`
                 if selected_path_query != filename_prefix:
@@ -373,7 +365,7 @@ class FiletotePlugin(BeetsPlugin):
                     paired_ext_prefix,
                     ext_prefix,
                 ))
-                and self.remove_prefix(query, pattern_prefix) == pattern_category
+                and query.removeprefix(pattern_prefix) == pattern_category
             ):
                 # This should pull the corresponding pattern def,
                 # Prioritize `filename:` and `paired_ext:` query selector over
@@ -382,7 +374,7 @@ class FiletotePlugin(BeetsPlugin):
                     selected_path_query = pattern_prefix
                     selected_path_format = path_format
             elif query.startswith(ext_prefix) and artifact_ext == (
-                "." + self.remove_prefix(query, ext_prefix).lstrip(".")
+                "." + query.removeprefix(ext_prefix).lstrip(".")
             ):
                 # Prioritize `filename:`, `paired_ext:`, and `pattern:` query selector
                 # over `ext:`
@@ -395,7 +387,7 @@ class FiletotePlugin(BeetsPlugin):
                     selected_path_format = path_format
             elif query.startswith(
                 filename_prefix
-            ) and full_filename == self.remove_prefix(query, filename_prefix):
+            ) and full_filename == query.removeprefix(filename_prefix):
                 selected_path_query = filename_prefix
                 selected_path_format = path_format
 
