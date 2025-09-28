@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- Update Filetote to work with Beets v2.3.0 <https://github.com/gtronset/beets-filetote/pull/213>
+
 ## Fixed
 
 - Fix Readme CI URLs for new Workflow name <https://github.com/gtronset/beets-filetote/pull/196>
