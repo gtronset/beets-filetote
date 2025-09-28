@@ -91,7 +91,7 @@ jobs:
                   # Only install if FFmpeg is not available
                   if ! $(ffmpeg -version >/dev/null 2>&1) ; then
                     # win32_url="https://www.gyan.dev/ffmpeg/builds/packages/ffmpeg-${{ env.FFMPEG_VERSION }}-full_build.7z"
-                    win32_url="https://github.com/BtbN/FFmpeg-Builds/releases/download/latest/ffmpeg-n${{ github.workspace }}-latest-win64-lgpl-${{ github.workspace }}.zip"
+                    win32_url="https://github.com/BtbN/FFmpeg-Builds/releases/download/latest/ffmpeg-n${{ env.FFMPEG_VERSION }}-latest-win64-lgpl-${{ env.FFMPEG_VERSION }}.zip"
 
                     temp_ffmpeg_archive="${{ github.workspace }}\temp_ffmpeg_archive.zip"
 
