@@ -25,7 +25,7 @@ jobs:
             fail-fast: false
             matrix:
                 python-version: ["3.9", "3.10", "3.11", "3.12", "3.13"]
-                os: [ubuntu-24.04, windows-2025]
+                os: [ubuntu-24.04, windows-2022]
 
         env:
             TOXENV: ${{ matrix.python-version }}
@@ -82,7 +82,7 @@ jobs:
                   fi
 
             - name: Install FFmpeg (Windows)
-              if: matrix.os == 'windows-2025'
+              if: matrix.os == 'windows-2022'
               run: |
                   ffmpeg_dir="${{ steps.ffmpeg-env-setup.outputs.ffmpeg-cache-path }}"
 
