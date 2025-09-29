@@ -235,11 +235,12 @@ class FiletotePlugin(BeetsPlugin):
         file or media, since MediaFile.TYPES isn't fundamentally a complete
         list of files by extension.
         """
-        BEETS_FILE_TYPES |= {  # noqa: N806
+        # Mutate the global BEETS_FILE_TYPES dictionary in-place
+        BEETS_FILE_TYPES.update({
             "m4a": "M4A",
             "wma": "WMA",
             "wave": "WAVE",
-        }
+        })
 
         for plugin in find_plugins():
             if plugin.name == "convert":
@@ -249,7 +250,7 @@ class FiletotePlugin(BeetsPlugin):
                 self._convert_early_import_stages = convert_early_import_stages
 
             if plugin.name == "audible":
-                BEETS_FILE_TYPES |= {"m4b": "M4B"}  # noqa: N806
+                BEETS_FILE_TYPES.update({"m4b": "M4B"})
 
     def _register_session_settings(self, session: ImportSession) -> None:
         """Certain settings are only available and/or finalized once the
