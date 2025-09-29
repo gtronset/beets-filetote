@@ -114,7 +114,7 @@ class FiletoteRenameTest(FiletoteTestCase):
         self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"Tag Title 3.lrc")
 
     def test_rename_period_is_optional_for_ext(self) -> None:
-        """Tests that leading periods are options when definiting `ext` paths."""
+        """Tests that leading periods are options when defining `ext` paths."""
         config["filetote"]["extensions"] = ".file .nfo"
         config["paths"]["ext:file"] = "$albumpath/$artist - $album"
         config["paths"]["ext:.nfo"] = "$albumpath/$artist - $album 2"

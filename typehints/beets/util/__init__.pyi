@@ -42,7 +42,7 @@ def sorted_walk(
     ignore: Sequence[Bytes_or_String] | None = (),
     ignore_hidden: bool = False,
     logger: Logger | None = None,
-) -> Generator[tuple[bytes, list[bytes], list[bytes]], None, None]: ...
+) -> Generator[tuple[bytes, list[bytes], list[bytes]]]: ...
 
 class MoveOperation(Enum):
     MOVE = 0

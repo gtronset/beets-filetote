@@ -48,6 +48,7 @@ build-backend = "poetry.core.masonry.api"
 [tool.mypy]
 mypy_path = ["./typehints"]
 modules = ["beetsplug", "tests.helper", "tests._common"]
+explicit_package_bases = true
 strict = true
 pretty = true
 
