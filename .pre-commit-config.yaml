@@ -2,7 +2,7 @@
 
 repos:
     - repo: https://github.com/pre-commit/pre-commit-hooks
-      rev: v5.0.0
+      rev: v6.0.0
       hooks:
           - id: check-yaml
           - id: check-toml
@@ -18,7 +18,7 @@ repos:
             args: ["--maxkb=500"]
 
     - repo: https://github.com/astral-sh/ruff-pre-commit
-      rev: v0.11.10
+      rev: v0.13.2
       hooks:
           - id: ruff
             name: lint
@@ -43,18 +43,18 @@ repos:
             stages: [manual]
 
     - repo: https://github.com/pre-commit/pre-commit
-      rev: v4.2.0
+      rev: v4.3.0
       hooks:
           - id: validate_manifest
 
     - repo: https://github.com/pre-commit/mirrors-mypy
-      rev: v1.15.0
+      rev: v1.18.2
       hooks:
           - id: mypy
             additional_dependencies: [pytest]
 
     - repo: https://gitlab.com/vojko.pribudic.foss/pre-commit-update
-      rev: v0.7.0
+      rev: v0.8.0
       hooks:
           - id: pre-commit-update
             stages: [manual]
@@ -63,9 +63,9 @@ repos:
       rev: 1.8.5
       hooks:
           - id: poetry-check
-            stages: [push]
+            stages: [pre-push]
           - id: poetry-lock
-            stages: [push]
+            stages: [pre-push]
           - id: poetry-export
             name: poetry-export
             stages: [manual]
@@ -92,7 +92,7 @@ repos:
 
     - repo: https://github.com/crate-ci/typos
       # https://github.com/crate-ci/typos/issues/390
-      rev: v1.32.0
+      rev: v1
       hooks:
           - id: typos
             exclude: "(_typos.toml|.gitignore)"
