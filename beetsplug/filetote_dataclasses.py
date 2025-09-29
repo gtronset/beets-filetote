@@ -7,13 +7,10 @@ from __future__ import annotations
 from dataclasses import asdict, dataclass, field, fields
 from sys import version_info
 
-# Dict and List are needed for py38
 # Optional and Union are needed for <py310
 from typing import (
     TYPE_CHECKING,
     Any,
-    Dict,
-    List,
     Literal,
     Optional,
     Union,
@@ -31,9 +28,9 @@ if version_info >= (3, 10):
 else:
     from typing_extensions import TypeAlias
 
-StrSeq: TypeAlias = List[str]
+StrSeq: TypeAlias = list[str]
 OptionalStrSeq: TypeAlias = Union[Literal[""], StrSeq]
-PatternsDict: TypeAlias = Dict[str, List[str]]
+PatternsDict: TypeAlias = dict[str, list[str]]
 PathBytes: TypeAlias = bytes
 
 DEFAULT_ALL_GLOB: Literal[".*"] = ".*"
@@ -182,7 +179,7 @@ class FiletoteConfig:
     patterns: PatternsDict = field(default_factory=dict)
     exclude: FiletoteExcludeData = field(default_factory=FiletoteExcludeData)
     pairing: FiletotePairingData = field(default_factory=FiletotePairingData)
-    paths: Dict[str, str] = field(default_factory=dict)
+    paths: dict[str, str] = field(default_factory=dict)
     print_ignored: bool = False
 
     def __post_init__(self) -> None:
@@ -259,7 +256,7 @@ def _validate_types_instance(
 
 def _validate_types_dict(
     field_name: list[str],
-    field_value: Dict[Any, Any],
+    field_value: dict[Any, Any],
     field_type: Any,
     list_subtype: Any | None = None,
 ) -> None:

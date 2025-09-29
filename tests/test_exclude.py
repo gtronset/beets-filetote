@@ -4,7 +4,7 @@ plugin.
 
 import os
 
-from typing import List, Optional
+from typing import Optional
 
 import beets
 
@@ -18,7 +18,7 @@ class FiletoteExcludeTest(FiletoteTestCase):
     beets-filetote plugin.
     """
 
-    def setUp(self, _other_plugins: Optional[List[str]] = None) -> None:
+    def setUp(self, _other_plugins: Optional[list[str]] = None) -> None:
         """Provides shared setup for tests."""
         super().setUp()
 

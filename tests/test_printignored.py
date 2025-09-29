@@ -1,6 +1,6 @@
 """Tests print ignored for the beets-filetote plugin."""
 
-from typing import List, Optional
+from typing import Optional
 
 from beets import config
 
@@ -10,7 +10,7 @@ from tests.helper import FiletoteTestCase, capture_log
 class FiletotePrintIgnoredTest(FiletoteTestCase):
     """Tests to check print ignored files functionality and configuration."""
 
-    def setUp(self, _other_plugins: Optional[List[str]] = None) -> None:
+    def setUp(self, _other_plugins: Optional[list[str]] = None) -> None:
         """Provides shared setup for tests."""
         super().setUp()
 

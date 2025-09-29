@@ -1,5 +1,6 @@
 from collections.abc import Callable
-from typing import Any, Pattern
+from re import Pattern
+from typing import Any
 
 from .dbcore import Database
 from .dbcore.db import Model

@@ -3,7 +3,7 @@
 import logging
 import os
 
-from typing import List, Optional
+from typing import Optional
 
 from beets import config
 
@@ -17,7 +17,7 @@ class FiletoteRenameFiletoteFieldsTest(FiletoteTestCase):
     expected for custom path formats.
     """
 
-    def setUp(self, _other_plugins: Optional[List[str]] = None) -> None:
+    def setUp(self, _other_plugins: Optional[list[str]] = None) -> None:
         """Provides shared setup for tests."""
         super().setUp()
 

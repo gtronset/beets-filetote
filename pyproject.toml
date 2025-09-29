@@ -23,8 +23,8 @@ classifiers = [
 "Source" = "https://github.com/gtronset/beets-filetote"
 
 [tool.poetry.dependencies]
-python = "^3.8"
-beets = "^2.0"
+python = "^3.9"
+beets = ">=2.3.0,<2.4.0"
 mediafile = ">=0.12.0"
 typing_extensions = { version = "*", python = "<=3.10" }
 
@@ -34,10 +34,7 @@ reflink = ">=0.2.1"
 toml = ">=0.10.2"
 
 [tool.poetry.group.lint.dependencies]
-mypy = [
-    { version = "^1.15.0", python = ">=3.9" },
-    { version = "^1.9.0", python = ">=3.8,<3.9" },
-]
+mypy = [{ version = "^1.15.0", python = ">=3.9" }]
 ruff = "^0.11.8"
 
 [tool.poetry.group.test.dependencies]
@@ -51,6 +48,7 @@ build-backend = "poetry.core.masonry.api"
 [tool.mypy]
 mypy_path = ["./typehints"]
 modules = ["beetsplug", "tests.helper", "tests._common"]
+explicit_package_bases = true
 strict = true
 pretty = true
 
@@ -77,7 +75,7 @@ line-length = 88
 # namespace-packages = ["beetsplug"]
 preview = true
 src = ["beetsplug", "tests", "typehints"]
-target-version = "py38"
+target-version = "py39"
 
 [tool.ruff.lint]
 ignore = ["D205", "PLR6301"]
@@ -139,7 +137,7 @@ keep-runtime-typing = true
 [tool.tox]
 requires = ["tox>=4.22"]
 min_version = "4.22"
-env_list = ["3.8", "3.9", "3.10", "3.11", "3.12", "3.13"]
+env_list = ["3.9", "3.10", "3.11", "3.12", "3.13"]
 
 [tool.tox.env_run_base]
 description = "Run test under {base_python}"
