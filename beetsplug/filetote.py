@@ -15,12 +15,15 @@ from typing import (
 )
 
 from beets import config, util
-from beets.library import DefaultTemplateFunctions
 from beets.plugins import BeetsPlugin, find_plugins
 from beets.ui import get_path_formats
 from beets.util import MoveOperation
 from beets.util.functemplate import Template
 from mediafile import TYPES as BEETS_FILE_TYPES
+try:
+    from beets.library.models import DefaultTemplateFunctions
+except ImportError:  # fallback for older Beets releases
+    from beets.library import DefaultTemplateFunctions  # type: ignore[attr-defined,no-redef]
 
 from .filetote_dataclasses import (
     FiletoteArtifact,
