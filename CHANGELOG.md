@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- Improve Hardlink, Reflink, and Symlink probing in Tests <https://github.com/gtronset/beets-filetote/pull/223>
+
 ## [1.1.0] - 2025-09-28
 
 ### Changed
