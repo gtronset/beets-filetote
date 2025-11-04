@@ -20,15 +20,19 @@ from beets.ui import get_path_formats
 from beets.util import MoveOperation
 from beets.util.functemplate import Template
 from mediafile import TYPES as BEETS_FILE_TYPES
+
 try:
     from beets.library.models import DefaultTemplateFunctions
 except ImportError:  # fallback for older Beets releases
-    from beets.library import DefaultTemplateFunctions  # type: ignore[attr-defined,no-redef]
+    from beets.library import (  # type: ignore[attr-defined,no-redef]
+        DefaultTemplateFunctions,
+    )
 
 from .filetote_dataclasses import (
     FiletoteArtifact,
     FiletoteArtifactCollection,
     FiletoteConfig,
+    FiletoteSessionData,
     PathBytes,
 )
 from .mapping_model import FiletoteMappingFormatted, FiletoteMappingModel
@@ -65,47 +69,16 @@ class FiletotePlugin(BeetsPlugin):
         # Set default plugin config settings
         self.config.add(FiletoteConfig().asdict())
 
-        self.filetote: FiletoteConfig = FiletoteConfig(
-            extensions=self.config["extensions"].as_str_seq(),
-            filenames=self.config["filenames"].as_str_seq(),
-            patterns=self.config["patterns"].get(dict),
-            paths=self.config["paths"].get(dict),
-            print_ignored=self.config["print_ignored"].get(bool),
-        )
-
-        if isinstance(self.config["exclude"].get(), (str, list)):
-            self.filetote.adjust("exclude", self.config["exclude"].as_str_seq())
-
-            self._log.warning(
-                "Deprecation warning: The `exclude` plugin should now use the explicit"
-                " settings of `filenames`, `extensions`, and/or `patterns`. See the"
-                " `exclude` documentation for more details:"
-                " https://github.com/gtronset/beets-filetote#excluding-files"
-            )
-        else:
-            self.filetote.adjust("exclude", self.config["exclude"].get(dict))
-
-        self.filetote.adjust(
-            "pairing",
-            {
-                "enabled": self.config["pairing"]["enabled"].get(bool),
-                "pairing_only": self.config["pairing"]["pairing_only"].get(bool),
-                "extensions": self.config["pairing"]["extensions"].as_str_seq(),
-            },
-        )
-
-        queries: FiletoteQueries = [
+        self._path_queries: FiletoteQueries = [
             "ext:",
             "filename:",
             "paired_ext:",
             "pattern:",
             "filetote:default",
         ]
-        path_default: Template = Template("$albumpath/$old_filename")
+        self._path_default: Template = Template("$albumpath/$old_filename")
 
-        self._path_formats: dict[str, Template] = self._get_filetote_path_formats(
-            queries, path_default
-        )
+        self._refresh_plugin_config()
 
         self._imported_items_paths: dict[int, PathBytes] = {}
         self._process_queue: list[FiletoteArtifactCollection] = []
@@ -117,6 +90,51 @@ class FiletotePlugin(BeetsPlugin):
         self._convert_early_import_stages: list[Callable[..., None]] = []
 
         self._register_file_operation_events()
+
+    def _refresh_plugin_config(self) -> None:
+        """Refresh derived configuration from the current Beets config state."""
+        previous_session = getattr(self, "filetote", None)
+        session_data = (
+            previous_session.session if previous_session else FiletoteSessionData()
+        )
+
+        filetote = FiletoteConfig(
+            extensions=self.config["extensions"].as_str_seq(),
+            filenames=self.config["filenames"].as_str_seq(),
+            patterns=self.config["patterns"].get(dict),
+            paths=self.config["paths"].get(dict),
+            print_ignored=self.config["print_ignored"].get(bool),
+        )
+        filetote.session = session_data
+
+        exclude_view = self.config["exclude"]
+        exclude_value = exclude_view.get()
+
+        if isinstance(exclude_value, (str, list)):
+            filetote.adjust("exclude", exclude_view.as_str_seq())
+
+            self._log.warning(
+                "Deprecation warning: The `exclude` plugin should now use the explicit"
+                " settings of `filenames`, `extensions`, and/or `patterns`. See the"
+                " `exclude` documentation for more details:"
+                " https://github.com/gtronset/beets-filetote#excluding-files"
+            )
+        else:
+            filetote.adjust("exclude", exclude_view.get(dict))
+
+        filetote.adjust(
+            "pairing",
+            {
+                "enabled": self.config["pairing"]["enabled"].get(bool),
+                "pairing_only": self.config["pairing"]["pairing_only"].get(bool),
+                "extensions": self.config["pairing"]["extensions"].as_str_seq(),
+            },
+        )
+
+        self.filetote = filetote
+        self._path_formats = self._get_filetote_path_formats(
+            self._path_queries, self._path_default
+        )
 
     def _get_imported_items_paths(
         self, session: ImportSession, task: ImportTask
@@ -238,6 +256,8 @@ class FiletotePlugin(BeetsPlugin):
         file or media, since MediaFile.TYPES isn't fundamentally a complete
         list of files by extension.
         """
+        self._refresh_plugin_config()
+
         # Mutate the global BEETS_FILE_TYPES dictionary in-place
         BEETS_FILE_TYPES.update({
             "m4a": "M4A",
@@ -248,9 +268,9 @@ class FiletotePlugin(BeetsPlugin):
         for plugin in find_plugins():
             if plugin.name == "convert":
                 convert_early_import_stages = plugin.early_import_stages
-                plugin.early_import_stages = []
-
-                self._convert_early_import_stages = convert_early_import_stages
+                if convert_early_import_stages:
+                    plugin.early_import_stages = []
+                    self._convert_early_import_stages = convert_early_import_stages
 
             if plugin.name == "audible":
                 BEETS_FILE_TYPES.update({"m4b": "M4B"})
