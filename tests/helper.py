@@ -1,26 +1,18 @@
 """Helper functions for tests for the beets-filetote plugin."""
+
 # ruff: noqa: SLF001
+from __future__ import annotations
 
 import logging
 import os
 import shutil
+import sys
+import tempfile
 
-from collections.abc import Iterator
 from contextlib import contextmanager
 from dataclasses import asdict, dataclass
-from typing import Any, Literal, Optional
-
-# Make sure the local versions of the plugins are used
-import beetsplug
-
-
-# mypy doesn't recognize `audible` as an extended module
-from beetsplug import (  # type: ignore[attr-defined]
-    audible,
-    convert,
-    filetote,
-    inline,
-)
+from pathlib import Path
+from typing import TYPE_CHECKING, Any, Literal, Optional, cast
 
 from beets import config, library, plugins, util
 from beets.importer import ImportSession
@@ -30,9 +22,26 @@ from mediafile import MediaFile
 from ._item_model import MediaMeta
 from tests import _common
 
-beetsplug.__path__ = [os.path.abspath(os.path.join(__file__, "..", "..", "beetsplug"))]
+if TYPE_CHECKING:
+    from collections.abc import Iterator
+
 
 log = logging.getLogger("beets")
+
+
+def _prepare_local_beetsplug_namespace() -> None:
+    """Make the repo-local `beetsplug/` importable and ensure it's used for
+    subsequent `import beetsplug.*` calls.
+    """
+    root = Path(__file__).resolve().parents[1]  # project root
+    # Ensure the project root is importable (so `beetsplug` resolves to this repo).
+    if str(root) not in sys.path:
+        sys.path.insert(0, str(root))
+
+    # Point the beetsplug namespace to the local package dir.
+    import beetsplug as _bp  # noqa: PLC0415
+
+    _bp.__path__ = [str(root / "beetsplug")]  # must be set before submodule imports
 
 
 class LogCapture(logging.Handler):
@@ -90,6 +99,28 @@ RSRC_TYPES = {
     # "wave": b"full.wave",
     # "wma": b"full.wma",
 }
+
+if _common.HAVE_HARDLINK:
+    # Some CI filesystems (overlayfs, tmpfs, split mounts) report
+    # hardlink support but raise EXDEV when linking across temp
+    # directories. This probe ensures the hardlink-specific test only
+    # runs when the underlying platform can actually support the request.
+    try:
+        _probe_root = util.bytestring_path(tempfile.mkdtemp())
+        try:
+            _src_dir = os.path.join(_probe_root, b"src")
+            _dst_dir = os.path.join(_probe_root, b"dst")
+            os.makedirs(_src_dir)
+            os.makedirs(_dst_dir)
+            _src = os.path.join(_src_dir, b"probe_src")
+            _dst = os.path.join(_dst_dir, b"probe_dst")
+            with open(_src, "wb") as _handle:
+                _handle.write(b"\x00")
+            os.link(util.syspath(_src), util.syspath(_dst))
+        finally:
+            shutil.rmtree(_probe_root)
+    except OSError:
+        _common.HAVE_HARDLINK = False
 
 
 class Assertions(_common.AssertionsMixin):
@@ -244,48 +275,88 @@ class FiletoteTestCase(_common.TestCase, Assertions, HelperUtils):
         self.lib._close()
         super().tearDown()
 
-    def load_plugins(self, other_plugins: list[str]) -> None:
-        """Loads and sets up the plugin(s) for the test module."""
-        plugin_list: list[str] = ["filetote"]
-        plugin_class_list: list[Any] = [filetote.FiletotePlugin]
+    def load_plugins(self, other_plugins: list[str] | None = None) -> None:
+        """Load only the plugins explicitly requested for this test,
+        from the repo-local tree.
+        """
+        import importlib  # noqa: PLC0415
+        import tempfile  # noqa: PLC0415
 
-        approved_plugins: dict[str, Any] = {
-            "audible": audible.Audible,
-            "convert": convert.ConvertPlugin,
-            "inline": inline.InlinePlugin,
+        other_plugins = other_plugins or []
+        self._active_plugins = ["filetote", *other_plugins]
+
+        # Hard-reset config/state
+        config.clear()
+        cast("Any", config)._add_default_source()
+        # Newer Beets releases access `config["verbose"]` during pluginload;
+        # provide the default value since `config.clear()` removes it.
+        config["verbose"].set(0)
+        os.environ["BEETSDIR"] = tempfile.mkdtemp(prefix="beets-test-")
+        config["pluginpath"] = []  # don't search extra paths
+
+        # Prepare local namespace before any submodule imports
+        _prepare_local_beetsplug_namespace()
+
+        # Import only the plugins we actually need
+        filetote_mod = importlib.import_module("beetsplug.filetote")
+
+        approved_map = {
+            "inline": "beetsplug.inline",
+            "convert": "beetsplug.convert",
+            "audible": "beetsplug.audible",
         }
+        imported: dict[str, Any] = {}
+        for name in other_plugins:
+            if name not in approved_map:
+                raise AssertionError(f"Attempt to load unknown plugin: {name}")
+            imported[name] = importlib.import_module(approved_map[name])
 
-        for other_plugin in other_plugins:
-            if other_plugin in approved_plugins:
-                plugin_class_list.append(approved_plugins[other_plugin])
-                plugin_list.append(other_plugin)
-            else:
-                raise AssertionError(f"Attempt to load unknown plugin: {other_plugin}")
+        # Reset registries to avoid cross-test listener leaks
+        plugins._instances.clear()
+        if hasattr(plugins, "_classes"):
+            plugins._classes.clear()
+        if hasattr(plugins, "_event_listeners"):
+            plugins._event_listeners.clear()
+        if hasattr(plugins.BeetsPlugin, "listeners"):
+            plugins.BeetsPlugin.listeners.clear()
+        if hasattr(plugins.BeetsPlugin, "_raw_listeners"):
+            plugins.BeetsPlugin._raw_listeners.clear()
 
-        plugins._classes = set(plugin_class_list)
-        config["plugins"] = plugin_list
-        plugins.load_plugins(plugin_list)
+        # Register exactly the plugin classes we want available
+        plugin_class_list = [filetote_mod.FiletotePlugin]
+        if "inline" in imported:
+            plugin_class_list.append(imported["inline"].InlinePlugin)
+        if "convert" in imported:
+            plugin_class_list.append(imported["convert"].ConvertPlugin)
+        if "audible" in imported:
+            plugin_class_list.append(imported["audible"].Audible)
+        if hasattr(plugins, "_classes"):
+            plugins._classes = set(plugin_class_list)
+
+        # Configure names to load; new Beets reads from config["plugins"]
+        config["plugins"] = self._active_plugins
+
+        # Set safe defaults before loading audible if requested
+        if "audible" in imported:
+            config["audible"]["write_description_file"].set(False)
+            config["audible"]["write_narrator_file"].set(False)
+
+        plugins.load_plugins()
 
     def unload_plugins(self) -> None:
-        """Unload all plugins and remove the from the configuration."""
+        """Unload all plugins and clear Beets plugin registry safely."""
         config["plugins"] = []
-        # plugins._classes = set()
-        # plugins._instances = {}
 
-        if plugins._instances:
-            classes = list(plugins._classes)
+        plugins._instances.clear()
+        if hasattr(plugins, "_classes"):
+            plugins._classes.clear()
 
-            # In case `audible` or another plugin is included, iterate through
-            # each plugin class.
-            for plugin_class in classes:
-                # Unregister listeners if they exist for the plugin
-                if plugin_class.listeners:
-                    for event in plugin_class.listeners:
-                        del plugin_class.listeners[event][0]
-
-                # Delete the plugin instance so a new one gets created for each
-                # test.
-                del plugins._instances[plugin_class]
+        if hasattr(plugins, "_event_listeners"):
+            plugins._event_listeners.clear()
+        if hasattr(plugins.BeetsPlugin, "listeners"):
+            plugins.BeetsPlugin.listeners.clear()
+        if hasattr(plugins.BeetsPlugin, "_raw_listeners"):
+            plugins.BeetsPlugin._raw_listeners.clear()
 
     def _run_cli_command(
         self, command: Literal["import", "modify", "move", "update"], **kwargs: Any
@@ -301,7 +372,10 @@ class FiletoteTestCase(_common.TestCase, Assertions, HelperUtils):
         log_string = f"Running CLI: {command}"
         log.debug(log_string)
 
-        plugins.find_plugins()
+        if hasattr(self, "_active_plugins"):
+            config["plugins"] = self._active_plugins
+
+        plugins.load_plugins()
         plugins.send("pluginload")
 
         # Get the function associated with the provided command name
@@ -351,8 +425,8 @@ class FiletoteTestCase(_common.TestCase, Assertions, HelperUtils):
         _run_cli_command().
         """
         commands.move_items(
-            lib=self.lib,
-            dest=dest_dir,
+            self.lib,
+            dest_dir,
             query=query,
             copy=copy,
             album=album,
