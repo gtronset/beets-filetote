@@ -1,5 +1,6 @@
 """Setup for tests for the beets-filetote plugin."""
 
+import functools
 import os
 import shutil
 import sys
@@ -26,6 +27,7 @@ PLATFORM = sys.platform
 # the current platform and filesystem, instead of simple OS Platform checks.
 
 
+@functools.lru_cache(maxsize=1)
 def check_symlink() -> bool:
     """Robustly tests if symlinks are usable using beets.util.link."""
     with tempfile.TemporaryDirectory() as tmpdir:
@@ -44,6 +46,7 @@ def check_symlink() -> bool:
             return False
 
 
+@functools.lru_cache(maxsize=1)
 def check_hardlink() -> bool:
     """Robustly tests if hardlinks are usable using beets.util.hardlink.
 
@@ -66,6 +69,7 @@ def check_hardlink() -> bool:
             return False
 
 
+@functools.lru_cache(maxsize=1)
 def check_reflink() -> bool:
     """Robustly tests if reflinks are usable using beets.util.reflink.
 
