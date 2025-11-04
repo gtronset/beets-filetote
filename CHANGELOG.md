@@ -9,6 +9,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.1.1] - 2025-11-02
+
+### Changed
+
+- Update Filetote to work with Beets v2.4.0 to 2.5.x <https://github.com/gtronset/beets-filetote/pull/>
+
 ## [1.1.0] - 2025-09-28
 
 ### Changed

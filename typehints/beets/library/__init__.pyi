@@ -1,12 +1,7 @@
-from collections.abc import Callable
 from re import Pattern
-from typing import Any
 
-from .dbcore import Database
-from .dbcore.db import Model
-
-class DefaultTemplateFunctions:
-    def functions(self) -> dict[str, Callable[..., Any]]: ...
+from ..dbcore import Database
+from ..dbcore.db import Model
 
 class Library(Database):
     path: bytes
