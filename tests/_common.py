@@ -84,7 +84,7 @@ def check_reflink() -> bool:
             with open(src_bytes, "wb") as f:
                 f.write(b"test")
 
-            # Attempt the reflink. `fallback=False`` ensures it fails if not supported,
+            # Attempt the reflink. `fallback=False` ensures it fails if not supported,
             # instead of silently performing a full copy.
             util.reflink(src_bytes, dst_bytes, fallback=False)
 
