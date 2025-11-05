@@ -1,6 +1,7 @@
 """Helper functions for tests for the beets-filetote plugin."""
 # ruff: noqa: SLF001
 
+import inspect
 import logging
 import os
 import shutil
@@ -264,7 +265,12 @@ class FiletoteTestCase(_common.TestCase, Assertions, HelperUtils):
 
         plugins._classes = set(plugin_class_list)
         config["plugins"] = plugin_list
-        plugins.load_plugins(plugin_list)
+
+        load_plugins_sig = inspect.signature(plugins.load_plugins)
+        if len(load_plugins_sig.parameters) == 1:
+            plugins.load_plugins(plugin_list)
+        else:
+            plugins.load_plugins()
 
     def unload_plugins(self) -> None:
         """Unload all plugins and remove the from the configuration."""
