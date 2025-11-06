@@ -20,7 +20,7 @@ class FiletoteM4BFilesIgnoredTest(FiletoteTestCase):
 
     def setUp(self, _other_plugins: Optional[list[str]] = None) -> None:
         """Provides shared setup for tests."""
-        super().setUp(other_plugins=["audible", "inline"])
+        super().setUp(other_plugins=["audible"])
 
     def test_expanded_music_file_types_are_ignored(self) -> None:
         """Ensure that `.m4b` file types are ignored by Filetote."""

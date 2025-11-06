@@ -7,9 +7,8 @@ import sys
 import tempfile
 import unittest
 
-from typing import Optional
-
 from beets import config, logging, util
+from beets.test._common import DummyIO  # noqa: PLC2701
 from beets.util import FilesystemError
 
 # Test resources path.
@@ -165,101 +164,3 @@ class TestCase(unittest.TestCase):
         self.in_out.restore()
 
         config.clear()
-
-
-# Mock I/O.
-
-
-class InputError(Exception):
-    """Provides handling of input exceptions."""
-
-    def __init__(self, output: Optional[str] = None) -> None:
-        self.output = output
-
-    def __str__(self) -> str:
-        msg = "Attempt to read with no input provided."
-        if self.output is not None:
-            msg += f" Output: {self.output!r}"
-        return msg
-
-
-class DummyOut:
-    """Provides fake/"dummy" output handling."""
-
-    encoding = "utf-8"
-
-    def __init__(self) -> None:
-        self.buf: list[str] = []
-
-    def write(self, buf_item: str) -> None:
-        """Writes to buffer."""
-        self.buf.append(buf_item)
-
-    def get(self) -> str:
-        """Get from buffer."""
-        return "".join(self.buf)
-
-    def flush(self) -> None:
-        """Flushes/clears output."""
-        self.clear()
-
-    def clear(self) -> None:
-        """Resets buffer."""
-        self.buf = []
-
-
-class DummyIn:
-    """Provides fake/"dummy" input handling."""
-
-    encoding = "utf-8"
-
-    def __init__(self, out: Optional[DummyOut] = None) -> None:
-        self.buf: list[str] = []
-        self.reads: int = 0
-        self.out: Optional[DummyOut] = out
-
-    def add(self, buf_item: str) -> None:
-        """Add buffer input."""
-        self.buf.append(buf_item + "\n")
-
-    def readline(self) -> str:
-        """Reads buffer line."""
-        if not self.buf:
-            if self.out:
-                raise InputError(self.out.get())
-
-            raise InputError()
-        self.reads += 1
-        return self.buf.pop(0)
-
-
-class DummyIO:
-    """Mocks input and output streams for testing UI code."""
-
-    def __init__(self) -> None:
-        self.stdout: DummyOut = DummyOut()
-        self.stdin: DummyIn = DummyIn(self.stdout)
-
-    def addinput(self, inputs: str) -> None:
-        """Adds IO input."""
-        self.stdin.add(inputs)
-
-    def getoutput(self) -> str:
-        """Gets IO output."""
-        res = self.stdout.get()
-        self.stdout.clear()
-        return res
-
-    def readcount(self) -> int:
-        """Reads from stdin."""
-        return self.stdin.reads
-
-    def install(self) -> None:
-        """Setup stdin and stdout."""
-        sys.stdin = self.stdin
-        sys.stdout = self.stdout
-
-    def restore(self) -> None:
-        """Restores/reset both stdin and stdout."""
-        sys.stdin = sys.__stdin__
-        sys.stdout = sys.__stdout__

@@ -1,63 +1,49 @@
 """Helper functions for tests for the beets-filetote plugin."""
 # ruff: noqa: SLF001
 
+import importlib.util
+import inspect
 import logging
 import os
 import shutil
+import sys
 
-from collections.abc import Iterator
-from contextlib import contextmanager
 from dataclasses import asdict, dataclass
-from typing import Any, Literal, Optional
+from pathlib import Path
+from typing import Any, Literal, Optional, cast
 
-# Make sure the local versions of the plugins are used
 import beetsplug
 
-
-# mypy doesn't recognize `audible` as an extended module
-from beetsplug import (  # type: ignore[attr-defined]
-    audible,
-    convert,
-    filetote,
-    inline,
-)
+from beets.test.helper import capture_log
 
 from beets import config, library, plugins, util
 from beets.importer import ImportSession
+from beets.plugins import BeetsPlugin
 from beets.ui import commands
 from mediafile import MediaFile
 
 from ._item_model import MediaMeta
 from tests import _common
 
-beetsplug.__path__ = [os.path.abspath(os.path.join(__file__, "..", "..", "beetsplug"))]
-
 log = logging.getLogger("beets")
 
 
-class LogCapture(logging.Handler):
-    """Provides the ability to capture logs within tests."""
-
-    def __init__(self) -> None:
-        """Log handler init."""
-        logging.Handler.__init__(self)
-        self.messages: list[str] = []
-
-    def emit(self, record: logging.LogRecord) -> None:
-        """Emits a log message."""
-        self.messages.append(str(record.msg))
-
-
-@contextmanager
-def capture_log(logger: str = "beets") -> Iterator[list[str]]:
-    """Adds handler to capture beets' logs."""
-    capture = LogCapture()
-    logs = logging.getLogger(logger)
-    logs.addHandler(capture)
-    try:
-        yield capture.messages
-    finally:
-        logs.removeHandler(capture)
+def _import_local_plugin(
+    module_path: str, class_name: str, module_name: str
+) -> type[BeetsPlugin]:
+    """Dynamically import a plugin class from a local file."""
+    spec = importlib.util.spec_from_file_location(module_name, module_path)
+    assert spec is not None
+    assert spec.loader is not None
+    mod = importlib.util.module_from_spec(spec)
+    sys.modules[module_name] = mod
+    spec.loader.exec_module(mod)
+    # Patch beetsplug namespace if needed
+    ns, _, submod = module_name.partition(".")
+    if ns == "beetsplug" and submod:
+        setattr(beetsplug, submod, mod)
+        sys.modules[f"beetsplug.{submod}"] = mod
+    return cast("type[BeetsPlugin]", getattr(mod, class_name))
 
 
 @dataclass
@@ -241,30 +227,66 @@ class FiletoteTestCase(_common.TestCase, Assertions, HelperUtils):
 
     def tearDown(self) -> None:
         """Cleans up and closes the library connection."""
+        attrs_to_clear = [
+            ("plugins", "_instances"),
+            ("plugins", "_classes"),
+            ("plugins", "_event_listeners"),
+            ("plugins.BeetsPlugin", "listeners"),
+            ("plugins.BeetsPlugin", "_raw_listeners"),
+        ]
+
+        for obj_path, attr in attrs_to_clear:
+            # Resolve the object (plugins or plugins.BeetsPlugin)
+            obj = eval(obj_path)
+            if hasattr(obj, attr):
+                val = getattr(obj, attr)
+                if val is not None and hasattr(val, "clear"):
+                    val.clear()
+
         self.lib._close()
         super().tearDown()
 
     def load_plugins(self, other_plugins: list[str]) -> None:
         """Loads and sets up the plugin(s) for the test module."""
         plugin_list: list[str] = ["filetote"]
-        plugin_class_list: list[Any] = [filetote.FiletotePlugin]
+        plugin_class_list: list[Any] = []
 
-        approved_plugins: dict[str, Any] = {
-            "audible": audible.Audible,
-            "convert": convert.ConvertPlugin,
-            "inline": inline.InlinePlugin,
+        root = Path(__file__).resolve().parents[1]
+
+        # Always load local Filetote
+        filetote_path = os.path.abspath(os.path.join(root, "beetsplug", "filetote.py"))
+        filetote_class = _import_local_plugin(
+            filetote_path, "FiletotePlugin", "beetsplug.filetote"
+        )
+        plugin_class_list.append(filetote_class)
+
+        stub_map = {
+            "audible": ("tests/stubs/audible.py", "Audible"),
+            "convert": ("tests/stubs/convert.py", "ConvertPlugin"),
+            "inline": ("tests/stubs/inline.py", "InlinePlugin"),
         }
 
         for other_plugin in other_plugins:
-            if other_plugin in approved_plugins:
-                plugin_class_list.append(approved_plugins[other_plugin])
+            if other_plugin in stub_map:
+                stub_path, class_name = stub_map[other_plugin]
+                abs_stub_path = os.path.abspath(stub_path)
+
+                plugin_class = _import_local_plugin(
+                    abs_stub_path, class_name, f"beetsplug.{other_plugin}"
+                )
+                plugin_class_list.append(plugin_class)
                 plugin_list.append(other_plugin)
             else:
                 raise AssertionError(f"Attempt to load unknown plugin: {other_plugin}")
 
         plugins._classes = set(plugin_class_list)
         config["plugins"] = plugin_list
-        plugins.load_plugins(plugin_list)
+
+        load_plugins_sig = inspect.signature(plugins.load_plugins)
+        if len(load_plugins_sig.parameters) == 1:
+            plugins.load_plugins(plugin_list)
+        else:
+            plugins.load_plugins()
 
     def unload_plugins(self) -> None:
         """Unload all plugins and remove the from the configuration."""
@@ -688,3 +710,8 @@ class FiletoteTestCase(_common.TestCase, Assertions, HelperUtils):
             paths=import_path,
             query=query,
         )
+
+
+__all__ = [
+    "capture_log",
+]
