@@ -8,13 +8,13 @@ import os
 import shutil
 import sys
 
-from collections.abc import Iterator
-from contextlib import contextmanager
 from dataclasses import asdict, dataclass
 from pathlib import Path
 from typing import Any, Literal, Optional, cast
 
 import beetsplug
+
+from beets.test.helper import capture_log
 
 from beets import config, library, plugins, util
 from beets.importer import ImportSession
@@ -44,31 +44,6 @@ def _import_local_plugin(
         setattr(beetsplug, submod, mod)
         sys.modules[f"beetsplug.{submod}"] = mod
     return cast("type[BeetsPlugin]", getattr(mod, class_name))
-
-
-class LogCapture(logging.Handler):
-    """Provides the ability to capture logs within tests."""
-
-    def __init__(self) -> None:
-        """Log handler init."""
-        logging.Handler.__init__(self)
-        self.messages: list[str] = []
-
-    def emit(self, record: logging.LogRecord) -> None:
-        """Emits a log message."""
-        self.messages.append(str(record.msg))
-
-
-@contextmanager
-def capture_log(logger: str = "beets") -> Iterator[list[str]]:
-    """Adds handler to capture beets' logs."""
-    capture = LogCapture()
-    logs = logging.getLogger(logger)
-    logs.addHandler(capture)
-    try:
-        yield capture.messages
-    finally:
-        logs.removeHandler(capture)
 
 
 @dataclass
@@ -735,3 +710,8 @@ class FiletoteTestCase(_common.TestCase, Assertions, HelperUtils):
             paths=import_path,
             query=query,
         )
+
+
+__all__ = [
+    "capture_log",
+]
