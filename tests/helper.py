@@ -25,18 +25,6 @@ from mediafile import MediaFile
 from ._item_model import MediaMeta
 from tests import _common
 
-root = Path(__file__).resolve().parents[1]
-# beetsplug.__path__ = [os.path.abspath(os.path.join(root, "beetsplug"))]
-
-beetsplug.__path__ = [os.path.abspath(os.path.join(root, "beetsplug"))]
-import beetsplug.filetote  # noqa: E402
-
-print("Actual filetote path:", beetsplug.filetote.__file__)
-print("Expected prefix:", os.path.abspath(os.path.join(root, "beetsplug")))
-assert beetsplug.filetote.__file__.startswith(
-    os.path.abspath(os.path.join(root, "beetsplug"))
-)
-
 log = logging.getLogger("beets")
 
 
@@ -287,6 +275,15 @@ class FiletoteTestCase(_common.TestCase, Assertions, HelperUtils):
         """Loads and sets up the plugin(s) for the test module."""
         plugin_list: list[str] = ["filetote"]
         plugin_class_list: list[Any] = []
+
+        root = Path(__file__).resolve().parents[1]
+
+        # Always load local Filetote
+        filetote_path = os.path.abspath(os.path.join(root, "beetsplug", "filetote.py"))
+        filetote_class = _import_local_plugin(
+            filetote_path, "FiletotePlugin", "beetsplug.filetote"
+        )
+        plugin_class_list.append(filetote_class)
 
         stub_map = {
             "audible": ("tests/stubs/audible.py", "Audible"),
