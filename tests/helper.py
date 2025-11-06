@@ -1,39 +1,61 @@
 """Helper functions for tests for the beets-filetote plugin."""
 # ruff: noqa: SLF001
 
+import importlib.util
 import inspect
 import logging
 import os
 import shutil
+import sys
 
 from collections.abc import Iterator
 from contextlib import contextmanager
 from dataclasses import asdict, dataclass
-from typing import Any, Literal, Optional
+from pathlib import Path
+from typing import Any, Literal, Optional, cast
 
-# Make sure the local versions of the plugins are used
 import beetsplug
-
-
-# mypy doesn't recognize `audible` as an extended module
-from beetsplug import (  # type: ignore[attr-defined]
-    audible,
-    convert,
-    filetote,
-    inline,
-)
 
 from beets import config, library, plugins, util
 from beets.importer import ImportSession
+from beets.plugins import BeetsPlugin
 from beets.ui import commands
 from mediafile import MediaFile
 
 from ._item_model import MediaMeta
 from tests import _common
 
-beetsplug.__path__ = [os.path.abspath(os.path.join(__file__, "..", "..", "beetsplug"))]
+root = Path(__file__).resolve().parents[1]
+# beetsplug.__path__ = [os.path.abspath(os.path.join(root, "beetsplug"))]
+
+beetsplug.__path__ = [os.path.abspath(os.path.join(root, "beetsplug"))]
+import beetsplug.filetote  # noqa: E402
+
+print("Actual filetote path:", beetsplug.filetote.__file__)
+print("Expected prefix:", os.path.abspath(os.path.join(root, "beetsplug")))
+assert beetsplug.filetote.__file__.startswith(
+    os.path.abspath(os.path.join(root, "beetsplug"))
+)
 
 log = logging.getLogger("beets")
+
+
+def _import_local_plugin(
+    module_path: str, class_name: str, module_name: str
+) -> type[BeetsPlugin]:
+    """Dynamically import a plugin class from a local file."""
+    spec = importlib.util.spec_from_file_location(module_name, module_path)
+    assert spec is not None
+    assert spec.loader is not None
+    mod = importlib.util.module_from_spec(spec)
+    sys.modules[module_name] = mod
+    spec.loader.exec_module(mod)
+    # Patch beetsplug namespace if needed
+    ns, _, submod = module_name.partition(".")
+    if ns == "beetsplug" and submod:
+        setattr(beetsplug, submod, mod)
+        sys.modules[f"beetsplug.{submod}"] = mod
+    return cast("type[BeetsPlugin]", getattr(mod, class_name))
 
 
 class LogCapture(logging.Handler):
@@ -242,23 +264,45 @@ class FiletoteTestCase(_common.TestCase, Assertions, HelperUtils):
 
     def tearDown(self) -> None:
         """Cleans up and closes the library connection."""
+        attrs_to_clear = [
+            ("plugins", "_instances"),
+            ("plugins", "_classes"),
+            ("plugins", "_event_listeners"),
+            ("plugins.BeetsPlugin", "listeners"),
+            ("plugins.BeetsPlugin", "_raw_listeners"),
+        ]
+
+        for obj_path, attr in attrs_to_clear:
+            # Resolve the object (plugins or plugins.BeetsPlugin)
+            obj = eval(obj_path)
+            if hasattr(obj, attr):
+                val = getattr(obj, attr)
+                if val is not None and hasattr(val, "clear"):
+                    val.clear()
+
         self.lib._close()
         super().tearDown()
 
     def load_plugins(self, other_plugins: list[str]) -> None:
         """Loads and sets up the plugin(s) for the test module."""
         plugin_list: list[str] = ["filetote"]
-        plugin_class_list: list[Any] = [filetote.FiletotePlugin]
+        plugin_class_list: list[Any] = []
 
-        approved_plugins: dict[str, Any] = {
-            "audible": audible.Audible,
-            "convert": convert.ConvertPlugin,
-            "inline": inline.InlinePlugin,
+        stub_map = {
+            "audible": ("tests/stubs/audible.py", "Audible"),
+            "convert": ("tests/stubs/convert.py", "ConvertPlugin"),
+            "inline": ("tests/stubs/inline.py", "InlinePlugin"),
         }
 
         for other_plugin in other_plugins:
-            if other_plugin in approved_plugins:
-                plugin_class_list.append(approved_plugins[other_plugin])
+            if other_plugin in stub_map:
+                stub_path, class_name = stub_map[other_plugin]
+                abs_stub_path = os.path.abspath(stub_path)
+
+                plugin_class = _import_local_plugin(
+                    abs_stub_path, class_name, f"beetsplug.{other_plugin}"
+                )
+                plugin_class_list.append(plugin_class)
                 plugin_list.append(other_plugin)
             else:
                 raise AssertionError(f"Attempt to load unknown plugin: {other_plugin}")
