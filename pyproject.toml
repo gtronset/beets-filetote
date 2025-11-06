@@ -30,7 +30,6 @@ typing_extensions = { version = "*", python = "<=3.10" }
 
 [tool.poetry.group.dev.dependencies]
 beets-audible = ">=0.1.0"
-reflink = ">=0.2.1"
 toml = ">=0.10.2"
 
 [tool.poetry.group.lint.dependencies]

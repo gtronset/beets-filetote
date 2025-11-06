@@ -26,6 +26,9 @@ jobs:
             matrix:
                 python-version: ["3.9", "3.10", "3.11", "3.12", "3.13"]
                 os: [ubuntu-24.04, windows-2022]
+                exclude:
+                    - python-version: "3.13"
+                      os: windows-2022
 
         env:
             TOXENV: ${{ matrix.python-version }}

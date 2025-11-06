@@ -51,3 +51,15 @@ class MoveOperation(Enum):
     HARDLINK = 3
     REFLINK = 4
     REFLINK_AUTO = 5
+
+class FilesystemError(Exception):
+    paths: Sequence[bytes]
+
+    def __init__(
+        self,
+        reason: str,
+        verb: str,
+        paths: Sequence[bytes],
+        tb: str | None = None,
+    ) -> None: ...
+    def get_message(self) -> str: ...
