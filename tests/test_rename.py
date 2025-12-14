@@ -7,11 +7,9 @@ from __future__ import annotations
 import logging
 import os
 
-import pytest
-
 from beets import config
 
-from tests.helper import FiletoteTestCase
+from tests.helper import FiletoteTestCase, capture_log_with_traceback
 
 log = logging.getLogger("beets")
 
@@ -258,15 +256,26 @@ class FiletoteRenameTest(FiletoteTestCase):
         config["paths"]["ext:.*"] = "$albumpath/$old_filename"
         config["import"]["move"] = True
 
-        with pytest.raises(AssertionError) as assert_test_message:
-            self._run_cli_command("import")
-
         assertion_msg: str = (
             "Error: path query `ext:.*` is not valid. If you are"
             " trying to set a default/fallback, please use `filetote:default` instead."
         )
+        exception_caught = False
 
-        assert str(assert_test_message.value) == assertion_msg
+        with capture_log_with_traceback() as logs:
+            try:
+                self._run_cli_command("import")
+            except AssertionError as e:
+                # Older beets versions might raise the exception.
+                exception_caught = True
+                assert assertion_msg in str(e)  # noqa: PT017
+
+        if not exception_caught:
+            # Newer beets versions swallow the exception and log it.
+            log_text = "".join(logs)
+            assert assertion_msg in log_text, (
+                "The expected warning about `ext:.*` was not logged."
+            )
 
     def test_rename_filetote_paths_wildcard_extension_halts(self) -> None:
         """Ensure that specifying `ext:.*` extensions results in an exception."""
@@ -274,15 +283,26 @@ class FiletoteRenameTest(FiletoteTestCase):
         config["filetote"]["paths"]["ext:.*"] = "$albumpath/$old_filename"
         config["import"]["move"] = True
 
-        with pytest.raises(AssertionError) as assert_test_message:
-            self._run_cli_command("import")
-
         assertion_msg: str = (
             "Error: path query `ext:.*` is not valid. If you are"
             " trying to set a default/fallback, please use `filetote:default` instead."
         )
+        exception_caught = False
 
-        assert str(assert_test_message.value) == assertion_msg
+        with capture_log_with_traceback() as logs:
+            try:
+                self._run_cli_command("import")
+            except AssertionError as e:
+                # Older beets versions might raise the exception.
+                exception_caught = True
+                assert assertion_msg in str(e)  # noqa: PT017
+
+        if not exception_caught:
+            # Newer beets versions swallow the exception and log it.
+            log_text = "".join(logs)
+            assert assertion_msg in log_text, (
+                "The expected warning about `ext:.*` was not logged."
+            )
 
     def test_filetote_paths_priority_over_beets_paths(self) -> None:
         """Ensure that the Filetote `paths` settings take priority over

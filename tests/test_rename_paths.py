@@ -6,7 +6,7 @@ from typing import Optional
 
 from beets import config
 
-from tests.helper import FiletoteTestCase, capture_log
+from tests.helper import FiletoteTestCase, capture_log_with_traceback
 
 log = logging.getLogger("beets")
 
@@ -53,7 +53,7 @@ class FiletoteRenamePathsTest(FiletoteTestCase):
             "nfo-pattern": "$albumpath/nfo-pattern $old_filename",
         }
 
-        with capture_log() as logs:
+        with capture_log_with_traceback() as logs:
             self._run_cli_command("import")
 
         for line in logs:
@@ -82,7 +82,7 @@ class FiletoteRenamePathsTest(FiletoteTestCase):
             "nfo-pattern": "$albumpath/filetote_path $old_filename",
         }
 
-        with capture_log() as logs:
+        with capture_log_with_traceback() as logs:
             self._run_cli_command("import")
 
         for line in logs:

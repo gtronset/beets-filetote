@@ -1,20 +1,22 @@
 """Helper functions for tests for the beets-filetote plugin."""
 # ruff: noqa: SLF001
 
+import contextlib
 import importlib.util
 import inspect
 import logging
 import os
 import shutil
 import sys
+import types
 
+from collections.abc import Generator
 from dataclasses import asdict, dataclass
+from importlib.machinery import SourceFileLoader
 from pathlib import Path
 from typing import Any, Literal, Optional, cast
 
 import beetsplug
-
-from beets.test.helper import capture_log
 
 from beets import config, library, plugins, util
 from beets.importer import ImportSession
@@ -27,12 +29,64 @@ from tests import _common
 
 log = logging.getLogger("beets")
 
+PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+
+
+class ListLogHandler(logging.Handler):
+    """A logging handler that records messages in a list, including tracebacks."""
+
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
+        """Initializes the handler and its message list."""
+        super().__init__(*args, **kwargs)
+        self.messages: list[str] = []
+        self.setFormatter(logging.Formatter("%(message)s\n%(exc_text)s"))
+
+    def emit(self, record: logging.LogRecord) -> None:
+        """Appends the formatted log record to the message list."""
+        msg = self.format(record)
+        # The formatter adds "\nNone" for records without exceptions. Strip it.
+        if msg.endswith("\nNone"):
+            msg = msg[:-5]
+        self.messages.append(msg)
+
+
+@contextlib.contextmanager
+def capture_log_with_traceback(
+    logger_name: str = "beets",
+) -> Generator[list[str], None, None]:
+    """A context manager to capture log messages, including tracebacks."""
+    logger = logging.getLogger(logger_name)
+    handler = ListLogHandler()
+    logger.addHandler(handler)
+    try:
+        yield handler.messages
+    finally:
+        logger.removeHandler(handler)
+
+
+def import_plugin_module_statically(module_name: str) -> types.ModuleType:
+    """Load a plugin module directly from its source file.
+
+    This is useful for unit tests that need to import a module statically,
+    bypassing the `beetsplug` package namespace and avoiding contamination
+    from integration tests that dynamically load plugins.
+    """
+    module_path = os.path.join(PROJECT_ROOT, f"beetsplug/{module_name}.py")
+    return SourceFileLoader(module_name, module_path).load_module()
+
 
 def _import_local_plugin(
     module_path: str, class_name: str, module_name: str
 ) -> type[BeetsPlugin]:
     """Dynamically import a plugin class from a local file."""
-    spec = importlib.util.spec_from_file_location(module_name, module_path)
+    if PROJECT_ROOT not in sys.path:
+        sys.path.insert(0, PROJECT_ROOT)
+
+    spec = importlib.util.spec_from_file_location(
+        module_name,
+        module_path,
+        submodule_search_locations=[os.path.dirname(module_path)],
+    )
     assert spec is not None
     assert spec.loader is not None
     mod = importlib.util.module_from_spec(spec)
@@ -190,7 +244,9 @@ class FiletoteTestCase(_common.TestCase, Assertions, HelperUtils):
 
         other_plugins = other_plugins or []
 
-        self.load_plugins(other_plugins)
+        # self.load_plugins(other_plugins)
+
+        self.plugins = other_plugins
 
         self.lib_dir: bytes = os.path.join(self.temp_dir, b"testlib_dir")
 
@@ -227,6 +283,8 @@ class FiletoteTestCase(_common.TestCase, Assertions, HelperUtils):
 
     def tearDown(self) -> None:
         """Cleans up and closes the library connection."""
+        self.unload_plugins()
+
         attrs_to_clear = [
             ("plugins", "_instances"),
             ("plugins", "_classes"),
@@ -302,12 +360,25 @@ class FiletoteTestCase(_common.TestCase, Assertions, HelperUtils):
             for plugin_class in classes:
                 # Unregister listeners if they exist for the plugin
                 if plugin_class.listeners:
-                    for event in plugin_class.listeners:
-                        del plugin_class.listeners[event][0]
+                    for event in list(plugin_class.listeners):
+                        plugin_class.listeners[event].clear()
 
-                # Delete the plugin instance so a new one gets created for each
-                # test.
-                del plugins._instances[plugin_class]
+                # Remove plugin instance(s) for both dict and list types
+                instances = plugins._instances
+                if isinstance(instances, dict):
+                    # Beets <2.5: dict[type, instance]
+                    if plugin_class in instances:
+                        del instances[plugin_class]
+                elif isinstance(instances, list):
+                    # Beets >=2.5: list of instances
+                    plugins._instances = [
+                        inst for inst in instances if not isinstance(inst, plugin_class)
+                    ]
+        for modname in list(sys.modules):
+            if modname.startswith("beetsplug.filetote") or modname.startswith(
+                "beetsplug.audible"
+            ):
+                del sys.modules[modname]
 
     def _run_cli_command(
         self, command: Literal["import", "modify", "move", "update"], **kwargs: Any
@@ -323,7 +394,9 @@ class FiletoteTestCase(_common.TestCase, Assertions, HelperUtils):
         log_string = f"Running CLI: {command}"
         log.debug(log_string)
 
-        plugins.find_plugins()
+        # plugins.find_plugins()
+        self.load_plugins(self.plugins)
+
         plugins.send("pluginload")
 
         # Get the function associated with the provided command name
@@ -373,8 +446,8 @@ class FiletoteTestCase(_common.TestCase, Assertions, HelperUtils):
         _run_cli_command().
         """
         commands.move_items(
-            lib=self.lib,
-            dest=dest_dir,
+            self.lib,
+            dest_dir,
             query=query,
             copy=copy,
             album=album,
@@ -712,6 +785,6 @@ class FiletoteTestCase(_common.TestCase, Assertions, HelperUtils):
         )
 
 
-__all__ = [
-    "capture_log",
-]
+# __all__ = [
+#     "capture_log",
+# ]
