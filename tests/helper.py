@@ -244,8 +244,6 @@ class FiletoteTestCase(_common.TestCase, Assertions, HelperUtils):
 
         other_plugins = other_plugins or []
 
-        # self.load_plugins(other_plugins)
-
         self.plugins = other_plugins
 
         self.lib_dir: bytes = os.path.join(self.temp_dir, b"testlib_dir")
@@ -294,8 +292,18 @@ class FiletoteTestCase(_common.TestCase, Assertions, HelperUtils):
         ]
 
         for obj_path, attr in attrs_to_clear:
-            # Resolve the object (plugins or plugins.BeetsPlugin)
-            obj = eval(obj_path)
+            try:
+                if "." in obj_path:
+                    module_path, class_name = obj_path.rsplit(".", 1)
+                    module = sys.modules[module_path]
+                    obj = getattr(module, class_name)
+                else:
+                    obj = sys.modules[obj_path]
+            except (KeyError, AttributeError):
+                # If the module or attribute doesn't exist, skip it.
+                log.warning("Could not resolve path %s for teardown.", obj_path)
+                continue
+
             if hasattr(obj, attr):
                 val = getattr(obj, attr)
                 if val is not None and hasattr(val, "clear"):
@@ -363,6 +371,10 @@ class FiletoteTestCase(_common.TestCase, Assertions, HelperUtils):
                     for event in list(plugin_class.listeners):
                         plugin_class.listeners[event].clear()
 
+                # TODO(gtronset): Remove fallback once Beets v2.3 is no longer
+                # supported:
+                # https://github.com/gtronset/beets-filetote/pull/231
+
                 # Remove plugin instance(s) for both dict and list types
                 instances = plugins._instances
                 if isinstance(instances, dict):
@@ -394,7 +406,6 @@ class FiletoteTestCase(_common.TestCase, Assertions, HelperUtils):
         log_string = f"Running CLI: {command}"
         log.debug(log_string)
 
-        # plugins.find_plugins()
         self.load_plugins(self.plugins)
 
         plugins.send("pluginload")
@@ -783,8 +794,3 @@ class FiletoteTestCase(_common.TestCase, Assertions, HelperUtils):
             paths=import_path,
             query=query,
         )
-
-
-# __all__ = [
-#     "capture_log",
-# ]

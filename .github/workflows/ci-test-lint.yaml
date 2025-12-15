@@ -162,7 +162,6 @@ jobs:
                       tox-${{ runner.os }}-py-${{ matrix.python-version }}-${{ env.TOXENV }}-
 
             - name: Run Tests
-              #   run: poetry run pytest
               run: tox -e $TOXENV
 
     lint:

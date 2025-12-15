@@ -132,7 +132,6 @@ extend-ignore-names = ["assert*", "getLogger"]
 max-line-length = 88
 
 [tool.ruff.lint.pydocstyle]
-# Use Google-style docstrings.
 convention = "google"
 
 [tool.ruff.lint.pyupgrade]
@@ -150,7 +149,7 @@ env_list = [
     "3.13",
     "beets-2.3",
     "beets-2.4",
-    # "beets-master",
+    "beets-master",
 ]
 
 [tool.tox.env_run_base]

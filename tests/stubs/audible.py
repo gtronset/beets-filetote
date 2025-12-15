@@ -11,6 +11,6 @@ class Audible(BeetsPlugin):
     name = "audible"
 
     def __init__(self) -> None:
-        """Initialize the ConvertPlugin stub."""
+        """Initialize the Audible plugin stub."""
         super().__init__()
         self.early_import_stages: list[Any] = []

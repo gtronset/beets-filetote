@@ -25,6 +25,8 @@ class Item(LibModel):
 
     def __init__(self) -> None: ...
 
+# TODO(gtronset): Remove export once Beets v2.3 is no longer supported:
+# https://github.com/gtronset/beets-filetote/pull/231
 __all__ = [
     "DefaultTemplateFunctions",
 ]

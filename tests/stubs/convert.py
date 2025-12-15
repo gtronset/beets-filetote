@@ -44,5 +44,5 @@ class ConvertPlugin(BeetsPlugin):
             with open(dest, "wb") as f:
                 f.write(b"FAKE " + target_format.encode().upper() + b" DATA")
 
-            # Update item.path to point to the new file (like real convert)
+            # Update item.path to point to the new file (like real Convert)
             item.path = dest
