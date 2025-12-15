@@ -42,7 +42,7 @@ jobs:
                   echo "$ffmpeg_dir" >> $GITHUB_PATH
 
             - name: Cache FFmpeg
-              uses: actions/cache@v4
+              uses: actions/cache@v5
               with:
                   path: ${{ steps.ffmpeg-env-setup.outputs.ffmpeg-cache-path }}
                   key: ${{ runner.os }}-ffmpeg-${{ env.FFMPEG_VERSION }}
@@ -91,7 +91,7 @@ jobs:
 
             - name: Cache Pipx
               id: cache-pipx
-              uses: actions/cache@v4
+              uses: actions/cache@v5
               with:
                   path: ${{ steps.pipx-env-setup.outputs.pipx-cache-path }}
                   key: ${{ runner.os }}-python_${{ env.PYTHON_VERSION }}-pipx_${{ steps.pipx-env-setup.outputs.pipx-version }}-poetry_${{ env.POETRY_VERSION }}-tox
@@ -109,7 +109,7 @@ jobs:
 
             - name: Cache tox environments
               id: cache-tox
-              uses: actions/cache@v4
+              uses: actions/cache@v5
               with:
                   path: .tox
                   key: tox-${{ runner.os }}-py-${{ env.PYTHON_VERSION }}-${{ env.TOXENV }}-${{ hashFiles('**/pyproject.toml', '**/poetry.lock') }}
