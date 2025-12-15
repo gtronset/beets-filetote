@@ -63,15 +63,8 @@ def capture_log_with_traceback(
         logger.removeHandler(handler)
 
 
-def import_plugin_module_statically(module_name: str) -> types.ModuleType:
-    """Load a plugin module directly from its source file.
-
-    This is useful for unit tests that need to import a module statically,
-    bypassing the `beetsplug` package namespace and avoiding contamination
-    from integration tests that dynamically load plugins.
-    """
-    module_path = os.path.join(PROJECT_ROOT, f"beetsplug/{module_name}.py")
-
+def _load_module_from_path(module_name: str, module_path: str) -> types.ModuleType:
+    """Core helper to load a module from a specific file path."""
     spec = importlib.util.spec_from_file_location(module_name, module_path)
     if not (spec and spec.loader):
         raise ImportError(
@@ -81,8 +74,19 @@ def import_plugin_module_statically(module_name: str) -> types.ModuleType:
     module = importlib.util.module_from_spec(spec)
     sys.modules[module_name] = module
     spec.loader.exec_module(module)
-
     return module
+
+
+def import_plugin_module_statically(module_name: str) -> types.ModuleType:
+    """Load a plugin module directly from its source file.
+
+    This is useful for unit tests that need to import a module statically,
+    bypassing the `beetsplug` package namespace and avoiding contamination
+    from integration tests that dynamically load plugins.
+    """
+    module_path = os.path.join(PROJECT_ROOT, f"beetsplug/{module_name}.py")
+
+    return _load_module_from_path(module_name, module_path)
 
 
 def _import_local_plugin(
@@ -92,19 +96,7 @@ def _import_local_plugin(
     if PROJECT_ROOT not in sys.path:
         sys.path.insert(0, PROJECT_ROOT)
 
-    spec = importlib.util.spec_from_file_location(
-        module_name,
-        module_path,
-        submodule_search_locations=[os.path.dirname(module_path)],
-    )
-    if not (spec and spec.loader):
-        raise ImportError(
-            f"Could not create module spec for {module_name} at {module_path}"
-        )
-
-    module = importlib.util.module_from_spec(spec)
-    sys.modules[module_name] = module
-    spec.loader.exec_module(module)
+    module = _load_module_from_path(module_name, module_path)
 
     # Patch beetsplug namespace if needed
     namespace, _, submodule = module_name.partition(".")
