@@ -37,18 +37,13 @@ jobs:
                     - python-version: "3.13"
                       os: ubuntu-24.04
                       beets-version: "2.4"
-                    - python-version: "3.13"
-                      os: ubuntu-24.04
-                      beets-version: "master"
-                      continue-on-error: true
 
         env:
             TOXENV: >
                 ${{
                     (matrix.beets-version == 'latest' && matrix.python-version) ||
                     (matrix.beets-version == '2.3' && 'beets-2.3') ||
-                    (matrix.beets-version == '2.4' && 'beets-2.4') ||
-                    (matrix.beets-version == 'master' && 'beets-master')
+                    (matrix.beets-version == '2.4' && 'beets-2.4')
                 }}
 
         runs-on: ${{ matrix.os }}

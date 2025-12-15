@@ -2,7 +2,14 @@
 
 name: Test Beets Master
 
+permissions:
+    contents: read
+
 on:
+    push:
+    pull_request:
+        types: [opened, reopened]
+
     schedule:
         - cron: "0 0 * * 1" # Every Monday at midnight UTC
     workflow_dispatch:
