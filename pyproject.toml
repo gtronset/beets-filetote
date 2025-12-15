@@ -179,15 +179,15 @@ commands_pre = []
 deps = ["beets==2.4.0", "pytest", "typeguard"]
 commands = [["pytest", "tests", "--typeguard-packages=beetsplug"]]
 
-# [tool.tox.env.beets-master]
-# description = "Test with beets from master branch"
-# commands_pre = []
-# deps = [
-#     "beets @ git+https://github.com/beetbox/beets.git@master",
-#     "pytest",
-#     "typeguard",
-# ]
-# commands = [["pytest", "tests", "--typeguard-packages=beetsplug"]]
+[tool.tox.env.beets-master]
+description = "Test with beets from master branch"
+commands_pre = []
+deps = [
+    "beets @ git+https://github.com/beetbox/beets.git@master",
+    "pytest",
+    "typeguard",
+]
+commands = [["pytest", "tests", "--typeguard-packages=beetsplug"]]
 
 [tool.tox.env.lint]
 description = "Lint source code"
