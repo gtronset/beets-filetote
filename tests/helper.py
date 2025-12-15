@@ -12,7 +12,6 @@ import types
 
 from collections.abc import Generator
 from dataclasses import asdict, dataclass
-from importlib.machinery import SourceFileLoader
 from pathlib import Path
 from typing import Any, Literal, Optional, cast
 
@@ -72,7 +71,18 @@ def import_plugin_module_statically(module_name: str) -> types.ModuleType:
     from integration tests that dynamically load plugins.
     """
     module_path = os.path.join(PROJECT_ROOT, f"beetsplug/{module_name}.py")
-    return SourceFileLoader(module_name, module_path).load_module()
+
+    spec = importlib.util.spec_from_file_location(module_name, module_path)
+    if not (spec and spec.loader):
+        raise ImportError(
+            f"Could not create module spec for {module_name} at {module_path}"
+        )
+
+    module = importlib.util.module_from_spec(spec)
+    sys.modules[module_name] = module
+    spec.loader.exec_module(module)
+
+    return module
 
 
 def _import_local_plugin(
@@ -87,17 +97,21 @@ def _import_local_plugin(
         module_path,
         submodule_search_locations=[os.path.dirname(module_path)],
     )
-    assert spec is not None
-    assert spec.loader is not None
-    mod = importlib.util.module_from_spec(spec)
-    sys.modules[module_name] = mod
-    spec.loader.exec_module(mod)
+    if not (spec and spec.loader):
+        raise ImportError(
+            f"Could not create module spec for {module_name} at {module_path}"
+        )
+
+    module = importlib.util.module_from_spec(spec)
+    sys.modules[module_name] = module
+    spec.loader.exec_module(module)
+
     # Patch beetsplug namespace if needed
-    ns, _, submod = module_name.partition(".")
-    if ns == "beetsplug" and submod:
-        setattr(beetsplug, submod, mod)
-        sys.modules[f"beetsplug.{submod}"] = mod
-    return cast("type[BeetsPlugin]", getattr(mod, class_name))
+    namespace, _, submodule = module_name.partition(".")
+    if namespace == "beetsplug" and submodule:
+        setattr(beetsplug, submodule, module)
+        sys.modules[f"beetsplug.{submodule}"] = module
+    return cast("type[BeetsPlugin]", getattr(module, class_name))
 
 
 @dataclass
