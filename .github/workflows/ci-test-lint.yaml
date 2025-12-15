@@ -139,7 +139,7 @@ jobs:
               uses: actions/cache@v4
               with:
                   path: ${{ steps.pipx-env-setup.outputs.pipx-cache-path }}
-                  key: ${{ runner.os }}-python_${{ env.PYTHON_VERSION }}-pipx_${{ steps.pipx-env-setup.outputs.pipx-version }}-poetry_${{ env.POETRY_VERSION }}
+                  key: ${{ runner.os }}-python_${{ env.PYTHON_VERSION }}-pipx_${{ steps.pipx-env-setup.outputs.pipx-version }}-poetry_${{ env.POETRY_VERSION }}-tox
 
             - name: Install Poetry & Tox
               if: steps.cache-pipx.outputs.cache-hit != 'true'
