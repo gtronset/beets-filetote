@@ -32,8 +32,8 @@ typing_extensions = { version = "*", python = "<=3.10" }
 toml = ">=0.10.2"
 
 [tool.poetry.group.lint.dependencies]
-mypy = [{ version = "^1.15.0", python = ">=3.9" }]
-ruff = "^0.11.8"
+mypy = [{ version = "^1.19.0", python = ">=3.9" }]
+ruff = "^0.14.9"
 
 [tool.poetry.group.test.dependencies]
 pytest = "^8.0.0"
