@@ -64,8 +64,8 @@ filetote:
       - "[aA]rtwork/"
 ```
 
-It can look for and target ["pairs"](#pairing-pairing) (files having the same name as a matching
-or "paired" media item/track):
+It can look for and target ["pairs"](#pairing-pairing) (files having the same name as a
+matching or "paired" media item/track):
 
 ```yaml
 filetote:
@@ -268,8 +268,8 @@ _can_ be achieved using a `pattern`, however).
 
 ##### Filename Example Configuration
 
-This example will match if the filename of the given artifact or extra file matches the name
-exactly as specified, either `cover.jpg` or `artifact.nfo`.
+This example will match if the filename of the given artifact or extra file matches the
+name exactly as specified, either `cover.jpg` or `artifact.nfo`.
 
 ```yaml
 filetote:
@@ -333,8 +333,8 @@ below).
 
 ##### Pattern Example Configuration
 
-This example will match if the filename of the given artifact or extra file matches the name
-exactly as specified, either `cover.jpg` or `artifact.nfo`.
+This example will match if the filename of the given artifact or extra file matches the
+name exactly as specified, either `cover.jpg` or `artifact.nfo`.
 
 This example will match all files within the given subdirectory of either `artwork/` or
 `Artwork/`. Since it's not otherwise specified, `[aA]rtwork/` will grab all non-media
@@ -718,7 +718,7 @@ for specific steps for each version.
 
 ### `1.0.2`
 
-#### Config format for `exclude` now expects explicit `filenames`, `extensions`, and/or `patterns`
+#### Config for `exclude` now expects explicit `filenames`, `extensions`, or `patterns`
 
 As of version `1.0.2`, Filetote now emits a deprecation warning for configurations
 setting `exclude` to a simple list of filenames. Instead, Filetote now expects explicit
@@ -737,7 +737,7 @@ filetote:
   exclude: song_lyrics.nfo album_description.nfo
 ```
 
-For now, the old configuration style is still supported but logged as depreacated. In a
+For now, the old configuration style is still supported but logged as deprecated. In a
 future version this setting will no longer be backwards compatible.
 
 ### `0.4.0`
