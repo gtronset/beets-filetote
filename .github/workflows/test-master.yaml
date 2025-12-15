@@ -28,7 +28,7 @@ jobs:
             PYTHON_VERSION: 3.13
 
         steps:
-            - uses: actions/checkout@v5
+            - uses: actions/checkout@v6
 
             - name: Setup FFmpeg Environment Variables
               id: ffmpeg-env-setup
