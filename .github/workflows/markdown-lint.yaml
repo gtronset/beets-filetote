@@ -21,7 +21,7 @@ jobs:
               uses: actions/checkout@v6
 
             - name: Lint Markdown Files
-              uses: DavidAnson/markdownlint-cli2-action@v20
+              uses: DavidAnson/markdownlint-cli2-action@v22
               with:
                   config: .markdownlint.yaml
                   globs: |
