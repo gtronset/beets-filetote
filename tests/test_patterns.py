@@ -7,7 +7,7 @@ from typing import Optional
 
 from beets import config
 
-from tests.helper import FiletoteTestCase, capture_log
+from tests.helper import FiletoteTestCase, capture_log_with_traceback
 
 log = logging.getLogger("beets")
 
@@ -134,7 +134,7 @@ class FiletotePatternTest(FiletoteTestCase):
 
         config["paths"]["pattern:nfo-pattern"] = "$albumpath/nfo-pattern $old_filename"
 
-        with capture_log() as logs:
+        with capture_log_with_traceback() as logs:
             self._run_cli_command("import")
 
         for line in logs:

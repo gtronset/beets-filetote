@@ -24,12 +24,11 @@ classifiers = [
 
 [tool.poetry.dependencies]
 python = "^3.9"
-beets = ">=2.3.0,<2.4.0"
+beets = ">=2.3.0,<2.6.0"
 mediafile = ">=0.12.0"
 typing_extensions = { version = "*", python = "<=3.10" }
 
 [tool.poetry.group.dev.dependencies]
-beets-audible = ">=0.1.0"
 toml = ">=0.10.2"
 
 [tool.poetry.group.lint.dependencies]
@@ -50,6 +49,10 @@ modules = ["beetsplug", "tests.helper", "tests._common"]
 explicit_package_bases = true
 strict = true
 pretty = true
+
+[[tool.mypy.overrides]]
+module = "beets.test._common"
+follow_imports = "skip"
 
 [tool.pre-commit-update]
 dry_run = false
@@ -102,6 +105,8 @@ extend-select = [
     "W",    # pycodestyle
     # "PTH", # flake8-use-pathlib
 ]
+# Allow unused variables when underscore-prefixed.
+dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
 
 [tool.ruff.lint.flake8-pytest-style]
 fixture-parentheses = false
@@ -126,7 +131,6 @@ extend-ignore-names = ["assert*", "getLogger"]
 max-line-length = 88
 
 [tool.ruff.lint.pydocstyle]
-# Use Google-style docstrings.
 convention = "google"
 
 [tool.ruff.lint.pyupgrade]
@@ -136,7 +140,16 @@ keep-runtime-typing = true
 [tool.tox]
 requires = ["tox>=4.22"]
 min_version = "4.22"
-env_list = ["3.9", "3.10", "3.11", "3.12", "3.13"]
+env_list = [
+    "3.9",
+    "3.10",
+    "3.11",
+    "3.12",
+    "3.13",
+    "beets-2.3",
+    "beets-2.4",
+    "beets-master",
+]
 
 [tool.tox.env_run_base]
 description = "Run test under {base_python}"
@@ -151,6 +164,28 @@ commands = [
         "--typeguard-packages=beetsplug",
     ],
 ]
+
+[tool.tox.env.beets-2.3]
+description = "Test with beets==2.3.1"
+commands_pre = []
+deps = ["beets==2.3.1", "pytest", "typeguard"]
+commands = [["pytest", "tests", "--typeguard-packages=beetsplug"]]
+
+[tool.tox.env.beets-2.4]
+description = "Test with beets==2.4.0"
+commands_pre = []
+deps = ["beets==2.4.0", "pytest", "typeguard"]
+commands = [["pytest", "tests", "--typeguard-packages=beetsplug"]]
+
+[tool.tox.env.beets-master]
+description = "Test with beets from master branch"
+commands_pre = []
+deps = [
+    "beets @ git+https://github.com/beetbox/beets.git@master",
+    "pytest",
+    "typeguard",
+]
+commands = [["pytest", "tests", "--typeguard-packages=beetsplug"]]
 
 [tool.tox.env.lint]
 description = "Lint source code"

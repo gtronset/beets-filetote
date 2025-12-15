@@ -7,8 +7,6 @@ from __future__ import annotations
 import logging
 import os
 
-import pytest
-
 from beets import config
 
 from tests.helper import FiletoteTestCase
@@ -217,7 +215,7 @@ class FiletoteRenameTest(FiletoteTestCase):
         """
         config["filetote"]["extensions"] = ".file"
         config["filetote"]["filenames"] = "artifact.file"
-        # order of paths matter here; this is the opposite order as
+        # Order of paths matter here; this is the opposite order as
         # `test_rename_prioritizes_filename_over_ext`
         config["paths"]["filename:artifact.file"] = "$albumpath/new-filename"
         config["paths"]["ext:file"] = "$albumpath/$artist - $old_filename"
@@ -258,15 +256,11 @@ class FiletoteRenameTest(FiletoteTestCase):
         config["paths"]["ext:.*"] = "$albumpath/$old_filename"
         config["import"]["move"] = True
 
-        with pytest.raises(AssertionError) as assert_test_message:
-            self._run_cli_command("import")
-
         assertion_msg: str = (
             "Error: path query `ext:.*` is not valid. If you are"
             " trying to set a default/fallback, please use `filetote:default` instead."
         )
-
-        assert str(assert_test_message.value) == assertion_msg
+        self.assert_halts_with_message("import", assertion_msg)
 
     def test_rename_filetote_paths_wildcard_extension_halts(self) -> None:
         """Ensure that specifying `ext:.*` extensions results in an exception."""
@@ -274,15 +268,11 @@ class FiletoteRenameTest(FiletoteTestCase):
         config["filetote"]["paths"]["ext:.*"] = "$albumpath/$old_filename"
         config["import"]["move"] = True
 
-        with pytest.raises(AssertionError) as assert_test_message:
-            self._run_cli_command("import")
-
         assertion_msg: str = (
             "Error: path query `ext:.*` is not valid. If you are"
             " trying to set a default/fallback, please use `filetote:default` instead."
         )
-
-        assert str(assert_test_message.value) == assertion_msg
+        self.assert_halts_with_message("import", assertion_msg)
 
     def test_filetote_paths_priority_over_beets_paths(self) -> None:
         """Ensure that the Filetote `paths` settings take priority over

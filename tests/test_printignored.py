@@ -4,7 +4,7 @@ from typing import Optional
 
 from beets import config
 
-from tests.helper import FiletoteTestCase, capture_log
+from tests.helper import FiletoteTestCase, capture_log_with_traceback
 
 
 class FiletotePrintIgnoredTest(FiletoteTestCase):
@@ -21,7 +21,7 @@ class FiletotePrintIgnoredTest(FiletoteTestCase):
         """Tests to ensure the default behavior for printing ignored is "disabled"."""
         config["filetote"]["extensions"] = ".file"
 
-        with capture_log() as logs:
+        with capture_log_with_traceback() as logs:
             self._run_cli_command("import")
 
         self.assert_not_in_lib_dir(b"Tag Artist", b"Tag Album", b"artifact.nfo")
@@ -38,7 +38,7 @@ class FiletotePrintIgnoredTest(FiletoteTestCase):
         config["filetote"]["print_ignored"] = True
         config["filetote"]["extensions"] = ".file .lrc"
 
-        with capture_log() as logs:
+        with capture_log_with_traceback() as logs:
             self._run_cli_command("import")
 
         self.assert_not_in_lib_dir(b"Tag Artist", b"Tag Album", b"artifact.nfo")

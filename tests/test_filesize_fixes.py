@@ -6,7 +6,7 @@ from typing import Optional
 
 from beets import config
 
-from tests.helper import FiletoteTestCase, capture_log
+from tests.helper import FiletoteTestCase, capture_log_with_traceback
 
 
 class FiletoteNoFilesizeErrorTest(FiletoteTestCase):
@@ -27,7 +27,7 @@ class FiletoteNoFilesizeErrorTest(FiletoteTestCase):
         config["filetote"]["extensions"] = ".file .lrc"
         config["paths"]["ext:file"] = "$albumpath/filesize - ${filesize}b"
 
-        with capture_log() as logs:
+        with capture_log_with_traceback() as logs:
             self._run_cli_command("import", operation_option="move")
 
         self.assert_not_in_lib_dir(b"Tag Artist", b"Tag Album", b"artifact.nfo")

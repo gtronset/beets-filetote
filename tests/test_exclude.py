@@ -10,7 +10,7 @@ import beets
 
 from beets import config
 
-from tests.helper import FiletoteTestCase, capture_log
+from tests.helper import FiletoteTestCase, capture_log_with_traceback
 
 
 class FiletoteExcludeTest(FiletoteTestCase):
@@ -44,7 +44,7 @@ class FiletoteExcludeTest(FiletoteTestCase):
             self.album_path, beets.util.bytestring_path("not_to_be_moved.lrc")
         )
 
-        with capture_log() as logs:
+        with capture_log_with_traceback() as logs:
             self._run_cli_command("import")
 
         self.assert_in_import_dir(
@@ -86,7 +86,7 @@ class FiletoteExcludeTest(FiletoteTestCase):
             self.album_path, beets.util.bytestring_path("not_to_be_moved.lrc")
         )
 
-        with capture_log() as logs:
+        with capture_log_with_traceback() as logs:
             self._run_cli_command("import")
 
         self.assert_in_import_dir(

@@ -3,19 +3,15 @@
 
 from __future__ import annotations
 
-import os
-import sys
 import unittest
 
 from typing import Any
 
 import pytest
 
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "../..")))
+from tests.helper import import_plugin_module_statically
 
-from beetsplug import (
-    filetote_dataclasses,
-)
+filetote_dataclasses = import_plugin_module_statically("filetote_dataclasses")
 
 
 class TestTypeErrorFunctions(unittest.TestCase):

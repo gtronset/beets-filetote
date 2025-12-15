@@ -1,63 +1,109 @@
 """Helper functions for tests for the beets-filetote plugin."""
 # ruff: noqa: SLF001
 
+import contextlib
+import importlib.util
+import inspect
 import logging
 import os
 import shutil
+import sys
+import types
 
-from collections.abc import Iterator
-from contextlib import contextmanager
+from collections.abc import Generator
 from dataclasses import asdict, dataclass
-from typing import Any, Literal, Optional
+from pathlib import Path
+from typing import Any, Literal, Optional, cast
 
-# Make sure the local versions of the plugins are used
 import beetsplug
-
-
-# mypy doesn't recognize `audible` as an extended module
-from beetsplug import (  # type: ignore[attr-defined]
-    audible,
-    convert,
-    filetote,
-    inline,
-)
 
 from beets import config, library, plugins, util
 from beets.importer import ImportSession
+from beets.plugins import BeetsPlugin
 from beets.ui import commands
 from mediafile import MediaFile
 
 from ._item_model import MediaMeta
 from tests import _common
 
-beetsplug.__path__ = [os.path.abspath(os.path.join(__file__, "..", "..", "beetsplug"))]
-
 log = logging.getLogger("beets")
 
+PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 
-class LogCapture(logging.Handler):
-    """Provides the ability to capture logs within tests."""
 
-    def __init__(self) -> None:
-        """Log handler init."""
-        logging.Handler.__init__(self)
+class ListLogHandler(logging.Handler):
+    """A logging handler that records messages in a list, including tracebacks."""
+
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
+        """Initializes the handler and its message list."""
+        super().__init__(*args, **kwargs)
         self.messages: list[str] = []
+        self.setFormatter(logging.Formatter("%(message)s\n%(exc_text)s"))
 
     def emit(self, record: logging.LogRecord) -> None:
-        """Emits a log message."""
-        self.messages.append(str(record.msg))
+        """Appends the formatted log record to the message list."""
+        msg = self.format(record)
+        # The formatter adds "\nNone" for records without exceptions. Strip it.
+        if msg.endswith("\nNone"):
+            msg = msg[:-5]
+        self.messages.append(msg)
 
 
-@contextmanager
-def capture_log(logger: str = "beets") -> Iterator[list[str]]:
-    """Adds handler to capture beets' logs."""
-    capture = LogCapture()
-    logs = logging.getLogger(logger)
-    logs.addHandler(capture)
+@contextlib.contextmanager
+def capture_log_with_traceback(
+    logger_name: str = "beets",
+) -> Generator[list[str], None, None]:
+    """A context manager to capture log messages, including tracebacks."""
+    logger = logging.getLogger(logger_name)
+    handler = ListLogHandler()
+    logger.addHandler(handler)
     try:
-        yield capture.messages
+        yield handler.messages
     finally:
-        logs.removeHandler(capture)
+        logger.removeHandler(handler)
+
+
+def _load_module_from_path(module_name: str, module_path: str) -> types.ModuleType:
+    """Core helper to load a module from a specific file path."""
+    spec = importlib.util.spec_from_file_location(module_name, module_path)
+    if not (spec and spec.loader):
+        raise ImportError(
+            f"Could not create module spec for {module_name} at {module_path}"
+        )
+
+    module = importlib.util.module_from_spec(spec)
+    sys.modules[module_name] = module
+    spec.loader.exec_module(module)
+    return module
+
+
+def import_plugin_module_statically(module_name: str) -> types.ModuleType:
+    """Load a plugin module directly from its source file.
+
+    This is useful for unit tests that need to import a module statically,
+    bypassing the `beetsplug` package namespace and avoiding contamination
+    from integration tests that dynamically load plugins.
+    """
+    module_path = os.path.join(PROJECT_ROOT, f"beetsplug/{module_name}.py")
+
+    return _load_module_from_path(module_name, module_path)
+
+
+def _import_local_plugin(
+    module_path: str, class_name: str, module_name: str
+) -> type[BeetsPlugin]:
+    """Dynamically import a plugin class from a local file."""
+    if PROJECT_ROOT not in sys.path:
+        sys.path.insert(0, PROJECT_ROOT)
+
+    module = _load_module_from_path(module_name, module_path)
+
+    # Patch beetsplug namespace if needed
+    namespace, _, submodule = module_name.partition(".")
+    if namespace == "beetsplug" and submodule:
+        setattr(beetsplug, submodule, module)
+        sys.modules[f"beetsplug.{submodule}"] = module
+    return cast("type[BeetsPlugin]", getattr(module, class_name))
 
 
 @dataclass
@@ -153,6 +199,37 @@ class Assertions(_common.AssertionsMixin):
         """
         assert len(list(os.listdir(os.path.join(*segments)))) == count
 
+    def assert_halts_with_message(
+        self, command: str, message: str, **kwargs: Any
+    ) -> None:
+        """Runs a CLI command and asserts that it halts, either by raising an
+        AssertionError (older beets) or by logging an error (newer beets).
+        """
+        exception_caught = False
+
+        # TODO(gtronset): Refactor once Beets v2.3 is no longer supported:
+        # https://github.com/gtronset/beets-filetote/pull/231
+
+        # We cannot use `pytest.raises` here because this test needs to handle
+        # two valid outcomes: an exception being raised (older beets versions)
+        # or an error being logged (newer beets versions).
+        with capture_log_with_traceback() as logs:
+            try:
+                # The `self` here refers to the test case instance, which has this
+                # method.
+                self._run_cli_command(command, **kwargs)  # type: ignore[attr-defined]
+            except AssertionError as e:
+                # Older Beets versions might raise the exception.
+                exception_caught = True
+                assert message in str(e)  # noqa: PT017
+
+        if not exception_caught:
+            # Newer Beets versions swallow the exception and log it.
+            log_text = "".join(logs)
+            assert message in log_text, (
+                f"The expected warning '{message}' was not logged."
+            )
+
 
 class HelperUtils:
     """Helpful utilities for testing the plugin's actions."""
@@ -204,7 +281,7 @@ class FiletoteTestCase(_common.TestCase, Assertions, HelperUtils):
 
         other_plugins = other_plugins or []
 
-        self.load_plugins(other_plugins)
+        self.plugins = other_plugins
 
         self.lib_dir: bytes = os.path.join(self.temp_dir, b"testlib_dir")
 
@@ -241,30 +318,78 @@ class FiletoteTestCase(_common.TestCase, Assertions, HelperUtils):
 
     def tearDown(self) -> None:
         """Cleans up and closes the library connection."""
+        self.unload_plugins()
+
+        attrs_to_clear = [
+            ("plugins", "_instances"),
+            ("plugins", "_classes"),
+            ("plugins", "_event_listeners"),
+            ("plugins.BeetsPlugin", "listeners"),
+            ("plugins.BeetsPlugin", "_raw_listeners"),
+        ]
+
+        for obj_path, attr in attrs_to_clear:
+            try:
+                if "." in obj_path:
+                    module_path, class_name = obj_path.rsplit(".", 1)
+                    module = sys.modules[module_path]
+                    obj = getattr(module, class_name)
+                else:
+                    obj = sys.modules[obj_path]
+            except (KeyError, AttributeError):
+                # If the module or attribute doesn't exist, skip it.
+                log.warning("Could not resolve path %s for teardown.", obj_path)
+                continue
+
+            if hasattr(obj, attr):
+                val = getattr(obj, attr)
+                if val is not None and hasattr(val, "clear"):
+                    val.clear()
+
         self.lib._close()
         super().tearDown()
 
     def load_plugins(self, other_plugins: list[str]) -> None:
         """Loads and sets up the plugin(s) for the test module."""
         plugin_list: list[str] = ["filetote"]
-        plugin_class_list: list[Any] = [filetote.FiletotePlugin]
+        plugin_class_list: list[Any] = []
 
-        approved_plugins: dict[str, Any] = {
-            "audible": audible.Audible,
-            "convert": convert.ConvertPlugin,
-            "inline": inline.InlinePlugin,
+        root = Path(__file__).resolve().parents[1]
+
+        # Always load local Filetote
+        filetote_path = os.path.abspath(os.path.join(root, "beetsplug", "filetote.py"))
+        filetote_class = _import_local_plugin(
+            filetote_path, "FiletotePlugin", "beetsplug.filetote"
+        )
+        plugin_class_list.append(filetote_class)
+
+        stub_map = {
+            "audible": ("tests/stubs/audible.py", "Audible"),
+            "convert": ("tests/stubs/convert.py", "ConvertPlugin"),
+            "inline": ("tests/stubs/inline.py", "InlinePlugin"),
         }
 
         for other_plugin in other_plugins:
-            if other_plugin in approved_plugins:
-                plugin_class_list.append(approved_plugins[other_plugin])
+            if other_plugin in stub_map:
+                stub_path, class_name = stub_map[other_plugin]
+                abs_stub_path = os.path.abspath(stub_path)
+
+                plugin_class = _import_local_plugin(
+                    abs_stub_path, class_name, f"beetsplug.{other_plugin}"
+                )
+                plugin_class_list.append(plugin_class)
                 plugin_list.append(other_plugin)
             else:
                 raise AssertionError(f"Attempt to load unknown plugin: {other_plugin}")
 
         plugins._classes = set(plugin_class_list)
         config["plugins"] = plugin_list
-        plugins.load_plugins(plugin_list)
+
+        load_plugins_sig = inspect.signature(plugins.load_plugins)
+        if len(load_plugins_sig.parameters) == 1:
+            plugins.load_plugins(plugin_list)
+        else:
+            plugins.load_plugins()
 
     def unload_plugins(self) -> None:
         """Unload all plugins and remove the from the configuration."""
@@ -280,12 +405,29 @@ class FiletoteTestCase(_common.TestCase, Assertions, HelperUtils):
             for plugin_class in classes:
                 # Unregister listeners if they exist for the plugin
                 if plugin_class.listeners:
-                    for event in plugin_class.listeners:
-                        del plugin_class.listeners[event][0]
+                    for event in list(plugin_class.listeners):
+                        plugin_class.listeners[event].clear()
 
-                # Delete the plugin instance so a new one gets created for each
-                # test.
-                del plugins._instances[plugin_class]
+                # TODO(gtronset): Remove fallback once Beets v2.3 is no longer
+                # supported:
+                # https://github.com/gtronset/beets-filetote/pull/231
+
+                # Remove plugin instance(s) for both dict and list types
+                instances = plugins._instances
+                if isinstance(instances, dict):
+                    # Beets <2.5: dict[type, instance]
+                    if plugin_class in instances:
+                        del instances[plugin_class]
+                elif isinstance(instances, list):
+                    # Beets >=2.5: list of instances
+                    plugins._instances = [
+                        inst for inst in instances if not isinstance(inst, plugin_class)
+                    ]
+        for modname in list(sys.modules):
+            if modname.startswith("beetsplug.filetote") or modname.startswith(
+                "beetsplug.audible"
+            ):
+                del sys.modules[modname]
 
     def _run_cli_command(
         self, command: Literal["import", "modify", "move", "update"], **kwargs: Any
@@ -301,7 +443,8 @@ class FiletoteTestCase(_common.TestCase, Assertions, HelperUtils):
         log_string = f"Running CLI: {command}"
         log.debug(log_string)
 
-        plugins.find_plugins()
+        self.load_plugins(self.plugins)
+
         plugins.send("pluginload")
 
         # Get the function associated with the provided command name
@@ -351,8 +494,8 @@ class FiletoteTestCase(_common.TestCase, Assertions, HelperUtils):
         _run_cli_command().
         """
         commands.move_items(
-            lib=self.lib,
-            dest=dest_dir,
+            self.lib,
+            dest_dir,
             query=query,
             copy=copy,
             album=album,

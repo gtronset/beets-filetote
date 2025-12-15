@@ -26,12 +26,25 @@ jobs:
             matrix:
                 python-version: ["3.9", "3.10", "3.11", "3.12", "3.13"]
                 os: [ubuntu-24.04, windows-2022]
+                beets-version: ["latest"]
                 exclude:
                     - python-version: "3.13"
                       os: windows-2022
+                include:
+                    - python-version: "3.13"
+                      os: ubuntu-24.04
+                      beets-version: "2.3"
+                    - python-version: "3.13"
+                      os: ubuntu-24.04
+                      beets-version: "2.4"
 
         env:
-            TOXENV: ${{ matrix.python-version }}
+            TOXENV: >
+                ${{
+                    (matrix.beets-version == 'latest' && matrix.python-version) ||
+                    (matrix.beets-version == '2.3' && 'beets-2.3') ||
+                    (matrix.beets-version == '2.4' && 'beets-2.4')
+                }}
 
         runs-on: ${{ matrix.os }}
 
@@ -126,24 +139,30 @@ jobs:
               uses: actions/cache@v4
               with:
                   path: ${{ steps.pipx-env-setup.outputs.pipx-cache-path }}
-                  key: ${{ runner.os }}-python_${{ env.PYTHON_VERSION }}-pipx_${{ steps.pipx-env-setup.outputs.pipx-version }}-poetry_${{ env.POETRY_VERSION }}
+                  key: ${{ runner.os }}-python_${{ matrix.python-version }}-pipx_${{ steps.pipx-env-setup.outputs.pipx-version }}-poetry_${{ env.POETRY_VERSION }}-tox
 
             - name: Install Poetry & Tox
               if: steps.cache-pipx.outputs.cache-hit != 'true'
               run: |
                   pipx install poetry==${{ env.POETRY_VERSION }}
+                  pipx install tox
 
             - name: Setup Python ${{ matrix.python-version }}
               uses: actions/setup-python@v6
               with:
                   python-version: ${{ matrix.python-version }}
-                  cache: poetry
 
-            - name: Install poetry Dependencies
-              run: poetry install
+            - name: Cache tox environments
+              id: cache-tox
+              uses: actions/cache@v4
+              with:
+                  path: .tox
+                  key: tox-${{ runner.os }}-py-${{ matrix.python-version }}-${{ env.TOXENV }}-${{ hashFiles('**/pyproject.toml', '**/poetry.lock') }}
+                  restore-keys: |
+                      tox-${{ runner.os }}-py-${{ matrix.python-version }}-${{ env.TOXENV }}-
 
             - name: Run Tests
-              run: poetry run pytest
+              run: tox -e $TOXENV
 
     lint:
         runs-on: ubuntu-24.04

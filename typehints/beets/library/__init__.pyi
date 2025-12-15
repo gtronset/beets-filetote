@@ -1,12 +1,8 @@
-from collections.abc import Callable
 from re import Pattern
-from typing import Any
 
-from .dbcore import Database
-from .dbcore.db import Model
-
-class DefaultTemplateFunctions:
-    def functions(self) -> dict[str, Callable[..., Any]]: ...
+from ..dbcore import Database
+from ..dbcore.db import Model
+from .models import DefaultTemplateFunctions
 
 class Library(Database):
     path: bytes
@@ -28,3 +24,9 @@ class Item(LibModel):
     path: bytes
 
     def __init__(self) -> None: ...
+
+# TODO(gtronset): Remove export once Beets v2.3 is no longer supported:
+# https://github.com/gtronset/beets-filetote/pull/231
+__all__ = [
+    "DefaultTemplateFunctions",
+]
