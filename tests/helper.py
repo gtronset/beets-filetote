@@ -193,6 +193,37 @@ class Assertions(_common.AssertionsMixin):
         """
         assert len(list(os.listdir(os.path.join(*segments)))) == count
 
+    def assert_halts_with_message(
+        self, command: str, message: str, **kwargs: Any
+    ) -> None:
+        """Runs a CLI command and asserts that it halts, either by raising an
+        AssertionError (older beets) or by logging an error (newer beets).
+        """
+        exception_caught = False
+
+        # TODO(gtronset): Refactor once Beets v2.3 is no longer supported:
+        # https://github.com/gtronset/beets-filetote/pull/231
+
+        # We cannot use `pytest.raises` here because this test needs to handle
+        # two valid outcomes: an exception being raised (older beets versions)
+        # or an error being logged (newer beets versions).
+        with capture_log_with_traceback() as logs:
+            try:
+                # The `self` here refers to the test case instance, which has this
+                # method.
+                self._run_cli_command(command, **kwargs)  # type: ignore[attr-defined]
+            except AssertionError as e:
+                # Older Beets versions might raise the exception.
+                exception_caught = True
+                assert message in str(e)  # noqa: PT017
+
+        if not exception_caught:
+            # Newer Beets versions swallow the exception and log it.
+            log_text = "".join(logs)
+            assert message in log_text, (
+                f"The expected warning '{message}' was not logged."
+            )
+
 
 class HelperUtils:
     """Helpful utilities for testing the plugin's actions."""
