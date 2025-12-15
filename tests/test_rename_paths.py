@@ -13,7 +13,7 @@ log = logging.getLogger("beets")
 
 class FiletoteRenamePathsTest(FiletoteTestCase):
     """Tests to check that Filetote renames using custom path formats configured
-    either in the `paths` scetion of the overall config or in Filetote's.
+    either in the `paths` section of the overall config or in Filetote's.
     """
 
     def setUp(self, _other_plugins: Optional[list[str]] = None) -> None:

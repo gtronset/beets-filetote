@@ -737,7 +737,7 @@ filetote:
   exclude: song_lyrics.nfo album_description.nfo
 ```
 
-For now, the old configuration style is still supported but logged as depreacated. In a
+For now, the old configuration style is still supported but logged as deprecated. In a
 future version this setting will no longer be backwards compatible.
 
 ### `0.4.0`
