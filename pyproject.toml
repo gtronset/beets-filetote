@@ -138,7 +138,16 @@ keep-runtime-typing = true
 [tool.tox]
 requires = ["tox>=4.22"]
 min_version = "4.22"
-env_list = ["3.9", "3.10", "3.11", "3.12", "3.13"]
+env_list = [
+    "3.9",
+    "3.10",
+    "3.11",
+    "3.12",
+    "3.13",
+    "beets-2.3",
+    "beets-2.4",
+    # "beets-master",
+]
 
 [tool.tox.env_run_base]
 description = "Run test under {base_python}"
@@ -153,6 +162,28 @@ commands = [
         "--typeguard-packages=beetsplug",
     ],
 ]
+
+[tool.tox.env.beets-2.3]
+description = "Test with beets==2.3.1"
+commands_pre = []
+deps = ["beets==2.3.1", "pytest", "typeguard"]
+commands = [["pytest", "tests", "--typeguard-packages=beetsplug"]]
+
+[tool.tox.env.beets-2.4]
+description = "Test with beets==2.4.0"
+commands_pre = []
+deps = ["beets==2.4.0", "pytest", "typeguard"]
+commands = [["pytest", "tests", "--typeguard-packages=beetsplug"]]
+
+# [tool.tox.env.beets-master]
+# description = "Test with beets from master branch"
+# commands_pre = []
+# deps = [
+#     "beets @ git+https://github.com/beetbox/beets.git@master",
+#     "pytest",
+#     "typeguard",
+# ]
+# commands = [["pytest", "tests", "--typeguard-packages=beetsplug"]]
 
 [tool.tox.env.lint]
 description = "Lint source code"
