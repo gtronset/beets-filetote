@@ -1,0 +1,113 @@
+# yaml-language-server: $schema=https://json.schemastore.org/github-workflow.json
+
+name: Test Beets Master
+
+on:
+    schedule:
+        - cron: "0 0 * * 1" # Every Monday at midnight UTC
+    workflow_dispatch:
+
+jobs:
+    test-beets-master:
+        name: Test against beets@master
+        runs-on: ubuntu-24.04
+        # Failures are expected, so this ensures they don't send failure notifications.
+        continue-on-error: true
+
+        env:
+            TOXENV: beets-master
+            FFMPEG_VERSION: 7.1
+            POETRY_VERSION: 1.8.5
+            PYTHON_VERSION: 3.13
+
+        steps:
+            - uses: actions/checkout@v5
+
+            - name: Setup FFmpeg Environment Variables
+              id: ffmpeg-env-setup
+              run: |
+                  PATH_SEP="${{ !startsWith(runner.os, 'windows') && '/' || '\\' }}"
+                  echo "PATH_SEP=${PATH_SEP}" >> $GITHUB_ENV
+
+                  ffmpeg_dir="${{ github.workspace }}${PATH_SEP}ffmpeg_cache"
+
+                  echo "ffmpeg-cache-path=${ffmpeg_dir}" >> $GITHUB_OUTPUT
+                  echo "$ffmpeg_dir" >> $GITHUB_PATH
+
+            - name: Cache FFmpeg
+              uses: actions/cache@v4
+              with:
+                  path: ${{ steps.ffmpeg-env-setup.outputs.ffmpeg-cache-path }}
+                  key: ${{ runner.os }}-ffmpeg-${{ env.FFMPEG_VERSION }}
+
+            - name: Install FFmpeg (Ubuntu)
+              run: |
+                  # ffmpeg_linux_version=$(curl -L https://johnvansickle.com/ffmpeg/release-readme.txt 2> /dev/null | grep "version: " | cut -c 24-)
+                  ffmpeg_dir="${{ steps.ffmpeg-env-setup.outputs.ffmpeg-cache-path }}"
+
+                  echo "$ffmpeg_dir" >> "$GITHUB_PATH"
+
+                  # Only install if FFmpeg is not available
+                  if ! $(ffmpeg -version >/dev/null 2>&1) ; then
+                  # linux_url='https://johnvansickle.com/ffmpeg/releases/ffmpeg-${{ env.FFMPEG_VERSION }}-amd64-static.tar.xz'
+                  linux_url="https://github.com/BtbN/FFmpeg-Builds/releases/download/latest/ffmpeg-n${{ env.FFMPEG_VERSION }}-latest-linux64-lgpl-${{ env.FFMPEG_VERSION }}.tar.xz"
+
+
+                  temp_ffmpeg_archive="${{ github.workspace }}\temp_ffmpeg_archive.tar.xz"
+
+                  curl -L "$linux_url" -o "$temp_ffmpeg_archive"
+                  mkdir "$ffmpeg_dir" || true
+
+                  tar -xf "$temp_ffmpeg_archive" --wildcards -O "**/ffmpeg" > "$ffmpeg_dir/ffmpeg"
+                  tar -xf "$temp_ffmpeg_archive" --wildcards -O "**/ffprobe" > "$ffmpeg_dir/ffprobe"
+                  tar -xf "$temp_ffmpeg_archive" --wildcards -O "**/LICENSE.txt" > "$ffmpeg_dir/LICENSE"
+
+                  # Ensure these can be executed
+                  chmod +x "$ffmpeg_dir/ffmpeg" "$ffmpeg_dir/ffprobe"
+
+                  rm -rf "$temp_ffmpeg_archive"
+                  fi
+
+            - name: Setup Pipx Environment Variables
+              id: pipx-env-setup
+              run: |
+                  PATH_SEP="${{ !startsWith(runner.os, 'windows') && '/' || '\\' }}"
+                  echo "PATH_SEP=${PATH_SEP}" >> $GITHUB_ENV
+
+                  PIPX_CACHE="${{ github.workspace }}${PATH_SEP}pipx_cache"
+                  echo "pipx-cache-path=${PIPX_CACHE}" >> $GITHUB_OUTPUT
+                  echo "pipx-version=$(pipx --version)" >> $GITHUB_OUTPUT
+                  echo "PIPX_HOME=${PIPX_CACHE}${PATH_SEP}home" >> $GITHUB_ENV
+                  echo "PIPX_BIN_DIR=${PIPX_CACHE}${PATH_SEP}bin" >> $GITHUB_ENV
+                  echo "PIPX_MAN_DIR=${PIPX_CACHE}${PATH_SEP}man" >> $GITHUB_ENV
+                  echo "${PIPX_CACHE}${PATH_SEP}bin" >> $GITHUB_PATH
+
+            - name: Cache Pipx
+              id: cache-pipx
+              uses: actions/cache@v4
+              with:
+                  path: ${{ steps.pipx-env-setup.outputs.pipx-cache-path }}
+                  key: ${{ runner.os }}-python_${{ env.PYTHON_VERSION }}-pipx_${{ steps.pipx-env-setup.outputs.pipx-version }}-poetry_${{ env.POETRY_VERSION }}-tox
+
+            - name: Install Poetry & Tox
+              if: steps.cache-pipx.outputs.cache-hit != 'true'
+              run: |
+                  pipx install poetry==${{ env.POETRY_VERSION }}
+                  pipx install tox
+
+            - name: Setup Python ${{ env.PYTHON_VERSION }}
+              uses: actions/setup-python@v6
+              with:
+                  python-version: ${{ env.PYTHON_VERSION }}
+
+            - name: Cache tox environments
+              id: cache-tox
+              uses: actions/cache@v4
+              with:
+                  path: .tox
+                  key: tox-${{ runner.os }}-py-${{ env.PYTHON_VERSION }}-${{ env.TOXENV }}-${{ hashFiles('**/pyproject.toml', '**/poetry.lock') }}
+                  restore-keys: |
+                      tox-${{ runner.os }}-py-${{ env.PYTHON_VERSION }}-${{ env.TOXENV }}-
+
+            - name: Run Tests
+              run: tox -e $TOXENV
