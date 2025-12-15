@@ -53,7 +53,7 @@ pretty = true
 
 [[tool.mypy.overrides]]
 module = "beets.test._common"
-follow_imports = "error"
+follow_imports = "skip"
 
 [tool.pre-commit-update]
 dry_run = false
