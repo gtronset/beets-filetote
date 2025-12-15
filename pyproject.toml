@@ -51,6 +51,10 @@ explicit_package_bases = true
 strict = true
 pretty = true
 
+[[tool.mypy.overrides]]
+module = "beets.test._common"
+follow_imports = "error"
+
 [tool.pre-commit-update]
 dry_run = false
 all_versions = false
