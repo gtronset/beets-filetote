@@ -13,6 +13,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Improve Hardlink, Reflink, and Symlink probing in Tests <https://github.com/gtronset/beets-filetote/pull/223>
 - Update Filetote to allow for newer Beets versions (2.4 & 2.5) and improve testing <https://github.com/gtronset/beets-filetote/pull/231>
+- Update Precommit & CHANGELOG <https://github.com/gtronset/beets-filetote/pull/235>
+- Update Dependencies:
+    - Bump actions/checkout from 5 to 6 <https://github.com/gtronset/beets-filetote/pull/225>
+    - Bump crate-ci/typos from 1.36.3 to 1.40.0 <https://github.com/gtronset/beets-filetote/pull/228>
+    - Bump peter-evans/create-pull-request from 7 to 8 <https://github.com/gtronset/beets-filetote/pull/232>
+    - Bump DavidAnson/markdownlint-cli2-action from 20 to 22 <https://github.com/gtronset/beets-filetote/pull/233>
+    - Bump actions/cache from 4 to 5 <https://github.com/gtronset/beets-filetote/pull/234>
 
 ## [1.1.0] - 2025-09-28
 
