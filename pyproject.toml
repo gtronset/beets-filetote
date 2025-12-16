@@ -38,6 +38,7 @@ ruff = "^0.14.9"
 [tool.poetry.group.test.dependencies]
 pytest = "^8.0.0"
 typeguard = "^4.4.0"
+pytest-xdist = "^3.8.0"
 
 [build-system]
 requires = ["poetry-core<2.0.0"]
@@ -160,6 +161,8 @@ commands = [
         "poetry",
         "run",
         "pytest",
+        "-n",
+        "auto",
         "tests",
         "--typeguard-packages=beetsplug",
     ],
@@ -168,14 +171,14 @@ commands = [
 [tool.tox.env.beets-2.3]
 description = "Test with beets==2.3.1"
 commands_pre = []
-deps = ["beets==2.3.1", "pytest", "typeguard"]
-commands = [["pytest", "tests", "--typeguard-packages=beetsplug"]]
+deps = ["beets==2.3.1", "pytest", "pytest-xdist", "typeguard"]
+commands = [["pytest", "-n", "auto", "tests", "--typeguard-packages=beetsplug"]]
 
 [tool.tox.env.beets-2.4]
 description = "Test with beets==2.4.0"
 commands_pre = []
-deps = ["beets==2.4.0", "pytest", "typeguard"]
-commands = [["pytest", "tests", "--typeguard-packages=beetsplug"]]
+deps = ["beets==2.4.0", "pytest", "pytest-xdist", "typeguard"]
+commands = [["pytest", "-n", "auto", "tests", "--typeguard-packages=beetsplug"]]
 
 [tool.tox.env.beets-master]
 description = "Test with beets from master branch"
@@ -183,9 +186,10 @@ commands_pre = []
 deps = [
     "beets @ git+https://github.com/beetbox/beets.git@master",
     "pytest",
+    "pytest-xdist",
     "typeguard",
 ]
-commands = [["pytest", "tests", "--typeguard-packages=beetsplug"]]
+commands = [["pytest", "-n", "auto", "tests", "--typeguard-packages=beetsplug"]]
 
 [tool.tox.env.lint]
 description = "Lint source code"
