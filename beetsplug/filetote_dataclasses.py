@@ -11,6 +11,7 @@ from sys import version_info
 from typing import (
     TYPE_CHECKING,
     Any,
+    Callable,
     Literal,
     Optional,
     Union,
@@ -150,6 +151,17 @@ class FiletotePairingData:
                 _validate_types_str_seq(
                     ["pairing", field_.name], field_value, DEFAULT_ALL_GLOB
                 )
+
+
+@dataclass
+class FiletoteRun:
+    """Holds the state for a single Filetote run within a Beets command."""
+
+    imported_items_paths: dict[int, PathBytes] = field(default_factory=dict)
+    process_queue: list[FiletoteArtifactCollection] = field(default_factory=list)
+    shared_artifacts: dict[PathBytes, list[PathBytes]] = field(default_factory=dict)
+    dirs_seen: list[PathBytes] = field(default_factory=list)
+    convert_early_import_stages: list[Callable[..., None]] = field(default_factory=list)
 
 
 @dataclass

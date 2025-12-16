@@ -25,6 +25,7 @@ from .filetote_dataclasses import (
     FiletoteArtifact,
     FiletoteArtifactCollection,
     FiletoteConfig,
+    FiletoteRun,
     PathBytes,
 )
 from .mapping_model import FiletoteMappingFormatted, FiletoteMappingModel
@@ -81,11 +82,8 @@ class FiletotePlugin(BeetsPlugin):
             "filetote:default",
         ]
         self._path_default: Template = Template("$albumpath/$old_filename")
-        self._imported_items_paths: dict[int, PathBytes] = {}
-        self._process_queue: list[FiletoteArtifactCollection] = []
-        self._shared_artifacts: dict[PathBytes, list[PathBytes]] = {}
-        self._dirs_seen: list[PathBytes] = []
-        self._convert_early_import_stages: list[Callable[..., None]] = []
+
+        self._run_state: FiletoteRun = FiletoteRun()
 
         # Register listeners for beets events.
         self.early_import_stages = [self._get_imported_items_paths]
@@ -170,14 +168,15 @@ class FiletotePlugin(BeetsPlugin):
 
         Also runs/initializes any early stages that `convert` provides, if it is loaded.
         """
-        self._imported_items_paths = {
+        self._run_state.imported_items_paths = {
             item.id: item.path for item in task.imported_items()
         }
 
-        # If `convert` is not loaded, `self._convert_early_import_stages` is empty
+        # If `convert` is not loaded, `self._run_state.convert_early_import_stages` is
+        # empty.
         [
             convert_early_stage(session, task)
-            for convert_early_stage in self._convert_early_import_stages
+            for convert_early_stage in self._run_state.convert_early_import_stages
         ]
 
     def _register_file_operation_events(self) -> None:
@@ -289,7 +288,9 @@ class FiletotePlugin(BeetsPlugin):
                 convert_early_import_stages = plugin.early_import_stages
                 if convert_early_import_stages:
                     plugin.early_import_stages = []
-                    self._convert_early_import_stages = convert_early_import_stages
+                    self._run_state.convert_early_import_stages = (
+                        convert_early_import_stages
+                    )
 
             if plugin.name == "audible":
                 BEETS_FILE_TYPES.update({"m4b": "M4B"})
@@ -359,8 +360,10 @@ class FiletotePlugin(BeetsPlugin):
 
         # Needed to in cases where another plugin has overridden the Item.path
         # (ex: `convert`), otherwise, the path is a temp directory.
-        if item.id in self._imported_items_paths:
-            imported_item_path: PathBytes = self._imported_items_paths[item.id]
+        if item.id in self._run_state.imported_items_paths:
+            imported_item_path: PathBytes = self._run_state.imported_items_paths[
+                item.id
+            ]
             if imported_item_path != source:
                 source = imported_item_path
 
@@ -548,9 +551,12 @@ class FiletotePlugin(BeetsPlugin):
 
         # Check to see if "pairing" is enabled and, if so, check if there are
         # artifacts to look at
-        if self.filetote_config.pairing.enabled and self._shared_artifacts[source_path]:
+        if (
+            self.filetote_config.pairing.enabled
+            and self._run_state.shared_artifacts[source_path]
+        ):
             # Iterate through shared artifacts to find paired matches
-            for artifact_path in self._shared_artifacts[source_path]:
+            for artifact_path in self._run_state.shared_artifacts[source_path]:
                 artifact_filename: PathBytes
                 artifact_ext: PathBytes
                 artifact_filename, artifact_ext = os.path.splitext(
@@ -567,12 +573,12 @@ class FiletotePlugin(BeetsPlugin):
 
                     # Remove from shared artifacts, as the item-move will
                     # handle this file.
-                    self._shared_artifacts[source_path].remove(artifact_path)
+                    self._run_state.shared_artifacts[source_path].remove(artifact_path)
 
             self._update_multimove_artifacts(beets_item, source, destination)
 
             if queue_artifacts:
-                self._process_queue.append(
+                self._run_state.process_queue.append(
                     FiletoteArtifactCollection(
                         artifacts=queue_artifacts,
                         mapping=self._generate_mapping(beets_item, destination),
@@ -592,11 +598,11 @@ class FiletotePlugin(BeetsPlugin):
         the Item then to the Album. This ensures the final destination is correctly
         applied for the artifact.
         """
-        for index, artifact_collection in enumerate(self._process_queue):
+        for index, artifact_collection in enumerate(self._run_state.process_queue):
             artifact_item_dest: PathBytes = artifact_collection.item_dest
 
             if artifact_item_dest == source:
-                self._process_queue[index] = FiletoteArtifactCollection(
+                self._run_state.process_queue[index] = FiletoteArtifactCollection(
                     artifacts=artifact_collection.artifacts,
                     mapping=self._generate_mapping(beets_item, destination),
                     source_path=artifact_collection.source_path,
@@ -630,7 +636,7 @@ class FiletotePlugin(BeetsPlugin):
         queue_files: list[FiletoteArtifact] = []
 
         # Check if this path has not already been processed
-        if source_path in self._dirs_seen:
+        if source_path in self._run_state.dirs_seen:
             self._collect_paired_artifacts(beets_item, source, destination)
             return
 
@@ -659,7 +665,7 @@ class FiletotePlugin(BeetsPlugin):
 
         self._update_multimove_artifacts(beets_item, source, destination)
 
-        self._process_queue.append(
+        self._run_state.process_queue.append(
             FiletoteArtifactCollection(
                 artifacts=queue_files,
                 mapping=self._generate_mapping(beets_item, destination),
@@ -667,9 +673,9 @@ class FiletotePlugin(BeetsPlugin):
                 item_dest=destination,
             )
         )
-        self._dirs_seen.append(source_path)
+        self._run_state.dirs_seen.append(source_path)
 
-        self._shared_artifacts[source_path] = non_handled_files
+        self._run_state.shared_artifacts[source_path] = non_handled_files
 
     def process_events(self, lib: Library) -> None:
         """Triggered by the CLI exit event, which itself triggers the processing and
@@ -679,7 +685,7 @@ class FiletotePlugin(BeetsPlugin):
         self.filetote_config.session.adjust("_beets_lib", lib)
 
         artifact_collection: FiletoteArtifactCollection
-        for artifact_collection in self._process_queue:
+        for artifact_collection in self._run_state.process_queue:
             artifacts: list[FiletoteArtifact] = artifact_collection.artifacts
 
             source_path: PathBytes = artifact_collection.source_path
@@ -687,10 +693,10 @@ class FiletotePlugin(BeetsPlugin):
             if not self.filetote_config.pairing.pairing_only:
                 artifacts.extend(
                     FiletoteArtifact(path=shared_artifact, paired=False)
-                    for shared_artifact in self._shared_artifacts[source_path]
+                    for shared_artifact in self._run_state.shared_artifacts[source_path]
                 )
 
-            self._shared_artifacts[source_path] = []
+            self._run_state.shared_artifacts[source_path] = []
 
             self.process_artifacts(
                 source_path=source_path,
