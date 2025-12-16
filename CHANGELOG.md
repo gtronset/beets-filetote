@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - Run Pytest in Parallel <https://github.com/gtronset/beets-filetote/pull/237>
+- Use `numpy` >v2.1 for Py313+ <https://github.com/gtronset/beets-filetote/pull/238>
 
 ## [1.1.1] - 2025-12-15
 
