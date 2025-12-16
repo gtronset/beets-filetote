@@ -70,7 +70,47 @@ class FiletotePlugin(BeetsPlugin):
         # Set default plugin config settings
         self.config.add(FiletoteConfig().asdict())
 
-        self.filetote: FiletoteConfig = FiletoteConfig(
+        # Filetote configuration is set during the `pluginload` event
+        self._filetote: FiletoteConfig | None = None
+
+        self._path_queries: FiletoteQueries = [
+            "ext:",
+            "filename:",
+            "paired_ext:",
+            "pattern:",
+            "filetote:default",
+        ]
+        self._path_default: Template = Template("$albumpath/$old_filename")
+        self._imported_items_paths: dict[int, PathBytes] = {}
+        self._process_queue: list[FiletoteArtifactCollection] = []
+        self._shared_artifacts: dict[PathBytes, list[PathBytes]] = {}
+        self._dirs_seen: list[PathBytes] = []
+        self._convert_early_import_stages: list[Callable[..., None]] = []
+
+        # Register listeners for beets events.
+        self.early_import_stages = [self._get_imported_items_paths]
+        self._register_file_operation_events()
+
+    @property
+    def filetote(self) -> FiletoteConfig:
+        """The Filetote configuration object.
+
+        This property acts as a guard to ensure that the configuration is
+        loaded before it is accessed. It raises a RuntimeError if accessed
+        too early.
+        """
+        if self._filetote is None:
+            raise RuntimeError("Filetote configuration not yet loaded.")
+        return self._filetote
+
+    def _refresh_plugin_config(self) -> None:
+        """Refresh derived configuration from the current Beets config state."""
+        # Preserve the existing session data if this is a refresh.
+        previous_session = self._filetote
+        session_data = previous_session.session if previous_session else None
+
+        # Create a new config object with the latest settings.
+        filetote = FiletoteConfig(
             extensions=self.config["extensions"].as_str_seq(),
             filenames=self.config["filenames"].as_str_seq(),
             patterns=self.config["patterns"].get(dict),
@@ -78,9 +118,15 @@ class FiletotePlugin(BeetsPlugin):
             print_ignored=self.config["print_ignored"].get(bool),
         )
 
-        if isinstance(self.config["exclude"].get(), (str, list)):
-            self.filetote.adjust("exclude", self.config["exclude"].as_str_seq())
+        # Restore the session data to the new config object.
+        if session_data:
+            filetote.session = session_data
 
+        # Handle the deprecated 'exclude' format.
+        exclude_view = self.config["exclude"]
+        exclude_value = exclude_view.get()
+        if isinstance(exclude_value, (str, list)):
+            filetote.adjust("exclude", exclude_view.as_str_seq())
             self._log.warning(
                 "Deprecation warning: The `exclude` plugin should now use the explicit"
                 " settings of `filenames`, `extensions`, and/or `patterns`. See the"
@@ -88,9 +134,10 @@ class FiletotePlugin(BeetsPlugin):
                 " https://github.com/gtronset/beets-filetote#excluding-files"
             )
         else:
-            self.filetote.adjust("exclude", self.config["exclude"].get(dict))
+            filetote.adjust("exclude", exclude_view.get(dict))
 
-        self.filetote.adjust(
+        # Read the 'pairing' configuration.
+        filetote.adjust(
             "pairing",
             {
                 "enabled": self.config["pairing"]["enabled"].get(bool),
@@ -99,29 +146,11 @@ class FiletotePlugin(BeetsPlugin):
             },
         )
 
-        queries: FiletoteQueries = [
-            "ext:",
-            "filename:",
-            "paired_ext:",
-            "pattern:",
-            "filetote:default",
-        ]
-        path_default: Template = Template("$albumpath/$old_filename")
-
-        self._path_formats: dict[str, Template] = self._get_filetote_path_formats(
-            queries, path_default
+        # Update the main plugin attributes.
+        self._filetote = filetote
+        self._path_formats = self._get_filetote_path_formats(
+            self._path_queries, self._path_default
         )
-
-        self._imported_items_paths: dict[int, PathBytes] = {}
-        self._process_queue: list[FiletoteArtifactCollection] = []
-        self._shared_artifacts: dict[PathBytes, list[PathBytes]] = {}
-        self._dirs_seen: list[PathBytes] = []
-
-        self.early_import_stages = [self._get_imported_items_paths]
-
-        self._convert_early_import_stages: list[Callable[..., None]] = []
-
-        self._register_file_operation_events()
 
     def _get_imported_items_paths(
         self, session: ImportSession, task: ImportTask
@@ -243,6 +272,9 @@ class FiletotePlugin(BeetsPlugin):
         file or media, since MediaFile.TYPES isn't fundamentally a complete
         list of files by extension.
         """
+        # Refresh config to capture any changes from other plugins.
+        self._refresh_plugin_config()
+
         # Mutate the global BEETS_FILE_TYPES dictionary in-place
         BEETS_FILE_TYPES.update({
             "m4a": "M4A",
@@ -253,9 +285,9 @@ class FiletotePlugin(BeetsPlugin):
         for plugin in find_plugins():
             if plugin.name == "convert":
                 convert_early_import_stages = plugin.early_import_stages
-                plugin.early_import_stages = []
-
-                self._convert_early_import_stages = convert_early_import_stages
+                if convert_early_import_stages:
+                    plugin.early_import_stages = []
+                    self._convert_early_import_stages = convert_early_import_stages
 
             if plugin.name == "audible":
                 BEETS_FILE_TYPES.update({"m4b": "M4B"})
@@ -436,8 +468,10 @@ class FiletotePlugin(BeetsPlugin):
         )
 
         album_path: str | None = mapping_formatted.get("albumpath")
-        # Sanity check for mypy in cases where album_path is None
-        assert album_path is not None
+        if album_path is None:
+            raise ValueError(
+                "Could not determine `albumpath` for artifact destination."
+            )
 
         # Get template functions and evaluate against mapping
         template_functions = DefaultTemplateFunctions().functions()

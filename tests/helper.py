@@ -445,8 +445,6 @@ class FiletoteTestCase(_common.TestCase, Assertions, HelperUtils):
 
         self.load_plugins(self.plugins)
 
-        plugins.send("pluginload")
-
         # Get the function associated with the provided command name
         command_func = getattr(self, f"_run_cli_{command}")
 
