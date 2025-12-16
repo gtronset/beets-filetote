@@ -63,9 +63,9 @@ class FiletoteExcludeTest(FiletoteTestCase):
         logs = [line for line in logs if line.startswith("filetote:")]
         assert logs == [
             (
-                "filetote: Deprecation warning: The `exclude` plugin should now use the"
-                " explicit settings of `filenames`, `extensions`, and/or `patterns`."
-                " See the `exclude` documentation for more details:"
+                "filetote: Deprecation warning: The `exclude` setting should now use"
+                " the explicit settings of `filenames`, `extensions`, and/or"
+                " `patterns`. See the `exclude` documentation for more details:"
                 " https://github.com/gtronset/beets-filetote#excluding-files"
             )
         ]
@@ -105,9 +105,9 @@ class FiletoteExcludeTest(FiletoteTestCase):
         logs = [line for line in logs if line.startswith("filetote:")]
         assert logs == [
             (
-                "filetote: Deprecation warning: The `exclude` plugin should now use the"
-                " explicit settings of `filenames`, `extensions`, and/or `patterns`."
-                " See the `exclude` documentation for more details:"
+                "filetote: Deprecation warning: The `exclude` setting should now use"
+                " the explicit settings of `filenames`, `extensions`, and/or"
+                " `patterns`. See the `exclude` documentation for more details:"
                 " https://github.com/gtronset/beets-filetote#excluding-files"
             )
         ]

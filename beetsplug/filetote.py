@@ -71,7 +71,7 @@ class FiletotePlugin(BeetsPlugin):
         self.config.add(FiletoteConfig().asdict())
 
         # Filetote configuration is set during the `pluginload` event
-        self._filetote: FiletoteConfig | None = None
+        self._filetote_config: FiletoteConfig | None = None
 
         self._path_queries: FiletoteQueries = [
             "ext:",
@@ -92,22 +92,24 @@ class FiletotePlugin(BeetsPlugin):
         self._register_file_operation_events()
 
     @property
-    def filetote(self) -> FiletoteConfig:
+    def filetote_config(self) -> FiletoteConfig:
         """The Filetote configuration object.
 
         This property acts as a guard to ensure that the configuration is
         loaded before it is accessed. It raises a RuntimeError if accessed
         too early.
         """
-        if self._filetote is None:
+        if self._filetote_config is None:
             raise RuntimeError("Filetote configuration not yet loaded.")
-        return self._filetote
+        return self._filetote_config
 
-    def _refresh_plugin_config(self) -> None:
+    def _refresh_filetote_config(self) -> None:
         """Refresh derived configuration from the current Beets config state."""
         # Preserve the existing session data if this is a refresh.
-        previous_session = self._filetote
-        session_data = previous_session.session if previous_session else None
+        previous_filetote_config = self._filetote_config
+        session_data = (
+            previous_filetote_config.session if previous_filetote_config else None
+        )
 
         # Create a new config object with the latest settings.
         filetote = FiletoteConfig(
@@ -123,18 +125,18 @@ class FiletotePlugin(BeetsPlugin):
             filetote.session = session_data
 
         # Handle the deprecated 'exclude' format.
-        exclude_view = self.config["exclude"]
-        exclude_value = exclude_view.get()
-        if isinstance(exclude_value, (str, list)):
-            filetote.adjust("exclude", exclude_view.as_str_seq())
+        exclusion_config = self.config["exclude"]
+        exclusion_config_value = exclusion_config.get()
+        if isinstance(exclusion_config_value, (str, list)):
+            filetote.adjust("exclude", exclusion_config.as_str_seq())
             self._log.warning(
-                "Deprecation warning: The `exclude` plugin should now use the explicit"
+                "Deprecation warning: The `exclude` setting should now use the explicit"
                 " settings of `filenames`, `extensions`, and/or `patterns`. See the"
                 " `exclude` documentation for more details:"
                 " https://github.com/gtronset/beets-filetote#excluding-files"
             )
         else:
-            filetote.adjust("exclude", exclude_view.get(dict))
+            filetote.adjust("exclude", exclusion_config.get(dict))
 
         # Read the 'pairing' configuration.
         filetote.adjust(
@@ -147,7 +149,7 @@ class FiletotePlugin(BeetsPlugin):
         )
 
         # Update the main plugin attributes.
-        self._filetote = filetote
+        self._filetote_config = filetote
         self._path_formats = self._get_filetote_path_formats(
             self._path_queries, self._path_default
         )
@@ -240,7 +242,7 @@ class FiletotePlugin(BeetsPlugin):
         """
         path_formats: dict[str, str | Template] = {"filetote:default": path_default}
 
-        path_formats |= self.filetote.paths
+        path_formats |= self.filetote_config.paths
 
         beets_path_query: str
         beets_path_format: Template
@@ -249,7 +251,7 @@ class FiletotePlugin(BeetsPlugin):
             for filetote_query in queries:
                 if (
                     beets_path_query.startswith(filetote_query)
-                    and beets_path_query not in self.filetote.paths
+                    and beets_path_query not in self.filetote_config.paths
                 ):
                     path_formats[beets_path_query] = beets_path_format
 
@@ -273,7 +275,7 @@ class FiletotePlugin(BeetsPlugin):
         list of files by extension.
         """
         # Refresh config to capture any changes from other plugins.
-        self._refresh_plugin_config()
+        self._refresh_filetote_config()
 
         # Mutate the global BEETS_FILE_TYPES dictionary in-place
         BEETS_FILE_TYPES.update({
@@ -296,14 +298,14 @@ class FiletotePlugin(BeetsPlugin):
         """Certain settings are only available and/or finalized once the
         Beets import session begins.
         """
-        self.filetote.session.adjust("operation", self._import_operation_type())
+        self.filetote_config.session.adjust("operation", self._import_operation_type())
 
         import_path: PathBytes | None = None
 
         if session.paths:
             import_path = os.path.expanduser(session.paths[0])
 
-        self.filetote.session.import_path = import_path
+        self.filetote_config.session.import_path = import_path
 
     def _import_operation_type(self) -> MoveOperation | None:
         """Returns the file manipulations type. This prioritizes `move` over copy if
@@ -350,8 +352,10 @@ class FiletotePlugin(BeetsPlugin):
         for similar aforementioned CLI commands.
         """
         # Determine the operation type if not already present
-        if not self.filetote.session.operation:
-            self.filetote.session.adjust("operation", self._event_operation_type(event))
+        if not self.filetote_config.session.operation:
+            self.filetote_config.session.adjust(
+                "operation", self._event_operation_type(event)
+            )
 
         # Needed to in cases where another plugin has overridden the Item.path
         # (ex: `convert`), otherwise, the path is a temp directory.
@@ -480,7 +484,7 @@ class FiletotePlugin(BeetsPlugin):
             + artifact_ext
         )
 
-        replacements = self.filetote.session.beets_lib.replacements
+        replacements = self.filetote_config.session.beets_lib.replacements
 
         # Sanitize filename
         artifact_filename_sanitized: str = util.sanitize_path(
@@ -544,7 +548,7 @@ class FiletotePlugin(BeetsPlugin):
 
         # Check to see if "pairing" is enabled and, if so, check if there are
         # artifacts to look at
-        if self.filetote.pairing.enabled and self._shared_artifacts[source_path]:
+        if self.filetote_config.pairing.enabled and self._shared_artifacts[source_path]:
             # Iterate through shared artifacts to find paired matches
             for artifact_path in self._shared_artifacts[source_path]:
                 artifact_filename: PathBytes
@@ -642,10 +646,10 @@ class FiletotePlugin(BeetsPlugin):
                 if self._is_beets_file_type(file_ext):
                     continue
 
-                if not self.filetote.pairing.enabled:
+                if not self.filetote_config.pairing.enabled:
                     queue_files.append(FiletoteArtifact(path=source_file, paired=False))
                 elif (
-                    self.filetote.pairing.enabled
+                    self.filetote_config.pairing.enabled
                     and file_name == item_source_filename
                     and self._is_valid_paired_extension(file_ext)
                 ):
@@ -672,7 +676,7 @@ class FiletotePlugin(BeetsPlugin):
         manipulation of the extra files and artifacts.
         """
         # Ensure destination library settings are accessible
-        self.filetote.session.adjust("_beets_lib", lib)
+        self.filetote_config.session.adjust("_beets_lib", lib)
 
         artifact_collection: FiletoteArtifactCollection
         for artifact_collection in self._process_queue:
@@ -680,7 +684,7 @@ class FiletotePlugin(BeetsPlugin):
 
             source_path: PathBytes = artifact_collection.source_path
 
-            if not self.filetote.pairing.pairing_only:
+            if not self.filetote_config.pairing.pairing_only:
                 artifacts.extend(
                     FiletoteArtifact(path=shared_artifact, paired=False)
                     for shared_artifact in self._shared_artifacts[source_path]
@@ -696,9 +700,9 @@ class FiletotePlugin(BeetsPlugin):
 
     def _is_valid_paired_extension(self, artifact_file_ext: str | PathBytes) -> bool:
         return (
-            ".*" in self.filetote.pairing.extensions
+            ".*" in self.filetote_config.pairing.extensions
             or util.displayable_path(artifact_file_ext)
-            in self.filetote.pairing.extensions
+            in self.filetote_config.pairing.extensions
         )
 
     def _is_pattern_match(
@@ -712,7 +716,7 @@ class FiletotePlugin(BeetsPlugin):
 
         if match_category:
             pattern_definitions = [
-                (match_category, self.filetote.patterns[match_category])
+                (match_category, self.filetote_config.patterns[match_category])
             ]
 
         for category, patterns in pattern_definitions:
@@ -760,14 +764,16 @@ class FiletotePlugin(BeetsPlugin):
 
         is_exclude_pattern_match: bool
         is_exclude_pattern_match, _category = self._is_pattern_match(
-            artifact_relpath=relpath, patterns_dict=self.filetote.exclude.patterns
+            artifact_relpath=relpath,
+            patterns_dict=self.filetote_config.exclude.patterns,
         )
 
         # Skip if filename is explicitly in `exclude`
         if (
-            util.displayable_path(artifact_file_ext) in self.filetote.exclude.extensions
+            util.displayable_path(artifact_file_ext)
+            in self.filetote_config.exclude.extensions
             or util.displayable_path(artifact_filename)
-            in self.filetote.exclude.filenames
+            in self.filetote_config.exclude.filenames
             or is_exclude_pattern_match
         ):
             return (True, None)
@@ -781,13 +787,15 @@ class FiletotePlugin(BeetsPlugin):
         is_pattern_match: bool
         category: str | None
         is_pattern_match, category = self._is_pattern_match(
-            artifact_relpath=relpath, patterns_dict=self.filetote.patterns
+            artifact_relpath=relpath, patterns_dict=self.filetote_config.patterns
         )
 
         if (
-            ".*" not in self.filetote.extensions
-            and util.displayable_path(artifact_file_ext) not in self.filetote.extensions
-            and util.displayable_path(artifact_filename) not in self.filetote.filenames
+            ".*" not in self.filetote_config.extensions
+            and util.displayable_path(artifact_file_ext)
+            not in self.filetote_config.extensions
+            and util.displayable_path(artifact_filename)
+            not in self.filetote_config.filenames
             and not is_pattern_match
             and not (
                 artifact_paired and self._is_valid_paired_extension(artifact_file_ext)
@@ -905,7 +913,7 @@ class FiletotePlugin(BeetsPlugin):
             # files. (Out-of-library files are copied/moved as usual).
             reimport: bool = self._is_reimport()
 
-            operation: MoveOperation | None = self.filetote.session.operation
+            operation: MoveOperation | None = self.filetote_config.session.operation
 
             self.manipulate_artifact(
                 operation, artifact_source, artifact_dest, reimport
@@ -926,7 +934,7 @@ class FiletotePlugin(BeetsPlugin):
 
     def print_ignored_artifacts(self, ignored_artifacts: list[PathBytes]) -> None:
         """If enabled in config, output ignored files to beets logs."""
-        if self.filetote.print_ignored and ignored_artifacts:
+        if self.filetote_config.print_ignored and ignored_artifacts:
             self._log.warning("Ignored files:")
             for artifact_filename in ignored_artifacts:
                 self._log.warning("   {0}", os.path.basename(artifact_filename))
@@ -951,8 +959,8 @@ class FiletotePlugin(BeetsPlugin):
         Copy and link modes treat reimports specially, where in-library files
         are moved.
         """
-        library_dir = self.filetote.session.beets_lib.directory
-        import_path = self.filetote.session.import_path
+        library_dir = self.filetote_config.session.beets_lib.directory
+        import_path = self.filetote_config.session.import_path
 
         return self._is_import_path_same_as_library_dir(
             import_path, library_dir
@@ -965,8 +973,8 @@ class FiletotePlugin(BeetsPlugin):
         when moving. If the import path matches the library directory or is
         within it, the root path is selected. Otherwise, returns None.
         """
-        library_dir = self.filetote.session.beets_lib.directory
-        import_path = self.filetote.session.import_path
+        library_dir = self.filetote_config.session.beets_lib.directory
+        import_path = self.filetote_config.session.import_path
 
         root_path: PathBytes | None = None
 
