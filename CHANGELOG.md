@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- Run Pytest in Parallel <https://github.com/gtronset/beets-filetote/pull/237>
+
 ## [1.1.1] - 2025-12-15
 
 ### Fixed
