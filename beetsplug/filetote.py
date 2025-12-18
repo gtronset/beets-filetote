@@ -377,74 +377,66 @@ class FiletotePlugin(BeetsPlugin):
         paired: bool,
         pattern_category: str | None = None,
     ) -> Template:
-        """Calculate the best path query format, prioritizing the below.
+        """Selects the best path format for an artifact based on a defined priority.
 
+        This function first finds all matching path queries for the artifact and then
+        selects the best one according to the following priority:
         1. `filename:`
         2. `paired_ext:`
         3. `pattern:`
         4. `ext:`
-        5. `filetote:default`
+
+        If no specific rule matches, it returns the `filetote:default` path format.
         """
-        full_filename: str = util.displayable_path(artifact_filename)
+        # Define the priority order of query prefixes. This list is the single
+        # source of truth for which path format wins when multiple could apply.
+        query_priority: FiletoteQueries = [
+            "filename:",
+            "paired_ext:",
+            "pattern:",
+            "ext:",
+        ]
 
-        selected_path_query: str | None = None
-        selected_path_format: Template | None = None
-
+        # First Pass: Find all applicable path formats for the artifact.
+        matches: dict[str, Template] = {}
         for query, path_format in self._path_formats.items():
-            filename_prefix: Literal["filename:"] = "filename:"
-            paired_ext_prefix: Literal["paired_ext:"] = "paired_ext:"
-            pattern_prefix: Literal["pattern:"] = "pattern:"
-            ext_prefix: Literal["ext:"] = "ext:"
-
-            if (
-                paired
-                and query.startswith(paired_ext_prefix)
-                and artifact_ext
-                == ("." + query.removeprefix(paired_ext_prefix).lstrip("."))
+            if query.startswith(
+                "filename:"
+            ) and artifact_filename == query.removeprefix("filename:"):
+                matches["filename:"] = path_format
+            elif (
+                query.startswith("paired_ext:")
+                and paired
+                and artifact_ext == f".{query.removeprefix('paired_ext:').lstrip('.')}"
             ):
-                # Prioritize `filename:` query selector over `paired_ext:`
-                if selected_path_query != filename_prefix:
-                    selected_path_query = paired_ext_prefix
-                    selected_path_format = path_format
+                matches["paired_ext:"] = path_format
+            elif (
+                query.startswith("pattern:")
+                and pattern_category
+                and query.removeprefix("pattern:") == pattern_category
+            ):
+                matches["pattern:"] = path_format
+            elif (
+                query.startswith("ext:")
+                and artifact_ext == f".{query.removeprefix('ext:').lstrip('.')}"
+            ):
+                matches["ext:"] = path_format
             elif (
                 pattern_category
-                and not query.startswith((
-                    filename_prefix,
-                    paired_ext_prefix,
-                    ext_prefix,
-                ))
-                and query.removeprefix(pattern_prefix) == pattern_category
+                and query == pattern_category
+                and not any(query.startswith(prefix) for prefix in query_priority)
             ):
-                # This should pull the corresponding pattern def,
-                # Prioritize `filename:` and `paired_ext:` query selector over
-                # `pattern:`
-                if selected_path_query not in {filename_prefix, paired_ext_prefix}:
-                    selected_path_query = pattern_prefix
-                    selected_path_format = path_format
-            elif query.startswith(ext_prefix) and artifact_ext == (
-                "." + query.removeprefix(ext_prefix).lstrip(".")
-            ):
-                # Prioritize `filename:`, `paired_ext:`, and `pattern:` query selector
-                # over `ext:`
-                if selected_path_query not in {
-                    filename_prefix,
-                    paired_ext_prefix,
-                    pattern_prefix,
-                }:
-                    selected_path_query = ext_prefix
-                    selected_path_format = path_format
-            elif query.startswith(
-                filename_prefix
-            ) and full_filename == query.removeprefix(filename_prefix):
-                selected_path_query = filename_prefix
-                selected_path_format = path_format
+                # Handle prefix-less patterns for backward compatibility with
+                # `extrafiles`-style path specifications.
+                matches["pattern:"] = path_format
 
-        # No query matched and no path format provided; use value provided by
-        # `filetote:default` which defaults original filename if not present.
-        if not selected_path_format:
-            selected_path_format = self._path_formats["filetote:default"]
+        # Second Pass: Select the best match based on the priority list.
+        for query_type in query_priority:
+            if query_type in matches:
+                return matches[query_type]
 
-        return selected_path_format
+        # If no specific rule matched, return the default.
+        return self._path_formats["filetote:default"]
 
     def _get_artifact_destination(
         self,
