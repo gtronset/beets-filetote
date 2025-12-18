@@ -748,26 +748,32 @@ class FiletotePlugin(BeetsPlugin):
 
         return (False, None)
 
-    def _is_artifact_ignorable(
+    def _should_process_artifact(
         self,
         source_path: PathBytes,
         artifact_source: PathBytes,
         artifact_filename: PathBytes,
         artifact_paired: bool,
-    ) -> tuple[bool, str | None]:
-        """Compares the artifact/file to certain checks to see if it should be ignored
-        or skipped.
+        is_pattern_match: bool = False,
+    ) -> bool:
+        """Decides if an artifact should be processed based on inclusion rules.
+
+        This function implements the core "opt-in" logic for Filetote. An artifact
+        is ignored by default unless it meets specific criteria. It first checks for
+        explicit exclusion rules. If none apply, it then checks against a series of
+        inclusion rules. The artifact will be processed if it matches at least one
+        inclusion rule.
         """
         relpath: PathBytes = os.path.relpath(artifact_source, start=source_path)
         artifact_file_ext: str = util.displayable_path(
             os.path.splitext(artifact_filename)[1]
         )
 
-        # --- Rules for Ignoring (take precedence over Keep/Include) ---
+        # --- Pre-Check rules for definite ignores ---
 
         # Ignore Rule 1: "Ignore" if it has already been moved or processed.
         if not os.path.exists(artifact_source):
-            return (True, None)
+            return False
 
         # Ignore Rule 2: "Ignore" if it matches an explicit exclusion rule.
         is_exclude_pattern_match, _category = self._is_pattern_match(
@@ -781,40 +787,24 @@ class FiletotePlugin(BeetsPlugin):
             in self.filetote_config.exclude.filenames
             or is_exclude_pattern_match
         ):
-            return (True, None)
+            return False
 
-        # --- Rules to Keep/Include the file ---
+        # --- "Opt-in" logic: process if any inclusion rule matches. ---
 
-        # Keep Rule 1: File matches pattern inclusion
-        is_pattern_match, category = self._is_pattern_match(
-            artifact_relpath=relpath, patterns_dict=self.filetote_config.patterns
+        matches_filename: bool = (
+            util.displayable_path(artifact_filename) in self.filetote_config.filenames
         )
-        if is_pattern_match:
-            # It matches an inclusion pattern, so we keep it.
-            return (False, category)
+        is_paired: bool = artifact_paired and self._is_valid_paired_extension(
+            artifact_file_ext
+        )
+        matches_pattern: bool = is_pattern_match
+        matches_extension: bool = (
+            ".*" in self.filetote_config.extensions
+            or util.displayable_path(artifact_file_ext)
+            in self.filetote_config.extensions
+        )
 
-        ignore_artifact: bool = True
-
-        # Keep Rule 2: Wildcard extension means keep all files
-        if ".*" in self.filetote_config.extensions:
-            # Wildcard extension means keep.
-            ignore_artifact = False
-
-        # Keep Rule 3: Explicit extension inclusion
-        if util.displayable_path(artifact_file_ext) in self.filetote_config.extensions:
-            ignore_artifact = False
-
-        # Keep Rule 4: Explicit filename inclusion
-        if util.displayable_path(artifact_filename) in self.filetote_config.filenames:
-            # It's an explicitly included filename, so we keep it.
-            ignore_artifact = False
-
-        # Keep Rule 5: Paired file inclusion
-        if artifact_paired and self._is_valid_paired_extension(artifact_file_ext):
-            # It's a valid paired file, so we keep it.
-            ignore_artifact = False
-
-        return (ignore_artifact, None)
+        return matches_filename or is_paired or matches_pattern or matches_extension
 
     def _artifact_exists_in_dest(
         self,
@@ -877,16 +867,19 @@ class FiletotePlugin(BeetsPlugin):
             # within dir of source_path
             artifact_filename: PathBytes = artifact_source[len(artifact_path) + 1 :]
 
-            is_ignorable: bool
-            pattern_category: str | None
-            is_ignorable, pattern_category = self._is_artifact_ignorable(
+            # Find pattern match category for path formatting, if applicable
+            is_pattern_match, pattern_category = self._is_pattern_match(
+                artifact_relpath=os.path.relpath(artifact_source, start=source_path),
+                patterns_dict=self.filetote_config.patterns,
+            )
+
+            if not self._should_process_artifact(
                 source_path=source_path,
                 artifact_source=artifact_source,
                 artifact_filename=artifact_filename,
                 artifact_paired=artifact.paired,
-            )
-
-            if is_ignorable:
+                is_pattern_match=is_pattern_match,
+            ):
                 ignored_artifacts.append(artifact_filename)
                 continue
 
