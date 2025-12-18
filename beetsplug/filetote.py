@@ -758,23 +758,22 @@ class FiletotePlugin(BeetsPlugin):
         """Compares the artifact/file to certain checks to see if it should be ignored
         or skipped.
         """
-        # Skip/ignore as another plugin or beets has already moved this file
-        if not os.path.exists(artifact_source):
-            return (True, None)
-
         relpath: PathBytes = os.path.relpath(artifact_source, start=source_path)
-
         artifact_file_ext: str = util.displayable_path(
             os.path.splitext(artifact_filename)[1]
         )
 
-        is_exclude_pattern_match: bool
+        # --- Rules for Ignoring (take precedence over Keep/Include) ---
+
+        # Ignore Rule 1: "Ignore" if it has already been moved or processed.
+        if not os.path.exists(artifact_source):
+            return (True, None)
+
+        # Ignore Rule 2: "Ignore" if it matches an explicit exclusion rule.
         is_exclude_pattern_match, _category = self._is_pattern_match(
             artifact_relpath=relpath,
             patterns_dict=self.filetote_config.exclude.patterns,
         )
-
-        # Skip if filename is explicitly in `exclude`
         if (
             util.displayable_path(artifact_file_ext)
             in self.filetote_config.exclude.extensions
@@ -784,36 +783,38 @@ class FiletotePlugin(BeetsPlugin):
         ):
             return (True, None)
 
-        # Skip:
-        # - extensions not allowed in `extensions`
-        # - filenames not explicitly in `filenames`
-        # - non-paired files
-        # - artifacts not matching patterns
+        # --- Rules to Keep/Include the file ---
 
-        is_pattern_match: bool
-        category: str | None
+        # Keep Rule 1: File matches pattern inclusion
         is_pattern_match, category = self._is_pattern_match(
             artifact_relpath=relpath, patterns_dict=self.filetote_config.patterns
         )
-
-        if (
-            ".*" not in self.filetote_config.extensions
-            and util.displayable_path(artifact_file_ext)
-            not in self.filetote_config.extensions
-            and util.displayable_path(artifact_filename)
-            not in self.filetote_config.filenames
-            and not is_pattern_match
-            and not (
-                artifact_paired and self._is_valid_paired_extension(artifact_file_ext)
-            )
-        ):
-            return (True, None)
-
-        matched_category: str | None = None
         if is_pattern_match:
-            matched_category = category
+            # It matches an inclusion pattern, so we keep it.
+            return (False, category)
 
-        return (False, matched_category)
+        ignore_artifact: bool = True
+
+        # Keep Rule 2: Wildcard extension means keep all files
+        if ".*" in self.filetote_config.extensions:
+            # Wildcard extension means keep.
+            ignore_artifact = False
+
+        # Keep Rule 3: Explicit extension inclusion
+        if util.displayable_path(artifact_file_ext) in self.filetote_config.extensions:
+            ignore_artifact = False
+
+        # Keep Rule 4: Explicit filename inclusion
+        if util.displayable_path(artifact_filename) in self.filetote_config.filenames:
+            # It's an explicitly included filename, so we keep it.
+            ignore_artifact = False
+
+        # Keep Rule 5: Paired file inclusion
+        if artifact_paired and self._is_valid_paired_extension(artifact_file_ext):
+            # It's a valid paired file, so we keep it.
+            ignore_artifact = False
+
+        return (ignore_artifact, None)
 
     def _artifact_exists_in_dest(
         self,
