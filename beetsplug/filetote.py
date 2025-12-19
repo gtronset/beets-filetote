@@ -611,6 +611,22 @@ class FiletotePlugin(BeetsPlugin):
             and util.displayable_path(file_ext)[1:] in BEETS_FILE_TYPES
         )
 
+    def _discover_artifacts(self, source_path: PathBytes) -> list[PathBytes]:
+        """Walks a directory and returns a list of all non-beets-handled files."""
+        artifacts: list[PathBytes] = []
+        for root, _dirs, files in util.sorted_walk(
+            source_path, ignore=config["ignore"].as_str_seq()
+        ):
+            for filename in files:
+                _file_name, file_ext = os.path.splitext(filename)
+
+                # Skip any files extensions handled by beets
+                if self._is_beets_file_type(file_ext):
+                    continue
+
+                artifacts.append(os.path.join(root, filename))
+        return artifacts
+
     def collect_artifacts(
         self, beets_item: Item, source: PathBytes, destination: PathBytes
     ) -> None:
@@ -622,52 +638,57 @@ class FiletotePlugin(BeetsPlugin):
         > are represented as `PathBytes` objects, in keeping with the Unix filesystem
         > abstraction.
         """
-        item_source_filename: PathBytes = os.path.splitext(os.path.basename(source))[0]
         source_path: PathBytes = os.path.dirname(source)
-
-        queue_files: list[FiletoteArtifact] = []
 
         # Check if this path has not already been processed
         if source_path in self._run_state.dirs_seen:
             self._collect_paired_artifacts(beets_item, source, destination)
             return
+        self._run_state.dirs_seen.append(source_path)
 
-        non_handled_files: list[PathBytes] = []
-        for root, _dirs, files in util.sorted_walk(
-            source_path, ignore=config["ignore"].as_str_seq()
-        ):
-            for filename in files:
-                source_file = os.path.join(root, filename)
-                file_name, file_ext = os.path.splitext(filename)
+        # 1. Discover all potential artifacts in the source directory
+        discovered_artifacts = self._discover_artifacts(source_path)
 
-                # Skip any files extensions handled by beets
-                if self._is_beets_file_type(file_ext):
-                    continue
+        # 2. Classify artifacts as "individual", "paired", or "shared"
+        item_source_filename: PathBytes = os.path.splitext(os.path.basename(source))[0]
+        queued_artifacts: list[FiletoteArtifact] = []
+        shared_artifacts: list[PathBytes] = []
 
-                if not self.filetote_config.pairing.enabled:
-                    queue_files.append(FiletoteArtifact(path=source_file, paired=False))
-                elif (
-                    self.filetote_config.pairing.enabled
-                    and file_name == item_source_filename
-                    and self._is_valid_paired_extension(file_ext)
-                ):
-                    queue_files.append(FiletoteArtifact(path=source_file, paired=True))
-                else:
-                    non_handled_files.append(source_file)
+        for artifact_path in discovered_artifacts:
+            artifact_filename, artifact_ext = os.path.splitext(
+                os.path.basename(artifact_path)
+            )
 
+            if not self.filetote_config.pairing.enabled:
+                queued_artifacts.append(
+                    FiletoteArtifact(path=artifact_path, paired=False)
+                )
+                continue
+
+            is_paired: bool = (
+                artifact_filename == item_source_filename
+                and self._is_valid_paired_extension(artifact_ext)
+            )
+
+            if is_paired:
+                queued_artifacts.append(
+                    FiletoteArtifact(path=artifact_path, paired=True)
+                )
+            else:
+                shared_artifacts.append(artifact_path)
+
+        # 3. Organize artifacts for processing
         self._update_multimove_artifacts(beets_item, source, destination)
+        self._run_state.shared_artifacts[source_path] = shared_artifacts
 
         self._run_state.process_queue.append(
             FiletoteArtifactCollection(
-                artifacts=queue_files,
+                artifacts=queued_artifacts,
                 mapping=self._generate_mapping(beets_item, destination),
                 source_path=source_path,
                 item_dest=destination,
             )
         )
-        self._run_state.dirs_seen.append(source_path)
-
-        self._run_state.shared_artifacts[source_path] = non_handled_files
 
     def process_events(self, lib: Library) -> None:
         """Triggered by the CLI exit event, which itself triggers the processing and
