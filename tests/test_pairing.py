@@ -118,7 +118,7 @@ class FiletotePairingTest(FiletoteTestCase):
         self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"track_2.lrc")
         self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"artifact.lrc")
 
-    def test_pairingonly_enabled_copies_all_matches(self) -> None:
+    def test_pairingonly_processes_just_pairs(self) -> None:
         """Test that `pairing_only` means that only pairs meeting a certain
         extension are handled.
         """

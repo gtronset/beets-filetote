@@ -250,6 +250,59 @@ class FiletoteRenameTest(FiletoteTestCase):
         self.assert_not_in_import_dir(b"the_album", b"artifact1.file")
         self.assert_not_in_import_dir(b"the_album", b"artifact2.file")
 
+    def test_rename_path_query_priority(self) -> None:
+        """Tests that the path query priority is correctly enforced when multiple
+        rules could apply.
+
+        The expected priority is: filename > paired_ext > pattern > ext.
+        """
+        # Create a file that will be used to test the full priority stack.
+        self.create_file(
+            path=os.path.join(self.import_dir, b"the_album"),
+            filename=b"track_1.log",
+        )
+
+        config["filetote"]["extensions"] = ".log"
+        config["filetote"]["filenames"] = "track_1.log"
+        config["filetote"]["pairing"]["enabled"] = True
+        config["filetote"]["patterns"] = {"logs": ["*.log"]}
+
+        # Define path formats for each query type, each pointing to a
+        # different destination.
+        config["paths"] = {
+            # Lowest priority
+            "ext:log": os.path.join("$albumpath", "from_ext", "$old_filename"),
+            # Mid priority
+            "pattern:logs": os.path.join("$albumpath", "from_pattern", "$old_filename"),
+            # High priority
+            "paired_ext:log": os.path.join(
+                "$albumpath", "from_paired", "$old_filename"
+            ),
+            # Highest priority
+            "filename:track_1.log": os.path.join(
+                "$albumpath", "from_filename", "$old_filename"
+            ),
+        }
+
+        self._run_cli_command("import")
+
+        # Assert that the file was moved to the destination specified by the
+        # highest-priority rule (`filename:`).
+        self.assert_in_lib_dir(
+            b"Tag Artist", b"Tag Album", b"from_filename", b"track_1.log"
+        )
+
+        # Assert that the file does NOT exist in the lower-priority destinations.
+        self.assert_not_in_lib_dir(
+            b"Tag Artist", b"Tag Album", b"from_paired", b"track_1.log"
+        )
+        self.assert_not_in_lib_dir(
+            b"Tag Artist", b"Tag Album", b"from_pattern", b"track_1.log"
+        )
+        self.assert_not_in_lib_dir(
+            b"Tag Artist", b"Tag Album", b"from_ext", b"track_1.log"
+        )
+
     def test_rename_wildcard_extension_halts(self) -> None:
         """Ensure that specifying `ext:.*` extensions results in an exception."""
         config["filetote"]["extensions"] = ".file .nfo"
