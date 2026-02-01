@@ -154,12 +154,20 @@ class FiletotePairingData:
 
 
 @dataclass
+class FiletoteShared:
+    """A dataclass for shared artifacts."""
+
+    artifacts: list[PathBytes] = field(default_factory=list)
+    mapping_index: int = 0
+
+
+@dataclass
 class FiletoteRun:
     """Holds the state for a single Filetote run within a Beets command."""
 
     imported_items_paths: dict[int, PathBytes] = field(default_factory=dict)
     process_queue: list[FiletoteArtifactCollection] = field(default_factory=list)
-    shared_artifacts: dict[PathBytes, list[PathBytes]] = field(default_factory=dict)
+    shared_artifacts: dict[PathBytes, FiletoteShared] = field(default_factory=dict)
     dirs_seen: list[PathBytes] = field(default_factory=list)
     convert_early_import_stages: list[Callable[..., None]] = field(default_factory=list)
 

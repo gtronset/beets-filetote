@@ -26,6 +26,7 @@ from .filetote_dataclasses import (
     FiletoteArtifactCollection,
     FiletoteConfig,
     FiletoteRun,
+    FiletoteShared,
     PathBytes,
 )
 from .mapping_model import FiletoteMappingFormatted, FiletoteMappingModel
@@ -435,6 +436,11 @@ class FiletotePlugin(BeetsPlugin):
             if query_type in matches:
                 return matches[query_type]
 
+        # If no specific rule matched, check if the file is paired and apply
+        # default to maintain the pairing.
+        if paired:
+            return self._templatize_path_format("$albumpath/$medianame_new")
+
         # If no specific rule matched, return the default.
         return self._path_formats["filetote:default"]
 
@@ -531,53 +537,55 @@ class FiletotePlugin(BeetsPlugin):
     def _collect_paired_artifacts(
         self, beets_item: Item, source: PathBytes, destination: PathBytes
     ) -> None:
-        """When file "pairing" is enabled, this function looks through available
-        artifacts for potential matching pairs. When found, it processes the artifacts
-        to be handled specifically as a "pair".
+        """Finds and processes paired artifacts for an item in an already-seen
+        directory when file "pairing" is enabled. This function looks through available
+        artifacts (if the "shared" pool) for potential matching pairs. When found, it
+        "claims" any files that are paired with the current item.
         """
-        item_source_filename: PathBytes
-        item_source_filename, _ = os.path.splitext(os.path.basename(source))
+        if not self.filetote_config.pairing.enabled:
+            return
+
         source_path: PathBytes = os.path.dirname(source)
 
-        queue_artifacts: list[FiletoteArtifact] = []
+        if source_path not in self._run_state.shared_artifacts:
+            return
 
-        # Check to see if "pairing" is enabled and, if so, check if there are
-        # artifacts to look at
-        if (
-            self.filetote_config.pairing.enabled
-            and self._run_state.shared_artifacts[source_path]
-        ):
-            # Iterate through shared artifacts to find paired matches
-            for artifact_path in self._run_state.shared_artifacts[source_path]:
-                artifact_filename: PathBytes
-                artifact_ext: PathBytes
-                artifact_filename, artifact_ext = os.path.splitext(
-                    os.path.basename(artifact_path)
+        item_source_filename: PathBytes
+        item_source_filename, _ = os.path.splitext(os.path.basename(source))
+        artifact_pair_queue: list[FiletoteArtifact] = []
+        remaining_shared: list[PathBytes] = []
+
+        # Iterate through shared artifacts to find paired matches
+        for artifact_path in self._run_state.shared_artifacts[source_path].artifacts:
+            artifact_filename: PathBytes
+            artifact_ext: PathBytes
+            artifact_filename, artifact_ext = os.path.splitext(
+                os.path.basename(artifact_path)
+            )
+            if (
+                artifact_filename == item_source_filename
+                and self._is_valid_paired_extension(artifact_ext)
+            ):
+                artifact_pair_queue.append(
+                    FiletoteArtifact(path=artifact_path, paired=True)
                 )
-                # If the names match and it's an valid extension, it's a "pair"
-                if (
-                    artifact_filename == item_source_filename
-                    and self._is_valid_paired_extension(artifact_ext)
-                ):
-                    queue_artifacts.append(
-                        FiletoteArtifact(path=artifact_path, paired=True)
-                    )
+            else:
+                remaining_shared.append(artifact_path)
 
-                    # Remove from shared artifacts, as the item-move will
-                    # handle this file.
-                    self._run_state.shared_artifacts[source_path].remove(artifact_path)
+        # Update the shared artifacts pool to remove claimed pairs
+        self._run_state.shared_artifacts[source_path].artifacts = remaining_shared
 
-            self._update_multimove_artifacts(beets_item, source, destination)
+        self._update_multimove_artifacts(beets_item, source, destination)
 
-            if queue_artifacts:
-                self._run_state.process_queue.append(
-                    FiletoteArtifactCollection(
-                        artifacts=queue_artifacts,
-                        mapping=self._generate_mapping(beets_item, destination),
-                        source_path=source_path,
-                        item_dest=destination,
-                    )
+        if artifact_pair_queue:
+            self._run_state.process_queue.append(
+                FiletoteArtifactCollection(
+                    artifacts=artifact_pair_queue,
+                    mapping=self._generate_mapping(beets_item, destination),
+                    source_path=source_path,
+                    item_dest=destination,
                 )
+            )
 
     def _update_multimove_artifacts(
         self, beets_item: Item, source: PathBytes, destination: PathBytes
@@ -646,10 +654,10 @@ class FiletotePlugin(BeetsPlugin):
             return
         self._run_state.dirs_seen.append(source_path)
 
-        # 1. Discover all potential artifacts in the source directory
+        # Discover all potential artifacts in the source directory
         discovered_artifacts = self._discover_artifacts(source_path)
 
-        # 2. Classify artifacts as "individual", "paired", or "shared"
+        # Classify artifacts as "individual", "paired", or "shared"
         item_source_filename: PathBytes = os.path.splitext(os.path.basename(source))[0]
         queued_artifacts: list[FiletoteArtifact] = []
         shared_artifacts: list[PathBytes] = []
@@ -677,9 +685,13 @@ class FiletotePlugin(BeetsPlugin):
             else:
                 shared_artifacts.append(artifact_path)
 
-        # 3. Organize artifacts for processing
+        # Organize artifacts for processing
         self._update_multimove_artifacts(beets_item, source, destination)
-        self._run_state.shared_artifacts[source_path] = shared_artifacts
+
+        shared_mapping_index = len(self._run_state.process_queue)
+        self._run_state.shared_artifacts[source_path] = FiletoteShared(
+            artifacts=shared_artifacts, mapping_index=shared_mapping_index
+        )
 
         self._run_state.process_queue.append(
             FiletoteArtifactCollection(
@@ -697,25 +709,39 @@ class FiletotePlugin(BeetsPlugin):
         # Ensure destination library settings are accessible
         self.filetote_config.session.adjust("_beets_lib", lib)
 
-        artifact_collection: FiletoteArtifactCollection
+        # Process paired artifacts if they exist
         for artifact_collection in self._run_state.process_queue:
-            artifacts: list[FiletoteArtifact] = artifact_collection.artifacts
-
-            source_path: PathBytes = artifact_collection.source_path
-
-            if not self.filetote_config.pairing.pairing_only:
-                artifacts.extend(
-                    FiletoteArtifact(path=shared_artifact, paired=False)
-                    for shared_artifact in self._run_state.shared_artifacts[source_path]
+            if artifact_collection.artifacts:
+                self.process_artifacts(
+                    source_path=artifact_collection.source_path,
+                    source_artifacts=artifact_collection.artifacts,
+                    mapping=artifact_collection.mapping,
                 )
 
-            self._run_state.shared_artifacts[source_path] = []
+        # Handle all shared artifacts for each source directory
+        if not self.filetote_config.pairing.pairing_only:
+            for (
+                source_path,
+                shared_artifacts,
+            ) in self._run_state.shared_artifacts.items():
+                if not shared_artifacts.artifacts:
+                    continue
 
-            self.process_artifacts(
-                source_path=source_path,
-                source_artifacts=artifacts,
-                mapping=artifact_collection.mapping,
-            )
+                # Mapping derives from the first Item that found this source path
+                album_level_mapping = self._run_state.process_queue[
+                    shared_artifacts.mapping_index
+                ].mapping
+
+                artifacts_to_process = [
+                    FiletoteArtifact(path=shared_artifact, paired=False)
+                    for shared_artifact in shared_artifacts.artifacts
+                ]
+
+                self.process_artifacts(
+                    source_path=source_path,
+                    source_artifacts=artifacts_to_process,
+                    mapping=album_level_mapping,
+                )
 
     def _is_valid_paired_extension(self, artifact_file_ext: str | PathBytes) -> bool:
         return (
@@ -786,6 +812,10 @@ class FiletotePlugin(BeetsPlugin):
 
         # Ignore Rule 1: "Ignore" if it has already been moved or processed.
         if not os.path.exists(artifact_source):
+            self._log.warning(
+                f"Artifact {util.displayable_path(artifact_filename)} no longer exists;"
+                "skipping in `_should_process_artifact`."
+            )
             return False
 
         # Ignore Rule 2: "Ignore" if it matches an explicit exclusion rule.
@@ -916,6 +946,10 @@ class FiletotePlugin(BeetsPlugin):
                 artifact_source=artifact_source,
                 artifact_dest=artifact_dest,
             ):
+                self._log.warning(
+                    f"Skipping artifact {util.displayable_path(artifact_filename)}"
+                    "because it already exists in the destination."
+                )
                 ignored_artifacts.append(artifact_filename)
                 continue
 

@@ -367,7 +367,9 @@ Filetote can specially target related files like lyrics or logs with the same na
 music files ("paired" files). This keeps related files together, making your library
 even more organized. When enabled, it will match and move those files having the same
 name as a matching music file. Pairing can be configured to target only certain
-extensions, such as `.lrc`.
+extensions, such as `.lrc`. By default, all paired files will be targeted unless
+speciific extensions are specified (at which point only those extensions will be
+grabbed).
 
 > [!NOTE]
 > Pairing takes precedence over other Filetote rules like filename or patterns.
@@ -400,13 +402,21 @@ filetote:
 
 ##### Pairing Renaming
 
-To mainting the concept of "pairs" after importing, it is strongly encouraged to set
-the `path` for the paired files to use the media files new name. This will ensure that
-the file remains paired even after moving. E.g.:
+To mainting the concept of "pairs" after importing, the default `path` for the paired
+files will use the media files new name. This will ensure that the file remains paired
+even after moving. This is equivalent to setting:
 
 ```yaml
 paths:
   paired_ext:.lrc: $albumpath/$medianame_new
+```
+
+This can be updated for any specific extension, such as the following which keeps the
+old filename:
+
+```yaml
+paths:
+  paired_ext:.lrc: $albumpath/$medianame_old
 ```
 
 ### Excluding Files (`exclude:`)
@@ -715,6 +725,15 @@ filetote:
 
 Certain versions require changes to configurations as upgrades occur. Please see below
 for specific steps for each version.
+
+### `1.2.0`
+
+#### Default renaming of paired files now matches the track's new name
+
+Previously, paired files needed manual naming specification to remain paired. This has
+been updated in version `1.2.0` to automatically use the newer file name so that paired
+files remain paired after importing. That setting can be overridden as needed. See the
+section on [Pairing Renaming](#pairing-renaming) for more details.
 
 ### `1.0.2`
 

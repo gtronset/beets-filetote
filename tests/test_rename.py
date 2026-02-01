@@ -52,11 +52,10 @@ class FiletoteRenameTest(FiletoteTestCase):
         )
         self.assert_not_in_import_dir(b"the_album", b"artifact.file")
 
-    def test_rename_paired_ext(self) -> None:
-        """Tests that the value of `medianame_new` populates in renaming."""
+    def test_rename_paired_default(self) -> None:
+        """Tests that paired artifacts default to `medianame_new`."""
         config["filetote"]["extensions"] = ".lrc"
         config["filetote"]["pairing"]["enabled"] = True
-        config["paths"]["paired_ext:lrc"] = "$albumpath/$medianame_new"
 
         self._run_cli_command("import")
 
@@ -64,6 +63,19 @@ class FiletoteRenameTest(FiletoteTestCase):
         self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"Tag Title 1.lrc")
         self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"Tag Title 2.lrc")
         self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"Tag Title 3.lrc")
+
+    def test_rename_paired_ext(self) -> None:
+        """Tests that the value of `medianame_new` populates in renaming."""
+        config["filetote"]["extensions"] = ".lrc"
+        config["filetote"]["pairing"]["enabled"] = True
+        config["paths"]["paired_ext:lrc"] = "$albumpath/$medianame_new Override"
+
+        self._run_cli_command("import")
+
+        self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"artifact.lrc")
+        self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"Tag Title 1 Override.lrc")
+        self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"Tag Title 2 Override.lrc")
+        self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"Tag Title 3 Override.lrc")
 
     def test_rename_paired_ext_does_not_conflict_with_ext(self) -> None:
         """Tests that paired path definitions work alongside `ext` ones."""
