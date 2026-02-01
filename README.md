@@ -130,7 +130,7 @@ default. To preserve subdirectories, [see `$subpath` usage](#subpath-renaming-ex
 Configuration for renaming works in much the same way as beets [Path Formats], including
 the standard metadata values provided by beets along with `replace` settings. Filetote
 provides the below new path queries, which each takes a single corresponding value.
-These can be defined in either the top-level `paths` section of Beet's config or in the
+These can be defined in either the top-level `paths` section of Beets' config or in the
 `paths` section of Filetote's config. Both of the following are equivalent:
 
 ```yaml
@@ -145,7 +145,7 @@ filetote:
 ```
 
 > [!IMPORTANT]
-> If you have the same path specified in both the top-level `paths` section of Beet's
+> If you have the same path specified in both the top-level `paths` section of Beets'
 > config and in the `paths` section of Filetote's config, the Filetote's specification
 > will take precedence. There should not be a normal scenario where this is
 > intentionally utilized with Filetote's [new path queries](#new-path-queries), but it
@@ -368,7 +368,7 @@ music files ("paired" files). This keeps related files together, making your lib
 even more organized. When enabled, it will match and move those files having the same
 name as a matching music file. Pairing can be configured to target only certain
 extensions, such as `.lrc`. By default, all paired files will be targeted unless
-speciific extensions are specified (at which point only those extensions will be
+specific extensions are specified (at which point only those extensions will be
 grabbed).
 
 > [!NOTE]
@@ -481,7 +481,7 @@ This plugin supports the same operations as beets:
 - `copy`
 - `move`
 - `link` (symlink)
-- `harklink`
+- `hardlink`
 - `reflink`
 
 These options are mutually exclusive, and there are nuances to how beets (and thus this
@@ -713,7 +713,25 @@ filetote:
     all: "*.*"
 ```
 
-Path definitions can also be specified in the way that `extrafiles` does, e.g.:
+Path definitions can also be specified similar to the way that `extrafiles` does;
+however, unlike `extrafiles` which would implicitly append the original filename to any
+path, Filetote is more explicit and you **must** include either `$old_filename` or
+`$medianame_new` in your path definition.
+
+For example, to move all files from an artwork directory into a destination "artwork"
+directory, you would change this `extrafiles` config:
+
+```yaml
+extrafiles:
+  patterns:
+    artworkdir:
+      - "[sS]cans/"
+      - "[aA]rtwork/"
+  paths:
+    artworkdir: $albumpath/artwork
+```
+
+To this filetote config, explicitly adding `$old_filename`:
 
 ```yaml
 filetote:
@@ -722,8 +740,11 @@ filetote:
       - "[sS]cans/"
       - "[aA]rtwork/"
   paths:
-    artworkdir: $albumpath/artwork
+    artworkdir: $albumpath/artwork/$old_filename
 ```
+
+This helps make configuration clearer and removes any ambiguity about how files will be
+named.
 
 ## Version Upgrade Instructions
 

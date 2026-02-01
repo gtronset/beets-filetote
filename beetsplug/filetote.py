@@ -955,7 +955,7 @@ class FiletotePlugin(BeetsPlugin):
             ):
                 self._log.warning(
                     f"Skipping artifact {util.displayable_path(artifact_filename)}"
-                    "because it already exists in the destination."
+                    " because it already exists in the destination."
                 )
                 ignored_artifacts.append(artifact_filename)
                 continue
