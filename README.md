@@ -180,7 +180,7 @@ The fields available include [the standard metadata values] of the imported item
 (`$albumartist`, `$album`, `$title`, etc.), along with Filetote-specific values of:
 
 - `$albumpath`: the entire path of the new destination of the item/track (a useful
-  shorthand for when the extra/artifact file will be moved allongside  the item/track).
+  shorthand for when the extra/artifact file will be moved alongside  the item/track).
     - **Note**: Beets doesn't have a strict "album" path concept. All references are
       relative to Items (the actual media files). This is especially relevant for
       multi-disc files/albums, but usually isn't a problem. [Check the section on
@@ -310,7 +310,7 @@ below).
 > Patterns process in order from top to bottom, and once matched will determine which
 > path to apply during renaming. This is important in cases where theoretically a file
 > could match to multiple patterns. For example, if you have a file here:
-> `albumpath/artwork/cover.jpg`, the pattern it'll match to is the first (`artworkdir`)
+> `albumpath/artwork/cover.jpg`, the pattern it will match to is the first (`artworkdir`)
 > in the following config:
 >
 > ```yaml
@@ -326,7 +326,7 @@ below).
 >
 > Thus, it will only match the pattern `path` of `pattern:artworkdir` and _not_
 > `pattern:images`. Please note that irrespective if it matches a pattern, if
-> there is a more specific path [per the renaming rules](#new-path-queries) it'll use
+> there is a more specific path [per the renaming rules](#new-path-queries) it will use
 > that instead.
 
 [glob patterns]: https://docs.python.org/3/library/glob.html#module-glob
@@ -402,7 +402,7 @@ filetote:
 
 ##### Pairing Renaming
 
-To mainting the concept of "pairs" after importing, the default `path` for the paired
+To maintain the concept of "pairs" after importing, the default `path` for the paired
 files will use the media files new name. This will ensure that the file remains paired
 even after moving. This is equivalent to setting:
 
@@ -416,8 +416,12 @@ old filename:
 
 ```yaml
 paths:
-  paired_ext:.lrc: $albumpath/$medianame_old
+  paired_ext:.lrc: $albumpath/$old_filename
 ```
+
+> [!NOTE]
+> To update the default pairing renaming for _all_ paired files away from
+> `$albumpath/$medianame_new`, use the `filetote-pairing:default` path specification.
 
 ### Excluding Files (`exclude:`)
 
@@ -440,7 +444,7 @@ filetote:
     extensions: .nfo .lrc
 ```
 
-Likewise, patterns can be used to perform more specialized exclusons, such as excluding
+Likewise, patterns can be used to perform more specialized exclusions, such as excluding
 all files in a subdirectory. For example, to exclude all artifact files in the
 subdirectories `artwork` and/or `Artwork`:
 
@@ -495,7 +499,7 @@ details.
 
 ### Other CLI Operations
 
-Additional commands such such as `move`, `modify`, `update`, etc. will also trigger
+Additional commands such as `move`, `modify`, `update`, etc. will also trigger
 Filetote to handle files. These commands typically work with [queries], targeting
 specific files that match the supplied query. Please note that the operation executed
 by beets for these commands do not use the value set in the config file under `import`,
@@ -640,27 +644,27 @@ other plugins, [please report them].
 
 ## Why Filetote and Not Other Similar Plugins?
 
-Filetote serves the same core purpose as the [`copyfilertifacts` plugin] and the
+Filetote serves the same core purpose as the [`copyartifacts` plugin] and the
 [`extrafiles` plugin], however both have lacked in maintenance over the last few years.
-There are outstanding bugs in each (though `copyfilertifacts` has seen some recent
+There are outstanding bugs in each (though `copyartifacts` has seen some recent
 activity resolving some). In addition, each are lacking in certain features and
 abilities, such as hardlink/reflink support, "paired" file handling, and extending
 renaming options. What's more, significant focus has been provided to Filetote around
 Python3 conventions, linting, and typing in order to promote healthier code and easier
 maintenance.
 
-Filetote strives to encompass all functionality that _both_ `copyfilertifacts`
+Filetote strives to encompass all functionality that _both_ `copyartifacts`
 and `extrafiles` provide, and then some!
 
-[`copyfilertifacts` plugin]: https://github.com/adammillerio/beets-copyartifacts
+[`copyartifacts` plugin]: https://github.com/adammillerio/beets-copyartifacts
 [`extrafiles` plugin]: https://github.com/Holzhaus/beets-extrafiles
 
-### Migrating from `copyfilertifacts`
+### Migrating from `copyartifacts`
 
-Filetote can be configured using nearly identical configuration as `copyfilertifacts`,
+Filetote can be configured using nearly identical configuration as `copyartifacts`,
 simply replacing the name of the plugin in its configuration settings. **There is one
 change that's needed if all extensions are desired, as Filetote does not grab all
-extensions by default (as `copyfilertifacts` does).** To accommodate, simply explicitly
+extensions by default (as `copyartifacts` does).** To accommodate, simply explicitly
 state all extension using `.*`:
 
 ```yaml

@@ -430,6 +430,40 @@ class FiletoteRenameTest(FiletoteTestCase):
         )
         self.assert_not_in_lib_dir(b"Tag Artist", b"Tag Album", b"artifact.file")
 
+    def test_rename_filetote_pairing_custom_default(self) -> None:
+        """Ensure that the default value for a path query for artifacts
+        (`filetote-pairing:default`) can be updated via the root `paths` setting.
+        """
+        config["filetote"]["pairing"]["enabled"] = True
+
+        config["paths"]["filetote-pairing:default"] = os.path.join(
+            "$albumpath", "New", "$old_filename"
+        )
+
+        config["import"]["move"] = True
+
+        self._run_cli_command("import")
+
+        self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"New", b"track_1.lrc")
+        self.assert_not_in_lib_dir(b"Tag Artist", b"Tag Album", b"track_1.lrc")
+
+    def test_rename_filetote_pairing_custom_default_filetote_paths(self) -> None:
+        """Ensure that the default value for a path query for artifacts
+        (`filetote-pairing:default`) can be updated via the Filetote `paths` setting.
+        """
+        config["filetote"]["pairing"]["enabled"] = True
+
+        config["filetote"]["paths"]["filetote-pairing:default"] = os.path.join(
+            "$albumpath", "New", "$old_filename"
+        )
+
+        config["import"]["move"] = True
+
+        self._run_cli_command("import")
+
+        self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"New", b"track_1.lrc")
+        self.assert_not_in_lib_dir(b"Tag Artist", b"Tag Album", b"track_1.lrc")
+
     def test_rename_respect_defined_order(self) -> None:
         """Tests that patterns of just folders grab all contents."""
         import_dir = os.path.join(self.import_dir, b"the_album")

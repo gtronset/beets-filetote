@@ -56,6 +56,7 @@ FiletoteQueries: TypeAlias = list[
         "paired_ext:",
         "pattern:",
         "filetote:default",
+        "filetote-pairing:default",
     ]
 ]
 
@@ -81,8 +82,12 @@ class FiletotePlugin(BeetsPlugin):
             "paired_ext:",
             "pattern:",
             "filetote:default",
+            "filetote-pairing:default",
         ]
-        self._path_default: Template = Template("$albumpath/$old_filename")
+        self._path_default: dict[str, str | Template] = {
+            "filetote:default": Template("$albumpath/$old_filename"),
+            "filetote-pairing:default": Template("$albumpath/$medianame_new"),
+        }
 
         self._run_state: FiletoteRun = FiletoteRun()
 
@@ -231,7 +236,7 @@ class FiletotePlugin(BeetsPlugin):
         return file_event_function
 
     def _get_filetote_path_formats(
-        self, queries: FiletoteQueries, path_default: Template
+        self, queries: FiletoteQueries, path_default: dict[str, str | Template]
     ) -> dict[str, Template]:
         """Gets all `path` formats from beets and parses those set for Filetote.
 
@@ -240,7 +245,7 @@ class FiletotePlugin(BeetsPlugin):
         unless there's already a representation from Filetote's node to give priority
         to Filetote's definitions.
         """
-        path_formats: dict[str, str | Template] = {"filetote:default": path_default}
+        path_formats: dict[str, str | Template] = path_default
 
         path_formats |= self.filetote_config.paths
 
@@ -387,7 +392,9 @@ class FiletotePlugin(BeetsPlugin):
         3. `pattern:`
         4. `ext:`
 
-        If no specific rule matches, it returns the `filetote:default` path format.
+        If no specific rule matches, it returns the `filetote:default` path format,
+        unless the file is paired, in which case it returns the
+        `filetote-pairing:default`.
         """
         # Define the priority order of query prefixes. This list is the single
         # source of truth for which path format wins when multiple could apply.
@@ -439,7 +446,7 @@ class FiletotePlugin(BeetsPlugin):
         # If no specific rule matched, check if the file is paired and apply
         # default to maintain the pairing.
         if paired:
-            return self._templatize_path_format("$albumpath/$medianame_new")
+            return self._path_formats["filetote-pairing:default"]
 
         # If no specific rule matched, return the default.
         return self._path_formats["filetote:default"]
