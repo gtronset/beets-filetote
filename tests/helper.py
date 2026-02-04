@@ -338,7 +338,7 @@ class FiletoteTestCase(_common.TestCase, Assertions, HelperUtils):
                     obj = sys.modules[obj_path]
             except (KeyError, AttributeError):
                 # If the module or attribute doesn't exist, skip it.
-                log.warning("Could not resolve path %s for teardown.", obj_path)
+                log.warning(f"Could not resolve path `{obj_path}` for teardown.")
                 continue
 
             if hasattr(obj, attr):

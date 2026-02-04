@@ -8,7 +8,7 @@ from typing_extensions import TypeAlias
 
 Bytes_or_String: TypeAlias = str | bytes
 
-def ancestry(path: bytes) -> list[str]: ...
+def ancestry(path: Bytes_or_String) -> list[Bytes_or_String]: ...
 def displayable_path(
     path: Bytes_or_String | tuple[Bytes_or_String, ...],
     separator: str = "; ",
