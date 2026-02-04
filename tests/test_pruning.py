@@ -60,7 +60,7 @@ class FiletotePruningyTest(FiletoteTestCase):
         config["filetote"]["patterns"] = {"artwork": ["[aA]rtwork/"]}
         config["filetote"]["extensions"] = ".*"
         config["filetote"]["paths"] = {
-            "pattern:artwork": "$albumpath/art/$old_filename"
+            "pattern:artwork": os.path.join("$albumpath", "art", "$old_filename")
         }
         config["import"]["move"] = True
 
@@ -253,15 +253,15 @@ class FiletotePruningyTest(FiletoteTestCase):
         self.assert_not_in_lib_dir(b"Tag Artist")
         self.assert_in_lib_dir(b"New Tag Artist", b"Tag Album", b"artifact.file")
 
-    # def test_prunes_multidisc_nested(self) -> None:
-    #     """Ensures that multidisc nested directories are pruned correctly on move."""
-    #     self._create_nested_import_dir()
-    #     self._setup_import_session(autotag=False, move=True)
+    def test_prunes_multidisc_nested(self) -> None:
+        """Ensures that multidisc nested directories are pruned correctly on move."""
+        self._create_nested_import_dir()
+        self._setup_import_session(autotag=False, move=True)
 
-    #     config["filetote"]["extensions"] = ".*"
+        config["filetote"]["extensions"] = ".*"
 
-    #     self._run_cli_command("import")
+        self._run_cli_command("import")
 
-    #     self.assert_not_in_import_dir(b"the_album", b"disc1")
-    #     self.assert_not_in_import_dir(b"the_album", b"disc2")
-    #     self.assert_not_in_import_dir(b"the_album")
+        self.assert_not_in_import_dir(b"the_album", b"disc1")
+        self.assert_not_in_import_dir(b"the_album", b"disc2")
+        self.assert_not_in_import_dir(b"the_album")

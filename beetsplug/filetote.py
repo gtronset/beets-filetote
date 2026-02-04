@@ -5,6 +5,7 @@ from __future__ import annotations
 import filecmp
 import fnmatch
 import os
+import re
 
 from sys import version_info
 from typing import (
@@ -33,9 +34,12 @@ from .mapping_model import FiletoteMappingFormatted, FiletoteMappingModel
 
 # TODO(gtronset): Remove fallback once Beets v2.3 is no longer supported:
 # https://github.com/gtronset/beets-filetote/pull/231
+# https://github.com/gtronset/beets-filetote/pull/249
 try:
+    from beets.importer.tasks import MULTIDISC_MARKERS, MULTIDISC_PAT_FMT
     from beets.library.models import DefaultTemplateFunctions
 except ImportError:  # fallback for older Beets releases
+    from beets.importer import MULTIDISC_MARKERS, MULTIDISC_PAT_FMT
     from beets.library import (
         DefaultTemplateFunctions,
     )
@@ -1036,6 +1040,16 @@ class FiletotePlugin(BeetsPlugin):
 
         root_path: PathBytes | None = None
 
+        is_multidisc: bool = False
+
+        # Replicate the beets importer's pattern matching for disc folders to determine
+        # if this is a multidisc.
+        for marker in MULTIDISC_MARKERS:
+            p = MULTIDISC_PAT_FMT.replace(b"%s", marker)
+            pat = re.compile(p, re.I)
+            if pat.match(os.path.basename(source_path)):
+                is_multidisc = True
+
         if import_path is None:
             # If there's not a import path (query, other CLI, etc.), use the Library's
             # dir instead. This is consistent with beet's default pruning for MOVE.
@@ -1050,10 +1064,14 @@ class FiletotePlugin(BeetsPlugin):
             # If the import path is within the Library's, allow for pruning all the way
             # to the import path.
             root_path = import_path
-        elif self._is_path_within_ancestry(
-            child_path=artifact_path, parent_path=source_path
+        elif (
+            self._is_path_within_ancestry(
+                child_path=artifact_path, parent_path=source_path
+            )
+            or is_multidisc
         ):
-            # If the artifact is within the source path, prune up to the import path.
+            # If the artifact is within the source path or is multidisc, prune up to the
+            # import path.
             root_path = import_path
 
         return root_path
