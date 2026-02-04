@@ -49,7 +49,7 @@ class FiletotePruningyTest(FiletoteTestCase):
         self.assert_not_in_import_dir(b"the_album")
 
     def test_prunes_empty_artifact_subdirectory_on_move(self) -> None:
-        """Tests that when an artifact is moved from a subdirectory within an albume,
+        """Tests that when an artifact is moved from a subdirectory within an album,
         the empty subdirectory is correctly pruned.
         """
         artwork_dir_path = os.path.join(self.import_dir, b"the_album", b"Artwork")

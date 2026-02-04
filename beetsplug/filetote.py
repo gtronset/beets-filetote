@@ -486,7 +486,8 @@ class FiletotePlugin(BeetsPlugin):
         album_path: str | None = mapping_formatted.get("albumpath")
         if album_path is None:
             raise ValueError(
-                "Could not determine `albumpath` for artifact destination."
+                f"Could not determine `albumpath` for artifact destination "
+                f"for artifact {util.displayable_path(artifact_filename)}."
             )
 
         # Get template functions and evaluate against mapping
@@ -959,7 +960,7 @@ class FiletotePlugin(BeetsPlugin):
             ):
                 self._log.warning(
                     f"Skipping artifact {util.displayable_path(artifact_filename)}"
-                    " because it already exists in the destination."
+                    f" because it already exists in the destination."
                 )
                 ignored_artifacts.append(artifact_filename)
                 continue
