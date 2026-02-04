@@ -825,7 +825,7 @@ class FiletotePlugin(BeetsPlugin):
         if not os.path.exists(artifact_source):
             self._log.warning(
                 f"Artifact {util.displayable_path(artifact_filename)} no longer exists;"
-                "skipping in `_should_process_artifact`."
+                f" skipping in `_should_process_artifact`."
             )
             return False
 
