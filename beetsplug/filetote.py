@@ -844,7 +844,7 @@ class FiletotePlugin(BeetsPlugin):
         ):
             return False
 
-        # "Opt-in"and process if any inclusion rule matches.
+        # "Opt-in" and process if any inclusion rule matches.
 
         matches_filename: bool = (
             util.displayable_path(artifact_filename) in self.filetote_config.filenames
