@@ -135,22 +135,16 @@ class FiletoteFromFlatDirectoryTest(FiletoteTestCase):
         """Tests that shared artifacts in a directory with multiple media files are
         handled correctly and only once.
         """
-        # Configure to copy two shared artifacts.
         config["filetote"]["extensions"] = [".nfo", ".file"]
 
         self._run_cli_command("import")
 
-        # There are 3 media files and 2 shared artifacts (`.nfo`, `.file`).
-        # `artifact2.file` should also be included.
-        # Total files should be 3 (media) + 3 (artifacts) = 6.
         self.assert_number_of_files_in_dir(
             self._media_count + 3, self.lib_dir, b"Tag Artist", b"Tag Album"
         )
 
-        # Check that all expected artifacts were moved.
         self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"artifact.nfo")
         self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"artifact.file")
         self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"artifact2.file")
 
-        # Check that an un-configured artifact was not moved.
         self.assert_not_in_lib_dir(b"Tag Artist", b"Tag Album", b"artifact.lrc")

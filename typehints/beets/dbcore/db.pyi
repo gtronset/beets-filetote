@@ -3,6 +3,9 @@ from typing import Any, Literal
 
 ALL_KEYS: Literal["*"] = "*"
 
+class Database:
+    def _close(self) -> None: ...
+
 class Model:
     def keys(self, computed: bool = False) -> Literal["*"] | list[str]: ...
     def _get(self, key: str, default: Any = None, raise_: bool = False) -> Any: ...
