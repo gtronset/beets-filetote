@@ -3,8 +3,6 @@
 import logging
 import os
 
-from typing import Optional
-
 import pytest
 
 from beets import config
@@ -21,7 +19,7 @@ class FiletoteFromNestedDirectoryTest(FiletoteTestCase):
     corresponding to disc numbers or flat option is used.
     """
 
-    def setUp(self, _other_plugins: Optional[list[str]] = None) -> None:
+    def setUp(self, _other_plugins: list[str] | None = None) -> None:
         """Provides shared setup for tests."""
         super().setUp()
 

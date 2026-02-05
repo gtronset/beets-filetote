@@ -7,12 +7,11 @@ import fnmatch
 import os
 import re
 
-from sys import version_info
 from typing import (
     TYPE_CHECKING,
     Any,
-    Callable,
     Literal,
+    TypeAlias,
 )
 
 from beets import config, util
@@ -45,13 +44,10 @@ except ImportError:  # fallback for older Beets releases
     )
 
 if TYPE_CHECKING:
+    from collections.abc import Callable
+
     from beets.importer import ImportSession, ImportTask
     from beets.library import Item, Library
-
-if version_info >= (3, 10):
-    from typing import TypeAlias
-else:
-    from typing_extensions import TypeAlias
 
 FiletoteQueries: TypeAlias = list[
     Literal[

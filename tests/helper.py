@@ -13,7 +13,7 @@ import types
 from collections.abc import Generator
 from dataclasses import asdict, dataclass
 from pathlib import Path
-from typing import Any, Literal, Optional, cast
+from typing import Any, Literal, cast
 
 import beetsplug
 
@@ -143,8 +143,8 @@ class Assertions(_common.AssertionsMixin):
 
     def __init__(self) -> None:
         """Sets up baseline variables."""
-        self.lib_dir: Optional[bytes] = None
-        self.import_dir: Optional[bytes] = None
+        self.lib_dir: bytes | None = None
+        self.import_dir: bytes | None = None
 
     def assert_in_lib_dir(self, *segments: bytes) -> None:
         """Join the ``segments`` and assert that this path exists in the library
@@ -160,7 +160,7 @@ class Assertions(_common.AssertionsMixin):
         if self.lib_dir:
             self.assert_does_not_exist(os.path.join(self.lib_dir, *segments))
 
-    def assert_import_dir_exists(self, import_dir: Optional[bytes] = None) -> None:
+    def assert_import_dir_exists(self, import_dir: bytes | None = None) -> None:
         """Asserts that the import directory exists."""
         directory = import_dir or self.import_dir
         if directory:
@@ -275,7 +275,7 @@ class FiletoteTestCase(_common.TestCase, Assertions, HelperUtils):
     for the autotagging library and assertions helpers.
     """
 
-    def setUp(self, other_plugins: Optional[list[str]] = None) -> None:
+    def setUp(self, other_plugins: list[str] | None = None) -> None:
         """Handles all setup for testing, including library (database)."""
         super().setUp()
 
@@ -293,9 +293,9 @@ class FiletoteTestCase(_common.TestCase, Assertions, HelperUtils):
         self._pairs_count: int = 0
 
         self.import_dir: bytes = b""
-        self.import_media: Optional[list[MediaFile]] = None
-        self.importer: Optional[ImportSession] = None
-        self.paths: Optional[bytes] = None
+        self.import_media: list[MediaFile] | None = None
+        self.importer: ImportSession | None = None
+        self.paths: bytes | None = None
 
         # Install the DummyIO to capture anything directed to stdout
         self.in_out.install()
@@ -465,7 +465,7 @@ class FiletoteTestCase(_common.TestCase, Assertions, HelperUtils):
             self.list_files(self.paths)
 
     def _run_cli_import(
-        self, operation_option: Optional[Literal["copy", "move"]] = None
+        self, operation_option: Literal["copy", "move"] | None = None
     ) -> None:
         """Runs the "import" CLI command. This should be called with
         _run_cli_command().
@@ -485,8 +485,8 @@ class FiletoteTestCase(_common.TestCase, Assertions, HelperUtils):
     def _run_cli_move(  # noqa: PLR0913
         self,
         query: str,
-        dest_dir: Optional[bytes] = None,
-        album: Optional[str] = None,
+        dest_dir: bytes | None = None,
+        album: str | None = None,
         copy: bool = False,
         pretend: bool = False,
         export: bool = False,
@@ -508,11 +508,11 @@ class FiletoteTestCase(_common.TestCase, Assertions, HelperUtils):
     def _run_cli_modify(  # noqa: PLR0913
         self,
         query: str,
-        mods: Optional[dict[str, str]] = None,
-        dels: Optional[dict[str, str]] = None,
+        mods: dict[str, str] | None = None,
+        dels: dict[str, str] | None = None,
         write: bool = True,
         move: bool = True,
-        album: Optional[str] = None,
+        album: str | None = None,
     ) -> None:
         """Runs the "modify" CLI command. This should be called with
         _run_cli_command().
@@ -535,10 +535,10 @@ class FiletoteTestCase(_common.TestCase, Assertions, HelperUtils):
     def _run_cli_update(
         self,
         query: str,
-        album: Optional[str] = None,
+        album: str | None = None,
         move: bool = True,
         pretend: bool = False,
-        fields: Optional[list[str]] = None,
+        fields: list[str] | None = None,
     ) -> None:
         """Runs the "update" CLI command. This should be called with
         _run_cli_command().
@@ -554,7 +554,7 @@ class FiletoteTestCase(_common.TestCase, Assertions, HelperUtils):
 
     def _create_flat_import_dir(
         self,
-        media_files: Optional[list[MediaSetup]] = None,
+        media_files: list[MediaSetup] | None = None,
         pair_subfolders: bool = False,
     ) -> None:
         """Creates a directory with media files and artifacts.
@@ -625,8 +625,8 @@ class FiletoteTestCase(_common.TestCase, Assertions, HelperUtils):
 
     def _create_nested_import_dir(
         self,
-        disc1_media_files: Optional[list[MediaSetup]] = None,
-        disc2_media_files: Optional[list[MediaSetup]] = None,
+        disc1_media_files: list[MediaSetup] | None = None,
+        disc2_media_files: list[MediaSetup] | None = None,
     ) -> None:
         """Creates a directory with media files and artifacts nested in subdirectories.
         Sets ``self.import_dir`` to the path of the directory. Also sets
@@ -765,7 +765,7 @@ class FiletoteTestCase(_common.TestCase, Assertions, HelperUtils):
         return media_list
 
     def _create_medium(
-        self, path: bytes, resource_name: bytes, media_meta: Optional[MediaMeta] = None
+        self, path: bytes, resource_name: bytes, media_meta: MediaMeta | None = None
     ) -> MediaFile:
         """Creates and saves a media file object located at path using resource_name
         from the beets test resources directory as initial data.
@@ -801,14 +801,14 @@ class FiletoteTestCase(_common.TestCase, Assertions, HelperUtils):
 
     def _setup_import_session(  # noqa: PLR0913
         self,
-        import_dir: Optional[bytes] = None,
+        import_dir: bytes | None = None,
         delete: bool = False,
         threaded: bool = False,
         copy: bool = True,
         singletons: bool = False,
         move: bool = False,
         autotag: bool = True,
-        query: Optional[str] = None,
+        query: str | None = None,
     ) -> None:
         config["import"]["copy"] = copy
         config["import"]["delete"] = delete

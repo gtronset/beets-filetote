@@ -3,8 +3,6 @@
 import logging
 import os
 
-from typing import Optional
-
 from beets import config
 
 from tests.helper import FiletoteTestCase, capture_log_with_traceback
@@ -15,7 +13,7 @@ log = logging.getLogger("beets")
 class FiletotePatternTest(FiletoteTestCase):
     """Tests to check that Filetote grabs artfacts by user-definited patterns."""
 
-    def setUp(self, _other_plugins: Optional[list[str]] = None) -> None:
+    def setUp(self, _other_plugins: list[str] | None = None) -> None:
         """Provides shared setup for tests."""
         super().setUp()
 

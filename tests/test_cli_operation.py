@@ -2,8 +2,6 @@
 
 import os
 
-from typing import Optional
-
 import beets
 
 from beets import config
@@ -16,7 +14,7 @@ class FiletoteCLIOperation(FiletoteTestCase):
     overridden by the CLI.
     """
 
-    def setUp(self, _other_plugins: Optional[list[str]] = None) -> None:
+    def setUp(self, _other_plugins: list[str] | None = None) -> None:
         """Provides shared setup for tests."""
         super().setUp()
 

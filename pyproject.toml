@@ -92,7 +92,7 @@ line-length = 88
 # namespace-packages = ["beetsplug"]
 preview = true
 src = ["beetsplug", "tests", "typehints"]
-target-version = "py39"
+target-version = "py310"
 
 [tool.ruff.lint]
 ignore = ["D205", "PLR6301"]

@@ -3,8 +3,6 @@
 import os
 import re
 
-from typing import Optional
-
 import pytest
 
 import beets
@@ -21,7 +19,7 @@ class FiletoteFilename(FiletoteTestCase):
     characters.
     """
 
-    def setUp(self, _other_plugins: Optional[list[str]] = None) -> None:
+    def setUp(self, _other_plugins: list[str] | None = None) -> None:
         """Provides shared setup for tests."""
         super().setUp()
 

@@ -3,8 +3,6 @@
 import logging
 import os
 
-from typing import Optional
-
 from beets import config
 
 from tests.helper import FiletoteTestCase
@@ -18,7 +16,7 @@ class FiletoteFromFlatDirectoryTest(FiletoteTestCase):
     directory). Also tests `extensions` and `filenames` config options.
     """
 
-    def setUp(self, _other_plugins: Optional[list[str]] = None) -> None:
+    def setUp(self, _other_plugins: list[str] | None = None) -> None:
         """Provides shared setup for tests."""
         super().setUp()
 

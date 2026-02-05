@@ -2,8 +2,6 @@
 
 import logging
 
-from typing import Optional
-
 from beets import config
 
 from tests.helper import FiletoteTestCase, capture_log_with_traceback
@@ -16,7 +14,7 @@ class FiletoteRenamePathsTest(FiletoteTestCase):
     either in the `paths` section of the overall config or in Filetote's.
     """
 
-    def setUp(self, _other_plugins: Optional[list[str]] = None) -> None:
+    def setUp(self, _other_plugins: list[str] | None = None) -> None:
         """Provides shared setup for tests."""
         super().setUp()
 

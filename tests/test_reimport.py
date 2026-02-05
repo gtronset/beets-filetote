@@ -3,8 +3,6 @@
 import logging
 import os
 
-from typing import Optional
-
 from beets import config
 
 from tests.helper import FiletoteTestCase
@@ -15,7 +13,7 @@ log = logging.getLogger("beets")
 class FiletoteReimportTest(FiletoteTestCase):
     """Tests to check that Filetote handles reimports correctly."""
 
-    def setUp(self, _other_plugins: Optional[list[str]] = None) -> None:
+    def setUp(self, _other_plugins: list[str] | None = None) -> None:
         """Setup subsequent import directory of the below structure.
 
         Ex:
