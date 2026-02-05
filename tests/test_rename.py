@@ -268,7 +268,6 @@ class FiletoteRenameTest(FiletoteTestCase):
 
         The expected priority is: filename > paired_ext > pattern > ext.
         """
-        # Create a file that will be used to test the full priority stack.
         self.create_file(
             path=os.path.join(self.import_dir, b"the_album"),
             filename=b"track_1.log",
@@ -279,8 +278,6 @@ class FiletoteRenameTest(FiletoteTestCase):
         config["filetote"]["pairing"]["enabled"] = True
         config["filetote"]["patterns"] = {"logs": ["*.log"]}
 
-        # Define path formats for each query type, each pointing to a
-        # different destination.
         config["paths"] = {
             # Lowest priority
             "ext:log": os.path.join("$albumpath", "from_ext", "$old_filename"),

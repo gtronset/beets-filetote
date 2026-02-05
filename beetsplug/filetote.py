@@ -400,8 +400,8 @@ class FiletotePlugin(BeetsPlugin):
         unless the file is paired, in which case it returns the
         `filetote-pairing:default`.
         """
-        # Define the priority order of query prefixes. This list is the single
-        # source of truth for which path format wins when multiple could apply.
+        # Priority order of query prefixes for which path format wins when multiple
+        # apply.
         query_priority: FiletoteQueries = [
             "filename:",
             "paired_ext:",
@@ -409,7 +409,7 @@ class FiletotePlugin(BeetsPlugin):
             "ext:",
         ]
 
-        # First Pass: Find all applicable path formats for the artifact.
+        # Find all applicable path formats for the artifact.
         matches: dict[str, Template] = {}
         for query, path_format in self._path_formats.items():
             if query.startswith(
@@ -442,7 +442,7 @@ class FiletotePlugin(BeetsPlugin):
                 # `extrafiles`-style path specifications.
                 matches["pattern:"] = path_format
 
-        # Second Pass: Select the best match based on the priority list.
+        # Select the best match based on the priority list.
         for query_type in query_priority:
             if query_type in matches:
                 return matches[query_type]
@@ -664,6 +664,8 @@ class FiletotePlugin(BeetsPlugin):
         if source_path in self._run_state.dirs_seen:
             self._collect_paired_artifacts(beets_item, source, destination)
             return
+
+        # Add this directory to the seen list to avoid re-processing
         self._run_state.dirs_seen.append(source_path)
 
         # Discover all potential artifacts in the source directory
@@ -820,9 +822,7 @@ class FiletotePlugin(BeetsPlugin):
             os.path.splitext(artifact_filename)[1]
         )
 
-        # --- Pre-Check rules for definite ignores ---
-
-        # Ignore Rule 1: "Ignore" if it has already been moved or processed.
+        # "Ignore" if it has already been moved or processed.
         if not os.path.exists(artifact_source):
             self._log.warning(
                 f"Artifact {util.displayable_path(artifact_filename)} no longer exists;"
@@ -830,7 +830,7 @@ class FiletotePlugin(BeetsPlugin):
             )
             return False
 
-        # Ignore Rule 2: "Ignore" if it matches an explicit exclusion rule.
+        # "Ignore" if it matches an explicit exclusion rule.
         is_exclude_pattern_match, _category = self._is_pattern_match(
             artifact_relpath=relpath,
             patterns_dict=self.filetote_config.exclude.patterns,
@@ -844,7 +844,7 @@ class FiletotePlugin(BeetsPlugin):
         ):
             return False
 
-        # --- "Opt-in" logic: process if any inclusion rule matches. ---
+        # "Opt-in"and process if any inclusion rule matches.
 
         matches_filename: bool = (
             util.displayable_path(artifact_filename) in self.filetote_config.filenames
@@ -922,7 +922,6 @@ class FiletotePlugin(BeetsPlugin):
             # within dir of source_path
             artifact_filename: PathBytes = artifact_source[len(artifact_path) + 1 :]
 
-            # Find pattern match category for path formatting, if applicable
             is_pattern_match, pattern_category = self._is_pattern_match(
                 artifact_relpath=os.path.relpath(artifact_source, start=source_path),
                 patterns_dict=self.filetote_config.patterns,
