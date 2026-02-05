@@ -130,7 +130,7 @@ default. To preserve subdirectories, [see `$subpath` usage](#subpath-renaming-ex
 Configuration for renaming works in much the same way as beets [Path Formats], including
 the standard metadata values provided by beets along with `replace` settings. Filetote
 provides the below new path queries, which each takes a single corresponding value.
-These can be defined in either the top-level `paths` section of Beet's config or in the
+These can be defined in either the top-level `paths` section of Beets' config or in the
 `paths` section of Filetote's config. Both of the following are equivalent:
 
 ```yaml
@@ -145,7 +145,7 @@ filetote:
 ```
 
 > [!IMPORTANT]
-> If you have the same path specified in both the top-level `paths` section of Beet's
+> If you have the same path specified in both the top-level `paths` section of Beets'
 > config and in the `paths` section of Filetote's config, the Filetote's specification
 > will take precedence. There should not be a normal scenario where this is
 > intentionally utilized with Filetote's [new path queries](#new-path-queries), but it
@@ -180,7 +180,7 @@ The fields available include [the standard metadata values] of the imported item
 (`$albumartist`, `$album`, `$title`, etc.), along with Filetote-specific values of:
 
 - `$albumpath`: the entire path of the new destination of the item/track (a useful
-  shorthand for when the extra/artifact file will be moved allongside  the item/track).
+  shorthand for when the extra/artifact file will be moved alongside  the item/track).
     - **Note**: Beets doesn't have a strict "album" path concept. All references are
       relative to Items (the actual media files). This is especially relevant for
       multi-disc files/albums, but usually isn't a problem. [Check the section on
@@ -310,7 +310,7 @@ below).
 > Patterns process in order from top to bottom, and once matched will determine which
 > path to apply during renaming. This is important in cases where theoretically a file
 > could match to multiple patterns. For example, if you have a file here:
-> `albumpath/artwork/cover.jpg`, the pattern it'll match to is the first (`artworkdir`)
+> `albumpath/artwork/cover.jpg`, the pattern it will match to is the first (`artworkdir`)
 > in the following config:
 >
 > ```yaml
@@ -326,7 +326,7 @@ below).
 >
 > Thus, it will only match the pattern `path` of `pattern:artworkdir` and _not_
 > `pattern:images`. Please note that irrespective if it matches a pattern, if
-> there is a more specific path [per the renaming rules](#new-path-queries) it'll use
+> there is a more specific path [per the renaming rules](#new-path-queries) it will use
 > that instead.
 
 [glob patterns]: https://docs.python.org/3/library/glob.html#module-glob
@@ -367,7 +367,9 @@ Filetote can specially target related files like lyrics or logs with the same na
 music files ("paired" files). This keeps related files together, making your library
 even more organized. When enabled, it will match and move those files having the same
 name as a matching music file. Pairing can be configured to target only certain
-extensions, such as `.lrc`.
+extensions, such as `.lrc`. By default, all paired files will be targeted unless
+specific extensions are specified (at which point only those extensions will be
+grabbed).
 
 > [!NOTE]
 > Pairing takes precedence over other Filetote rules like filename or patterns.
@@ -400,14 +402,26 @@ filetote:
 
 ##### Pairing Renaming
 
-To mainting the concept of "pairs" after importing, it is strongly encouraged to set
-the `path` for the paired files to use the media files new name. This will ensure that
-the file remains paired even after moving. E.g.:
+To maintain the concept of "pairs" after importing, the default `path` for the paired
+files will use the media files new name. This will ensure that the file remains paired
+even after moving. This is equivalent to setting:
 
 ```yaml
 paths:
   paired_ext:.lrc: $albumpath/$medianame_new
 ```
+
+This can be updated for any specific extension, such as the following which keeps the
+old filename:
+
+```yaml
+paths:
+  paired_ext:.lrc: $albumpath/$old_filename
+```
+
+> [!NOTE]
+> To update the default pairing renaming for _all_ paired files away from
+> `$albumpath/$medianame_new`, use the `filetote-pairing:default` path specification.
 
 ### Excluding Files (`exclude:`)
 
@@ -430,7 +444,7 @@ filetote:
     extensions: .nfo .lrc
 ```
 
-Likewise, patterns can be used to perform more specialized exclusons, such as excluding
+Likewise, patterns can be used to perform more specialized exclusions, such as excluding
 all files in a subdirectory. For example, to exclude all artifact files in the
 subdirectories `artwork` and/or `Artwork`:
 
@@ -467,7 +481,7 @@ This plugin supports the same operations as beets:
 - `copy`
 - `move`
 - `link` (symlink)
-- `harklink`
+- `hardlink`
 - `reflink`
 
 These options are mutually exclusive, and there are nuances to how beets (and thus this
@@ -485,7 +499,7 @@ details.
 
 ### Other CLI Operations
 
-Additional commands such such as `move`, `modify`, `update`, etc. will also trigger
+Additional commands such as `move`, `modify`, `update`, etc. will also trigger
 Filetote to handle files. These commands typically work with [queries], targeting
 specific files that match the supplied query. Please note that the operation executed
 by beets for these commands do not use the value set in the config file under `import`,
@@ -630,27 +644,27 @@ other plugins, [please report them].
 
 ## Why Filetote and Not Other Similar Plugins?
 
-Filetote serves the same core purpose as the [`copyfilertifacts` plugin] and the
+Filetote serves the same core purpose as the [`copyartifacts` plugin] and the
 [`extrafiles` plugin], however both have lacked in maintenance over the last few years.
-There are outstanding bugs in each (though `copyfilertifacts` has seen some recent
+There are outstanding bugs in each (though `copyartifacts` has seen some recent
 activity resolving some). In addition, each are lacking in certain features and
 abilities, such as hardlink/reflink support, "paired" file handling, and extending
 renaming options. What's more, significant focus has been provided to Filetote around
 Python3 conventions, linting, and typing in order to promote healthier code and easier
 maintenance.
 
-Filetote strives to encompass all functionality that _both_ `copyfilertifacts`
+Filetote strives to encompass all functionality that _both_ `copyartifacts`
 and `extrafiles` provide, and then some!
 
-[`copyfilertifacts` plugin]: https://github.com/adammillerio/beets-copyartifacts
+[`copyartifacts` plugin]: https://github.com/adammillerio/beets-copyartifacts
 [`extrafiles` plugin]: https://github.com/Holzhaus/beets-extrafiles
 
-### Migrating from `copyfilertifacts`
+### Migrating from `copyartifacts`
 
-Filetote can be configured using nearly identical configuration as `copyfilertifacts`,
+Filetote can be configured using nearly identical configuration as `copyartifacts`,
 simply replacing the name of the plugin in its configuration settings. **There is one
 change that's needed if all extensions are desired, as Filetote does not grab all
-extensions by default (as `copyfilertifacts` does).** To accommodate, simply explicitly
+extensions by default (as `copyartifacts` does).** To accommodate, simply explicitly
 state all extension using `.*`:
 
 ```yaml
@@ -699,10 +713,16 @@ filetote:
     all: "*.*"
 ```
 
-Path definitions can also be specified in the way that `extrafiles` does, e.g.:
+Path definitions can also be specified similar to the way that `extrafiles` does;
+however, unlike `extrafiles` which would implicitly append the original filename to any
+path, Filetote is more explicit and you **must** include either `$old_filename` or
+`$medianame_new` in your path definition.
+
+For example, to move all files from an artwork directory into a destination "artwork"
+directory, you would change this `extrafiles` config:
 
 ```yaml
-filetote:
+extrafiles:
   patterns:
     artworkdir:
       - "[sS]cans/"
@@ -711,10 +731,34 @@ filetote:
     artworkdir: $albumpath/artwork
 ```
 
+To this filetote config, explicitly adding `$old_filename`:
+
+```yaml
+filetote:
+  patterns:
+    artworkdir:
+      - "[sS]cans/"
+      - "[aA]rtwork/"
+  paths:
+    artworkdir: $albumpath/artwork/$old_filename
+```
+
+This helps make configuration clearer and removes any ambiguity about how files will be
+named.
+
 ## Version Upgrade Instructions
 
 Certain versions require changes to configurations as upgrades occur. Please see below
 for specific steps for each version.
+
+### `1.2.0`
+
+#### Default renaming of paired files now matches the track's new name
+
+Previously, paired files needed manual naming specification to remain paired. This has
+been updated in version `1.2.0` to automatically use the newer file name so that paired
+files remain paired after importing. That setting can be overridden as needed. See the
+section on [Pairing Renaming](#pairing-renaming) for more details.
 
 ### `1.0.2`
 

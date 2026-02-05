@@ -338,7 +338,7 @@ class FiletoteTestCase(_common.TestCase, Assertions, HelperUtils):
                     obj = sys.modules[obj_path]
             except (KeyError, AttributeError):
                 # If the module or attribute doesn't exist, skip it.
-                log.warning("Could not resolve path %s for teardown.", obj_path)
+                log.warning(f"Could not resolve path `{obj_path}` for teardown.")
                 continue
 
             if hasattr(obj, attr):
@@ -385,17 +385,20 @@ class FiletoteTestCase(_common.TestCase, Assertions, HelperUtils):
         plugins._classes = set(plugin_class_list)
         config["plugins"] = plugin_list
 
+        # TODO(gtronset): Remove fallback once Beets v2.3 is no longer supported. Beets
+        # 2.3 takes in a list of plugin names, while Beets 2.4+ does not take any
+        # arguments:
+        # https://github.com/gtronset/beets-filetote/pull/231
         load_plugins_sig = inspect.signature(plugins.load_plugins)
         if len(load_plugins_sig.parameters) == 1:
             plugins.load_plugins(plugin_list)
+            plugins.send("pluginload")
         else:
             plugins.load_plugins()
 
     def unload_plugins(self) -> None:
         """Unload all plugins and remove the from the configuration."""
         config["plugins"] = []
-        # plugins._classes = set()
-        # plugins._instances = {}
 
         if plugins._instances:
             classes = list(plugins._classes)
@@ -415,11 +418,11 @@ class FiletoteTestCase(_common.TestCase, Assertions, HelperUtils):
                 # Remove plugin instance(s) for both dict and list types
                 instances = plugins._instances
                 if isinstance(instances, dict):
-                    # Beets <2.5: dict[type, instance]
+                    # Beets 2.3: dict[type, instance]
                     if plugin_class in instances:
                         del instances[plugin_class]
                 elif isinstance(instances, list):
-                    # Beets >=2.5: list of instances
+                    # Beets 2.4+: list of instances
                     plugins._instances = [
                         inst for inst in instances if not isinstance(inst, plugin_class)
                     ]
@@ -444,8 +447,6 @@ class FiletoteTestCase(_common.TestCase, Assertions, HelperUtils):
         log.debug(log_string)
 
         self.load_plugins(self.plugins)
-
-        plugins.send("pluginload")
 
         # Get the function associated with the provided command name
         command_func = getattr(self, f"_run_cli_{command}")

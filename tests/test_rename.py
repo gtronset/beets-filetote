@@ -52,11 +52,10 @@ class FiletoteRenameTest(FiletoteTestCase):
         )
         self.assert_not_in_import_dir(b"the_album", b"artifact.file")
 
-    def test_rename_paired_ext(self) -> None:
-        """Tests that the value of `medianame_new` populates in renaming."""
+    def test_rename_paired_default(self) -> None:
+        """Tests that paired artifacts default to `medianame_new`."""
         config["filetote"]["extensions"] = ".lrc"
         config["filetote"]["pairing"]["enabled"] = True
-        config["paths"]["paired_ext:lrc"] = "$albumpath/$medianame_new"
 
         self._run_cli_command("import")
 
@@ -64,6 +63,19 @@ class FiletoteRenameTest(FiletoteTestCase):
         self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"Tag Title 1.lrc")
         self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"Tag Title 2.lrc")
         self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"Tag Title 3.lrc")
+
+    def test_rename_paired_ext(self) -> None:
+        """Tests that the value of `medianame_new` populates in renaming."""
+        config["filetote"]["extensions"] = ".lrc"
+        config["filetote"]["pairing"]["enabled"] = True
+        config["paths"]["paired_ext:lrc"] = "$albumpath/$medianame_new Override"
+
+        self._run_cli_command("import")
+
+        self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"artifact.lrc")
+        self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"Tag Title 1 Override.lrc")
+        self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"Tag Title 2 Override.lrc")
+        self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"Tag Title 3 Override.lrc")
 
     def test_rename_paired_ext_does_not_conflict_with_ext(self) -> None:
         """Tests that paired path definitions work alongside `ext` ones."""
@@ -250,6 +262,59 @@ class FiletoteRenameTest(FiletoteTestCase):
         self.assert_not_in_import_dir(b"the_album", b"artifact1.file")
         self.assert_not_in_import_dir(b"the_album", b"artifact2.file")
 
+    def test_rename_path_query_priority(self) -> None:
+        """Tests that the path query priority is correctly enforced when multiple
+        rules could apply.
+
+        The expected priority is: filename > paired_ext > pattern > ext.
+        """
+        # Create a file that will be used to test the full priority stack.
+        self.create_file(
+            path=os.path.join(self.import_dir, b"the_album"),
+            filename=b"track_1.log",
+        )
+
+        config["filetote"]["extensions"] = ".log"
+        config["filetote"]["filenames"] = "track_1.log"
+        config["filetote"]["pairing"]["enabled"] = True
+        config["filetote"]["patterns"] = {"logs": ["*.log"]}
+
+        # Define path formats for each query type, each pointing to a
+        # different destination.
+        config["paths"] = {
+            # Lowest priority
+            "ext:log": os.path.join("$albumpath", "from_ext", "$old_filename"),
+            # Mid priority
+            "pattern:logs": os.path.join("$albumpath", "from_pattern", "$old_filename"),
+            # High priority
+            "paired_ext:log": os.path.join(
+                "$albumpath", "from_paired", "$old_filename"
+            ),
+            # Highest priority
+            "filename:track_1.log": os.path.join(
+                "$albumpath", "from_filename", "$old_filename"
+            ),
+        }
+
+        self._run_cli_command("import")
+
+        # Assert that the file was moved to the destination specified by the
+        # highest-priority rule (`filename:`).
+        self.assert_in_lib_dir(
+            b"Tag Artist", b"Tag Album", b"from_filename", b"track_1.log"
+        )
+
+        # Assert that the file does NOT exist in the lower-priority destinations.
+        self.assert_not_in_lib_dir(
+            b"Tag Artist", b"Tag Album", b"from_paired", b"track_1.log"
+        )
+        self.assert_not_in_lib_dir(
+            b"Tag Artist", b"Tag Album", b"from_pattern", b"track_1.log"
+        )
+        self.assert_not_in_lib_dir(
+            b"Tag Artist", b"Tag Album", b"from_ext", b"track_1.log"
+        )
+
     def test_rename_wildcard_extension_halts(self) -> None:
         """Ensure that specifying `ext:.*` extensions results in an exception."""
         config["filetote"]["extensions"] = ".file .nfo"
@@ -364,6 +429,40 @@ class FiletoteRenameTest(FiletoteTestCase):
             b"Tag Artist", b"Tag Album", b"Filetote", b"artifact.file"
         )
         self.assert_not_in_lib_dir(b"Tag Artist", b"Tag Album", b"artifact.file")
+
+    def test_rename_filetote_pairing_custom_default(self) -> None:
+        """Ensure that the default value for a path query for artifacts
+        (`filetote-pairing:default`) can be updated via the root `paths` setting.
+        """
+        config["filetote"]["pairing"]["enabled"] = True
+
+        config["paths"]["filetote-pairing:default"] = os.path.join(
+            "$albumpath", "New", "$old_filename"
+        )
+
+        config["import"]["move"] = True
+
+        self._run_cli_command("import")
+
+        self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"New", b"track_1.lrc")
+        self.assert_not_in_lib_dir(b"Tag Artist", b"Tag Album", b"track_1.lrc")
+
+    def test_rename_filetote_pairing_custom_default_filetote_paths(self) -> None:
+        """Ensure that the default value for a path query for artifacts
+        (`filetote-pairing:default`) can be updated via the Filetote `paths` setting.
+        """
+        config["filetote"]["pairing"]["enabled"] = True
+
+        config["filetote"]["paths"]["filetote-pairing:default"] = os.path.join(
+            "$albumpath", "New", "$old_filename"
+        )
+
+        config["import"]["move"] = True
+
+        self._run_cli_command("import")
+
+        self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"New", b"track_1.lrc")
+        self.assert_not_in_lib_dir(b"Tag Artist", b"Tag Album", b"track_1.lrc")
 
     def test_rename_respect_defined_order(self) -> None:
         """Tests that patterns of just folders grab all contents."""

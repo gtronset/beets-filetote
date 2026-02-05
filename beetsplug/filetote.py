@@ -5,6 +5,7 @@ from __future__ import annotations
 import filecmp
 import fnmatch
 import os
+import re
 
 from sys import version_info
 from typing import (
@@ -25,15 +26,20 @@ from .filetote_dataclasses import (
     FiletoteArtifact,
     FiletoteArtifactCollection,
     FiletoteConfig,
+    FiletoteRun,
+    FiletoteShared,
     PathBytes,
 )
 from .mapping_model import FiletoteMappingFormatted, FiletoteMappingModel
 
 # TODO(gtronset): Remove fallback once Beets v2.3 is no longer supported:
 # https://github.com/gtronset/beets-filetote/pull/231
+# https://github.com/gtronset/beets-filetote/pull/249
 try:
+    from beets.importer.tasks import MULTIDISC_MARKERS, MULTIDISC_PAT_FMT
     from beets.library.models import DefaultTemplateFunctions
 except ImportError:  # fallback for older Beets releases
+    from beets.importer import MULTIDISC_MARKERS, MULTIDISC_PAT_FMT
     from beets.library import (
         DefaultTemplateFunctions,
     )
@@ -54,6 +60,7 @@ FiletoteQueries: TypeAlias = list[
         "paired_ext:",
         "pattern:",
         "filetote:default",
+        "filetote-pairing:default",
     ]
 ]
 
@@ -70,7 +77,50 @@ class FiletotePlugin(BeetsPlugin):
         # Set default plugin config settings
         self.config.add(FiletoteConfig().asdict())
 
-        self.filetote: FiletoteConfig = FiletoteConfig(
+        # Filetote configuration is set during the `pluginload` event
+        self._filetote_config: FiletoteConfig | None = None
+
+        self._path_queries: FiletoteQueries = [
+            "ext:",
+            "filename:",
+            "paired_ext:",
+            "pattern:",
+            "filetote:default",
+            "filetote-pairing:default",
+        ]
+        self._path_default: dict[str, str | Template] = {
+            "filetote:default": Template("$albumpath/$old_filename"),
+            "filetote-pairing:default": Template("$albumpath/$medianame_new"),
+        }
+
+        self._run_state: FiletoteRun = FiletoteRun()
+
+        # Register listeners for beets events.
+        self.early_import_stages = [self._get_imported_items_paths]
+        self._register_file_operation_events()
+
+    @property
+    def filetote_config(self) -> FiletoteConfig:
+        """The Filetote configuration object.
+
+        This property acts as a guard to ensure that the configuration is
+        loaded before it is accessed. It raises a RuntimeError if accessed
+        too early.
+        """
+        if self._filetote_config is None:
+            raise RuntimeError("Filetote configuration not yet loaded.")
+        return self._filetote_config
+
+    def _refresh_filetote_config(self) -> None:
+        """Refresh derived configuration from the current Beets config state."""
+        # Preserve the existing session data if this is a refresh.
+        previous_filetote_config = self._filetote_config
+        session_data = (
+            previous_filetote_config.session if previous_filetote_config else None
+        )
+
+        # Create a new config object with the latest settings.
+        filetote = FiletoteConfig(
             extensions=self.config["extensions"].as_str_seq(),
             filenames=self.config["filenames"].as_str_seq(),
             patterns=self.config["patterns"].get(dict),
@@ -78,19 +128,26 @@ class FiletotePlugin(BeetsPlugin):
             print_ignored=self.config["print_ignored"].get(bool),
         )
 
-        if isinstance(self.config["exclude"].get(), (str, list)):
-            self.filetote.adjust("exclude", self.config["exclude"].as_str_seq())
+        # Restore the session data to the new config object.
+        if session_data:
+            filetote.session = session_data
 
+        # Handle the deprecated 'exclude' format.
+        exclusion_config = self.config["exclude"]
+        exclusion_config_value = exclusion_config.get()
+        if isinstance(exclusion_config_value, (str, list)):
+            filetote.adjust("exclude", exclusion_config.as_str_seq())
             self._log.warning(
-                "Deprecation warning: The `exclude` plugin should now use the explicit"
+                "Deprecation warning: The `exclude` setting should now use the explicit"
                 " settings of `filenames`, `extensions`, and/or `patterns`. See the"
                 " `exclude` documentation for more details:"
                 " https://github.com/gtronset/beets-filetote#excluding-files"
             )
         else:
-            self.filetote.adjust("exclude", self.config["exclude"].get(dict))
+            filetote.adjust("exclude", exclusion_config.get(dict))
 
-        self.filetote.adjust(
+        # Read the 'pairing' configuration.
+        filetote.adjust(
             "pairing",
             {
                 "enabled": self.config["pairing"]["enabled"].get(bool),
@@ -99,29 +156,11 @@ class FiletotePlugin(BeetsPlugin):
             },
         )
 
-        queries: FiletoteQueries = [
-            "ext:",
-            "filename:",
-            "paired_ext:",
-            "pattern:",
-            "filetote:default",
-        ]
-        path_default: Template = Template("$albumpath/$old_filename")
-
-        self._path_formats: dict[str, Template] = self._get_filetote_path_formats(
-            queries, path_default
+        # Update the main plugin attributes.
+        self._filetote_config = filetote
+        self._path_formats = self._get_filetote_path_formats(
+            self._path_queries, self._path_default
         )
-
-        self._imported_items_paths: dict[int, PathBytes] = {}
-        self._process_queue: list[FiletoteArtifactCollection] = []
-        self._shared_artifacts: dict[PathBytes, list[PathBytes]] = {}
-        self._dirs_seen: list[PathBytes] = []
-
-        self.early_import_stages = [self._get_imported_items_paths]
-
-        self._convert_early_import_stages: list[Callable[..., None]] = []
-
-        self._register_file_operation_events()
 
     def _get_imported_items_paths(
         self, session: ImportSession, task: ImportTask
@@ -139,14 +178,15 @@ class FiletotePlugin(BeetsPlugin):
 
         Also runs/initializes any early stages that `convert` provides, if it is loaded.
         """
-        self._imported_items_paths = {
+        self._run_state.imported_items_paths = {
             item.id: item.path for item in task.imported_items()
         }
 
-        # If `convert` is not loaded, `self._convert_early_import_stages` is empty
+        # If `convert` is not loaded, `self._run_state.convert_early_import_stages` is
+        # empty.
         [
             convert_early_stage(session, task)
-            for convert_early_stage in self._convert_early_import_stages
+            for convert_early_stage in self._run_state.convert_early_import_stages
         ]
 
     def _register_file_operation_events(self) -> None:
@@ -200,7 +240,7 @@ class FiletotePlugin(BeetsPlugin):
         return file_event_function
 
     def _get_filetote_path_formats(
-        self, queries: FiletoteQueries, path_default: Template
+        self, queries: FiletoteQueries, path_default: dict[str, str | Template]
     ) -> dict[str, Template]:
         """Gets all `path` formats from beets and parses those set for Filetote.
 
@@ -209,9 +249,9 @@ class FiletotePlugin(BeetsPlugin):
         unless there's already a representation from Filetote's node to give priority
         to Filetote's definitions.
         """
-        path_formats: dict[str, str | Template] = {"filetote:default": path_default}
+        path_formats: dict[str, str | Template] = path_default
 
-        path_formats |= self.filetote.paths
+        path_formats |= self.filetote_config.paths
 
         beets_path_query: str
         beets_path_format: Template
@@ -220,7 +260,7 @@ class FiletotePlugin(BeetsPlugin):
             for filetote_query in queries:
                 if (
                     beets_path_query.startswith(filetote_query)
-                    and beets_path_query not in self.filetote.paths
+                    and beets_path_query not in self.filetote_config.paths
                 ):
                     path_formats[beets_path_query] = beets_path_format
 
@@ -243,6 +283,9 @@ class FiletotePlugin(BeetsPlugin):
         file or media, since MediaFile.TYPES isn't fundamentally a complete
         list of files by extension.
         """
+        # Refresh config to capture any changes from other plugins.
+        self._refresh_filetote_config()
+
         # Mutate the global BEETS_FILE_TYPES dictionary in-place
         BEETS_FILE_TYPES.update({
             "m4a": "M4A",
@@ -253,9 +296,11 @@ class FiletotePlugin(BeetsPlugin):
         for plugin in find_plugins():
             if plugin.name == "convert":
                 convert_early_import_stages = plugin.early_import_stages
-                plugin.early_import_stages = []
-
-                self._convert_early_import_stages = convert_early_import_stages
+                if convert_early_import_stages:
+                    plugin.early_import_stages = []
+                    self._run_state.convert_early_import_stages = (
+                        convert_early_import_stages
+                    )
 
             if plugin.name == "audible":
                 BEETS_FILE_TYPES.update({"m4b": "M4B"})
@@ -264,14 +309,14 @@ class FiletotePlugin(BeetsPlugin):
         """Certain settings are only available and/or finalized once the
         Beets import session begins.
         """
-        self.filetote.session.adjust("operation", self._import_operation_type())
+        self.filetote_config.session.adjust("operation", self._import_operation_type())
 
         import_path: PathBytes | None = None
 
         if session.paths:
             import_path = os.path.expanduser(session.paths[0])
 
-        self.filetote.session.import_path = import_path
+        self.filetote_config.session.import_path = import_path
 
     def _import_operation_type(self) -> MoveOperation | None:
         """Returns the file manipulations type. This prioritizes `move` over copy if
@@ -318,13 +363,17 @@ class FiletotePlugin(BeetsPlugin):
         for similar aforementioned CLI commands.
         """
         # Determine the operation type if not already present
-        if not self.filetote.session.operation:
-            self.filetote.session.adjust("operation", self._event_operation_type(event))
+        if not self.filetote_config.session.operation:
+            self.filetote_config.session.adjust(
+                "operation", self._event_operation_type(event)
+            )
 
         # Needed to in cases where another plugin has overridden the Item.path
         # (ex: `convert`), otherwise, the path is a temp directory.
-        if item.id in self._imported_items_paths:
-            imported_item_path: PathBytes = self._imported_items_paths[item.id]
+        if item.id in self._run_state.imported_items_paths:
+            imported_item_path: PathBytes = self._run_state.imported_items_paths[
+                item.id
+            ]
             if imported_item_path != source:
                 source = imported_item_path
 
@@ -338,74 +387,73 @@ class FiletotePlugin(BeetsPlugin):
         paired: bool,
         pattern_category: str | None = None,
     ) -> Template:
-        """Calculate the best path query format, prioritizing the below.
+        """Selects the best path format for an artifact based on a defined priority.
 
+        This function first finds all matching path queries for the artifact and then
+        selects the best one according to the following priority:
         1. `filename:`
         2. `paired_ext:`
         3. `pattern:`
         4. `ext:`
-        5. `filetote:default`
+
+        If no specific rule matches, it returns the `filetote:default` path format,
+        unless the file is paired, in which case it returns the
+        `filetote-pairing:default`.
         """
-        full_filename: str = util.displayable_path(artifact_filename)
+        # Define the priority order of query prefixes. This list is the single
+        # source of truth for which path format wins when multiple could apply.
+        query_priority: FiletoteQueries = [
+            "filename:",
+            "paired_ext:",
+            "pattern:",
+            "ext:",
+        ]
 
-        selected_path_query: str | None = None
-        selected_path_format: Template | None = None
-
+        # First Pass: Find all applicable path formats for the artifact.
+        matches: dict[str, Template] = {}
         for query, path_format in self._path_formats.items():
-            filename_prefix: Literal["filename:"] = "filename:"
-            paired_ext_prefix: Literal["paired_ext:"] = "paired_ext:"
-            pattern_prefix: Literal["pattern:"] = "pattern:"
-            ext_prefix: Literal["ext:"] = "ext:"
-
-            if (
-                paired
-                and query.startswith(paired_ext_prefix)
-                and artifact_ext
-                == ("." + query.removeprefix(paired_ext_prefix).lstrip("."))
+            if query.startswith(
+                "filename:"
+            ) and artifact_filename == query.removeprefix("filename:"):
+                matches["filename:"] = path_format
+            elif (
+                query.startswith("paired_ext:")
+                and paired
+                and artifact_ext == f".{query.removeprefix('paired_ext:').lstrip('.')}"
             ):
-                # Prioritize `filename:` query selector over `paired_ext:`
-                if selected_path_query != filename_prefix:
-                    selected_path_query = paired_ext_prefix
-                    selected_path_format = path_format
+                matches["paired_ext:"] = path_format
+            elif (
+                query.startswith("pattern:")
+                and pattern_category
+                and query.removeprefix("pattern:") == pattern_category
+            ):
+                matches["pattern:"] = path_format
+            elif (
+                query.startswith("ext:")
+                and artifact_ext == f".{query.removeprefix('ext:').lstrip('.')}"
+            ):
+                matches["ext:"] = path_format
             elif (
                 pattern_category
-                and not query.startswith((
-                    filename_prefix,
-                    paired_ext_prefix,
-                    ext_prefix,
-                ))
-                and query.removeprefix(pattern_prefix) == pattern_category
+                and query == pattern_category
+                and not any(query.startswith(prefix) for prefix in query_priority)
             ):
-                # This should pull the corresponding pattern def,
-                # Prioritize `filename:` and `paired_ext:` query selector over
-                # `pattern:`
-                if selected_path_query not in {filename_prefix, paired_ext_prefix}:
-                    selected_path_query = pattern_prefix
-                    selected_path_format = path_format
-            elif query.startswith(ext_prefix) and artifact_ext == (
-                "." + query.removeprefix(ext_prefix).lstrip(".")
-            ):
-                # Prioritize `filename:`, `paired_ext:`, and `pattern:` query selector
-                # over `ext:`
-                if selected_path_query not in {
-                    filename_prefix,
-                    paired_ext_prefix,
-                    pattern_prefix,
-                }:
-                    selected_path_query = ext_prefix
-                    selected_path_format = path_format
-            elif query.startswith(
-                filename_prefix
-            ) and full_filename == query.removeprefix(filename_prefix):
-                selected_path_query = filename_prefix
-                selected_path_format = path_format
+                # Handle prefix-less patterns for backward compatibility with
+                # `extrafiles`-style path specifications.
+                matches["pattern:"] = path_format
 
-        # No query matched and no path format provided; use value provided by
-        # `filetote:default` which defaults original filename if not present.
-        if not selected_path_format:
-            selected_path_format = self._path_formats["filetote:default"]
+        # Second Pass: Select the best match based on the priority list.
+        for query_type in query_priority:
+            if query_type in matches:
+                return matches[query_type]
 
-        return selected_path_format
+        # If no specific rule matched, check if the file is paired and apply
+        # default to maintain the pairing.
+        if paired:
+            return self._path_formats["filetote-pairing:default"]
+
+        # If no specific rule matched, return the default.
+        return self._path_formats["filetote:default"]
 
     def _get_artifact_destination(
         self,
@@ -436,8 +484,11 @@ class FiletotePlugin(BeetsPlugin):
         )
 
         album_path: str | None = mapping_formatted.get("albumpath")
-        # Sanity check for mypy in cases where album_path is None
-        assert album_path is not None
+        if album_path is None:
+            raise ValueError(
+                f"Could not determine `albumpath` for artifact destination "
+                f"for artifact {util.displayable_path(artifact_filename)}."
+            )
 
         # Get template functions and evaluate against mapping
         template_functions = DefaultTemplateFunctions().functions()
@@ -446,7 +497,7 @@ class FiletotePlugin(BeetsPlugin):
             + artifact_ext
         )
 
-        replacements = self.filetote.session.beets_lib.replacements
+        replacements = self.filetote_config.session.beets_lib.replacements
 
         # Sanitize filename
         artifact_filename_sanitized: str = util.sanitize_path(
@@ -498,50 +549,55 @@ class FiletotePlugin(BeetsPlugin):
     def _collect_paired_artifacts(
         self, beets_item: Item, source: PathBytes, destination: PathBytes
     ) -> None:
-        """When file "pairing" is enabled, this function looks through available
-        artifacts for potential matching pairs. When found, it processes the artifacts
-        to be handled specifically as a "pair".
+        """Finds and processes paired artifacts for an item in an already-seen
+        directory when file "pairing" is enabled. This function looks through available
+        artifacts (if the "shared" pool) for potential matching pairs. When found, it
+        "claims" any files that are paired with the current item.
         """
-        item_source_filename: PathBytes
-        item_source_filename, _ = os.path.splitext(os.path.basename(source))
+        if not self.filetote_config.pairing.enabled:
+            return
+
         source_path: PathBytes = os.path.dirname(source)
 
-        queue_artifacts: list[FiletoteArtifact] = []
+        if source_path not in self._run_state.shared_artifacts:
+            return
 
-        # Check to see if "pairing" is enabled and, if so, check if there are
-        # artifacts to look at
-        if self.filetote.pairing.enabled and self._shared_artifacts[source_path]:
-            # Iterate through shared artifacts to find paired matches
-            for artifact_path in self._shared_artifacts[source_path]:
-                artifact_filename: PathBytes
-                artifact_ext: PathBytes
-                artifact_filename, artifact_ext = os.path.splitext(
-                    os.path.basename(artifact_path)
+        item_source_filename: PathBytes
+        item_source_filename, _ = os.path.splitext(os.path.basename(source))
+        artifact_pair_queue: list[FiletoteArtifact] = []
+        remaining_shared: list[PathBytes] = []
+
+        # Iterate through shared artifacts to find paired matches
+        for artifact_path in self._run_state.shared_artifacts[source_path].artifacts:
+            artifact_filename: PathBytes
+            artifact_ext: PathBytes
+            artifact_filename, artifact_ext = os.path.splitext(
+                os.path.basename(artifact_path)
+            )
+            if (
+                artifact_filename == item_source_filename
+                and self._is_valid_paired_extension(artifact_ext)
+            ):
+                artifact_pair_queue.append(
+                    FiletoteArtifact(path=artifact_path, paired=True)
                 )
-                # If the names match and it's an valid extension, it's a "pair"
-                if (
-                    artifact_filename == item_source_filename
-                    and self._is_valid_paired_extension(artifact_ext)
-                ):
-                    queue_artifacts.append(
-                        FiletoteArtifact(path=artifact_path, paired=True)
-                    )
+            else:
+                remaining_shared.append(artifact_path)
 
-                    # Remove from shared artifacts, as the item-move will
-                    # handle this file.
-                    self._shared_artifacts[source_path].remove(artifact_path)
+        # Update the shared artifacts pool to remove claimed pairs
+        self._run_state.shared_artifacts[source_path].artifacts = remaining_shared
 
-            self._update_multimove_artifacts(beets_item, source, destination)
+        self._update_multimove_artifacts(beets_item, source, destination)
 
-            if queue_artifacts:
-                self._process_queue.append(
-                    FiletoteArtifactCollection(
-                        artifacts=queue_artifacts,
-                        mapping=self._generate_mapping(beets_item, destination),
-                        source_path=source_path,
-                        item_dest=destination,
-                    )
+        if artifact_pair_queue:
+            self._run_state.process_queue.append(
+                FiletoteArtifactCollection(
+                    artifacts=artifact_pair_queue,
+                    mapping=self._generate_mapping(beets_item, destination),
+                    source_path=source_path,
+                    item_dest=destination,
                 )
+            )
 
     def _update_multimove_artifacts(
         self, beets_item: Item, source: PathBytes, destination: PathBytes
@@ -554,11 +610,11 @@ class FiletotePlugin(BeetsPlugin):
         the Item then to the Album. This ensures the final destination is correctly
         applied for the artifact.
         """
-        for index, artifact_collection in enumerate(self._process_queue):
+        for index, artifact_collection in enumerate(self._run_state.process_queue):
             artifact_item_dest: PathBytes = artifact_collection.item_dest
 
             if artifact_item_dest == source:
-                self._process_queue[index] = FiletoteArtifactCollection(
+                self._run_state.process_queue[index] = FiletoteArtifactCollection(
                     artifacts=artifact_collection.artifacts,
                     mapping=self._generate_mapping(beets_item, destination),
                     source_path=artifact_collection.source_path,
@@ -575,6 +631,22 @@ class FiletotePlugin(BeetsPlugin):
             and util.displayable_path(file_ext)[1:] in BEETS_FILE_TYPES
         )
 
+    def _discover_artifacts(self, source_path: PathBytes) -> list[PathBytes]:
+        """Walks a directory and returns a list of all non-beets-handled files."""
+        artifacts: list[PathBytes] = []
+        for root, _dirs, files in util.sorted_walk(
+            source_path, ignore=config["ignore"].as_str_seq()
+        ):
+            for filename in files:
+                _file_name, file_ext = os.path.splitext(filename)
+
+                # Skip any files extensions handled by beets
+                if self._is_beets_file_type(file_ext):
+                    continue
+
+                artifacts.append(os.path.join(root, filename))
+        return artifacts
+
     def collect_artifacts(
         self, beets_item: Item, source: PathBytes, destination: PathBytes
     ) -> None:
@@ -586,85 +658,108 @@ class FiletotePlugin(BeetsPlugin):
         > are represented as `PathBytes` objects, in keeping with the Unix filesystem
         > abstraction.
         """
-        item_source_filename: PathBytes = os.path.splitext(os.path.basename(source))[0]
         source_path: PathBytes = os.path.dirname(source)
 
-        queue_files: list[FiletoteArtifact] = []
-
         # Check if this path has not already been processed
-        if source_path in self._dirs_seen:
+        if source_path in self._run_state.dirs_seen:
             self._collect_paired_artifacts(beets_item, source, destination)
             return
+        self._run_state.dirs_seen.append(source_path)
 
-        non_handled_files: list[PathBytes] = []
-        for root, _dirs, files in util.sorted_walk(
-            source_path, ignore=config["ignore"].as_str_seq()
-        ):
-            for filename in files:
-                source_file = os.path.join(root, filename)
-                file_name, file_ext = os.path.splitext(filename)
+        # Discover all potential artifacts in the source directory
+        discovered_artifacts = self._discover_artifacts(source_path)
 
-                # Skip any files extensions handled by beets
-                if self._is_beets_file_type(file_ext):
-                    continue
+        # Classify artifacts as "individual", "paired", or "shared"
+        item_source_filename: PathBytes = os.path.splitext(os.path.basename(source))[0]
+        queued_artifacts: list[FiletoteArtifact] = []
+        shared_artifacts: list[PathBytes] = []
 
-                if not self.filetote.pairing.enabled:
-                    queue_files.append(FiletoteArtifact(path=source_file, paired=False))
-                elif (
-                    self.filetote.pairing.enabled
-                    and file_name == item_source_filename
-                    and self._is_valid_paired_extension(file_ext)
-                ):
-                    queue_files.append(FiletoteArtifact(path=source_file, paired=True))
-                else:
-                    non_handled_files.append(source_file)
+        for artifact_path in discovered_artifacts:
+            artifact_filename, artifact_ext = os.path.splitext(
+                os.path.basename(artifact_path)
+            )
 
+            if not self.filetote_config.pairing.enabled:
+                queued_artifacts.append(
+                    FiletoteArtifact(path=artifact_path, paired=False)
+                )
+                continue
+
+            is_paired: bool = (
+                artifact_filename == item_source_filename
+                and self._is_valid_paired_extension(artifact_ext)
+            )
+
+            if is_paired:
+                queued_artifacts.append(
+                    FiletoteArtifact(path=artifact_path, paired=True)
+                )
+            else:
+                shared_artifacts.append(artifact_path)
+
+        # Organize artifacts for processing
         self._update_multimove_artifacts(beets_item, source, destination)
 
-        self._process_queue.append(
+        shared_mapping_index = len(self._run_state.process_queue)
+        self._run_state.shared_artifacts[source_path] = FiletoteShared(
+            artifacts=shared_artifacts, mapping_index=shared_mapping_index
+        )
+
+        self._run_state.process_queue.append(
             FiletoteArtifactCollection(
-                artifacts=queue_files,
+                artifacts=queued_artifacts,
                 mapping=self._generate_mapping(beets_item, destination),
                 source_path=source_path,
                 item_dest=destination,
             )
         )
-        self._dirs_seen.append(source_path)
-
-        self._shared_artifacts[source_path] = non_handled_files
 
     def process_events(self, lib: Library) -> None:
         """Triggered by the CLI exit event, which itself triggers the processing and
         manipulation of the extra files and artifacts.
         """
         # Ensure destination library settings are accessible
-        self.filetote.session.adjust("_beets_lib", lib)
+        self.filetote_config.session.adjust("_beets_lib", lib)
 
-        artifact_collection: FiletoteArtifactCollection
-        for artifact_collection in self._process_queue:
-            artifacts: list[FiletoteArtifact] = artifact_collection.artifacts
-
-            source_path: PathBytes = artifact_collection.source_path
-
-            if not self.filetote.pairing.pairing_only:
-                artifacts.extend(
-                    FiletoteArtifact(path=shared_artifact, paired=False)
-                    for shared_artifact in self._shared_artifacts[source_path]
+        # Process paired artifacts if they exist
+        for artifact_collection in self._run_state.process_queue:
+            if artifact_collection.artifacts:
+                self.process_artifacts(
+                    source_path=artifact_collection.source_path,
+                    source_artifacts=artifact_collection.artifacts,
+                    mapping=artifact_collection.mapping,
                 )
 
-            self._shared_artifacts[source_path] = []
+        # Handle all shared artifacts for each source directory
+        if not self.filetote_config.pairing.pairing_only:
+            for (
+                source_path,
+                shared_artifacts,
+            ) in self._run_state.shared_artifacts.items():
+                if not shared_artifacts.artifacts:
+                    continue
 
-            self.process_artifacts(
-                source_path=source_path,
-                source_artifacts=artifacts,
-                mapping=artifact_collection.mapping,
-            )
+                # Mapping derives from the first Item that found this source path
+                album_level_mapping = self._run_state.process_queue[
+                    shared_artifacts.mapping_index
+                ].mapping
+
+                artifacts_to_process = [
+                    FiletoteArtifact(path=shared_artifact, paired=False)
+                    for shared_artifact in shared_artifacts.artifacts
+                ]
+
+                self.process_artifacts(
+                    source_path=source_path,
+                    source_artifacts=artifacts_to_process,
+                    mapping=album_level_mapping,
+                )
 
     def _is_valid_paired_extension(self, artifact_file_ext: str | PathBytes) -> bool:
         return (
-            ".*" in self.filetote.pairing.extensions
+            ".*" in self.filetote_config.pairing.extensions
             or util.displayable_path(artifact_file_ext)
-            in self.filetote.pairing.extensions
+            in self.filetote_config.pairing.extensions
         )
 
     def _is_pattern_match(
@@ -678,7 +773,7 @@ class FiletotePlugin(BeetsPlugin):
 
         if match_category:
             pattern_definitions = [
-                (match_category, self.filetote.patterns[match_category])
+                (match_category, self.filetote_config.patterns[match_category])
             ]
 
         for category, patterns in pattern_definitions:
@@ -704,68 +799,67 @@ class FiletotePlugin(BeetsPlugin):
 
         return (False, None)
 
-    def _is_artifact_ignorable(
+    def _should_process_artifact(
         self,
         source_path: PathBytes,
         artifact_source: PathBytes,
         artifact_filename: PathBytes,
         artifact_paired: bool,
-    ) -> tuple[bool, str | None]:
-        """Compares the artifact/file to certain checks to see if it should be ignored
-        or skipped.
+        is_pattern_match: bool = False,
+    ) -> bool:
+        """Decides if an artifact should be processed based on inclusion rules.
+
+        This function implements the core "opt-in" logic for Filetote. An artifact
+        is ignored by default unless it meets specific criteria. It first checks for
+        explicit exclusion rules. If none apply, it then checks against a series of
+        inclusion rules. The artifact will be processed if it matches at least one
+        inclusion rule.
         """
-        # Skip/ignore as another plugin or beets has already moved this file
-        if not os.path.exists(artifact_source):
-            return (True, None)
-
         relpath: PathBytes = os.path.relpath(artifact_source, start=source_path)
-
         artifact_file_ext: str = util.displayable_path(
             os.path.splitext(artifact_filename)[1]
         )
 
-        is_exclude_pattern_match: bool
-        is_exclude_pattern_match, _category = self._is_pattern_match(
-            artifact_relpath=relpath, patterns_dict=self.filetote.exclude.patterns
-        )
+        # --- Pre-Check rules for definite ignores ---
 
-        # Skip if filename is explicitly in `exclude`
+        # Ignore Rule 1: "Ignore" if it has already been moved or processed.
+        if not os.path.exists(artifact_source):
+            self._log.warning(
+                f"Artifact {util.displayable_path(artifact_filename)} no longer exists;"
+                f" skipping in `_should_process_artifact`."
+            )
+            return False
+
+        # Ignore Rule 2: "Ignore" if it matches an explicit exclusion rule.
+        is_exclude_pattern_match, _category = self._is_pattern_match(
+            artifact_relpath=relpath,
+            patterns_dict=self.filetote_config.exclude.patterns,
+        )
         if (
-            util.displayable_path(artifact_file_ext) in self.filetote.exclude.extensions
+            util.displayable_path(artifact_file_ext)
+            in self.filetote_config.exclude.extensions
             or util.displayable_path(artifact_filename)
-            in self.filetote.exclude.filenames
+            in self.filetote_config.exclude.filenames
             or is_exclude_pattern_match
         ):
-            return (True, None)
+            return False
 
-        # Skip:
-        # - extensions not allowed in `extensions`
-        # - filenames not explicitly in `filenames`
-        # - non-paired files
-        # - artifacts not matching patterns
+        # --- "Opt-in" logic: process if any inclusion rule matches. ---
 
-        is_pattern_match: bool
-        category: str | None
-        is_pattern_match, category = self._is_pattern_match(
-            artifact_relpath=relpath, patterns_dict=self.filetote.patterns
+        matches_filename: bool = (
+            util.displayable_path(artifact_filename) in self.filetote_config.filenames
+        )
+        is_paired: bool = artifact_paired and self._is_valid_paired_extension(
+            artifact_file_ext
+        )
+        matches_pattern: bool = is_pattern_match
+        matches_extension: bool = (
+            ".*" in self.filetote_config.extensions
+            or util.displayable_path(artifact_file_ext)
+            in self.filetote_config.extensions
         )
 
-        if (
-            ".*" not in self.filetote.extensions
-            and util.displayable_path(artifact_file_ext) not in self.filetote.extensions
-            and util.displayable_path(artifact_filename) not in self.filetote.filenames
-            and not is_pattern_match
-            and not (
-                artifact_paired and self._is_valid_paired_extension(artifact_file_ext)
-            )
-        ):
-            return (True, None)
-
-        matched_category: str | None = None
-        if is_pattern_match:
-            matched_category = category
-
-        return (False, matched_category)
+        return matches_filename or is_paired or matches_pattern or matches_extension
 
     def _artifact_exists_in_dest(
         self,
@@ -828,16 +922,19 @@ class FiletotePlugin(BeetsPlugin):
             # within dir of source_path
             artifact_filename: PathBytes = artifact_source[len(artifact_path) + 1 :]
 
-            is_ignorable: bool
-            pattern_category: str | None
-            is_ignorable, pattern_category = self._is_artifact_ignorable(
+            # Find pattern match category for path formatting, if applicable
+            is_pattern_match, pattern_category = self._is_pattern_match(
+                artifact_relpath=os.path.relpath(artifact_source, start=source_path),
+                patterns_dict=self.filetote_config.patterns,
+            )
+
+            if not self._should_process_artifact(
                 source_path=source_path,
                 artifact_source=artifact_source,
                 artifact_filename=artifact_filename,
                 artifact_paired=artifact.paired,
-            )
-
-            if is_ignorable:
+                is_pattern_match=is_pattern_match,
+            ):
                 ignored_artifacts.append(artifact_filename)
                 continue
 
@@ -861,6 +958,10 @@ class FiletotePlugin(BeetsPlugin):
                 artifact_source=artifact_source,
                 artifact_dest=artifact_dest,
             ):
+                self._log.warning(
+                    f"Skipping artifact {util.displayable_path(artifact_filename)}"
+                    f" because it already exists in the destination."
+                )
                 ignored_artifacts.append(artifact_filename)
                 continue
 
@@ -871,7 +972,7 @@ class FiletotePlugin(BeetsPlugin):
             # files. (Out-of-library files are copied/moved as usual).
             reimport: bool = self._is_reimport()
 
-            operation: MoveOperation | None = self.filetote.session.operation
+            operation: MoveOperation | None = self.filetote_config.session.operation
 
             self.manipulate_artifact(
                 operation, artifact_source, artifact_dest, reimport
@@ -880,10 +981,12 @@ class FiletotePlugin(BeetsPlugin):
             if operation == MoveOperation.MOVE or reimport:
                 # Prune vacated directory. Depending on the type of operation,
                 # this might be a specific import path, the base library, etc.
-                root_path: PathBytes | None = self._get_prune_root_path()
+                root_path: PathBytes | None = self._get_prune_root_path(
+                    source_path, artifact_path
+                )
 
                 util.prune_dirs(
-                    source_path,
+                    artifact_path,
                     root=root_path,
                     clutter=config["clutter"].as_str_seq(),
                 )
@@ -892,7 +995,7 @@ class FiletotePlugin(BeetsPlugin):
 
     def print_ignored_artifacts(self, ignored_artifacts: list[PathBytes]) -> None:
         """If enabled in config, output ignored files to beets logs."""
-        if self.filetote.print_ignored and ignored_artifacts:
+        if self.filetote_config.print_ignored and ignored_artifacts:
             self._log.warning("Ignored files:")
             for artifact_filename in ignored_artifacts:
                 self._log.warning("   {0}", os.path.basename(artifact_filename))
@@ -903,13 +1006,11 @@ class FiletotePlugin(BeetsPlugin):
         """Checks if the import path matches the library directory."""
         return import_path is not None and import_path == library_dir
 
-    def _is_import_path_within_library(
-        self, import_path: PathBytes | None, library_dir: PathBytes
+    def _is_path_within_ancestry(
+        self, child_path: PathBytes | None, parent_path: PathBytes
     ) -> bool:
-        """Checks if the import path is within the library directory."""
-        return import_path is not None and str(library_dir) in util.ancestry(
-            import_path
-        )
+        """Checks if a path is a subdirectory of another by checking its ancestry."""
+        return child_path is not None and parent_path in util.ancestry(child_path)
 
     def _is_reimport(self) -> bool:
         """Checks if the import is considered a "reimport".
@@ -917,36 +1018,61 @@ class FiletotePlugin(BeetsPlugin):
         Copy and link modes treat reimports specially, where in-library files
         are moved.
         """
-        library_dir = self.filetote.session.beets_lib.directory
-        import_path = self.filetote.session.import_path
+        library_dir = self.filetote_config.session.beets_lib.directory
+        import_path = self.filetote_config.session.import_path
 
         return self._is_import_path_same_as_library_dir(
             import_path, library_dir
-        ) or self._is_import_path_within_library(import_path, library_dir)
+        ) or self._is_path_within_ancestry(
+            child_path=import_path, parent_path=library_dir
+        )
 
-    def _get_prune_root_path(self) -> PathBytes | None:
+    def _get_prune_root_path(
+        self, source_path: PathBytes, artifact_path: PathBytes
+    ) -> PathBytes | None:
         """Deduces the root path for cleaning up dangling files on MOVE.
 
         This method determines the root path that aids in cleaning up files
         when moving. If the import path matches the library directory or is
         within it, the root path is selected. Otherwise, returns None.
         """
-        library_dir = self.filetote.session.beets_lib.directory
-        import_path = self.filetote.session.import_path
+        library_dir = self.filetote_config.session.beets_lib.directory
+        import_path = self.filetote_config.session.import_path
 
         root_path: PathBytes | None = None
 
+        is_multidisc: bool = False
+
+        # Replicate the beets importer's pattern matching for disc folders to determine
+        # if this is a multidisc.
+        for marker in MULTIDISC_MARKERS:
+            p = MULTIDISC_PAT_FMT.replace(b"%s", marker)
+            pat = re.compile(p, re.I)
+            if pat.match(os.path.basename(source_path)):
+                is_multidisc = True
+
         if import_path is None:
-            # If there's not a import path (query, other CLI, etc.), use the
-            # Library's dir instead. This is consistent with beet's default
-            # pruning for MOVE.
+            # If there's not a import path (query, other CLI, etc.), use the Library's
+            # dir instead. This is consistent with beet's default pruning for MOVE.
             root_path = library_dir
         elif self._is_import_path_same_as_library_dir(import_path, library_dir):
             # If the import path is the same as the Library's, allow for
             # pruning all the way to the library path.
-            root_path = os.path.dirname(import_path)
-        elif self._is_import_path_within_library(import_path, library_dir):
-            # Otherwise, prune all the way up to the import path.
+            root_path = os.path.dirname(library_dir)
+        elif self._is_path_within_ancestry(
+            child_path=import_path, parent_path=library_dir
+        ):
+            # If the import path is within the Library's, allow for pruning all the way
+            # to the import path.
+            root_path = import_path
+        elif (
+            self._is_path_within_ancestry(
+                child_path=artifact_path, parent_path=source_path
+            )
+            or is_multidisc
+        ):
+            # If the artifact is within the source path or is multidisc, prune up to the
+            # import path.
             root_path = import_path
 
         return root_path

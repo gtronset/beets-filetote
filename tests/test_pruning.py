@@ -48,6 +48,31 @@ class FiletotePruningyTest(FiletoteTestCase):
         self.assert_import_dir_exists(self.import_dir)
         self.assert_not_in_import_dir(b"the_album")
 
+    def test_prunes_empty_artifact_subdirectory_on_move(self) -> None:
+        """Tests that when an artifact is moved from a subdirectory within an album,
+        the empty subdirectory is correctly pruned.
+        """
+        artwork_dir_path = os.path.join(self.import_dir, b"the_album", b"Artwork")
+        os.makedirs(artwork_dir_path)
+
+        self.create_file(artwork_dir_path, b"background.jpg")
+
+        config["filetote"]["patterns"] = {"artwork": ["[aA]rtwork/"]}
+        config["filetote"]["extensions"] = ".*"
+        config["filetote"]["paths"] = {
+            "pattern:artwork": os.path.join("$albumpath", "art", "$old_filename")
+        }
+        config["import"]["move"] = True
+
+        self._run_cli_command("import")
+
+        self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"art", b"background.jpg")
+
+        self.assert_not_in_import_dir(b"the_album", b"Artwork", b"background.jpg")
+
+        self.assert_not_in_import_dir(b"the_album", b"Artwork")
+        self.assert_not_in_import_dir(b"the_album")
+
     def test_prune_import_expands_user_import_path(self) -> None:
         """Check that plugin prunes and converts/expands the user parts of path if
         present.
@@ -227,3 +252,16 @@ class FiletotePruningyTest(FiletoteTestCase):
         self.assert_not_in_lib_dir(b"Tag Artist", b"Tag Album")
         self.assert_not_in_lib_dir(b"Tag Artist")
         self.assert_in_lib_dir(b"New Tag Artist", b"Tag Album", b"artifact.file")
+
+    def test_prunes_multidisc_nested(self) -> None:
+        """Ensures that multidisc nested directories are pruned correctly on move."""
+        self._create_nested_import_dir()
+        self._setup_import_session(autotag=False, move=True)
+
+        config["filetote"]["extensions"] = ".*"
+
+        self._run_cli_command("import")
+
+        self.assert_not_in_import_dir(b"the_album", b"disc1")
+        self.assert_not_in_import_dir(b"the_album", b"disc2")
+        self.assert_not_in_import_dir(b"the_album")
