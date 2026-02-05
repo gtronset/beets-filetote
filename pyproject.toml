@@ -23,20 +23,30 @@ classifiers = [
 "Source" = "https://github.com/gtronset/beets-filetote"
 
 [tool.poetry.dependencies]
-python = "^3.9"
-beets = ">=2.3.0,<2.6.0"
+python = "^3.10"
+beets = { git = "https://github.com/beetbox/beets.git", rev = "master" }
 mediafile = ">=0.12.0"
 typing_extensions = { version = "*", python = "<=3.10" }
 numpy = [
     { python = "<3.13", version = ">=1.24.4" },
     { python = ">=3.13", version = ">=2.3.4" },
 ]
+librosa = { version = ">=0.11", optional = true }
+scipy = [ # for librosa
+    { python = "<3.13", version = ">=1.13.1", optional = true },
+    { python = ">=3.13", version = ">=1.16.1", optional = true },
+]
+numba = [ # for librosa
+    { python = "<3.13", version = ">=0.60", optional = true },
+    { python = ">=3.13", version = ">=0.62.1", optional = true },
+]
+llvmlite = "^0.45.0"
 
 [tool.poetry.group.dev.dependencies]
 toml = ">=0.10.2"
 
 [tool.poetry.group.lint.dependencies]
-mypy = [{ version = "^1.19.0", python = ">=3.9" }]
+mypy = "^1.19.0"
 ruff = "^0.15.0"
 
 [tool.poetry.group.test.dependencies]
@@ -145,16 +155,7 @@ keep-runtime-typing = true
 [tool.tox]
 requires = ["tox>=4.22"]
 min_version = "4.22"
-env_list = [
-    "3.9",
-    "3.10",
-    "3.11",
-    "3.12",
-    "3.13",
-    "beets-2.3",
-    "beets-2.4",
-    "beets-master",
-]
+env_list = ["3.10", "3.11", "3.12", "3.13", "beets-2.6", "beets-master"]
 
 [tool.tox.env_run_base]
 description = "Run test under {base_python}"
@@ -172,28 +173,60 @@ commands = [
     ],
 ]
 
-[tool.tox.env.beets-2.3]
-description = "Test with beets==2.3.1"
-commands_pre = []
-deps = ["beets==2.3.1", "pytest", "pytest-xdist", "typeguard"]
-commands = [["pytest", "-n", "auto", "tests", "--typeguard-packages=beetsplug"]]
-
-[tool.tox.env.beets-2.4]
-description = "Test with beets==2.4.0"
-commands_pre = []
-deps = ["beets==2.4.0", "pytest", "pytest-xdist", "typeguard"]
-commands = [["pytest", "-n", "auto", "tests", "--typeguard-packages=beetsplug"]]
+[tool.tox.env.beets-2.6]
+description = "Test with beets~=2.6.0"
+commands_pre = [
+    [
+        "poetry",
+        "install",
+        "--no-root",
+        "--sync",
+    ],
+    [
+        "poetry",
+        "add",
+        "beets~=2.6.0",
+    ],
+]
+commands = [
+    [
+        "poetry",
+        "run",
+        "pytest",
+        "-n",
+        "auto",
+        "tests",
+        "--typeguard-packages=beetsplug",
+    ],
+]
 
 [tool.tox.env.beets-master]
 description = "Test with beets from master branch"
-commands_pre = []
-deps = [
-    "beets @ git+https://github.com/beetbox/beets.git@master",
-    "pytest",
-    "pytest-xdist",
-    "typeguard",
+commands_pre = [
+    [
+        "poetry",
+        "install",
+        "--no-root",
+        "--sync",
+    ],
+    [
+        "poetry",
+        "add",
+        "beets@git+https://github.com/beetbox/beets.git@master",
+    ],
 ]
-commands = [["pytest", "-n", "auto", "tests", "--typeguard-packages=beetsplug"]]
+deps = []
+commands = [
+    [
+        "poetry",
+        "run",
+        "pytest",
+        "-n",
+        "auto",
+        "tests",
+        "--typeguard-packages=beetsplug",
+    ],
+]
 
 [tool.tox.env.lint]
 description = "Lint source code"

@@ -12,8 +12,8 @@ Testing and linting is performed with [Tox] (`v4.12`+).
 It is also highly recommended to [install `pre-commit`], which will help automatically
 lint before committing.
 
-Filetote currently supports Python `3.9`+, which aligns with the target base version of
-beets (`v2.3.0`).
+Filetote currently supports Python `3.10`+, which aligns with the target base version of
+beets (`v2.6.0`).
 
 For general information of working with Beets plugins, see the Beets documumentation
 [For Developers]
