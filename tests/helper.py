@@ -20,7 +20,9 @@ import beetsplug
 from beets import config, library, plugins, util
 from beets.importer import ImportSession
 from beets.plugins import BeetsPlugin
-from beets.ui import commands
+from beets.ui.commands import modify as command_modify
+from beets.ui.commands import move as command_move
+from beets.ui.commands import update as command_update
 from mediafile import MediaFile
 
 from ._item_model import MediaMeta
@@ -494,7 +496,7 @@ class FiletoteTestCase(_common.TestCase, Assertions, HelperUtils):
         """Runs the "move" CLI command. This should be called with
         _run_cli_command().
         """
-        commands.move_items(
+        command_move.move_items(
             self.lib,
             dest_dir,
             query=query,
@@ -520,7 +522,7 @@ class FiletoteTestCase(_common.TestCase, Assertions, HelperUtils):
         mods = mods or {}
         dels = dels or {}
 
-        commands.modify_items(
+        command_modify.modify_items(
             lib=self.lib,
             mods=mods,
             dels=dels,
@@ -543,7 +545,7 @@ class FiletoteTestCase(_common.TestCase, Assertions, HelperUtils):
         """Runs the "update" CLI command. This should be called with
         _run_cli_command().
         """
-        commands.update_items(
+        command_update.update_items(
             lib=self.lib,
             query=query,
             album=album,
