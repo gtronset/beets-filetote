@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.2.0] - 2026-02-05
+
 ### Changed
 
 - Run Pytest in Parallel <https://github.com/gtronset/beets-filetote/pull/237>
@@ -269,8 +271,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 <!-- Release Links -->
 
-[unreleased]: https://github.com/gtronset/beets-filetote/compare/v1.1.1...HEAD
-[1.1.1]: https://github.com/gtronset/beets-filetote/releases/tag/v1.1.1
+[unreleased]: https://github.com/gtronset/beets-filetote/compare/v1.2.0...HEAD
+[1.2.0]: https://github.com/gtronset/beets-filetote/releases/tag/v1.2.0
 [1.1.0]: https://github.com/gtronset/beets-filetote/releases/tag/v1.1.0
 [1.0.3]: https://github.com/gtronset/beets-filetote/releases/tag/v1.0.3
 [1.0.2]: https://github.com/gtronset/beets-filetote/releases/tag/v1.0.2
