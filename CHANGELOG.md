@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- Update Filetote to allow for Beets 2.6; Drop support for Beets 2.3 and Python 3.9 <https://github.com/gtronset/beets-filetote/pull/253>
+
 ## [1.2.0] - 2026-02-05
 
 ### Changed

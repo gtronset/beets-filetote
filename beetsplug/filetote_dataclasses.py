@@ -5,32 +5,24 @@ data used in processing extra files/artifacts.
 from __future__ import annotations
 
 from dataclasses import asdict, dataclass, field, fields
-from sys import version_info
-
-# Optional and Union are needed for <py310
 from typing import (
     TYPE_CHECKING,
     Any,
-    Callable,
     Literal,
-    Optional,
-    Union,
+    TypeAlias,
     get_type_hints,
 )
 
 if TYPE_CHECKING:
+    from collections.abc import Callable
+
     from beets.library import Library
     from beets.util import MoveOperation
 
     from .mapping_model import FiletoteMappingModel
 
-if version_info >= (3, 10):
-    from typing import TypeAlias
-else:
-    from typing_extensions import TypeAlias
-
 StrSeq: TypeAlias = list[str]
-OptionalStrSeq: TypeAlias = Union[Literal[""], StrSeq]
+OptionalStrSeq: TypeAlias = Literal[""] | StrSeq
 PatternsDict: TypeAlias = dict[str, list[str]]
 PathBytes: TypeAlias = bytes
 
@@ -60,9 +52,9 @@ class FiletoteArtifactCollection:
 class FiletoteSessionData:
     """Configuration settings for Filetote Item."""
 
-    operation: Optional[MoveOperation] = None
-    _beets_lib: Optional[Library] = None
-    import_path: Optional[PathBytes] = None
+    operation: MoveOperation | None = None
+    _beets_lib: Library | None = None
+    import_path: PathBytes | None = None
 
     @property
     def beets_lib(self) -> Library:
@@ -127,7 +119,7 @@ class FiletotePairingData:
 
     enabled: bool = False
     pairing_only: bool = False
-    extensions: Union[Literal[".*"], StrSeq] = DEFAULT_ALL_GLOB
+    extensions: Literal[".*"] | StrSeq = DEFAULT_ALL_GLOB
 
     def __post_init__(self) -> None:
         """Validates types upon initialization."""
@@ -215,14 +207,17 @@ class FiletoteConfig:
         and `exclude` properties, use the corresponding dataclass and expand the
         incoming value to the proper to arguments.
         """
-        if attr == "exclude":
-            if isinstance(value, list):
-                value = FiletoteExcludeData(value)
-            else:
-                value = FiletoteExcludeData(**value)
-
-        if attr == "pairing":
-            value = FiletotePairingData(**value)
+        match attr:
+            case "exclude":
+                if isinstance(value, list):
+                    value = FiletoteExcludeData(value)
+                else:
+                    value = FiletoteExcludeData(**value)
+            case "pairing":
+                value = FiletotePairingData(**value)
+            case _:
+                # Use the value as-is for all other attributes.
+                pass
 
         self._validate_types(attr, value)
         setattr(self, attr, value)
@@ -238,26 +233,24 @@ class FiletoteConfig:
             if target_field and field_.name != target_field:
                 continue
 
-            if field_.name in {
-                "exclude",
-                "session",
-                "pairing",
-            }:
-                _validate_types_instance([field_.name], field_value, field_type)
-
-            if field_.name in {"extensions", "filenames"}:
-                _validate_types_str_seq([field_.name], field_value, DEFAULT_EMPTY)
-
-            if field_.name == "patterns":
-                _validate_types_dict(
-                    [field_.name], field_value, field_type=list, list_subtype=str
-                )
-
-            if field_.name == "paths":
-                _validate_types_dict([field_.name], field_value, field_type=str)
-
-            if field_.name == "print_ignored":
-                _validate_types_instance([field_.name], field_value, field_type)
+            match field_.name:
+                case "exclude" | "session" | "pairing":
+                    _validate_types_instance([field_.name], field_value, field_type)
+                case "extensions" | "filenames":
+                    _validate_types_str_seq([field_.name], field_value, DEFAULT_EMPTY)
+                case "patterns":
+                    _validate_types_dict(
+                        [field_.name], field_value, field_type=list, list_subtype=str
+                    )
+                case "paths":
+                    _validate_types_dict([field_.name], field_value, field_type=str)
+                case "print_ignored":
+                    _validate_types_instance([field_.name], field_value, field_type)
+                case _:
+                    raise NotImplementedError(
+                        f"Validation for Filetote config field `{field_.name}` is not"
+                        f" implemented."
+                    )
 
 
 def _validate_types_instance(

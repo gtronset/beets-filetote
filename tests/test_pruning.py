@@ -3,8 +3,6 @@
 import logging
 import os
 
-from typing import Optional
-
 from beets import config
 
 from tests.helper import FiletoteTestCase
@@ -17,7 +15,7 @@ class FiletotePruningyTest(FiletoteTestCase):
     it moves artifact files.
     """
 
-    def setUp(self, _other_plugins: Optional[list[str]] = None) -> None:
+    def setUp(self, _other_plugins: list[str] | None = None) -> None:
         """Provides shared setup for tests."""
         super().setUp()
 

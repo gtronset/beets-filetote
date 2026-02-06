@@ -2,8 +2,6 @@
 plugin.
 """
 
-from typing import Optional
-
 from beets import config
 
 from tests.helper import FiletoteTestCase, capture_log_with_traceback
@@ -12,7 +10,7 @@ from tests.helper import FiletoteTestCase, capture_log_with_traceback
 class FiletoteNoFilesizeErrorTest(FiletoteTestCase):
     """Tests to ensure no "could not get filesize" error occurs."""
 
-    def setUp(self, _other_plugins: Optional[list[str]] = None) -> None:
+    def setUp(self, _other_plugins: list[str] | None = None) -> None:
         """Provides shared setup for tests."""
         super().setUp()
 

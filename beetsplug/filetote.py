@@ -7,15 +7,16 @@ import fnmatch
 import os
 import re
 
-from sys import version_info
 from typing import (
     TYPE_CHECKING,
     Any,
-    Callable,
     Literal,
+    TypeAlias,
 )
 
 from beets import config, util
+from beets.importer.tasks import MULTIDISC_MARKERS, MULTIDISC_PAT_FMT
+from beets.library.models import DefaultTemplateFunctions
 from beets.plugins import BeetsPlugin, find_plugins
 from beets.ui import get_path_formats
 from beets.util import MoveOperation
@@ -32,26 +33,11 @@ from .filetote_dataclasses import (
 )
 from .mapping_model import FiletoteMappingFormatted, FiletoteMappingModel
 
-# TODO(gtronset): Remove fallback once Beets v2.3 is no longer supported:
-# https://github.com/gtronset/beets-filetote/pull/231
-# https://github.com/gtronset/beets-filetote/pull/249
-try:
-    from beets.importer.tasks import MULTIDISC_MARKERS, MULTIDISC_PAT_FMT
-    from beets.library.models import DefaultTemplateFunctions
-except ImportError:  # fallback for older Beets releases
-    from beets.importer import MULTIDISC_MARKERS, MULTIDISC_PAT_FMT
-    from beets.library import (
-        DefaultTemplateFunctions,
-    )
-
 if TYPE_CHECKING:
+    from collections.abc import Callable
+
     from beets.importer import ImportSession, ImportTask
     from beets.library import Item, Library
-
-if version_info >= (3, 10):
-    from typing import TypeAlias
-else:
-    from typing_extensions import TypeAlias
 
 FiletoteQueries: TypeAlias = list[
     Literal[

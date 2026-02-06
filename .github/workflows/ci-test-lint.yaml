@@ -24,7 +24,7 @@ jobs:
         strategy:
             fail-fast: false
             matrix:
-                python-version: ["3.9", "3.10", "3.11", "3.12", "3.13"]
+                python-version: ["3.10", "3.11", "3.12", "3.13"]
                 os: [ubuntu-24.04, windows-2022]
                 beets-version: ["latest"]
                 exclude:
@@ -33,17 +33,21 @@ jobs:
                 include:
                     - python-version: "3.13"
                       os: ubuntu-24.04
-                      beets-version: "2.3"
+                      beets-version: "2.4"
                     - python-version: "3.13"
                       os: ubuntu-24.04
-                      beets-version: "2.4"
+                      beets-version: "2.5"
+                    - python-version: "3.13"
+                      os: ubuntu-24.04
+                      beets-version: "2.6"
 
         env:
             TOXENV: >
                 ${{
                     (matrix.beets-version == 'latest' && matrix.python-version) ||
-                    (matrix.beets-version == '2.3' && 'beets-2.3') ||
-                    (matrix.beets-version == '2.4' && 'beets-2.4')
+                    (matrix.beets-version == '2.4' && 'beets-2.4') ||
+                    (matrix.beets-version == '2.5' && 'beets-2.5') ||
+                    (matrix.beets-version == '2.6' && 'beets-2.6')
                 }}
 
         runs-on: ${{ matrix.os }}

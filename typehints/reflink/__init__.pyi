@@ -1,4 +1,4 @@
-from typing_extensions import TypeAlias
+from typing import TypeAlias
 
 Bytes_or_String: TypeAlias = int | str
 

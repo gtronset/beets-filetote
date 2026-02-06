@@ -2,7 +2,6 @@ from re import Pattern
 
 from ..dbcore import Database
 from ..dbcore.db import Model
-from .models import DefaultTemplateFunctions
 
 class Library(Database):
     path: bytes
@@ -24,9 +23,3 @@ class Item(LibModel):
     path: bytes
 
     def __init__(self) -> None: ...
-
-# TODO(gtronset): Remove export once Beets v2.3 is no longer supported:
-# https://github.com/gtronset/beets-filetote/pull/231
-__all__ = [
-    "DefaultTemplateFunctions",
-]

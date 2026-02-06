@@ -3,7 +3,6 @@
 
 import contextlib
 import importlib.util
-import inspect
 import logging
 import os
 import shutil
@@ -13,18 +12,24 @@ import types
 from collections.abc import Generator
 from dataclasses import asdict, dataclass
 from pathlib import Path
-from typing import Any, Literal, Optional, cast
+from typing import Any, Literal, cast
 
 import beetsplug
 
 from beets import config, library, plugins, util
 from beets.importer import ImportSession
 from beets.plugins import BeetsPlugin
-from beets.ui import commands
 from mediafile import MediaFile
 
 from ._item_model import MediaMeta
 from tests import _common
+
+try:
+    from beets.ui.commands.modify import modify_items
+    from beets.ui.commands.move import move_items
+    from beets.ui.commands.update import update_items
+except ImportError:  # fallback for Beets 2.4 and 2.5
+    from beets.ui.commands import modify_items, move_items, update_items
 
 log = logging.getLogger("beets")
 
@@ -143,8 +148,8 @@ class Assertions(_common.AssertionsMixin):
 
     def __init__(self) -> None:
         """Sets up baseline variables."""
-        self.lib_dir: Optional[bytes] = None
-        self.import_dir: Optional[bytes] = None
+        self.lib_dir: bytes | None = None
+        self.import_dir: bytes | None = None
 
     def assert_in_lib_dir(self, *segments: bytes) -> None:
         """Join the ``segments`` and assert that this path exists in the library
@@ -160,7 +165,7 @@ class Assertions(_common.AssertionsMixin):
         if self.lib_dir:
             self.assert_does_not_exist(os.path.join(self.lib_dir, *segments))
 
-    def assert_import_dir_exists(self, import_dir: Optional[bytes] = None) -> None:
+    def assert_import_dir_exists(self, import_dir: bytes | None = None) -> None:
         """Asserts that the import directory exists."""
         directory = import_dir or self.import_dir
         if directory:
@@ -198,37 +203,6 @@ class Assertions(_common.AssertionsMixin):
         ``segments``.
         """
         assert len(list(os.listdir(os.path.join(*segments)))) == count
-
-    def assert_halts_with_message(
-        self, command: str, message: str, **kwargs: Any
-    ) -> None:
-        """Runs a CLI command and asserts that it halts, either by raising an
-        AssertionError (older beets) or by logging an error (newer beets).
-        """
-        exception_caught = False
-
-        # TODO(gtronset): Refactor once Beets v2.3 is no longer supported:
-        # https://github.com/gtronset/beets-filetote/pull/231
-
-        # We cannot use `pytest.raises` here because this test needs to handle
-        # two valid outcomes: an exception being raised (older beets versions)
-        # or an error being logged (newer beets versions).
-        with capture_log_with_traceback() as logs:
-            try:
-                # The `self` here refers to the test case instance, which has this
-                # method.
-                self._run_cli_command(command, **kwargs)  # type: ignore[attr-defined]
-            except AssertionError as e:
-                # Older Beets versions might raise the exception.
-                exception_caught = True
-                assert message in str(e)  # noqa: PT017
-
-        if not exception_caught:
-            # Newer Beets versions swallow the exception and log it.
-            log_text = "".join(logs)
-            assert message in log_text, (
-                f"The expected warning '{message}' was not logged."
-            )
 
 
 class HelperUtils:
@@ -275,7 +249,7 @@ class FiletoteTestCase(_common.TestCase, Assertions, HelperUtils):
     for the autotagging library and assertions helpers.
     """
 
-    def setUp(self, other_plugins: Optional[list[str]] = None) -> None:
+    def setUp(self, other_plugins: list[str] | None = None) -> None:
         """Handles all setup for testing, including library (database)."""
         super().setUp()
 
@@ -293,9 +267,9 @@ class FiletoteTestCase(_common.TestCase, Assertions, HelperUtils):
         self._pairs_count: int = 0
 
         self.import_dir: bytes = b""
-        self.import_media: Optional[list[MediaFile]] = None
-        self.importer: Optional[ImportSession] = None
-        self.paths: Optional[bytes] = None
+        self.import_media: list[MediaFile] | None = None
+        self.importer: ImportSession | None = None
+        self.paths: bytes | None = None
 
         # Install the DummyIO to capture anything directed to stdout
         self.in_out.install()
@@ -385,16 +359,7 @@ class FiletoteTestCase(_common.TestCase, Assertions, HelperUtils):
         plugins._classes = set(plugin_class_list)
         config["plugins"] = plugin_list
 
-        # TODO(gtronset): Remove fallback once Beets v2.3 is no longer supported. Beets
-        # 2.3 takes in a list of plugin names, while Beets 2.4+ does not take any
-        # arguments:
-        # https://github.com/gtronset/beets-filetote/pull/231
-        load_plugins_sig = inspect.signature(plugins.load_plugins)
-        if len(load_plugins_sig.parameters) == 1:
-            plugins.load_plugins(plugin_list)
-            plugins.send("pluginload")
-        else:
-            plugins.load_plugins()
+        plugins.load_plugins()
 
     def unload_plugins(self) -> None:
         """Unload all plugins and remove the from the configuration."""
@@ -411,21 +376,11 @@ class FiletoteTestCase(_common.TestCase, Assertions, HelperUtils):
                     for event in list(plugin_class.listeners):
                         plugin_class.listeners[event].clear()
 
-                # TODO(gtronset): Remove fallback once Beets v2.3 is no longer
-                # supported:
-                # https://github.com/gtronset/beets-filetote/pull/231
-
-                # Remove plugin instance(s) for both dict and list types
                 instances = plugins._instances
-                if isinstance(instances, dict):
-                    # Beets 2.3: dict[type, instance]
-                    if plugin_class in instances:
-                        del instances[plugin_class]
-                elif isinstance(instances, list):
-                    # Beets 2.4+: list of instances
-                    plugins._instances = [
-                        inst for inst in instances if not isinstance(inst, plugin_class)
-                    ]
+                plugins._instances = [
+                    inst for inst in instances if not isinstance(inst, plugin_class)
+                ]
+
         for modname in list(sys.modules):
             if modname.startswith("beetsplug.filetote") or modname.startswith(
                 "beetsplug.audible"
@@ -465,7 +420,7 @@ class FiletoteTestCase(_common.TestCase, Assertions, HelperUtils):
             self.list_files(self.paths)
 
     def _run_cli_import(
-        self, operation_option: Optional[Literal["copy", "move"]] = None
+        self, operation_option: Literal["copy", "move"] | None = None
     ) -> None:
         """Runs the "import" CLI command. This should be called with
         _run_cli_command().
@@ -485,8 +440,8 @@ class FiletoteTestCase(_common.TestCase, Assertions, HelperUtils):
     def _run_cli_move(  # noqa: PLR0913
         self,
         query: str,
-        dest_dir: Optional[bytes] = None,
-        album: Optional[str] = None,
+        dest_dir: bytes | None = None,
+        album: str | None = None,
         copy: bool = False,
         pretend: bool = False,
         export: bool = False,
@@ -494,7 +449,7 @@ class FiletoteTestCase(_common.TestCase, Assertions, HelperUtils):
         """Runs the "move" CLI command. This should be called with
         _run_cli_command().
         """
-        commands.move_items(
+        move_items(
             self.lib,
             dest_dir,
             query=query,
@@ -508,11 +463,11 @@ class FiletoteTestCase(_common.TestCase, Assertions, HelperUtils):
     def _run_cli_modify(  # noqa: PLR0913
         self,
         query: str,
-        mods: Optional[dict[str, str]] = None,
-        dels: Optional[dict[str, str]] = None,
+        mods: dict[str, str] | None = None,
+        dels: dict[str, str] | None = None,
         write: bool = True,
         move: bool = True,
-        album: Optional[str] = None,
+        album: str | None = None,
     ) -> None:
         """Runs the "modify" CLI command. This should be called with
         _run_cli_command().
@@ -520,7 +475,7 @@ class FiletoteTestCase(_common.TestCase, Assertions, HelperUtils):
         mods = mods or {}
         dels = dels or {}
 
-        commands.modify_items(
+        modify_items(
             lib=self.lib,
             mods=mods,
             dels=dels,
@@ -535,15 +490,15 @@ class FiletoteTestCase(_common.TestCase, Assertions, HelperUtils):
     def _run_cli_update(
         self,
         query: str,
-        album: Optional[str] = None,
+        album: str | None = None,
         move: bool = True,
         pretend: bool = False,
-        fields: Optional[list[str]] = None,
+        fields: list[str] | None = None,
     ) -> None:
         """Runs the "update" CLI command. This should be called with
         _run_cli_command().
         """
-        commands.update_items(
+        update_items(
             lib=self.lib,
             query=query,
             album=album,
@@ -554,7 +509,7 @@ class FiletoteTestCase(_common.TestCase, Assertions, HelperUtils):
 
     def _create_flat_import_dir(
         self,
-        media_files: Optional[list[MediaSetup]] = None,
+        media_files: list[MediaSetup] | None = None,
         pair_subfolders: bool = False,
     ) -> None:
         """Creates a directory with media files and artifacts.
@@ -625,8 +580,8 @@ class FiletoteTestCase(_common.TestCase, Assertions, HelperUtils):
 
     def _create_nested_import_dir(
         self,
-        disc1_media_files: Optional[list[MediaSetup]] = None,
-        disc2_media_files: Optional[list[MediaSetup]] = None,
+        disc1_media_files: list[MediaSetup] | None = None,
+        disc2_media_files: list[MediaSetup] | None = None,
     ) -> None:
         """Creates a directory with media files and artifacts nested in subdirectories.
         Sets ``self.import_dir`` to the path of the directory. Also sets
@@ -765,7 +720,7 @@ class FiletoteTestCase(_common.TestCase, Assertions, HelperUtils):
         return media_list
 
     def _create_medium(
-        self, path: bytes, resource_name: bytes, media_meta: Optional[MediaMeta] = None
+        self, path: bytes, resource_name: bytes, media_meta: MediaMeta | None = None
     ) -> MediaFile:
         """Creates and saves a media file object located at path using resource_name
         from the beets test resources directory as initial data.
@@ -801,14 +756,14 @@ class FiletoteTestCase(_common.TestCase, Assertions, HelperUtils):
 
     def _setup_import_session(  # noqa: PLR0913
         self,
-        import_dir: Optional[bytes] = None,
+        import_dir: bytes | None = None,
         delete: bool = False,
         threaded: bool = False,
         copy: bool = True,
         singletons: bool = False,
         move: bool = False,
         autotag: bool = True,
-        query: Optional[str] = None,
+        query: str | None = None,
     ) -> None:
         config["import"]["copy"] = copy
         config["import"]["delete"] = delete

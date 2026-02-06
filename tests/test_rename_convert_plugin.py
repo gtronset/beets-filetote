@@ -5,8 +5,6 @@
 import logging
 import os
 
-from typing import Optional
-
 from beets import config
 
 from tests.helper import FiletoteTestCase, MediaSetup
@@ -19,7 +17,7 @@ class FiletoteConvertRenameTest(FiletoteTestCase):
     `convert` plugin is loaded.
     """
 
-    def setUp(self, _other_plugins: Optional[list[str]] = None) -> None:
+    def setUp(self, _other_plugins: list[str] | None = None) -> None:
         """Provides shared setup for tests."""
         super().setUp(other_plugins=["convert"])
 

@@ -2,9 +2,7 @@ from collections.abc import Generator, Sequence
 from enum import Enum
 from logging import Logger
 from re import Pattern
-from typing import Any, AnyStr
-
-from typing_extensions import TypeAlias
+from typing import Any, AnyStr, TypeAlias
 
 Bytes_or_String: TypeAlias = str | bytes
 
