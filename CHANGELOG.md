@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.3.0] - 2026-02-05
+
 ### Changed
 
 - Update Filetote to allow for Beets 2.6; Drop support for Beets 2.3 and Python 3.9 <https://github.com/gtronset/beets-filetote/pull/253>
@@ -275,7 +277,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 <!-- Release Links -->
 
-[unreleased]: https://github.com/gtronset/beets-filetote/compare/v1.2.0...HEAD
+[unreleased]: https://github.com/gtronset/beets-filetote/compare/v1.3.0...HEAD
+[1.3.0]: https://github.com/gtronset/beets-filetote/releases/tag/v1.3.0
 [1.2.0]: https://github.com/gtronset/beets-filetote/releases/tag/v1.2.0
 [1.1.0]: https://github.com/gtronset/beets-filetote/releases/tag/v1.1.0
 [1.0.3]: https://github.com/gtronset/beets-filetote/releases/tag/v1.0.3
