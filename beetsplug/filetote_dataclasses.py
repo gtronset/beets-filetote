@@ -207,14 +207,14 @@ class FiletoteConfig:
         and `exclude` properties, use the corresponding dataclass and expand the
         incoming value to the proper to arguments.
         """
-        if attr == "exclude":
-            if isinstance(value, list):
-                value = FiletoteExcludeData(value)
-            else:
-                value = FiletoteExcludeData(**value)
-
-        if attr == "pairing":
-            value = FiletotePairingData(**value)
+        match attr:
+            case "exclude":
+                if isinstance(value, list):
+                    value = FiletoteExcludeData(value)
+                else:
+                    value = FiletoteExcludeData(**value)
+            case "pairing":
+                value = FiletotePairingData(**value)
 
         self._validate_types(attr, value)
         setattr(self, attr, value)
@@ -230,26 +230,19 @@ class FiletoteConfig:
             if target_field and field_.name != target_field:
                 continue
 
-            if field_.name in {
-                "exclude",
-                "session",
-                "pairing",
-            }:
-                _validate_types_instance([field_.name], field_value, field_type)
-
-            if field_.name in {"extensions", "filenames"}:
-                _validate_types_str_seq([field_.name], field_value, DEFAULT_EMPTY)
-
-            if field_.name == "patterns":
-                _validate_types_dict(
-                    [field_.name], field_value, field_type=list, list_subtype=str
-                )
-
-            if field_.name == "paths":
-                _validate_types_dict([field_.name], field_value, field_type=str)
-
-            if field_.name == "print_ignored":
-                _validate_types_instance([field_.name], field_value, field_type)
+            match field_.name:
+                case "exclude" | "session" | "pairing":
+                    _validate_types_instance([field_.name], field_value, field_type)
+                case "extensions" | "filenames":
+                    _validate_types_str_seq([field_.name], field_value, DEFAULT_EMPTY)
+                case "patterns":
+                    _validate_types_dict(
+                        [field_.name], field_value, field_type=list, list_subtype=str
+                    )
+                case "paths":
+                    _validate_types_dict([field_.name], field_value, field_type=str)
+                case "print_ignored":
+                    _validate_types_instance([field_.name], field_value, field_type)
 
 
 def _validate_types_instance(
