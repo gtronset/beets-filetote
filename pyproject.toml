@@ -145,7 +145,16 @@ keep-runtime-typing = true
 [tool.tox]
 requires = ["tox>=4.22"]
 min_version = "4.22"
-env_list = ["3.10", "3.11", "3.12", "3.13", "beets-2.6", "beets-master"]
+env_list = [
+    "3.10",
+    "3.11",
+    "3.12",
+    "3.13",
+    "beets-2.4",
+    "beets-2.5",
+    "beets-2.6",
+    "beets-master",
+]
 
 [tool.tox.env_run_base]
 description = "Run test under {base_python}"
