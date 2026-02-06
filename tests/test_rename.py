@@ -320,7 +320,7 @@ class FiletoteRenameTest(FiletoteTestCase):
         config["paths"]["ext:.*"] = "$albumpath/$old_filename"
         config["import"]["move"] = True
 
-        with pytest.raises(AssertionError) as assert_test_message:
+        with pytest.raises(AssertionError) as exception_info:
             self._run_cli_command("import")
 
         assertion_msg: str = (
@@ -328,7 +328,7 @@ class FiletoteRenameTest(FiletoteTestCase):
             " trying to set a default/fallback, please use `filetote:default` instead."
         )
 
-        assert str(assert_test_message.value) == assertion_msg
+        assert str(exception_info.value) == assertion_msg
 
     def test_rename_filetote_paths_wildcard_extension_halts(self) -> None:
         """Ensure that specifying `ext:.*` extensions results in an exception."""
@@ -336,7 +336,7 @@ class FiletoteRenameTest(FiletoteTestCase):
         config["filetote"]["paths"]["ext:.*"] = "$albumpath/$old_filename"
         config["import"]["move"] = True
 
-        with pytest.raises(AssertionError) as assert_test_message:
+        with pytest.raises(AssertionError) as exception_info:
             self._run_cli_command("import")
 
         assertion_msg: str = (
@@ -344,7 +344,7 @@ class FiletoteRenameTest(FiletoteTestCase):
             " trying to set a default/fallback, please use `filetote:default` instead."
         )
 
-        assert str(assert_test_message.value) == assertion_msg
+        assert str(exception_info.value) == assertion_msg
 
     def test_filetote_paths_priority_over_beets_paths(self) -> None:
         """Ensure that the Filetote `paths` settings take priority over
