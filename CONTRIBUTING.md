@@ -13,7 +13,7 @@ It is also highly recommended to [install `pre-commit`], which will help automat
 lint before committing.
 
 Filetote currently supports Python `3.10`+, which aligns with the target base version of
-beets (`v2.6.0`).
+beets (`v2.6`).
 
 For general information of working with Beets plugins, see the Beets documumentation
 [For Developers]

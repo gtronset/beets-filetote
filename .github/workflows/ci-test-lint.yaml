@@ -33,12 +33,20 @@ jobs:
                 include:
                     - python-version: "3.13"
                       os: ubuntu-24.04
+                      beets-version: "2.4"
+                    - python-version: "3.13"
+                      os: ubuntu-24.04
+                      beets-version: "2.5"
+                    - python-version: "3.13"
+                      os: ubuntu-24.04
                       beets-version: "2.6"
 
         env:
             TOXENV: >
                 ${{
                     (matrix.beets-version == 'latest' && matrix.python-version) ||
+                    (matrix.beets-version == '2.4' && 'beets-2.4') ||
+                    (matrix.beets-version == '2.5' && 'beets-2.5') ||
                     (matrix.beets-version == '2.6' && 'beets-2.6')
                 }}
 

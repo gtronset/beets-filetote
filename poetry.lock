@@ -83,9 +83,11 @@ name = "beets"
 version = "2.6.1"
 description = "music tagger and library organizer"
 optional = false
-python-versions = ">=3.10,<4"
-files = []
-develop = false
+python-versions = "<4,>=3.10"
+files = [
+    {file = "beets-2.6.1-py3-none-any.whl", hash = "sha256:d3654fc7fef2c26d35113d40346d873c073ca981e0db1f21e4575ca1860ede02"},
+    {file = "beets-2.6.1.tar.gz", hash = "sha256:1376b992ee18ee1b5de08d3586625e78d4338edb6b47e24f8e74932d8551f672"},
+]
 
 [package.dependencies]
 colorama = {version = "*", markers = "sys_platform == \"win32\""}
@@ -93,6 +95,10 @@ confuse = ">=2.1.0"
 jellyfish = "*"
 lap = ">=0.5.12"
 mediafile = ">=0.12.0"
+numba = [
+    {version = ">=0.60", markers = "python_version < \"3.13\""},
+    {version = ">=0.62.1", markers = "python_version >= \"3.13\""},
+]
 numpy = [
     {version = ">=2.0.2", markers = "python_version < \"3.13\""},
     {version = ">=2.3.4", markers = "python_version >= \"3.13\""},
@@ -101,6 +107,10 @@ packaging = ">=24.0"
 platformdirs = ">=3.5.0"
 pyyaml = "*"
 requests-ratelimiter = ">=0.7.0"
+scipy = [
+    {version = ">=1.13.1", markers = "python_version < \"3.13\""},
+    {version = ">=1.16.1", markers = "python_version >= \"3.13\""},
+]
 typing_extensions = "*"
 unidecode = ">=1.3.6"
 
@@ -131,12 +141,6 @@ sonosupdate = ["soco"]
 thumbnails = ["Pillow", "pyxdg"]
 titlecase = ["titlecase (>=2.4.1,<3.0.0)"]
 web = ["flask", "flask-cors"]
-
-[package.source]
-type = "git"
-url = "https://github.com/beetbox/beets.git"
-reference = "master"
-resolved_reference = "cdfb8139102220986c0cd1c470b2444d406878a1"
 
 [[package]]
 name = "certifi"
@@ -987,7 +991,7 @@ files = [
 name = "numba"
 version = "0.62.1"
 description = "compiling Python code using LLVM"
-optional = true
+optional = false
 python-versions = ">=3.10"
 files = [
     {file = "numba-0.62.1-cp310-cp310-macosx_10_15_x86_64.whl", hash = "sha256:a323df9d36a0da1ca9c592a6baaddd0176d9f417ef49a65bb81951dce69d941a"},
@@ -1525,7 +1529,7 @@ tests = ["matplotlib (>=3.5.0)", "mypy (>=1.15)", "numpydoc (>=1.2.0)", "pandas 
 name = "scipy"
 version = "1.15.3"
 description = "Fundamental algorithms for scientific computing in Python"
-optional = true
+optional = false
 python-versions = ">=3.10"
 files = [
     {file = "scipy-1.15.3-cp310-cp310-macosx_10_13_x86_64.whl", hash = "sha256:a345928c86d535060c9c2b25e71e87c39ab2f22fc96e9636bd74d1dbf9de448c"},
@@ -1588,7 +1592,7 @@ test = ["Cython", "array-api-strict (>=2.0,<2.1.1)", "asv", "gmpy2", "hypothesis
 name = "scipy"
 version = "1.17.0"
 description = "Fundamental algorithms for scientific computing in Python"
-optional = true
+optional = false
 python-versions = ">=3.11"
 files = [
     {file = "scipy-1.17.0-cp311-cp311-macosx_10_14_x86_64.whl", hash = "sha256:2abd71643797bd8a106dff97894ff7869eeeb0af0f7a5ce02e4227c6a2e9d6fd"},
@@ -1899,4 +1903,4 @@ zstd = ["backports-zstd (>=1.0.0)"]
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.10"
-content-hash = "038c44e7540aac794b430d202bca1865aee910342d75fa4c4e1eb91740d9b697"
+content-hash = "e46c75fa98a158bdfd7a4f1ce012ebf81e30a5cb4f84875e5d0421f1a0dfc30a"

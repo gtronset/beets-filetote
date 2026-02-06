@@ -24,7 +24,7 @@ classifiers = [
 
 [tool.poetry.dependencies]
 python = "^3.10"
-beets = { git = "https://github.com/beetbox/beets.git", rev = "master" }
+beets = ">=2.6.0,<2.7.0"
 mediafile = ">=0.12.0"
 typing_extensions = { version = "*", python = "<=3.10" }
 numpy = [
@@ -161,6 +161,60 @@ env_list = ["3.10", "3.11", "3.12", "3.13", "beets-2.6", "beets-master"]
 description = "Run test under {base_python}"
 allowlist_externals = ["poetry", "pytest"]
 commands_pre = [["poetry", "install", "--no-root", "--sync"]]
+commands = [
+    [
+        "poetry",
+        "run",
+        "pytest",
+        "-n",
+        "auto",
+        "tests",
+        "--typeguard-packages=beetsplug",
+    ],
+]
+
+[tool.tox.env.beets-2.4]
+description = "Test with beets~=2.4.0"
+commands_pre = [
+    [
+        "poetry",
+        "install",
+        "--no-root",
+        "--sync",
+    ],
+    [
+        "poetry",
+        "add",
+        "beets~=2.4.0",
+    ],
+]
+commands = [
+    [
+        "poetry",
+        "run",
+        "pytest",
+        "-n",
+        "auto",
+        "tests",
+        "--typeguard-packages=beetsplug",
+    ],
+]
+
+[tool.tox.env.beets-2.5]
+description = "Test with beets~=2.5.0"
+commands_pre = [
+    [
+        "poetry",
+        "install",
+        "--no-root",
+        "--sync",
+    ],
+    [
+        "poetry",
+        "add",
+        "beets~=2.5.0",
+    ],
+]
 commands = [
     [
         "poetry",
