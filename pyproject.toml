@@ -24,20 +24,11 @@ classifiers = [
 
 [tool.poetry.dependencies]
 python = "^3.10"
-beets = ">=2.6.0,<2.7.0"
+beets = ">=2.4.0,<2.5.0"
 mediafile = ">=0.12.0"
 numpy = [
     { python = "<3.13", version = ">=1.24.4" },
     { python = ">=3.13", version = ">=2.3.4" },
-]
-librosa = { version = ">=0.11", optional = true }
-scipy = [ # for librosa
-    { python = "<3.13", version = ">=1.13.1", optional = true },
-    { python = ">=3.13", version = ">=1.16.1", optional = true },
-]
-numba = [ # for librosa
-    { python = "<3.13", version = ">=0.60", optional = true },
-    { python = ">=3.13", version = ">=0.62.1", optional = true },
 ]
 llvmlite = "^0.45.0"
 
