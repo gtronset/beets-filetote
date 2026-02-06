@@ -3,7 +3,6 @@
 
 import contextlib
 import importlib.util
-import inspect
 import logging
 import os
 import shutil
@@ -201,37 +200,6 @@ class Assertions(_common.AssertionsMixin):
         """
         assert len(list(os.listdir(os.path.join(*segments)))) == count
 
-    def assert_halts_with_message(
-        self, command: str, message: str, **kwargs: Any
-    ) -> None:
-        """Runs a CLI command and asserts that it halts, either by raising an
-        AssertionError (older beets) or by logging an error (newer beets).
-        """
-        exception_caught = False
-
-        # TODO(gtronset): Refactor once Beets v2.3 is no longer supported:
-        # https://github.com/gtronset/beets-filetote/pull/231
-
-        # We cannot use `pytest.raises` here because this test needs to handle
-        # two valid outcomes: an exception being raised (older beets versions)
-        # or an error being logged (newer beets versions).
-        with capture_log_with_traceback() as logs:
-            try:
-                # The `self` here refers to the test case instance, which has this
-                # method.
-                self._run_cli_command(command, **kwargs)  # type: ignore[attr-defined]
-            except AssertionError as e:
-                # Older Beets versions might raise the exception.
-                exception_caught = True
-                assert message in str(e)  # noqa: PT017
-
-        if not exception_caught:
-            # Newer Beets versions swallow the exception and log it.
-            log_text = "".join(logs)
-            assert message in log_text, (
-                f"The expected warning '{message}' was not logged."
-            )
-
 
 class HelperUtils:
     """Helpful utilities for testing the plugin's actions."""
@@ -387,16 +355,7 @@ class FiletoteTestCase(_common.TestCase, Assertions, HelperUtils):
         plugins._classes = set(plugin_class_list)
         config["plugins"] = plugin_list
 
-        # TODO(gtronset): Remove fallback once Beets v2.3 is no longer supported. Beets
-        # 2.3 takes in a list of plugin names, while Beets 2.4+ does not take any
-        # arguments:
-        # https://github.com/gtronset/beets-filetote/pull/231
-        load_plugins_sig = inspect.signature(plugins.load_plugins)
-        if len(load_plugins_sig.parameters) == 1:
-            plugins.load_plugins(plugin_list)
-            plugins.send("pluginload")
-        else:
-            plugins.load_plugins()
+        plugins.load_plugins()
 
     def unload_plugins(self) -> None:
         """Unload all plugins and remove the from the configuration."""
@@ -413,21 +372,11 @@ class FiletoteTestCase(_common.TestCase, Assertions, HelperUtils):
                     for event in list(plugin_class.listeners):
                         plugin_class.listeners[event].clear()
 
-                # TODO(gtronset): Remove fallback once Beets v2.3 is no longer
-                # supported:
-                # https://github.com/gtronset/beets-filetote/pull/231
-
-                # Remove plugin instance(s) for both dict and list types
                 instances = plugins._instances
-                if isinstance(instances, dict):
-                    # Beets 2.3: dict[type, instance]
-                    if plugin_class in instances:
-                        del instances[plugin_class]
-                elif isinstance(instances, list):
-                    # Beets 2.4+: list of instances
-                    plugins._instances = [
-                        inst for inst in instances if not isinstance(inst, plugin_class)
-                    ]
+                plugins._instances = [
+                    inst for inst in instances if not isinstance(inst, plugin_class)
+                ]
+
         for modname in list(sys.modules):
             if modname.startswith("beetsplug.filetote") or modname.startswith(
                 "beetsplug.audible"
