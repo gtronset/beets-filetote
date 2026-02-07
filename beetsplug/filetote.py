@@ -781,17 +781,17 @@ class FiletotePlugin(BeetsPlugin):
                 is_match: bool = False
 
                 # This ("/") may need to be changed for Win32
-                if pattern.endswith("/"):
+                if pattern.endswith(os.path.sep):
                     for path in util.ancestry(util.displayable_path(artifact_relpath)):
                         if not fnmatch.fnmatch(
-                            util.displayable_path(path), pattern.strip("/")
+                            util.displayable_path(path), pattern.strip(os.path.sep)
                         ):
                             continue
                         is_match = True
                 else:
                     is_match = fnmatch.fnmatch(
                         util.displayable_path(artifact_relpath),
-                        pattern.lstrip("/"),
+                        pattern.lstrip(os.path.sep),
                     )
 
                 if is_match:
