@@ -106,7 +106,7 @@ extend-select = [
     "TC",   # flake8-type-checking
     "UP",   # pyupgrade
     "W",    # pycodestyle
-    # "PTH", # flake8-use-pathlib
+    # "PTH",  # flake8-use-pathlib
 ]
 # Allow unused variables when underscore-prefixed.
 dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
