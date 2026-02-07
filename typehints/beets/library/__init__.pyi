@@ -1,3 +1,4 @@
+from pathlib import Path
 from re import Pattern
 
 from ..dbcore import Database
@@ -16,7 +17,9 @@ class Library(Database):
         replacements: list[str] | None = None,
     ): ...
 
-class LibModel(Model): ...
+class LibModel(Model):
+    @property
+    def filepath(self) -> Path: ...
 
 class Item(LibModel):
     id: int
