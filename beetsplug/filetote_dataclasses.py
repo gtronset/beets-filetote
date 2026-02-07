@@ -15,6 +15,7 @@ from typing import (
 
 if TYPE_CHECKING:
     from collections.abc import Callable
+    from pathlib import Path
 
     from beets.library import Library
     from beets.util import MoveOperation
@@ -24,7 +25,6 @@ if TYPE_CHECKING:
 StrSeq: TypeAlias = list[str]
 OptionalStrSeq: TypeAlias = Literal[""] | StrSeq
 PatternsDict: TypeAlias = dict[str, list[str]]
-PathBytes: TypeAlias = bytes
 
 DEFAULT_ALL_GLOB: Literal[".*"] = ".*"
 DEFAULT_EMPTY: Literal[""] = ""
@@ -34,7 +34,7 @@ DEFAULT_EMPTY: Literal[""] = ""
 class FiletoteArtifact:
     """An individual Filetote Artifact item for processing."""
 
-    path: PathBytes
+    path: Path
     paired: bool
 
 
@@ -44,8 +44,8 @@ class FiletoteArtifactCollection:
 
     artifacts: list[FiletoteArtifact]
     mapping: FiletoteMappingModel
-    source_path: PathBytes
-    item_dest: PathBytes
+    source_path: Path
+    item_dest: Path
 
 
 @dataclass
@@ -54,13 +54,20 @@ class FiletoteSessionData:
 
     operation: MoveOperation | None = None
     _beets_lib: Library | None = None
-    import_path: PathBytes | None = None
+    _library_path: Path | None = None
+    import_path: Path | None = None
 
     @property
     def beets_lib(self) -> Library:
         """Ensures the Beets Library is accessible and present."""
         assert self._beets_lib is not None
         return self._beets_lib
+
+    @property
+    def library_path(self) -> Path:
+        """Ensures the Beets Library path is accessible and present."""
+        assert self._library_path is not None
+        return self._library_path
 
     def adjust(self, attr: str, value: Any) -> None:
         """Adjust provided attribute of class with provided value."""
@@ -149,7 +156,7 @@ class FiletotePairingData:
 class FiletoteShared:
     """A dataclass for shared artifacts."""
 
-    artifacts: list[PathBytes] = field(default_factory=list)
+    artifacts: list[Path] = field(default_factory=list)
     mapping_index: int = 0
 
 
@@ -157,10 +164,10 @@ class FiletoteShared:
 class FiletoteRun:
     """Holds the state for a single Filetote run within a Beets command."""
 
-    imported_items_paths: dict[int, PathBytes] = field(default_factory=dict)
+    imported_items_paths: dict[int, Path] = field(default_factory=dict)
     process_queue: list[FiletoteArtifactCollection] = field(default_factory=list)
-    shared_artifacts: dict[PathBytes, FiletoteShared] = field(default_factory=dict)
-    dirs_seen: list[PathBytes] = field(default_factory=list)
+    shared_artifacts: dict[Path, FiletoteShared] = field(default_factory=dict)
+    dirs_seen: list[Path] = field(default_factory=list)
     convert_early_import_stages: list[Callable[..., None]] = field(default_factory=list)
 
 
