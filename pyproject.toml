@@ -24,13 +24,11 @@ classifiers = [
 
 [tool.poetry.dependencies]
 python = "^3.10"
-beets = ">=2.6.0,<2.7.0"
+beets = ">=2.4.0,<2.7.0"
 mediafile = ">=0.12.0"
-numpy = [
-    { python = "<3.13", version = ">=1.24.4" },
-    { python = ">=3.13", version = ">=2.3.4" },
-]
-llvmlite = { version = "^0.45.0", optional = true } # compatibility support for beets 2.6+ (numba/librosa)
+
+[tool.poetry.group.llvmlite.dependencies]
+llvmlite = "^0.45.0"
 
 [tool.poetry.group.dev.dependencies]
 toml = ">=0.10.2"
@@ -159,6 +157,7 @@ env_list = [
 [tool.tox.env_run_base]
 description = "Run test under {base_python}"
 allowlist_externals = ["poetry", "pytest"]
+set_env = { PIP_ONLY_BINARY = "llvmlite,numba" }
 commands_pre = [["poetry", "install", "--no-root", "--sync"]]
 commands = [
     [
@@ -183,7 +182,9 @@ commands_pre = [
     ],
     [
         "poetry",
-        "add",
+        "run",
+        "pip",
+        "install",
         "beets~=2.4.0",
     ],
 ]
@@ -210,7 +211,9 @@ commands_pre = [
     ],
     [
         "poetry",
-        "add",
+        "run",
+        "pip",
+        "install",
         "beets~=2.5.0",
     ],
 ]
@@ -237,7 +240,9 @@ commands_pre = [
     ],
     [
         "poetry",
-        "add",
+        "run",
+        "pip",
+        "install",
         "beets~=2.6.0",
     ],
 ]
@@ -264,7 +269,9 @@ commands_pre = [
     ],
     [
         "poetry",
-        "add",
+        "run",
+        "pip",
+        "install",
         "beets@git+https://github.com/beetbox/beets.git@master",
     ],
 ]

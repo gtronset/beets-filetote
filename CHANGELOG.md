@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- Fix Beets Versions and Move llvmlite to Dep Group <https://github.com/gtronset/beets-filetote/pull/257>
+
 ## [1.3.0] - 2026-02-05
 
 ### Changed
