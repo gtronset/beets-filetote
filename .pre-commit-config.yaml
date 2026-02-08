@@ -102,7 +102,7 @@ repos:
 
     - repo: https://github.com/adhtruong/mirrors-typos
       # https://github.com/crate-ci/typos/issues/390
-      rev: v1.43.1
+      rev: v1.43.3
       hooks:
           - id: typos
             exclude: "(_typos.toml|.gitignore)"
