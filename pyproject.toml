@@ -24,7 +24,7 @@ classifiers = [
 
 [tool.poetry.dependencies]
 python = "^3.10"
-beets = ">=2.4.0,<2.5.0"
+beets = ">=2.4.0,<2.7.0"
 mediafile = ">=0.12.0"
 
 [tool.poetry.group.llvmlite.dependencies]
@@ -182,7 +182,9 @@ commands_pre = [
     ],
     [
         "poetry",
-        "add",
+        "run",
+        "pip",
+        "install",
         "beets~=2.4.0",
     ],
 ]
@@ -209,7 +211,9 @@ commands_pre = [
     ],
     [
         "poetry",
-        "add",
+        "run",
+        "pip",
+        "install",
         "beets~=2.5.0",
     ],
 ]
@@ -236,7 +240,9 @@ commands_pre = [
     ],
     [
         "poetry",
-        "add",
+        "run",
+        "pip",
+        "install",
         "beets~=2.6.0",
     ],
 ]
@@ -263,7 +269,9 @@ commands_pre = [
     ],
     [
         "poetry",
-        "add",
+        "run",
+        "pip",
+        "install",
         "beets@git+https://github.com/beetbox/beets.git@master",
     ],
 ]
