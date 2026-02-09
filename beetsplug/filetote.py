@@ -753,7 +753,7 @@ class FiletotePlugin(BeetsPlugin):
 
     def _pathify(self, beets_path: PathLike) -> Path:
         """Converts a beets-style str/bytes path into a pathlib.Path object."""
-        return Path(util.syspath(beets_path))
+        return Path(util.displayable_path(beets_path))
 
     def _is_valid_paired_extension(self, artifact_file_ext: str) -> bool:
         return (
@@ -768,7 +768,12 @@ class FiletotePlugin(BeetsPlugin):
         patterns_dict: dict[str, list[str]],
         match_category: str | None = None,
     ) -> tuple[bool, str | None]:
-        """Check if the file is in the defined patterns."""
+        """Check if the file is in the defined patterns. Pattern path separators are
+        normalized to the OS separator. If the pattern ends with a separator, it is
+        treated as a directory pattern and matches any file within that directory or its
+        subdirectories. If `match_category` is provided, only patterns within that
+        category are checked.
+        """
         pattern_definitions: list[tuple[str, list[str]]] = list(patterns_dict.items())
 
         if match_category:
@@ -780,18 +785,22 @@ class FiletotePlugin(BeetsPlugin):
             for pattern in patterns:
                 is_match: bool = False
 
-                # This ("/") may need to be changed for Win32
-                if pattern.endswith(os.path.sep):
+                normalized_pattern: str = pattern.replace("/", os.path.sep).replace(
+                    "\\", os.path.sep
+                )
+
+                if normalized_pattern.endswith(os.path.sep):
                     for path in util.ancestry(util.displayable_path(artifact_relpath)):
                         if not fnmatch.fnmatch(
-                            util.displayable_path(path), pattern.strip(os.path.sep)
+                            util.displayable_path(path),
+                            normalized_pattern.strip(os.path.sep),
                         ):
                             continue
                         is_match = True
                 else:
                     is_match = fnmatch.fnmatch(
                         util.displayable_path(artifact_relpath),
-                        pattern.lstrip(os.path.sep),
+                        normalized_pattern.lstrip(os.path.sep),
                     )
 
                 if is_match:

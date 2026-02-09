@@ -120,6 +120,43 @@ class FiletotePatternTest(FiletoteTestCase):
             b"Tag Artist", b"Tag Album", b"sub1", b"sub2", b"sub.file"
         )
 
+    def test_patterns_path_sep_normalization(self) -> None:
+        r"""Tests that path separators in patterns can work for both *Nix/macOS (/)
+        and Windows (\\).
+        """
+        artwork_dir = os.path.join(self.import_dir, b"the_album", b"artwork")
+        scans_dir = os.path.join(self.import_dir, b"the_album", b"scans")
+        os.makedirs(artwork_dir)
+        os.makedirs(scans_dir)
+
+        self.create_file(
+            path=artwork_dir,
+            filename=b"cover.jpg",
+        )
+
+        self.create_file(
+            path=scans_dir,
+            filename=b"scan.jpg",
+        )
+
+        config["filetote"]["patterns"] = {
+            "artwork-pattern": ["[aA]rtwork/"],
+            "scans-pattern": ["[sS]cans\\"],
+        }
+
+        config["paths"]["pattern:artwork-pattern"] = os.path.join(
+            "$albumpath", "artwork", "$old_filename"
+        )
+
+        config["paths"]["pattern:scans-pattern"] = os.path.join(
+            "$albumpath", "scans", "$old_filename"
+        )
+
+        self._run_cli_command("import")
+
+        self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"artwork", b"cover.jpg")
+        self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"scans", b"scan.jpg")
+
     def test_patterns_path_renaming(self) -> None:
         """Tests that the path definition for `pattern:` prefix works."""
         config["filetote"]["patterns"] = {
