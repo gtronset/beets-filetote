@@ -62,6 +62,8 @@ FiletoteQueries: TypeAlias = list[
     ]
 ]
 
+PATH_SEP_BYTES: bytes = os.sep.encode()
+
 
 class FiletotePlugin(BeetsPlugin):
     """Plugin main class. Eventually, should encompass additional features as
@@ -629,7 +631,7 @@ class FiletotePlugin(BeetsPlugin):
             source_path, ignore=config["ignore"].as_str_seq()
         ):
             for filename in files:
-                file_path: Path = self._pathify(root) / self._pathify(filename)
+                file_path: Path = self._pathify(root + PATH_SEP_BYTES + filename)
 
                 # Skip any files extensions handled by beets
                 if self._is_beets_file_type(file_path.suffix):
@@ -785,22 +787,22 @@ class FiletotePlugin(BeetsPlugin):
             for pattern in patterns:
                 is_match: bool = False
 
-                normalized_pattern: str = pattern.replace("/", os.path.sep).replace(
-                    "\\", os.path.sep
+                normalized_pattern: str = pattern.replace("/", os.sep).replace(
+                    "\\", os.sep
                 )
 
-                if normalized_pattern.endswith(os.path.sep):
+                if normalized_pattern.endswith(os.sep):
                     for path in util.ancestry(util.displayable_path(artifact_relpath)):
                         if not fnmatch.fnmatch(
                             util.displayable_path(path),
-                            normalized_pattern.strip(os.path.sep),
+                            normalized_pattern.strip(os.sep),
                         ):
                             continue
                         is_match = True
                 else:
                     is_match = fnmatch.fnmatch(
                         util.displayable_path(artifact_relpath),
-                        normalized_pattern.lstrip(os.path.sep),
+                        normalized_pattern.lstrip(os.sep),
                     )
 
                 if is_match:
@@ -883,8 +885,7 @@ class FiletotePlugin(BeetsPlugin):
         """
         if artifact_path.is_relative_to(source_path):
             return (
-                util.displayable_path(artifact_path.relative_to(source_path))
-                + os.path.sep
+                util.displayable_path(artifact_path.relative_to(source_path)) + os.sep
             )
 
         return ""  # No subpath found
