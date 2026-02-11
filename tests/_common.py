@@ -124,7 +124,11 @@ class AssertionsMixin:
 
     def assert_equal_path(self, path_a: Path, path_b: Path) -> None:
         """Check that two paths are equal."""
-        assert path_a.resolve() == path_b.resolve(), (
+        # Resolve symlinks and relative paths first
+        path_a_full = path_a.resolve()
+        path_b_full = path_b.resolve()
+
+        assert path_a_full == path_b_full, (
             f"paths are not equal: {path_a!r} and {path_b!r}"
         )
 
