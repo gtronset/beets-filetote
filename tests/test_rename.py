@@ -7,6 +7,8 @@ from __future__ import annotations
 import logging
 import os
 
+from typing import TYPE_CHECKING
+
 import pytest
 
 from beets import config
@@ -14,6 +16,9 @@ from beets import config
 from tests.helper import FiletoteTestCase
 
 log = logging.getLogger("beets")
+
+if TYPE_CHECKING:
+    from pathlib import Path
 
 
 class FiletoteRenameTest(FiletoteTestCase):
@@ -35,11 +40,9 @@ class FiletoteRenameTest(FiletoteTestCase):
 
         self._run_cli_command("import")
 
-        self.assert_in_lib_dir(
-            b"Tag Artist", b"Tag Album", b"Tag Artist - Tag Album.file"
-        )
-        self.assert_in_import_dir(b"the_album", b"artifact.file")
-        self.assert_in_import_dir(b"the_album", b"artifact2.file")
+        self.assert_in_lib_dir("Tag Artist", "Tag Album", "Tag Artist - Tag Album.file")
+        self.assert_in_import_dir("the_album", "artifact.file")
+        self.assert_in_import_dir("the_album", "artifact2.file")
 
     def test_rename_when_moving(self) -> None:
         """Tests that renaming works when moving."""
@@ -49,10 +52,8 @@ class FiletoteRenameTest(FiletoteTestCase):
 
         self._run_cli_command("import")
 
-        self.assert_in_lib_dir(
-            b"Tag Artist", b"Tag Album", b"Tag Artist - Tag Album.file"
-        )
-        self.assert_not_in_import_dir(b"the_album", b"artifact.file")
+        self.assert_in_lib_dir("Tag Artist", "Tag Album", "Tag Artist - Tag Album.file")
+        self.assert_not_in_import_dir("the_album", "artifact.file")
 
     def test_rename_paired_default(self) -> None:
         """Tests that paired artifacts default to `medianame_new`."""
@@ -61,10 +62,10 @@ class FiletoteRenameTest(FiletoteTestCase):
 
         self._run_cli_command("import")
 
-        self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"artifact.lrc")
-        self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"Tag Title 1.lrc")
-        self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"Tag Title 2.lrc")
-        self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"Tag Title 3.lrc")
+        self.assert_in_lib_dir("Tag Artist", "Tag Album", "artifact.lrc")
+        self.assert_in_lib_dir("Tag Artist", "Tag Album", "Tag Title 1.lrc")
+        self.assert_in_lib_dir("Tag Artist", "Tag Album", "Tag Title 2.lrc")
+        self.assert_in_lib_dir("Tag Artist", "Tag Album", "Tag Title 3.lrc")
 
     def test_rename_paired_ext(self) -> None:
         """Tests that the value of `medianame_new` populates in renaming."""
@@ -74,10 +75,10 @@ class FiletoteRenameTest(FiletoteTestCase):
 
         self._run_cli_command("import")
 
-        self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"artifact.lrc")
-        self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"Tag Title 1 Override.lrc")
-        self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"Tag Title 2 Override.lrc")
-        self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"Tag Title 3 Override.lrc")
+        self.assert_in_lib_dir("Tag Artist", "Tag Album", "artifact.lrc")
+        self.assert_in_lib_dir("Tag Artist", "Tag Album", "Tag Title 1 Override.lrc")
+        self.assert_in_lib_dir("Tag Artist", "Tag Album", "Tag Title 2 Override.lrc")
+        self.assert_in_lib_dir("Tag Artist", "Tag Album", "Tag Title 3 Override.lrc")
 
     def test_rename_paired_ext_does_not_conflict_with_ext(self) -> None:
         """Tests that paired path definitions work alongside `ext` ones."""
@@ -88,10 +89,10 @@ class FiletoteRenameTest(FiletoteTestCase):
 
         self._run_cli_command("import")
 
-        self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"1 artifact.lrc")
-        self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"Tag Title 1.lrc")
-        self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"Tag Title 2.lrc")
-        self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"Tag Title 3.lrc")
+        self.assert_in_lib_dir("Tag Artist", "Tag Album", "1 artifact.lrc")
+        self.assert_in_lib_dir("Tag Artist", "Tag Album", "Tag Title 1.lrc")
+        self.assert_in_lib_dir("Tag Artist", "Tag Album", "Tag Title 2.lrc")
+        self.assert_in_lib_dir("Tag Artist", "Tag Album", "Tag Title 3.lrc")
 
     def test_rename_paired_ext_is_prioritized_over_ext(self) -> None:
         """Tests that paired path definitions supersede `ext` ones when there's
@@ -104,10 +105,10 @@ class FiletoteRenameTest(FiletoteTestCase):
 
         self._run_cli_command("import")
 
-        self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"1 artifact.lrc")
-        self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"Tag Title 1.lrc")
-        self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"Tag Title 2.lrc")
-        self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"Tag Title 3.lrc")
+        self.assert_in_lib_dir("Tag Artist", "Tag Album", "1 artifact.lrc")
+        self.assert_in_lib_dir("Tag Artist", "Tag Album", "Tag Title 1.lrc")
+        self.assert_in_lib_dir("Tag Artist", "Tag Album", "Tag Title 2.lrc")
+        self.assert_in_lib_dir("Tag Artist", "Tag Album", "Tag Title 3.lrc")
 
     def test_rename_filename_is_prioritized_over_paired_ext(self) -> None:
         """Tests that filename path definitions supersede `paired` ones when there's
@@ -120,10 +121,10 @@ class FiletoteRenameTest(FiletoteTestCase):
 
         self._run_cli_command("import")
 
-        self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"artifact.lrc")
-        self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"1 track_1.lrc")
-        self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"Tag Title 2.lrc")
-        self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"Tag Title 3.lrc")
+        self.assert_in_lib_dir("Tag Artist", "Tag Album", "artifact.lrc")
+        self.assert_in_lib_dir("Tag Artist", "Tag Album", "1 track_1.lrc")
+        self.assert_in_lib_dir("Tag Artist", "Tag Album", "Tag Title 2.lrc")
+        self.assert_in_lib_dir("Tag Artist", "Tag Album", "Tag Title 3.lrc")
 
     def test_rename_period_is_optional_for_ext(self) -> None:
         """Tests that leading periods are optional when defining `ext` paths."""
@@ -134,14 +135,12 @@ class FiletoteRenameTest(FiletoteTestCase):
 
         self._run_cli_command("import")
 
+        self.assert_in_lib_dir("Tag Artist", "Tag Album", "Tag Artist - Tag Album.file")
         self.assert_in_lib_dir(
-            b"Tag Artist", b"Tag Album", b"Tag Artist - Tag Album.file"
+            "Tag Artist", "Tag Album", "Tag Artist - Tag Album 2.nfo"
         )
-        self.assert_in_lib_dir(
-            b"Tag Artist", b"Tag Album", b"Tag Artist - Tag Album 2.nfo"
-        )
-        self.assert_not_in_import_dir(b"the_album", b"artifact.file")
-        self.assert_not_in_import_dir(b"the_album", b"artifact.nfo")
+        self.assert_not_in_import_dir("the_album", "artifact.file")
+        self.assert_not_in_import_dir("the_album", "artifact.nfo")
 
     def test_rename_ignores_file_when_name_conflicts(self) -> None:
         """Ensure that if there are multiple files that would rename to the
@@ -155,14 +154,12 @@ class FiletoteRenameTest(FiletoteTestCase):
         self._run_cli_command("import")
 
         # `artifact.file` correctly renames.
-        self.assert_not_in_import_dir(b"the_album", b"artifact.file")
-        self.assert_in_lib_dir(
-            b"Tag Artist", b"Tag Album", b"Tag Artist - Tag Album.file"
-        )
+        self.assert_not_in_import_dir("the_album", "artifact.file")
+        self.assert_in_lib_dir("Tag Artist", "Tag Album", "Tag Artist - Tag Album.file")
 
         # `artifact2.file` will not rename since the destination filename conflicts with
         # `artifact.file`
-        self.assert_in_import_dir(b"the_album", b"artifact2.file")
+        self.assert_in_import_dir("the_album", "artifact2.file")
 
     def test_rename_multiple_extensions(self) -> None:
         """Ensure that specifying multiple extensions and definitions properly
@@ -175,17 +172,13 @@ class FiletoteRenameTest(FiletoteTestCase):
 
         self._run_cli_command("import")
 
-        self.assert_in_lib_dir(
-            b"Tag Artist", b"Tag Album", b"Tag Artist - Tag Album.file"
-        )
-        self.assert_in_lib_dir(
-            b"Tag Artist", b"Tag Album", b"Tag Artist - Tag Album.nfo"
-        )
-        self.assert_not_in_import_dir(b"the_album", b"artifact.file")
-        self.assert_not_in_import_dir(b"the_album", b"artifact.nfo")
+        self.assert_in_lib_dir("Tag Artist", "Tag Album", "Tag Artist - Tag Album.file")
+        self.assert_in_lib_dir("Tag Artist", "Tag Album", "Tag Artist - Tag Album.nfo")
+        self.assert_not_in_import_dir("the_album", "artifact.file")
+        self.assert_not_in_import_dir("the_album", "artifact.nfo")
         # `artifact2.file` will rename since the destination filename conflicts with
         #  `artifact.file`
-        self.assert_in_import_dir(b"the_album", b"artifact2.file")
+        self.assert_in_import_dir("the_album", "artifact2.file")
 
     def test_rename_matching_filename(self) -> None:
         """Ensure that `filename` path definitions rename correctly."""
@@ -196,12 +189,10 @@ class FiletoteRenameTest(FiletoteTestCase):
 
         self._run_cli_command("import")
 
-        self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"new-filename.file")
-        self.assert_in_lib_dir(
-            b"Tag Artist", b"Tag Album", b"another-new-filename.file"
-        )
-        self.assert_not_in_import_dir(b"the_album", b"artifact.file")
-        self.assert_not_in_import_dir(b"the_album", b"artifact2.file")
+        self.assert_in_lib_dir("Tag Artist", "Tag Album", "new-filename.file")
+        self.assert_in_lib_dir("Tag Artist", "Tag Album", "another-new-filename.file")
+        self.assert_not_in_import_dir("the_album", "artifact.file")
+        self.assert_not_in_import_dir("the_album", "artifact2.file")
 
     def test_rename_prioritizes_filename_over_ext(self) -> None:
         """Tests that filename path definitions supersede `ext` ones when there's
@@ -215,13 +206,11 @@ class FiletoteRenameTest(FiletoteTestCase):
 
         self._run_cli_command("import")
 
-        self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"new-filename.file")
-        self.assert_in_lib_dir(
-            b"Tag Artist", b"Tag Album", b"Tag Artist - artifact2.file"
-        )
+        self.assert_in_lib_dir("Tag Artist", "Tag Album", "new-filename.file")
+        self.assert_in_lib_dir("Tag Artist", "Tag Album", "Tag Artist - artifact2.file")
 
-        self.assert_not_in_import_dir(b"the_album", b"artifact1.file")
-        self.assert_not_in_import_dir(b"the_album", b"artifact2.file")
+        self.assert_not_in_import_dir("the_album", "artifact1.file")
+        self.assert_not_in_import_dir("the_album", "artifact2.file")
 
     def test_rename_prioritizes_filename_over_ext_reversed(self) -> None:
         """Ensure the order of path definitions does not effect the priority
@@ -237,13 +226,11 @@ class FiletoteRenameTest(FiletoteTestCase):
 
         self._run_cli_command("import")
 
-        self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"new-filename.file")
-        self.assert_in_lib_dir(
-            b"Tag Artist", b"Tag Album", b"Tag Artist - artifact2.file"
-        )
+        self.assert_in_lib_dir("Tag Artist", "Tag Album", "new-filename.file")
+        self.assert_in_lib_dir("Tag Artist", "Tag Album", "Tag Artist - artifact2.file")
 
-        self.assert_not_in_import_dir(b"the_album", b"artifact1.file")
-        self.assert_not_in_import_dir(b"the_album", b"artifact2.file")
+        self.assert_not_in_import_dir("the_album", "artifact1.file")
+        self.assert_not_in_import_dir("the_album", "artifact2.file")
 
     def test_rename_multiple_files_prioritizes_filename_over_ext(self) -> None:
         """Tests that multiple filename path definitions still supersede `ext`
@@ -258,11 +245,11 @@ class FiletoteRenameTest(FiletoteTestCase):
 
         self._run_cli_command("import")
 
-        self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"new-filename.file")
-        self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"new-filename2.file")
+        self.assert_in_lib_dir("Tag Artist", "Tag Album", "new-filename.file")
+        self.assert_in_lib_dir("Tag Artist", "Tag Album", "new-filename2.file")
 
-        self.assert_not_in_import_dir(b"the_album", b"artifact1.file")
-        self.assert_not_in_import_dir(b"the_album", b"artifact2.file")
+        self.assert_not_in_import_dir("the_album", "artifact1.file")
+        self.assert_not_in_import_dir("the_album", "artifact2.file")
 
     def test_rename_path_query_priority(self) -> None:
         """Tests that the path query priority is correctly enforced when multiple
@@ -271,8 +258,8 @@ class FiletoteRenameTest(FiletoteTestCase):
         The expected priority is: filename > paired_ext > pattern > ext.
         """
         self.create_file(
-            path=os.path.join(self.import_dir, b"the_album"),
-            filename=b"track_1.log",
+            path=self.import_dir / "the_album",
+            filename="track_1.log",
         )
 
         config["filetote"]["extensions"] = ".log"
@@ -300,19 +287,17 @@ class FiletoteRenameTest(FiletoteTestCase):
         # Assert that the file was moved to the destination specified by the
         # highest-priority rule (`filename:`).
         self.assert_in_lib_dir(
-            b"Tag Artist", b"Tag Album", b"from_filename", b"track_1.log"
+            "Tag Artist", "Tag Album", "from_filename", "track_1.log"
         )
 
         # Assert that the file does NOT exist in the lower-priority destinations.
         self.assert_not_in_lib_dir(
-            b"Tag Artist", b"Tag Album", b"from_paired", b"track_1.log"
+            "Tag Artist", "Tag Album", "from_paired", "track_1.log"
         )
         self.assert_not_in_lib_dir(
-            b"Tag Artist", b"Tag Album", b"from_pattern", b"track_1.log"
+            "Tag Artist", "Tag Album", "from_pattern", "track_1.log"
         )
-        self.assert_not_in_lib_dir(
-            b"Tag Artist", b"Tag Album", b"from_ext", b"track_1.log"
-        )
+        self.assert_not_in_lib_dir("Tag Artist", "Tag Album", "from_ext", "track_1.log")
 
     def test_rename_wildcard_extension_halts(self) -> None:
         """Ensure that specifying `ext:.*` extensions results in an exception."""
@@ -363,10 +348,8 @@ class FiletoteRenameTest(FiletoteTestCase):
 
         self._run_cli_command("import")
 
-        self.assert_in_lib_dir(
-            b"Tag Artist", b"Tag Album", b"Filetote", b"artifact.file"
-        )
-        self.assert_not_in_lib_dir(b"Tag Artist", b"Tag Album", b"artifact.file")
+        self.assert_in_lib_dir("Tag Artist", "Tag Album", "Filetote", "artifact.file")
+        self.assert_not_in_lib_dir("Tag Artist", "Tag Album", "artifact.file")
 
     def test_rename_filetote_default(self) -> None:
         """Ensure that the default value for a path query of an otherwise not specified
@@ -377,8 +360,8 @@ class FiletoteRenameTest(FiletoteTestCase):
 
         self._run_cli_command("import")
 
-        self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"artifact.file")
-        self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"artifact2.file")
+        self.assert_in_lib_dir("Tag Artist", "Tag Album", "artifact.file")
+        self.assert_in_lib_dir("Tag Artist", "Tag Album", "artifact2.file")
 
     def test_rename_filetote_custom_default(self) -> None:
         """Ensure that the default value for a path query for artifacts
@@ -394,8 +377,8 @@ class FiletoteRenameTest(FiletoteTestCase):
 
         self._run_cli_command("import")
 
-        self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"New", b"artifact.file")
-        self.assert_not_in_lib_dir(b"Tag Artist", b"Tag Album", b"artifact.file")
+        self.assert_in_lib_dir("Tag Artist", "Tag Album", "New", "artifact.file")
+        self.assert_not_in_lib_dir("Tag Artist", "Tag Album", "artifact.file")
 
     def test_rename_filetote_custom_default_filetote_paths(self) -> None:
         """Ensure that the default value for a path query for artifacts
@@ -411,8 +394,8 @@ class FiletoteRenameTest(FiletoteTestCase):
 
         self._run_cli_command("import")
 
-        self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"New", b"artifact.file")
-        self.assert_not_in_lib_dir(b"Tag Artist", b"Tag Album", b"artifact.file")
+        self.assert_in_lib_dir("Tag Artist", "Tag Album", "New", "artifact.file")
+        self.assert_not_in_lib_dir("Tag Artist", "Tag Album", "artifact.file")
 
     def test_rename_filetote_custom_default_priority(self) -> None:
         """Ensure that the default value for a path query for artifacts
@@ -432,10 +415,8 @@ class FiletoteRenameTest(FiletoteTestCase):
 
         self._run_cli_command("import")
 
-        self.assert_in_lib_dir(
-            b"Tag Artist", b"Tag Album", b"Filetote", b"artifact.file"
-        )
-        self.assert_not_in_lib_dir(b"Tag Artist", b"Tag Album", b"artifact.file")
+        self.assert_in_lib_dir("Tag Artist", "Tag Album", "Filetote", "artifact.file")
+        self.assert_not_in_lib_dir("Tag Artist", "Tag Album", "artifact.file")
 
     def test_rename_filetote_pairing_custom_default(self) -> None:
         """Ensure that the default value for a path query for artifacts
@@ -451,8 +432,8 @@ class FiletoteRenameTest(FiletoteTestCase):
 
         self._run_cli_command("import")
 
-        self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"New", b"track_1.lrc")
-        self.assert_not_in_lib_dir(b"Tag Artist", b"Tag Album", b"track_1.lrc")
+        self.assert_in_lib_dir("Tag Artist", "Tag Album", "New", "track_1.lrc")
+        self.assert_not_in_lib_dir("Tag Artist", "Tag Album", "track_1.lrc")
 
     def test_rename_filetote_pairing_custom_default_filetote_paths(self) -> None:
         """Ensure that the default value for a path query for artifacts
@@ -468,34 +449,34 @@ class FiletoteRenameTest(FiletoteTestCase):
 
         self._run_cli_command("import")
 
-        self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"New", b"track_1.lrc")
-        self.assert_not_in_lib_dir(b"Tag Artist", b"Tag Album", b"track_1.lrc")
+        self.assert_in_lib_dir("Tag Artist", "Tag Album", "New", "track_1.lrc")
+        self.assert_not_in_lib_dir("Tag Artist", "Tag Album", "track_1.lrc")
 
     def test_rename_respect_defined_order(self) -> None:
         """Tests that patterns of just folders grab all contents."""
-        import_dir = os.path.join(self.import_dir, b"the_album")
-        scans_dir = os.path.join(self.import_dir, b"the_album", b"scans")
+        import_dir: Path = self.import_dir / "the_album"
+        scans_dir: Path = self.import_dir / "the_album" / "scans"
 
         os.makedirs(scans_dir)
 
         self.create_file(
             path=scans_dir,
-            filename=b"scan-1.jpg",
+            filename="scan-1.jpg",
         )
 
         self.create_file(
             path=import_dir,
-            filename=b"cover.jpg",
+            filename="cover.jpg",
         )
 
         self.create_file(
             path=import_dir,
-            filename=b"sub.cue",
+            filename="sub.cue",
         )
 
         self.create_file(
             path=import_dir,
-            filename=b"md5.sum",
+            filename="md5.sum",
         )
 
         config["filetote"]["extensions"] = ".*"
@@ -523,12 +504,10 @@ class FiletoteRenameTest(FiletoteTestCase):
 
         self._run_cli_command("import")
 
-        self.assert_not_in_lib_dir(b"Tag Artist", b"Tag Album", b"Artwork", b"md5.sum")
+        self.assert_not_in_lib_dir("Tag Artist", "Tag Album", "Artwork", "md5.sum")
 
-        self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"scans", b"scan-1.jpg")
+        self.assert_in_lib_dir("Tag Artist", "Tag Album", "scans", "scan-1.jpg")
+        self.assert_in_lib_dir("Tag Artist", "Tag Album", "Tag Album - sub - cue.cue")
         self.assert_in_lib_dir(
-            b"Tag Artist", b"Tag Album", b"Tag Album - sub - cue.cue"
-        )
-        self.assert_in_lib_dir(
-            b"Tag Artist", b"Tag Album", b"Tag Album - cover - cover.jpg"
+            "Tag Artist", "Tag Album", "Tag Album - cover - cover.jpg"
         )

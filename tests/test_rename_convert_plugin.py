@@ -5,11 +5,17 @@
 import logging
 import os
 
-from beets import config
+from typing import TYPE_CHECKING
+
+from beets import config, util
 
 from tests.helper import FiletoteTestCase, MediaSetup
 
 log = logging.getLogger("beets")
+
+
+if TYPE_CHECKING:
+    from pathlib import Path
 
 
 class FiletoteConvertRenameTest(FiletoteTestCase):
@@ -34,21 +40,21 @@ class FiletoteConvertRenameTest(FiletoteTestCase):
 
         config["filetote"]["extensions"] = ".*"
 
-        temp_convert_dir = os.path.join(self.temp_dir, b"temp_convert_dir")
+        temp_convert_dir: Path = self.temp_dir / "temp_convert_dir"
         os.makedirs(temp_convert_dir)
 
         config["convert"] = {
             "auto": True,
-            "dest": os.path.join(self.lib_dir, b"Tag Artist", b"Tag Album"),
+            "dest": util.bytestring_path(self.lib_dir / "Tag Artist" / "Tag Album"),
             "copy_album_art": True,
             "delete_originals": False,
             "format": "flac",
             "never_convert_lossy_files": False,
-            "tmpdir": temp_convert_dir,
+            "tmpdir": str(temp_convert_dir),
             "quiet": False,
         }
 
         self._run_cli_command("import")
 
-        self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"artifact.file")
-        self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"Tag Title 1.flac")
+        self.assert_in_lib_dir("Tag Artist", "Tag Album", "artifact.file")
+        self.assert_in_lib_dir("Tag Artist", "Tag Album", "Tag Title 1.flac")

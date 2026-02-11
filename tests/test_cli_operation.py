@@ -2,11 +2,14 @@
 
 import os
 
-import beets
+from typing import TYPE_CHECKING
 
 from beets import config
 
 from tests.helper import FiletoteTestCase
+
+if TYPE_CHECKING:
+    from pathlib import Path
 
 
 class FiletoteCLIOperation(FiletoteTestCase):
@@ -19,8 +22,8 @@ class FiletoteCLIOperation(FiletoteTestCase):
         super().setUp()
 
         self._set_import_dir()
-        self.album_path = os.path.join(self.import_dir, b"the_album")
-        self.rsrc_mp3 = b"full.mp3"
+        self.album_path: Path = self.import_dir / "the_album"
+        self.rsrc_mp3: str = "full.mp3"
         os.makedirs(self.album_path)
 
         self._base_file_count: int = 0
@@ -42,13 +45,13 @@ class FiletoteCLIOperation(FiletoteTestCase):
         self._run_cli_command("import")
 
         self.assert_number_of_files_in_dir(
-            self._base_file_count + 4, self.import_dir, b"the_album"
+            self._base_file_count + 4, self.import_dir, "the_album"
         )
 
-        self.assert_in_import_dir(b"the_album", b"artifact.file")
-        self.assert_in_import_dir(b"the_album", b"artifact2.file")
-        self.assert_in_import_dir(b"the_album", b"artifact.nfo")
-        self.assert_in_import_dir(b"the_album", b"artifact.lrc")
+        self.assert_in_import_dir("the_album", "artifact.file")
+        self.assert_in_import_dir("the_album", "artifact2.file")
+        self.assert_in_import_dir("the_album", "artifact.nfo")
+        self.assert_in_import_dir("the_album", "artifact.lrc")
 
     def test_import_config_copy_false_import_on_copy(self) -> None:
         """Tests that when config does not have an operation set, that
@@ -56,25 +59,21 @@ class FiletoteCLIOperation(FiletoteTestCase):
         """
         self._setup_import_session(copy=False, autotag=False)
 
-        self.create_file(
-            self.album_path, beets.util.bytestring_path("\xe4rtifact.file")
-        )
-        medium = self._create_medium(
-            os.path.join(self.album_path, b"track_1.mp3"), self.rsrc_mp3
-        )
+        self.create_file(self.album_path, "\xe4rtifact.file")
+        medium = self._create_medium(self.album_path / "track_1.mp3", self.rsrc_mp3)
         self.import_media = [medium]
 
         self._run_cli_command("import", operation_option="copy")
 
         self.assert_in_import_dir(
-            b"the_album",
-            beets.util.bytestring_path("\xe4rtifact.file"),
+            "the_album",
+            "\xe4rtifact.file",
         )
 
         self.assert_in_lib_dir(
-            b"Tag Artist",
-            b"Tag Album",
-            beets.util.bytestring_path("\xe4rtifact.file"),
+            "Tag Artist",
+            "Tag Album",
+            "\xe4rtifact.file",
         )
 
     def test_import_config_copy_false_import_on_move(self) -> None:
@@ -83,25 +82,21 @@ class FiletoteCLIOperation(FiletoteTestCase):
         """
         self._setup_import_session(copy=False, autotag=False)
 
-        self.create_file(
-            self.album_path, beets.util.bytestring_path("\xe4rtifact.file")
-        )
-        medium = self._create_medium(
-            os.path.join(self.album_path, b"track_1.mp3"), self.rsrc_mp3
-        )
+        self.create_file(self.album_path, "\xe4rtifact.file")
+        medium = self._create_medium(self.album_path / "track_1.mp3", self.rsrc_mp3)
         self.import_media = [medium]
 
         self._run_cli_command("import", operation_option="move")
 
         self.assert_not_in_import_dir(
-            b"the_album",
-            beets.util.bytestring_path("\xe4rtifact.file"),
+            "the_album",
+            "\xe4rtifact.file",
         )
 
         self.assert_in_lib_dir(
-            b"Tag Artist",
-            b"Tag Album",
-            beets.util.bytestring_path("\xe4rtifact.file"),
+            "Tag Artist",
+            "Tag Album",
+            "\xe4rtifact.file",
         )
 
     def test_import_config_copy_true_import_on_move(self) -> None:
@@ -110,25 +105,21 @@ class FiletoteCLIOperation(FiletoteTestCase):
         """
         self._setup_import_session(copy=True, autotag=False)
 
-        self.create_file(
-            self.album_path, beets.util.bytestring_path("\xe4rtifact.file")
-        )
-        medium = self._create_medium(
-            os.path.join(self.album_path, b"track_1.mp3"), self.rsrc_mp3
-        )
+        self.create_file(self.album_path, "\xe4rtifact.file")
+        medium = self._create_medium(self.album_path / "track_1.mp3", self.rsrc_mp3)
         self.import_media = [medium]
 
         self._run_cli_command("import", operation_option="move")
 
         self.assert_not_in_import_dir(
-            b"the_album",
-            beets.util.bytestring_path("\xe4rtifact.file"),
+            "the_album",
+            "\xe4rtifact.file",
         )
 
         self.assert_in_lib_dir(
-            b"Tag Artist",
-            b"Tag Album",
-            beets.util.bytestring_path("\xe4rtifact.file"),
+            "Tag Artist",
+            "Tag Album",
+            "\xe4rtifact.file",
         )
 
     def test_import_config_move_true_import_on_copy(self) -> None:
@@ -137,25 +128,21 @@ class FiletoteCLIOperation(FiletoteTestCase):
         """
         self._setup_import_session(move=True, autotag=False)
 
-        self.create_file(
-            self.album_path, beets.util.bytestring_path("\xe4rtifact.file")
-        )
-        medium = self._create_medium(
-            os.path.join(self.album_path, b"track_1.mp3"), self.rsrc_mp3
-        )
+        self.create_file(self.album_path, "\xe4rtifact.file")
+        medium = self._create_medium(self.album_path / "track_1.mp3", self.rsrc_mp3)
         self.import_media = [medium]
 
         self._run_cli_command("import", operation_option="copy")
 
         self.assert_in_import_dir(
-            b"the_album",
-            beets.util.bytestring_path("\xe4rtifact.file"),
+            "the_album",
+            "\xe4rtifact.file",
         )
 
         self.assert_in_lib_dir(
-            b"Tag Artist",
-            b"Tag Album",
-            beets.util.bytestring_path("\xe4rtifact.file"),
+            "Tag Artist",
+            "Tag Album",
+            "\xe4rtifact.file",
         )
 
     def test_move_on_move_command(self) -> None:
@@ -179,12 +166,12 @@ class FiletoteCLIOperation(FiletoteTestCase):
         self._run_cli_command("move", query="artist:'Tag Artist'")
 
         self.assert_not_in_lib_dir(
-            b"Old Lib Artist",
-            b"Tag Album",
-            b"artifact.file",
+            "Old Lib Artist",
+            "Tag Album",
+            "artifact.file",
         )
 
-        self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"artifact.file")
+        self.assert_in_lib_dir("Tag Artist", "Tag Album", "artifact.file")
 
     def test_copy_on_move_command_copy(self) -> None:
         """Check that plugin detects the correct operation for the "move" (or "mv")
@@ -207,9 +194,9 @@ class FiletoteCLIOperation(FiletoteTestCase):
 
         self._run_cli_command("move", query="artist:'Tag Artist'", copy=True)
 
-        self.assert_in_lib_dir(b"Old Lib Artist", b"Tag Album", b"artifact.file")
+        self.assert_in_lib_dir("Old Lib Artist", "Tag Album", "artifact.file")
 
-        self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"artifact.file")
+        self.assert_in_lib_dir("Tag Artist", "Tag Album", "artifact.file")
 
     def test_copy_on_move_command_export(self) -> None:
         """Check that plugin detects the correct operation for the "move" (or "mv")
@@ -232,9 +219,9 @@ class FiletoteCLIOperation(FiletoteTestCase):
 
         self._run_cli_command("move", query="artist:'Tag Artist'", export=True)
 
-        self.assert_in_lib_dir(b"Old Lib Artist", b"Tag Album", b"artifact.file")
+        self.assert_in_lib_dir("Old Lib Artist", "Tag Album", "artifact.file")
 
-        self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"artifact.file")
+        self.assert_in_lib_dir("Tag Artist", "Tag Album", "artifact.file")
 
     def test_move_on_modify_command(self) -> None:
         """Check that plugin detects the correct operation for the "move" (or "mv")
@@ -259,12 +246,12 @@ class FiletoteCLIOperation(FiletoteTestCase):
         )
 
         self.assert_not_in_lib_dir(
-            b"Old Lib Artist",
-            b"Tag Album",
-            b"artifact.file",
+            "Old Lib Artist",
+            "Tag Album",
+            "artifact.file",
         )
 
-        self.assert_in_lib_dir(b"Tag Artist New", b"Tag Album", b"artifact.file")
+        self.assert_in_lib_dir("Tag Artist New", "Tag Album", "artifact.file")
 
     def test_move_on_update_move_command(self) -> None:
         """Check that plugin detects the correct operation for the "update"
@@ -277,9 +264,7 @@ class FiletoteCLIOperation(FiletoteTestCase):
         self._run_cli_command("import")
 
         self._update_medium(
-            path=os.path.join(
-                self.lib_dir, b"Tag Artist", b"Tag Album", b"Tag Title 1.mp3"
-            ),
+            path=(self.lib_dir / "Tag Artist" / "Tag Album" / "Tag Title 1.mp3"),
             meta_updates={"artist": "New Artist Updated"},
         )
 
@@ -288,12 +273,12 @@ class FiletoteCLIOperation(FiletoteTestCase):
         )
 
         self.assert_not_in_lib_dir(
-            b"Tag Artist",
-            b"Tag Album",
-            b"artifact.file",
+            "Tag Artist",
+            "Tag Album",
+            "artifact.file",
         )
 
-        self.assert_in_lib_dir(b"New Artist Updated", b"Tag Album", b"artifact.file")
+        self.assert_in_lib_dir("New Artist Updated", "Tag Album", "artifact.file")
 
     def test_pairs_on_update_move_command(self) -> None:
         """Check that plugin handles "pairs" for the "update"
@@ -322,12 +307,10 @@ class FiletoteCLIOperation(FiletoteTestCase):
         self._run_cli_command("import")
 
         self._update_medium(
-            path=os.path.join(
-                self.lib_dir,
-                b"Tag Artist",
-                b"Tag Album",
-                b"Tag Album - 01 - Tag Artist - Tag Title 1.mp3",
-            ),
+            path=self.lib_dir
+            / "Tag Artist"
+            / "Tag Album"
+            / "Tag Album - 01 - Tag Artist - Tag Title 1.mp3",
             meta_updates={"artist": "New Artist Updated"},
         )
 
@@ -336,13 +319,13 @@ class FiletoteCLIOperation(FiletoteTestCase):
         )
 
         self.assert_not_in_lib_dir(
-            b"Tag Artist",
-            b"Tag Album",
-            b"artifact.file",
+            "Tag Artist",
+            "Tag Album",
+            "artifact.file",
         )
 
         self.assert_in_lib_dir(
-            b"New Artist Updated",
-            b"Tag Album",
-            b"Tag Album - 01 - New Artist Updated - Tag Title 1.lrc",
+            "New Artist Updated",
+            "Tag Album",
+            "Tag Album - 01 - New Artist Updated - Tag Title 1.lrc",
         )

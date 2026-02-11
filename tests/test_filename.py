@@ -3,15 +3,18 @@
 import os
 import re
 
-import pytest
+from typing import TYPE_CHECKING
 
-import beets
+import pytest
 
 from beets import config
 
 from ._item_model import MediaMeta
 from tests import _common
 from tests.helper import FiletoteTestCase
+
+if TYPE_CHECKING:
+    from pathlib import Path
 
 
 class FiletoteFilename(FiletoteTestCase):
@@ -24,8 +27,8 @@ class FiletoteFilename(FiletoteTestCase):
         super().setUp()
 
         self._set_import_dir()
-        self.album_path = os.path.join(self.import_dir, b"the_album")
-        self.rsrc_mp3 = b"full.mp3"
+        self.album_path: Path = self.import_dir / "the_album"
+        self.rsrc_mp3: str = "full.mp3"
         os.makedirs(self.album_path)
 
         self._setup_import_session(autotag=False)
@@ -34,40 +37,32 @@ class FiletoteFilename(FiletoteTestCase):
 
     def test_import_dir_with_unicode_character_in_artifact_name_copy(self) -> None:
         """Tests that unicode characters copy as expected."""
-        self.create_file(
-            self.album_path, beets.util.bytestring_path("\xe4rtifact.file")
-        )
-        medium = self._create_medium(
-            os.path.join(self.album_path, b"track_1.mp3"), self.rsrc_mp3
-        )
+        self.create_file(self.album_path, "\xe4rtifact.file")
+        medium = self._create_medium(self.album_path / "track_1.mp3", self.rsrc_mp3)
         self.import_media = [medium]
 
         self._run_cli_command("import")
 
         self.assert_in_lib_dir(
-            b"Tag Artist",
-            b"Tag Album",
-            beets.util.bytestring_path("\xe4rtifact.file"),
+            "Tag Artist",
+            "Tag Album",
+            "\xe4rtifact.file",
         )
 
     def test_import_dir_with_unicode_character_in_artifact_name_move(self) -> None:
         """Tests that unicode characters move as expected."""
         config["import"]["move"] = True
 
-        self.create_file(
-            self.album_path, beets.util.bytestring_path("\xe4rtifact.file")
-        )
-        medium = self._create_medium(
-            os.path.join(self.album_path, b"track_1.mp3"), self.rsrc_mp3
-        )
+        self.create_file(self.album_path, "\xe4rtifact.file")
+        medium = self._create_medium(self.album_path / "track_1.mp3", self.rsrc_mp3)
         self.import_media = [medium]
 
         self._run_cli_command("import")
 
         self.assert_in_lib_dir(
-            b"Tag Artist",
-            b"Tag Album",
-            beets.util.bytestring_path("\xe4rtifact.file"),
+            "Tag Artist",
+            "Tag Album",
+            "\xe4rtifact.file",
         )
 
     @pytest.mark.skipif(_common.PLATFORM == "win32", reason="win32")
@@ -89,10 +84,10 @@ class FiletoteFilename(FiletoteTestCase):
 
         self.create_file(
             self.album_path,
-            b"CoolName: Album&Tag.log",
+            "CoolName: Album&Tag.log",
         )
         medium = self._create_medium(
-            os.path.join(self.album_path, b"track_1.mp3"),
+            self.album_path / "track_1.mp3",
             self.rsrc_mp3,
             MediaMeta(album="Album: Subtitle"),
         )
@@ -101,9 +96,9 @@ class FiletoteFilename(FiletoteTestCase):
         self._run_cli_command("import")
 
         self.assert_in_lib_dir(
-            b"Tag Artist",
-            b"Album_ Subtitle",
-            beets.util.bytestring_path("Album_ Subtitle - CoolName_ Album&Tag.log"),
+            "Tag Artist",
+            "Album_ Subtitle",
+            "Album_ Subtitle - CoolName_ Album&Tag.log",
         )
 
     def test_import_dir_with_illegal_character_in_album_name(self) -> None:
@@ -113,9 +108,9 @@ class FiletoteFilename(FiletoteTestCase):
         config["paths"]["ext:file"] = "$albumpath/$artist - $album"
 
         # Create import directory, illegal filename character used in the album name
-        self.create_file(self.album_path, b"artifact.file")
+        self.create_file(self.album_path, "artifact.file")
         medium = self._create_medium(
-            os.path.join(self.album_path, b"track_1.mp3"),
+            self.album_path / "track_1.mp3",
             self.rsrc_mp3,
             MediaMeta(album="Tag Album?"),
         )
@@ -124,7 +119,7 @@ class FiletoteFilename(FiletoteTestCase):
         self._run_cli_command("import")
 
         self.assert_in_lib_dir(
-            b"Tag Artist", b"Tag Album_", b"Tag Artist - Tag Album_.file"
+            "Tag Artist", "Tag Album_", "Tag Artist - Tag Album_.file"
         )
 
     def test_rename_works_with_custom_replace(self) -> None:
@@ -137,9 +132,9 @@ class FiletoteFilename(FiletoteTestCase):
             (re.compile(r"\?"), "\uff1f"),
         ]
 
-        self.create_file(self.album_path, beets.util.bytestring_path("artifact.file"))
+        self.create_file(self.album_path, "artifact.file")
         medium = self._create_medium(
-            os.path.join(self.album_path, b"track_1.mp3"),
+            self.album_path / "track_1.mp3",
             self.rsrc_mp3,
             MediaMeta(title="Tag: Title?"),
         )
@@ -148,7 +143,7 @@ class FiletoteFilename(FiletoteTestCase):
         self._run_cli_command("import")
 
         self.assert_in_lib_dir(
-            b"Tag Artist",
-            b"Tag Album",
-            beets.util.bytestring_path("Tag_ Title\uff1f.file"),
+            "Tag Artist",
+            "Tag Album",
+            "Tag_ Title\uff1f.file",
         )

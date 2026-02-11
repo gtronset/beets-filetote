@@ -2,13 +2,14 @@
 plugin.
 """
 
-import os
-
-import beets
+from typing import TYPE_CHECKING
 
 from beets import config
 
 from tests.helper import FiletoteTestCase, capture_log_with_traceback
+
+if TYPE_CHECKING:
+    from pathlib import Path
 
 
 class FiletoteExcludeTest(FiletoteTestCase):
@@ -22,7 +23,7 @@ class FiletoteExcludeTest(FiletoteTestCase):
 
         self._create_flat_import_dir()
 
-        self.album_path = os.path.join(self.import_dir, b"the_album")
+        self.album_path: Path = self.import_dir / "the_album"
 
         self._setup_import_session(move=True, autotag=False)
 
@@ -36,17 +37,15 @@ class FiletoteExcludeTest(FiletoteTestCase):
             "extensions": [".lrc"],
         }
 
-        self.create_file(
-            self.album_path, beets.util.bytestring_path("not_to_be_moved.lrc")
-        )
+        self.create_file(self.album_path, "not_to_be_moved.lrc")
 
         self._run_cli_command("import")
 
         self.assert_in_import_dir(
-            b"the_album",
-            b"not_to_be_moved.lrc",
+            "the_album",
+            "not_to_be_moved.lrc",
         )
-        self.assert_not_in_lib_dir(b"Tag Artist", b"Tag Album", b"not_to_be_moved.lrc")
+        self.assert_not_in_lib_dir("Tag Artist", "Tag Album", "not_to_be_moved.lrc")
 
     def test_exclude_strseq_of_filenames_by_string(self) -> None:
         """Tests to ensure the `exclude` config registers as a strseq (string
@@ -56,28 +55,24 @@ class FiletoteExcludeTest(FiletoteTestCase):
         config["filetote"]["exclude"] = "not_to_be_moved.file not_to_be_moved.lrc"
         config["paths"]["ext:file"] = "$albumpath/$old_filename"
 
-        self.create_file(
-            self.album_path, beets.util.bytestring_path("not_to_be_moved.file")
-        )
+        self.create_file(self.album_path, "not_to_be_moved.file")
 
-        self.create_file(
-            self.album_path, beets.util.bytestring_path("not_to_be_moved.lrc")
-        )
+        self.create_file(self.album_path, "not_to_be_moved.lrc")
 
         with capture_log_with_traceback() as logs:
             self._run_cli_command("import")
 
         self.assert_in_import_dir(
-            b"the_album",
-            b"not_to_be_moved.file",
+            "the_album",
+            "not_to_be_moved.file",
         )
-        self.assert_not_in_lib_dir(b"Tag Artist", b"Tag Album", b"not_to_be_moved.file")
+        self.assert_not_in_lib_dir("Tag Artist", "Tag Album", "not_to_be_moved.file")
 
         self.assert_in_import_dir(
-            b"the_album",
-            b"not_to_be_moved.lrc",
+            "the_album",
+            "not_to_be_moved.lrc",
         )
-        self.assert_not_in_lib_dir(b"Tag Artist", b"Tag Album", b"not_to_be_moved.lrc")
+        self.assert_not_in_lib_dir("Tag Artist", "Tag Album", "not_to_be_moved.lrc")
 
         # Ensure the deprecation warning is present
         logs = [line for line in logs if line.startswith("filetote:")]
@@ -98,28 +93,24 @@ class FiletoteExcludeTest(FiletoteTestCase):
         config["filetote"]["exclude"] = ["not_to_be_moved.file", "not_to_be_moved.lrc"]
         config["paths"]["ext:file"] = "$albumpath/$old_filename"
 
-        self.create_file(
-            self.album_path, beets.util.bytestring_path("not_to_be_moved.file")
-        )
+        self.create_file(self.album_path, "not_to_be_moved.file")
 
-        self.create_file(
-            self.album_path, beets.util.bytestring_path("not_to_be_moved.lrc")
-        )
+        self.create_file(self.album_path, "not_to_be_moved.lrc")
 
         with capture_log_with_traceback() as logs:
             self._run_cli_command("import")
 
         self.assert_in_import_dir(
-            b"the_album",
-            b"not_to_be_moved.file",
+            "the_album",
+            "not_to_be_moved.file",
         )
-        self.assert_not_in_lib_dir(b"Tag Artist", b"Tag Album", b"not_to_be_moved.file")
+        self.assert_not_in_lib_dir("Tag Artist", "Tag Album", "not_to_be_moved.file")
 
         self.assert_in_import_dir(
-            b"the_album",
-            b"not_to_be_moved.lrc",
+            "the_album",
+            "not_to_be_moved.lrc",
         )
-        self.assert_not_in_lib_dir(b"Tag Artist", b"Tag Album", b"not_to_be_moved.lrc")
+        self.assert_not_in_lib_dir("Tag Artist", "Tag Album", "not_to_be_moved.lrc")
 
         # Ensure the deprecation warning is present
         logs = [line for line in logs if line.startswith("filetote:")]
@@ -143,27 +134,23 @@ class FiletoteExcludeTest(FiletoteTestCase):
             "extensions": [".lrc"],
         }
 
-        self.create_file(
-            self.album_path, beets.util.bytestring_path("not_to_be_moved.file")
-        )
+        self.create_file(self.album_path, "not_to_be_moved.file")
 
-        self.create_file(
-            self.album_path, beets.util.bytestring_path("not_to_be_moved.lrc")
-        )
+        self.create_file(self.album_path, "not_to_be_moved.lrc")
 
         self._run_cli_command("import")
 
         self.assert_in_import_dir(
-            b"the_album",
-            b"not_to_be_moved.file",
+            "the_album",
+            "not_to_be_moved.file",
         )
-        self.assert_not_in_lib_dir(b"Tag Artist", b"Tag Album", b"not_to_be_moved.file")
+        self.assert_not_in_lib_dir("Tag Artist", "Tag Album", "not_to_be_moved.file")
 
         self.assert_in_import_dir(
-            b"the_album",
-            b"not_to_be_moved.lrc",
+            "the_album",
+            "not_to_be_moved.lrc",
         )
-        self.assert_not_in_lib_dir(b"Tag Artist", b"Tag Album", b"not_to_be_moved.lrc")
+        self.assert_not_in_lib_dir("Tag Artist", "Tag Album", "not_to_be_moved.lrc")
 
     def test_exclude_dict_with_patterns(self) -> None:
         """Tests to ensure the `exclude` config and works with and patterns."""
@@ -174,21 +161,17 @@ class FiletoteExcludeTest(FiletoteTestCase):
             "nfo-pattern": ["*.lrc"],
         }
 
-        self.create_file(
-            self.album_path, beets.util.bytestring_path("to_be_moved.file")
-        )
+        self.create_file(self.album_path, "to_be_moved.file")
 
-        self.create_file(
-            self.album_path, beets.util.bytestring_path("not_to_be_moved.lrc")
-        )
+        self.create_file(self.album_path, "not_to_be_moved.lrc")
 
         self._run_cli_command("import")
 
         self.assert_in_lib_dir(
-            b"Tag Artist",
-            b"Tag Album",
-            b"to_be_moved.file",
+            "Tag Artist",
+            "Tag Album",
+            "to_be_moved.file",
         )
-        self.assert_not_in_lib_dir(b"Tag Artist", b"Tag Album", b"artifact.file")
-        self.assert_not_in_lib_dir(b"Tag Artist", b"Tag Album", b"not_to_be_moved.lrc")
-        self.assert_not_in_lib_dir(b"Tag Artist", b"Tag Album", b"artifact.lrc")
+        self.assert_not_in_lib_dir("Tag Artist", "Tag Album", "artifact.file")
+        self.assert_not_in_lib_dir("Tag Artist", "Tag Album", "not_to_be_moved.lrc")
+        self.assert_not_in_lib_dir("Tag Artist", "Tag Album", "artifact.lrc")

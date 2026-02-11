@@ -33,7 +33,9 @@ except ImportError:  # fallback for Beets 2.4 and 2.5
 
 log = logging.getLogger("beets")
 
-PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+# Test resources path.
+RSRC: Path = Path(__file__).parent / "rsrc"
+PROJECT_ROOT = Path(__file__).resolve().parents[1]
 
 
 class ListLogHandler(logging.Handler):
@@ -89,19 +91,18 @@ def import_plugin_module_statically(module_name: str) -> types.ModuleType:
     bypassing the `beetsplug` package namespace and avoiding contamination
     from integration tests that dynamically load plugins.
     """
-    module_path = os.path.join(PROJECT_ROOT, f"beetsplug/{module_name}.py")
-
-    return _load_module_from_path(module_name, module_path)
+    module_path = PROJECT_ROOT / f"beetsplug/{module_name}.py"
+    return _load_module_from_path(module_name, str(module_path))
 
 
 def _import_local_plugin(
-    module_path: str, class_name: str, module_name: str
+    module_path: Path, class_name: str, module_name: str
 ) -> type[BeetsPlugin]:
     """Dynamically import a plugin class from a local file."""
-    if PROJECT_ROOT not in sys.path:
-        sys.path.insert(0, PROJECT_ROOT)
+    if str(PROJECT_ROOT) not in sys.path:
+        sys.path.insert(0, str(PROJECT_ROOT))
 
-    module = _load_module_from_path(module_name, module_path)
+    module = _load_module_from_path(module_name, str(module_path))
 
     # Patch beetsplug namespace if needed
     namespace, _, submodule = module_name.partition(".")
@@ -123,86 +124,104 @@ class MediaSetup:
 
 # More types may be expanded as testing becomes more sophisticated.
 RSRC_TYPES = {
-    "mp3": b"full.mp3",
-    # "aac": b"full.aac",
-    # "alac": b"full.alac",
-    # "alac.m4a": b"full.alac.m4a",
-    # "ogg": b"full.ogg",
-    # "opus": b"full.opus",
-    "flac": b"full.flac",
-    # "ape": b"full.ape",
-    # "wv": b"full.wv",
-    # "mpc": b"full.mpc",
-    # "m4a": b"full.m4a",
-    # "asf": b"full.asf",
-    # "aiff": b"full.aiff",
-    # "dsf": b"full.dsf",
-    "wav": b"full.wav",
-    # "wave": b"full.wave",
-    # "wma": b"full.wma",
+    "mp3": "full.mp3",
+    "flac": "full.flac",
+    "wav": "full.wav",
 }
 
 
+# TODO(gtronset): Remove backwards compatibility support for bytes paths in assertions
+# once all tests are updated to use Path objects instead of bytestring paths.
+# https://github.com/gtronset/beets-filetote/pull/255
 class Assertions(_common.AssertionsMixin):
     """Helper assertions for testing."""
 
     def __init__(self) -> None:
         """Sets up baseline variables."""
-        self.lib_dir: bytes | None = None
-        self.import_dir: bytes | None = None
+        self.lib_dir: Path | None = None
+        self.import_dir: Path | None = None
 
-    def assert_in_lib_dir(self, *segments: bytes) -> None:
+    def _join_segments(
+        self, root: Path | None, segments: tuple[str | bytes | Path, ...]
+    ) -> Path | None:
+        """Helper to join diverse segments into a Path, relative to a root."""
+        if root is None:
+            return None
+
+        # Convert all segments to strings/Path compatible format
+        # If tests pass bytes (old behavior), decode them.
+        resolved_segments = [
+            os.fsdecode(s) if isinstance(s, bytes) else str(s) for s in segments
+        ]
+        return root.joinpath(*resolved_segments)
+
+    def assert_in_lib_dir(self, *segments: str | bytes | Path) -> None:
         """Join the ``segments`` and assert that this path exists in the library
         directory.
         """
-        if self.lib_dir:
-            self.assert_exists(os.path.join(self.lib_dir, *segments))
+        path = self._join_segments(self.lib_dir, segments)
+        if path:
+            self.assert_exists(path)
 
-    def assert_not_in_lib_dir(self, *segments: bytes) -> None:
+    def assert_not_in_lib_dir(self, *segments: str | bytes | Path) -> None:
         """Join the ``segments`` and assert that this path does not exist in
         the library directory.
         """
-        if self.lib_dir:
-            self.assert_does_not_exist(os.path.join(self.lib_dir, *segments))
+        path = self._join_segments(self.lib_dir, segments)
+        if path:
+            self.assert_does_not_exist(path)
 
-    def assert_import_dir_exists(self, import_dir: bytes | None = None) -> None:
+    def assert_import_dir_exists(self, import_dir: Path | None = None) -> None:
         """Asserts that the import directory exists."""
         directory = import_dir or self.import_dir
         if directory:
             self.assert_exists(directory)
 
-    def assert_in_import_dir(self, *segments: bytes) -> None:
+    def assert_in_import_dir(self, *segments: str | bytes | Path) -> None:
         """Join the ``segments`` and assert that this path exists in the import
         directory.
         """
-        if self.import_dir:
-            self.assert_exists(os.path.join(self.import_dir, *segments))
+        path = self._join_segments(self.import_dir, segments)
+        if path:
+            self.assert_exists(path)
 
-    def assert_not_in_import_dir(self, *segments: bytes) -> None:
+    def assert_not_in_import_dir(self, *segments: str | bytes | Path) -> None:
         """Join the ``segments`` and assert that this path does not exist in
         the library directory.
         """
-        if self.import_dir:
-            self.assert_does_not_exist(os.path.join(self.import_dir, *segments))
+        path = self._join_segments(self.import_dir, segments)
+        if path:
+            self.assert_does_not_exist(path)
 
-    def assert_islink(self, *segments: bytes) -> None:
+    def assert_islink(self, *segments: str | bytes | Path) -> None:
         """Join the ``segments`` with the `lib_dir` and assert that this path is a
         link.
         """
-        if self.lib_dir:
-            assert os.path.islink(os.path.join(self.lib_dir, *segments))
+        path = self._join_segments(self.lib_dir, segments)
+        if path:
+            assert path.is_symlink()
 
-    def assert_equal_path(self, path_a: bytes, path_b: bytes) -> None:
-        """Check that two paths are equal."""
-        assert util.normpath(path_a) == util.normpath(path_b), (
-            f"paths are not equal: {path_a!r} and {path_b!r}"
-        )
+    def assert_equal_path(
+        self, path_a: str | bytes | Path, path_b: str | bytes | Path
+    ) -> None:
+        """Check that two paths are equal (resolving relative paths/symlinks)."""
+        # _common.AssertionsMixin already has a robust implementation of this that
+        # handles Paths. We override here just to ensure we catch any str/bytes inputs
+        # if needed, defaulting to the specific implementation logic or reusing parent.
+        super().assert_equal_path(path_a, path_b)
 
-    def assert_number_of_files_in_dir(self, count: int, *segments: bytes) -> None:
+    def assert_number_of_files_in_dir(
+        self, count: int, *segments: str | bytes | Path
+    ) -> None:
         """Assert that there are ``count`` files in path formed by joining
         ``segments``.
         """
-        assert len(list(os.listdir(os.path.join(*segments)))) == count
+        # Segments form the full path here usually
+        path_segments = [
+            os.fsdecode(s) if isinstance(s, bytes) else str(s) for s in segments
+        ]
+        path = Path(*path_segments)
+        assert len(list(path.iterdir())) == count
 
 
 class HelperUtils:
@@ -211,20 +230,20 @@ class HelperUtils:
     def _log_indenter(self, indent_level: int) -> str:
         return " " * 4 * (indent_level)
 
-    def create_file(self, path: bytes, filename: bytes) -> None:
+    def create_file(self, path: Path, filename: str) -> None:
         """Creates a file in a specific location."""
-        with open(
-            os.path.join(path, filename), mode="a", encoding="utf-8"
-        ) as file_handle:
-            file_handle.close()
+        fname = os.fsdecode(filename) if isinstance(filename, bytes) else str(filename)
+        target = path / fname
+        target.touch()
 
-    def list_files(self, startpath: bytes) -> None:
+    def list_files(self, startpath: Path) -> None:
         """Provide a formatted list of files, directories, and their contents in
         logs.
         """
-        path = startpath.decode("utf8")
-        for root, _dirs, files in os.walk(path):
-            level = root.replace(path, "").count(os.sep)
+        # Convert to string for os.walk logging
+        path_str = str(startpath)
+        for root, _dirs, files in os.walk(path_str):
+            level = root.replace(path_str, "").count(os.sep)
 
             indent = self._log_indenter(level)
             log_string = f"{indent}{os.path.basename(root)}/"
@@ -235,7 +254,7 @@ class HelperUtils:
                 sub_log_string = f"{subindent}{filename}"
                 log.debug(sub_log_string)
 
-    def get_rsrc_from_file_type(self, filetype: str) -> bytes:
+    def get_rsrc_from_file_type(self, filetype: str) -> str:
         """Gets the actual file matching extension if available, otherwise
         default to MP3.
         """
@@ -257,30 +276,30 @@ class FiletoteTestCase(_common.TestCase, Assertions, HelperUtils):
 
         self.plugins = other_plugins
 
-        self.lib_dir: bytes = os.path.join(self.temp_dir, b"testlib_dir")
+        self.lib_dir: Path = self.temp_dir / "testlib_dir"
 
         self.lib: library.Library = self._create_library(self.lib_dir)
 
-        self.rsrc_mp3: bytes = b"full.mp3"
+        self.rsrc_mp3: str = "full.mp3"
 
         self._media_count: int = 0
         self._pairs_count: int = 0
 
-        self.import_dir: bytes = b""
+        self.import_dir: Path = self.temp_dir / "import_dir"
         self.import_media: list[MediaFile] | None = None
         self.importer: ImportSession | None = None
-        self.paths: bytes | None = None
+        self.paths: Path | None = None
 
         # Install the DummyIO to capture anything directed to stdout
         self.in_out.install()
 
-    def _create_library(self, lib_dir: bytes) -> library.Library:
-        lib_db = os.path.join(self.temp_dir, b"testlib.blb")
+    def _create_library(self, lib_dir: Path) -> library.Library:
+        lib_db = self.temp_dir / "testlib.blb"
 
-        os.mkdir(lib_dir)
+        lib_dir.mkdir(parents=True, exist_ok=True)
 
-        lib = library.Library(lib_db)
-        lib.directory = lib_dir
+        lib = library.Library(util.bytestring_path(lib_db))
+        lib.directory = util.bytestring_path(lib_dir)
 
         lib.path_formats = [
             ("default", os.path.join("$artist", "$album", "$title")),
@@ -328,10 +347,8 @@ class FiletoteTestCase(_common.TestCase, Assertions, HelperUtils):
         plugin_list: list[str] = ["filetote"]
         plugin_class_list: list[Any] = []
 
-        root = Path(__file__).resolve().parents[1]
-
         # Always load local Filetote
-        filetote_path = os.path.abspath(os.path.join(root, "beetsplug", "filetote.py"))
+        filetote_path = PROJECT_ROOT / "beetsplug/filetote.py"
         filetote_class = _import_local_plugin(
             filetote_path, "FiletotePlugin", "beetsplug.filetote"
         )
@@ -346,7 +363,7 @@ class FiletoteTestCase(_common.TestCase, Assertions, HelperUtils):
         for other_plugin in other_plugins:
             if other_plugin in stub_map:
                 stub_path, class_name = stub_map[other_plugin]
-                abs_stub_path = os.path.abspath(stub_path)
+                abs_stub_path = PROJECT_ROOT / stub_path
 
                 plugin_class = _import_local_plugin(
                     abs_stub_path, class_name, f"beetsplug.{other_plugin}"
@@ -536,18 +553,19 @@ class FiletoteTestCase(_common.TestCase, Assertions, HelperUtils):
 
         self._set_import_dir()
 
-        if self.import_dir is None:
-            return
+        # Ensure dir creation in case _set_import_dir cleared it
+        # if not self.import_dir.exists():
+        #     self.import_dir.mkdir(parents=True)
 
-        album_path = os.path.join(self.import_dir, b"the_album")
-        os.makedirs(album_path)
+        album_path = self.import_dir / "the_album"
+        album_path.mkdir(parents=True)  # Just use "parent true?"
 
         # Create artifacts
         artifacts = [
-            b"artifact.file",
-            b"artifact2.file",
-            b"artifact.nfo",
-            b"artifact.lrc",
+            "artifact.file",
+            "artifact2.file",
+            "artifact.nfo",
+            "artifact.lrc",
         ]
 
         for artifact in artifacts:
@@ -605,21 +623,18 @@ class FiletoteTestCase(_common.TestCase, Assertions, HelperUtils):
 
         self._set_import_dir()
 
-        if self.import_dir is None:
-            return
+        album_path = self.import_dir / "the_album"
+        disc1_path = album_path / "disc1"
+        disc2_path = album_path / "disc2"
 
-        album_path = os.path.join(self.import_dir, b"the_album")
-        disc1_path = os.path.join(album_path, b"disc1")
-        disc2_path = os.path.join(album_path, b"disc2")
-
-        os.makedirs(disc1_path)
-        os.makedirs(disc2_path)
+        disc1_path.mkdir(parents=True)
+        disc2_path.mkdir(parents=True)
 
         # Create Disc1 artifacts
         disc1_artifacts = [
-            b"artifact.file",
-            b"artifact2.file",
-            b"artifact_disc1.nfo",
+            "artifact.file",
+            "artifact2.file",
+            "artifact_disc1.nfo",
         ]
 
         for artifact in disc1_artifacts:
@@ -627,9 +642,9 @@ class FiletoteTestCase(_common.TestCase, Assertions, HelperUtils):
 
         # Create Disc2 artifacts
         disc2_artifacts = [
-            b"artifact3.file",
-            b"artifact4.file",
-            b"artifact_disc2.nfo",
+            "artifact3.file",
+            "artifact4.file",
+            "artifact_disc2.nfo",
         ]
 
         for artifact in disc2_artifacts:
@@ -677,7 +692,7 @@ class FiletoteTestCase(_common.TestCase, Assertions, HelperUtils):
 
     def _generate_paired_media_list(  # noqa: PLR0913
         self,
-        album_path: bytes,
+        album_path: Path,
         count: int = 3,
         generate_pair: bool = True,
         pair_subfolders: bool = False,
@@ -693,12 +708,11 @@ class FiletoteTestCase(_common.TestCase, Assertions, HelperUtils):
 
         while count > 0:
             trackname = f"{filename_prefix}{count}"
+            media_path = album_path / f"{trackname}.{file_type}"
+
             media_list.append(
                 self._create_medium(
-                    path=os.path.join(
-                        album_path,
-                        f"{trackname}.{file_type}".encode(),
-                    ),
+                    path=media_path,
                     resource_name=self.get_rsrc_from_file_type(file_type),
                     media_meta=MediaMeta(
                         title=f"{title_prefix}{count}", track=count, disc=disc
@@ -712,15 +726,15 @@ class FiletoteTestCase(_common.TestCase, Assertions, HelperUtils):
                 pair_path = album_path
 
                 if pair_subfolders:
-                    pair_path = os.path.join(album_path, b"lyrics", b"lyric-subfolder")
+                    pair_path = album_path / "lyrics" / "lyric-subfolder"
 
-                os.makedirs(pair_path, exist_ok=True)
+                pair_path.mkdir(parents=True, exist_ok=True)
+                self.create_file(pair_path, f"{trackname}.lrc")
 
-                self.create_file(pair_path, f"{trackname}.lrc".encode())
         return media_list
 
     def _create_medium(
-        self, path: bytes, resource_name: bytes, media_meta: MediaMeta | None = None
+        self, path: Path, resource_name: str, media_meta: MediaMeta | None = None
     ) -> MediaFile:
         """Creates and saves a media file object located at path using resource_name
         from the beets test resources directory as initial data.
@@ -729,10 +743,10 @@ class FiletoteTestCase(_common.TestCase, Assertions, HelperUtils):
             media_meta = MediaMeta()
 
         # Copy media file
-        resource_path = os.path.join(_common.RSRC, resource_name)
+        resource_path = RSRC / resource_name
 
         shutil.copy(resource_path, path)
-        medium = MediaFile(path)
+        medium = MediaFile(str(path))
 
         for item, value in asdict(media_meta).items():
             setattr(medium, item, value)
@@ -740,8 +754,8 @@ class FiletoteTestCase(_common.TestCase, Assertions, HelperUtils):
 
         return medium
 
-    def _update_medium(self, path: bytes, meta_updates: dict[str, str]) -> None:
-        medium = MediaFile(path)
+    def _update_medium(self, path: Path, meta_updates: dict[str, str]) -> None:
+        medium = MediaFile(str(path))
 
         for item, value in meta_updates.items():
             setattr(medium, item, value)
@@ -749,14 +763,13 @@ class FiletoteTestCase(_common.TestCase, Assertions, HelperUtils):
 
     def _set_import_dir(self) -> None:
         """Sets the import_dir and ensures that it is empty."""
-        self.import_dir = os.path.join(self.temp_dir, b"testsrc_dir")
-        if os.path.isdir(self.import_dir):
+        self.import_dir = self.temp_dir / "testsrc_dir"
+        if self.import_dir.is_dir():
             shutil.rmtree(self.import_dir)
-        self.import_dir = os.path.join(self.temp_dir, b"testsrc_dir")
 
     def _setup_import_session(  # noqa: PLR0913
         self,
-        import_dir: bytes | None = None,
+        import_dir: Path | None = None,
         delete: bool = False,
         threaded: bool = False,
         copy: bool = True,
@@ -779,7 +792,10 @@ class FiletoteTestCase(_common.TestCase, Assertions, HelperUtils):
 
         self.paths = import_dir
 
-        import_path: list[bytes] = [import_dir] if import_dir else []
+        # ImportSession expects a list of bytestring path
+        import_path: list[bytes] = (
+            [util.bytestring_path(import_dir)] if import_dir else []
+        )
 
         self.importer = ImportSession(
             self.lib,

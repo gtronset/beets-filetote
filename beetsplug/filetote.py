@@ -801,8 +801,6 @@ class FiletotePlugin(BeetsPlugin):
         for artifact in source_artifacts:
             artifact_source: Path = artifact.path
 
-            artifact_parent: Path = artifact_source.parent
-
             artifact_filename: str = artifact_source.name
 
             is_pattern_match, pattern_category = path_utils.is_pattern_match(
@@ -866,6 +864,8 @@ class FiletotePlugin(BeetsPlugin):
                 artifact_dest_unique,
                 reimport,
             )
+
+            artifact_parent: Path = artifact_source.parent
 
             if operation == MoveOperation.MOVE or reimport:
                 # Prune vacated directory. Depending on the type of operation,
