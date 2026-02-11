@@ -106,9 +106,6 @@ HAVE_HARDLINK = check_hardlink()
 HAVE_REFLINK = check_reflink()
 
 
-# TODO(gtronset): Remove backwards compatibility support for bytes paths in assertions
-# once all tests are updated to use Path objects instead of bytestring paths.
-# https://github.com/gtronset/beets-filetote/pull/255
 class AssertionsMixin:
     """A mixin with additional unit test assertions."""
 
@@ -123,8 +120,9 @@ class AssertionsMixin:
         assert not path.exists(), f"file exists: {path!r}"
 
     def assert_equal_path(self, path_a: Path, path_b: Path) -> None:
-        """Check that two paths are equal."""
-        # Resolve symlinks and relative paths first
+        """Check that two paths are equal. This resolves relative paths and symlinks, so
+        it checks if the paths point to the same location on disk.
+        """
         path_a_full = path_a.resolve()
         path_b_full = path_b.resolve()
 

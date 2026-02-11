@@ -201,18 +201,16 @@ class Assertions(_common.AssertionsMixin):
         if path:
             assert path.is_symlink()
 
-    def assert_number_of_files_in_dir(
-        self, count: int, *segments: str | bytes | Path
-    ) -> None:
-        """Assert that there are ``count`` files in path formed by joining
-        ``segments``.
-        """
-        # Segments form the full path here usually
-        path_segments = [
-            os.fsdecode(s) if isinstance(s, bytes) else str(s) for s in segments
-        ]
-        path = Path(*path_segments)
-        assert len(list(path.iterdir())) == count
+    def assert_number_of_files_in_dir(self, count: int, directory: Path) -> None:
+        """Assert that there are ``count`` files in the provided path."""
+        # Verify it exists first to give a better error message
+        assert directory.exists(), f"Directory does not exist: {directory}"
+        assert directory.is_dir(), f"Path is not a directory: {directory}"
+
+        actual_count = len(list(directory.iterdir()))
+        assert actual_count == count, (
+            f"Expected {count} files in {directory}, found {actual_count}"
+        )
 
 
 class HelperUtils:

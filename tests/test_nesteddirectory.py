@@ -38,7 +38,7 @@ class FiletoteFromNestedDirectoryTest(FiletoteTestCase):
         self._run_cli_command("import")
 
         self.assert_number_of_files_in_dir(
-            self._media_count + 4, self.lib_dir, "Tag Artist", "Tag Album"
+            self._media_count + 4, self.lib_dir / "Tag Artist" / "Tag Album"
         )
 
         self.assert_in_lib_dir("Tag Artist", "Tag Album", "artifact.file")
@@ -64,10 +64,10 @@ class FiletoteFromNestedDirectoryTest(FiletoteTestCase):
         self._run_cli_command("import")
 
         self.assert_number_of_files_in_dir(
-            5, self.lib_dir, "Tag Artist", "Tag Album", "01"
+            5, self.lib_dir / "Tag Artist" / "Tag Album" / "01"
         )
         self.assert_number_of_files_in_dir(
-            5, self.lib_dir, "Tag Artist", "Tag Album", "02"
+            5, self.lib_dir / "Tag Artist" / "Tag Album" / "02"
         )
 
         self.assert_in_lib_dir("Tag Artist", "Tag Album", "01", "artifact.file")
@@ -103,10 +103,10 @@ class FiletoteFromNestedDirectoryTest(FiletoteTestCase):
         self._run_cli_command("import")
 
         self.assert_number_of_files_in_dir(
-            3, self.lib_dir, "Tag Artist", "Tag Album", "01"
+            3, self.lib_dir / "Tag Artist" / "Tag Album" / "01"
         )
         self.assert_number_of_files_in_dir(
-            3, self.lib_dir, "Tag Artist", "Tag Album", "02"
+            3, self.lib_dir / "Tag Artist" / "Tag Album" / "02"
         )
 
         self.assert_in_lib_dir("Tag Artist", "Tag Album", "artifacts", "artifact.file")

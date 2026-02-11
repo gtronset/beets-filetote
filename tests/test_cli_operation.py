@@ -45,7 +45,7 @@ class FiletoteCLIOperation(FiletoteTestCase):
         self._run_cli_command("import")
 
         self.assert_number_of_files_in_dir(
-            self._base_file_count + 4, self.import_dir, "the_album"
+            self._base_file_count + 4, self.import_dir / "the_album"
         )
 
         self.assert_in_import_dir("the_album", "artifact.file")

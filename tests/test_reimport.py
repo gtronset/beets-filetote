@@ -78,7 +78,7 @@ class FiletoteReimportTest(FiletoteTestCase):
         log.debug("--- second import")
         self._run_cli_command("import")
 
-        self.assert_number_of_files_in_dir(5, self.lib_dir, "Tag Artist", "Tag Album")
+        self.assert_number_of_files_in_dir(5, self.lib_dir / "Tag Artist" / "Tag Album")
         self.assert_in_lib_dir("Tag Artist", "Tag Album", "artifact.file")
         self.assert_in_lib_dir("Tag Artist", "Tag Album", "artifact2.file")
 
