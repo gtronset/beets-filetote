@@ -37,7 +37,7 @@ class FiletoteExcludeTest(FiletoteTestCase):
             "extensions": [".lrc"],
         }
 
-        self.create_file(self.album_path, "not_to_be_moved.lrc")
+        self.create_file(self.album_path / "not_to_be_moved.lrc")
 
         self._run_cli_command("import")
 
@@ -55,9 +55,9 @@ class FiletoteExcludeTest(FiletoteTestCase):
         config["filetote"]["exclude"] = "not_to_be_moved.file not_to_be_moved.lrc"
         config["paths"]["ext:file"] = "$albumpath/$old_filename"
 
-        self.create_file(self.album_path, "not_to_be_moved.file")
+        self.create_file(self.album_path / "not_to_be_moved.file")
 
-        self.create_file(self.album_path, "not_to_be_moved.lrc")
+        self.create_file(self.album_path / "not_to_be_moved.lrc")
 
         with capture_log_with_traceback() as logs:
             self._run_cli_command("import")
@@ -93,9 +93,9 @@ class FiletoteExcludeTest(FiletoteTestCase):
         config["filetote"]["exclude"] = ["not_to_be_moved.file", "not_to_be_moved.lrc"]
         config["paths"]["ext:file"] = "$albumpath/$old_filename"
 
-        self.create_file(self.album_path, "not_to_be_moved.file")
+        self.create_file(self.album_path / "not_to_be_moved.file")
 
-        self.create_file(self.album_path, "not_to_be_moved.lrc")
+        self.create_file(self.album_path / "not_to_be_moved.lrc")
 
         with capture_log_with_traceback() as logs:
             self._run_cli_command("import")
@@ -134,9 +134,9 @@ class FiletoteExcludeTest(FiletoteTestCase):
             "extensions": [".lrc"],
         }
 
-        self.create_file(self.album_path, "not_to_be_moved.file")
+        self.create_file(self.album_path / "not_to_be_moved.file")
 
-        self.create_file(self.album_path, "not_to_be_moved.lrc")
+        self.create_file(self.album_path / "not_to_be_moved.lrc")
 
         self._run_cli_command("import")
 
@@ -161,9 +161,9 @@ class FiletoteExcludeTest(FiletoteTestCase):
             "nfo-pattern": ["*.lrc"],
         }
 
-        self.create_file(self.album_path, "to_be_moved.file")
+        self.create_file(self.album_path / "to_be_moved.file")
 
-        self.create_file(self.album_path, "not_to_be_moved.lrc")
+        self.create_file(self.album_path / "not_to_be_moved.lrc")
 
         self._run_cli_command("import")
 

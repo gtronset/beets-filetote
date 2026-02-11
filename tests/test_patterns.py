@@ -58,12 +58,8 @@ class FiletotePatternTest(FiletoteTestCase):
     def test_patterns_subfolders_match(self) -> None:
         """Tests that patterns can match subdirectories/subfolders."""
         artwork_dir: Path = self.import_dir / "the_album" / "artwork"
-        os.makedirs(artwork_dir)
 
-        self.create_file(
-            path=artwork_dir,
-            filename="cover.jpg",
-        )
+        self.create_file(artwork_dir / "cover.jpg")
 
         config["filetote"]["patterns"] = {
             "file-pattern": ["/[aA]rtifact.file", "artifact[23].file"],
@@ -87,22 +83,10 @@ class FiletotePatternTest(FiletoteTestCase):
         subfolder_dir: Path = (
             self.import_dir / "the_album" / "Subfolder1" / "Subfolder2" / "Subfolder3"
         )
-        os.makedirs(artwork_dir)
-        os.makedirs(cd1_dir)
-        os.makedirs(subfolder_dir)
 
-        self.create_file(
-            path=artwork_dir,
-            filename="cover.jpg",
-        )
-        self.create_file(
-            path=cd1_dir,
-            filename="cd.file",
-        )
-        self.create_file(
-            path=subfolder_dir,
-            filename="sub.file",
-        )
+        self.create_file(artwork_dir / "cover.jpg")
+        self.create_file(cd1_dir / "cd.file")
+        self.create_file(subfolder_dir / "sub.file")
 
         config["filetote"]["patterns"] = {
             "subfolder1-pattern": ["[aA]rtwork/"],
@@ -130,18 +114,9 @@ class FiletotePatternTest(FiletoteTestCase):
         """
         artwork_dir: Path = self.import_dir / "the_album" / "artwork"
         scans_dir: Path = self.import_dir / "the_album" / "scans"
-        os.makedirs(artwork_dir)
-        os.makedirs(scans_dir)
 
-        self.create_file(
-            path=artwork_dir,
-            filename="cover.jpg",
-        )
-
-        self.create_file(
-            path=scans_dir,
-            filename="scan.jpg",
-        )
+        self.create_file(artwork_dir / "cover.jpg")
+        self.create_file(scans_dir / "scan.jpg")
 
         config["filetote"]["patterns"] = {
             "artwork-pattern": ["[aA]rtwork/"],

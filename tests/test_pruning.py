@@ -56,9 +56,8 @@ class FiletotePruningyTest(FiletoteTestCase):
         the empty subdirectory is correctly pruned.
         """
         artwork_dir_path: Path = self.import_dir / "the_album" / "Artwork"
-        os.makedirs(artwork_dir_path)
 
-        self.create_file(artwork_dir_path, "background.jpg")
+        self.create_file(artwork_dir_path / "background.jpg")
 
         config["filetote"]["patterns"] = {"artwork": ["[aA]rtwork/"]}
         config["filetote"]["extensions"] = ".*"

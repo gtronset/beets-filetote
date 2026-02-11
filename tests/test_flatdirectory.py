@@ -49,7 +49,7 @@ class FiletoteFromFlatDirectoryTest(FiletoteTestCase):
         """
         config["filetote"]["extensions"] = ".file"
 
-        self.create_file(self.import_dir / "the_album", "artifact.file2")
+        self.create_file(self.import_dir / "the_album" / "artifact.file2")
 
         self._run_cli_command("import")
 

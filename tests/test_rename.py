@@ -257,10 +257,7 @@ class FiletoteRenameTest(FiletoteTestCase):
 
         The expected priority is: filename > paired_ext > pattern > ext.
         """
-        self.create_file(
-            path=self.import_dir / "the_album",
-            filename="track_1.log",
-        )
+        self.create_file(self.import_dir / "the_album" / "track_1.log")
 
         config["filetote"]["extensions"] = ".log"
         config["filetote"]["filenames"] = "track_1.log"
@@ -457,27 +454,11 @@ class FiletoteRenameTest(FiletoteTestCase):
         import_dir: Path = self.import_dir / "the_album"
         scans_dir: Path = self.import_dir / "the_album" / "scans"
 
-        os.makedirs(scans_dir)
+        self.create_file(scans_dir / "scan-1.jpg")
 
-        self.create_file(
-            path=scans_dir,
-            filename="scan-1.jpg",
-        )
-
-        self.create_file(
-            path=import_dir,
-            filename="cover.jpg",
-        )
-
-        self.create_file(
-            path=import_dir,
-            filename="sub.cue",
-        )
-
-        self.create_file(
-            path=import_dir,
-            filename="md5.sum",
-        )
+        self.create_file(import_dir / "cover.jpg")
+        self.create_file(import_dir / "sub.cue")
+        self.create_file(import_dir / "md5.sum")
 
         config["filetote"]["extensions"] = ".*"
         config["filetote"]["exclude"] = {"extensions": [".sum"]}

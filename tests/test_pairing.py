@@ -112,7 +112,7 @@ class FiletotePairingTest(FiletoteTestCase):
         config["filetote"]["extensions"] = ".lrc"
         config["filetote"]["pairing"]["enabled"] = True
 
-        self.create_file(self.import_dir / "the_album", "track_1.lrc")
+        self.create_file(self.import_dir / "the_album" / "track_1.lrc")
 
         self._run_cli_command("import")
 
@@ -172,7 +172,7 @@ class FiletotePairingTest(FiletoteTestCase):
             "pairing_only": True,
         }
 
-        self.create_file(self.import_dir / "the_album", "track_1.lrc")
+        self.create_file(self.import_dir / "the_album" / "track_1.lrc")
 
         self._run_cli_command("import")
 
@@ -198,7 +198,7 @@ class FiletotePairingTest(FiletoteTestCase):
         new_files = ["track_1.kar", "track_1.lrc", "track_1.jpg"]
 
         for filename in new_files:
-            self.create_file(self.import_dir / "the_album", filename)
+            self.create_file(self.import_dir / "the_album" / filename)
 
         self._run_cli_command("import")
 
@@ -229,7 +229,7 @@ class FiletotePairingTest(FiletoteTestCase):
         new_files = ["track_1.kar", "track_1.lrc", "track_1.jpg"]
 
         for filename in new_files:
-            self.create_file(self.import_dir / "the_album", filename)
+            self.create_file(self.import_dir / "the_album" / filename)
 
         self._run_cli_command("import")
 

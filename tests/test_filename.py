@@ -37,7 +37,8 @@ class FiletoteFilename(FiletoteTestCase):
 
     def test_import_dir_with_unicode_character_in_artifact_name_copy(self) -> None:
         """Tests that unicode characters copy as expected."""
-        self.create_file(self.album_path, "\xe4rtifact.file")
+        self.create_file(self.album_path / "\xe4rtifact.file")
+
         medium = self._create_medium(self.album_path / "track_1.mp3", self.rsrc_mp3)
         self.import_media = [medium]
 
@@ -53,7 +54,8 @@ class FiletoteFilename(FiletoteTestCase):
         """Tests that unicode characters move as expected."""
         config["import"]["move"] = True
 
-        self.create_file(self.album_path, "\xe4rtifact.file")
+        self.create_file(self.album_path / "\xe4rtifact.file")
+
         medium = self._create_medium(self.album_path / "track_1.mp3", self.rsrc_mp3)
         self.import_media = [medium]
 
@@ -82,10 +84,8 @@ class FiletoteFilename(FiletoteTestCase):
             os.path.join("$artist", "$album", "$album - $title"),
         )
 
-        self.create_file(
-            self.album_path,
-            "CoolName: Album&Tag.log",
-        )
+        self.create_file(self.album_path / "CoolName: Album&Tag.log")
+
         medium = self._create_medium(
             self.album_path / "track_1.mp3",
             self.rsrc_mp3,
@@ -108,7 +108,8 @@ class FiletoteFilename(FiletoteTestCase):
         config["paths"]["ext:file"] = "$albumpath/$artist - $album"
 
         # Create import directory, illegal filename character used in the album name
-        self.create_file(self.album_path, "artifact.file")
+        self.create_file(self.album_path / "artifact.file")
+
         medium = self._create_medium(
             self.album_path / "track_1.mp3",
             self.rsrc_mp3,
@@ -132,7 +133,8 @@ class FiletoteFilename(FiletoteTestCase):
             (re.compile(r"\?"), "\uff1f"),
         ]
 
-        self.create_file(self.album_path, "artifact.file")
+        self.create_file(self.album_path / "artifact.file")
+
         medium = self._create_medium(
             self.album_path / "track_1.mp3",
             self.rsrc_mp3,

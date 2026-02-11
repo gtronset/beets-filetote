@@ -59,7 +59,7 @@ class FiletoteCLIOperation(FiletoteTestCase):
         """
         self._setup_import_session(copy=False, autotag=False)
 
-        self.create_file(self.album_path, "\xe4rtifact.file")
+        self.create_file(self.album_path / "\xe4rtifact.file")
         medium = self._create_medium(self.album_path / "track_1.mp3", self.rsrc_mp3)
         self.import_media = [medium]
 
@@ -82,7 +82,7 @@ class FiletoteCLIOperation(FiletoteTestCase):
         """
         self._setup_import_session(copy=False, autotag=False)
 
-        self.create_file(self.album_path, "\xe4rtifact.file")
+        self.create_file(self.album_path / "\xe4rtifact.file")
         medium = self._create_medium(self.album_path / "track_1.mp3", self.rsrc_mp3)
         self.import_media = [medium]
 
@@ -105,7 +105,7 @@ class FiletoteCLIOperation(FiletoteTestCase):
         """
         self._setup_import_session(copy=True, autotag=False)
 
-        self.create_file(self.album_path, "\xe4rtifact.file")
+        self.create_file(self.album_path / "\xe4rtifact.file")
         medium = self._create_medium(self.album_path / "track_1.mp3", self.rsrc_mp3)
         self.import_media = [medium]
 
@@ -128,7 +128,7 @@ class FiletoteCLIOperation(FiletoteTestCase):
         """
         self._setup_import_session(move=True, autotag=False)
 
-        self.create_file(self.album_path, "\xe4rtifact.file")
+        self.create_file(self.album_path / "\xe4rtifact.file")
         medium = self._create_medium(self.album_path / "track_1.mp3", self.rsrc_mp3)
         self.import_media = [medium]
 

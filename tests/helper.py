@@ -219,11 +219,12 @@ class HelperUtils:
     def _log_indenter(self, indent_level: int) -> str:
         return " " * 4 * (indent_level)
 
-    def create_file(self, path: Path, filename: str) -> None:
-        """Creates a file in a specific location."""
-        fname = os.fsdecode(filename) if isinstance(filename, bytes) else str(filename)
-        target = path / fname
-        target.touch()
+    def create_file(self, path: Path) -> None:
+        """Creates a file in a specific location, ensuring the parent directories
+        exist.
+        """
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.touch()
 
     def list_files(self, startpath: Path) -> None:
         """Provide a formatted list of files, directories, and their contents in
@@ -542,11 +543,7 @@ class FiletoteTestCase(_common.TestCase, Assertions, HelperUtils):
 
         self._set_import_dir()
 
-        # Ensure dir creation in case _set_import_dir cleared it
-        # if not self.import_dir.exists():
-        #     self.import_dir.mkdir(parents=True)
-
-        album_path = self.import_dir / "the_album"
+        album_path: Path = self.import_dir / "the_album"
         album_path.mkdir(parents=True)  # Just use "parent true?"
 
         # Create artifacts
@@ -558,7 +555,7 @@ class FiletoteTestCase(_common.TestCase, Assertions, HelperUtils):
         ]
 
         for artifact in artifacts:
-            self.create_file(album_path, artifact)
+            self.create_file(album_path / artifact)
 
         media_file_count: int = 0
 
@@ -612,9 +609,9 @@ class FiletoteTestCase(_common.TestCase, Assertions, HelperUtils):
 
         self._set_import_dir()
 
-        album_path = self.import_dir / "the_album"
-        disc1_path = album_path / "disc1"
-        disc2_path = album_path / "disc2"
+        album_path: Path = self.import_dir / "the_album"
+        disc1_path: Path = album_path / "disc1"
+        disc2_path: Path = album_path / "disc2"
 
         disc1_path.mkdir(parents=True)
         disc2_path.mkdir(parents=True)
@@ -627,7 +624,7 @@ class FiletoteTestCase(_common.TestCase, Assertions, HelperUtils):
         ]
 
         for artifact in disc1_artifacts:
-            self.create_file(disc1_path, artifact)
+            self.create_file(disc1_path / artifact)
 
         # Create Disc2 artifacts
         disc2_artifacts = [
@@ -637,7 +634,7 @@ class FiletoteTestCase(_common.TestCase, Assertions, HelperUtils):
         ]
 
         for artifact in disc2_artifacts:
-            self.create_file(disc2_path, artifact)
+            self.create_file(disc2_path / artifact)
 
         media_file_count: int = 0
 
@@ -712,13 +709,13 @@ class FiletoteTestCase(_common.TestCase, Assertions, HelperUtils):
 
             if generate_pair:
                 # Create paired artifact
-                pair_path = album_path
+                pair_path: Path = album_path
 
                 if pair_subfolders:
                     pair_path = album_path / "lyrics" / "lyric-subfolder"
 
                 pair_path.mkdir(parents=True, exist_ok=True)
-                self.create_file(pair_path, f"{trackname}.lrc")
+                self.create_file(pair_path / f"{trackname}.lrc")
 
         return media_list
 
