@@ -33,9 +33,9 @@ class FiletoteRenameItemFieldsTest(FiletoteTestCase):
         self._run_cli_command("import")
 
         self.assert_in_lib_dir(
-            b"Tag Artist",
-            b"Tag Album",
-            b"Tag Artist - Tag Album - 01 Tag Title 1 (Tag Album Artist) newname.file",
+            "Tag Artist",
+            "Tag Album",
+            "Tag Artist - Tag Album - 01 Tag Title 1 (Tag Album Artist) newname.file",
         )
 
     def test_rename_other_meta_item_fields(self) -> None:
@@ -51,9 +51,9 @@ class FiletoteRenameItemFieldsTest(FiletoteTestCase):
         self._run_cli_command("import")
 
         self.assert_in_lib_dir(
-            b"Tag Artist",
-            b"Tag Album",
-            b"(2023-02-03) - Track 01 of 05 - Disc 01 of 07.file",
+            "Tag Artist",
+            "Tag Album",
+            "(2023-02-03) - Track 01 of 05 - Disc 01 of 07.file",
         )
 
     def test_rename_lyric_comment_item_fields(self) -> None:
@@ -64,9 +64,9 @@ class FiletoteRenameItemFieldsTest(FiletoteTestCase):
         self._run_cli_command("import")
 
         self.assert_in_lib_dir(
-            b"Tag Artist",
-            b"Tag Album",
-            b"Tag lyrics (Tag comments).file",
+            "Tag Artist",
+            "Tag Album",
+            "Tag lyrics (Tag comments).file",
         )
 
     def test_rename_track_music_item_fields(self) -> None:
@@ -83,9 +83,9 @@ class FiletoteRenameItemFieldsTest(FiletoteTestCase):
         self._run_cli_command("import")
 
         self.assert_in_lib_dir(
-            b"Tag Artist",
-            b"Tag Album",
-            b"newname - 8bpm 0_01 (MP3) (80kbps).file",
+            "Tag Artist",
+            "Tag Album",
+            "newname - 8bpm 0_01 (MP3) (80kbps).file",
         )
 
     def test_rename_mb_item_fields(self) -> None:
@@ -102,8 +102,8 @@ class FiletoteRenameItemFieldsTest(FiletoteTestCase):
         self._run_cli_command("import")
 
         self.assert_in_lib_dir(
-            b"Tag Artist",
-            b"Tag Album",
-            b"someID-3 - someID-2 (someID-4) - someID-1 someID-5 - Tag work"
-            b" musicbrainz id.file",
+            "Tag Artist",
+            "Tag Album",
+            "someID-3 - someID-2 (someID-4) - someID-1 someID-5 - Tag work"
+            " musicbrainz id.file",
         )

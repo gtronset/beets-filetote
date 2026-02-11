@@ -36,7 +36,7 @@ class FiletotePruningyTest(FiletoteTestCase):
         self._run_cli_command("import")
 
         self.assert_import_dir_exists()
-        self.assert_not_in_import_dir(b"the_album")
+        self.assert_not_in_import_dir("the_album")
 
     def test_prune_import_subdirectory_only_not_above(self) -> None:
         """Check that plugin only prunes nested folder when specified."""
@@ -49,7 +49,7 @@ class FiletotePruningyTest(FiletoteTestCase):
         self._run_cli_command("import")
 
         self.assert_import_dir_exists(self.import_dir)
-        self.assert_not_in_import_dir(b"the_album")
+        self.assert_not_in_import_dir("the_album")
 
     def test_prunes_empty_artifact_subdirectory_on_move(self) -> None:
         """Tests that when an artifact is moved from a subdirectory within an album,

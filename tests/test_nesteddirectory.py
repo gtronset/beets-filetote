@@ -38,19 +38,19 @@ class FiletoteFromNestedDirectoryTest(FiletoteTestCase):
         self._run_cli_command("import")
 
         self.assert_number_of_files_in_dir(
-            self._media_count + 4, self.lib_dir, b"Tag Artist", b"Tag Album"
+            self._media_count + 4, self.lib_dir, "Tag Artist", "Tag Album"
         )
 
-        self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"artifact.file")
-        self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"artifact2.file")
-        self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"artifact3.file")
-        self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"artifact4.file")
+        self.assert_in_lib_dir("Tag Artist", "Tag Album", "artifact.file")
+        self.assert_in_lib_dir("Tag Artist", "Tag Album", "artifact2.file")
+        self.assert_in_lib_dir("Tag Artist", "Tag Album", "artifact3.file")
+        self.assert_in_lib_dir("Tag Artist", "Tag Album", "artifact4.file")
 
-        self.assert_in_import_dir(b"the_album", b"disc1", b"artifact_disc1.nfo")
-        self.assert_in_import_dir(b"the_album", b"disc2", b"artifact_disc2.nfo")
+        self.assert_in_import_dir("the_album", "disc1", "artifact_disc1.nfo")
+        self.assert_in_import_dir("the_album", "disc2", "artifact_disc2.nfo")
 
-        self.assert_not_in_lib_dir(b"Tag Artist", b"Tag Album", b"artifact_disc1.nfo")
-        self.assert_not_in_lib_dir(b"Tag Artist", b"Tag Album", b"artifact_disc2.lrc")
+        self.assert_not_in_lib_dir("Tag Artist", "Tag Album", "artifact_disc1.nfo")
+        self.assert_not_in_lib_dir("Tag Artist", "Tag Album", "artifact_disc2.lrc")
 
     def test_copies_file_from_nested_to_nested_library(self) -> None:
         """Ensures that nested directory artifacts are relocated as expected
@@ -64,25 +64,25 @@ class FiletoteFromNestedDirectoryTest(FiletoteTestCase):
         self._run_cli_command("import")
 
         self.assert_number_of_files_in_dir(
-            5, self.lib_dir, b"Tag Artist", b"Tag Album", b"01"
+            5, self.lib_dir, "Tag Artist", "Tag Album", "01"
         )
         self.assert_number_of_files_in_dir(
-            5, self.lib_dir, b"Tag Artist", b"Tag Album", b"02"
+            5, self.lib_dir, "Tag Artist", "Tag Album", "02"
         )
 
-        self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"01", b"artifact.file")
-        self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"01", b"artifact2.file")
-        self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"02", b"artifact3.file")
-        self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"02", b"artifact4.file")
+        self.assert_in_lib_dir("Tag Artist", "Tag Album", "01", "artifact.file")
+        self.assert_in_lib_dir("Tag Artist", "Tag Album", "01", "artifact2.file")
+        self.assert_in_lib_dir("Tag Artist", "Tag Album", "02", "artifact3.file")
+        self.assert_in_lib_dir("Tag Artist", "Tag Album", "02", "artifact4.file")
 
-        self.assert_in_import_dir(b"the_album", b"disc1", b"artifact_disc1.nfo")
-        self.assert_in_import_dir(b"the_album", b"disc2", b"artifact_disc2.nfo")
+        self.assert_in_import_dir("the_album", "disc1", "artifact_disc1.nfo")
+        self.assert_in_import_dir("the_album", "disc2", "artifact_disc2.nfo")
 
         self.assert_not_in_lib_dir(
-            b"Tag Artist", b"Tag Album", b"01", b"artifact_disc1.nfo"
+            "Tag Artist", "Tag Album", "01", "artifact_disc1.nfo"
         )
         self.assert_not_in_lib_dir(
-            b"Tag Artist", b"Tag Album", b"02", b"artifact_disc2.lrc"
+            "Tag Artist", "Tag Album", "02", "artifact_disc2.lrc"
         )
 
     @pytest.mark.skipif(_common.PLATFORM == "win32", reason="win32")
@@ -103,21 +103,13 @@ class FiletoteFromNestedDirectoryTest(FiletoteTestCase):
         self._run_cli_command("import")
 
         self.assert_number_of_files_in_dir(
-            3, self.lib_dir, b"Tag Artist", b"Tag Album", b"01"
+            3, self.lib_dir, "Tag Artist", "Tag Album", "01"
         )
         self.assert_number_of_files_in_dir(
-            3, self.lib_dir, b"Tag Artist", b"Tag Album", b"02"
+            3, self.lib_dir, "Tag Artist", "Tag Album", "02"
         )
 
-        self.assert_in_lib_dir(
-            b"Tag Artist", b"Tag Album", b"artifacts", b"artifact.file"
-        )
-        self.assert_in_lib_dir(
-            b"Tag Artist", b"Tag Album", b"artifacts", b"artifact2.file"
-        )
-        self.assert_in_lib_dir(
-            b"Tag Artist", b"Tag Album", b"artifacts", b"artifact3.file"
-        )
-        self.assert_in_lib_dir(
-            b"Tag Artist", b"Tag Album", b"artifacts", b"artifact4.file"
-        )
+        self.assert_in_lib_dir("Tag Artist", "Tag Album", "artifacts", "artifact.file")
+        self.assert_in_lib_dir("Tag Artist", "Tag Album", "artifacts", "artifact2.file")
+        self.assert_in_lib_dir("Tag Artist", "Tag Album", "artifacts", "artifact3.file")
+        self.assert_in_lib_dir("Tag Artist", "Tag Album", "artifacts", "artifact4.file")

@@ -46,5 +46,5 @@ class FiletoteInlineRenameTest(FiletoteTestCase):
         self._run_cli_command("import")
 
         self.assert_in_lib_dir(
-            b"Tag Artist", b"Tag Album", b"Disc 01", b"Disc 01 - artifact.file"
+            "Tag Artist", "Tag Album", "Disc 01", "Disc 01 - artifact.file"
         )

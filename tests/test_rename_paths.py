@@ -31,12 +31,8 @@ class FiletoteRenamePathsTest(FiletoteTestCase):
 
         self._run_cli_command("import")
 
-        self.assert_in_lib_dir(
-            b"Tag Artist", b"Tag Album", b"Tag Artist - Tag Album.file"
-        )
-        self.assert_in_lib_dir(
-            b"Tag Artist", b"Tag Album", b"Tag Artist - Tag Album.nfo"
-        )
+        self.assert_in_lib_dir("Tag Artist", "Tag Album", "Tag Artist - Tag Album.file")
+        self.assert_in_lib_dir("Tag Artist", "Tag Album", "Tag Artist - Tag Album.nfo")
 
     def test_rename_using_filetote_path_pattern_optional(self) -> None:
         """Tests that renaming patterns works using setting from Filetote's paths
@@ -58,10 +54,8 @@ class FiletoteRenamePathsTest(FiletoteTestCase):
             if line.startswith("filetote:"):
                 log.info(line)
 
-        self.assert_in_lib_dir(
-            b"Tag Artist", b"Tag Album", b"file-pattern artifact.file"
-        )
-        self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"nfo-pattern artifact.nfo")
+        self.assert_in_lib_dir("Tag Artist", "Tag Album", "file-pattern artifact.file")
+        self.assert_in_lib_dir("Tag Artist", "Tag Album", "nfo-pattern artifact.nfo")
 
     def test_rename_prioritizes_filetote_path(self) -> None:
         """Tests that renaming patterns works using setting from Filetote's paths
@@ -87,9 +81,5 @@ class FiletoteRenamePathsTest(FiletoteTestCase):
             if line.startswith("filetote:"):
                 log.info(line)
 
-        self.assert_in_lib_dir(
-            b"Tag Artist", b"Tag Album", b"filetote_path artifact.file"
-        )
-        self.assert_in_lib_dir(
-            b"Tag Artist", b"Tag Album", b"filetote_path artifact.nfo"
-        )
+        self.assert_in_lib_dir("Tag Artist", "Tag Album", "filetote_path artifact.file")
+        self.assert_in_lib_dir("Tag Artist", "Tag Album", "filetote_path artifact.nfo")

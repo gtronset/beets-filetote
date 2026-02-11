@@ -163,7 +163,7 @@ class Assertions(_common.AssertionsMixin):
         if path:
             self.assert_exists(path)
 
-    def assert_not_in_lib_dir(self, *segments: str | bytes | Path) -> None:
+    def assert_not_in_lib_dir(self, *segments: str | Path) -> None:
         """Join the ``segments`` and assert that this path does not exist in
         the library directory.
         """
@@ -177,7 +177,7 @@ class Assertions(_common.AssertionsMixin):
         if directory:
             self.assert_exists(directory)
 
-    def assert_in_import_dir(self, *segments: str | bytes | Path) -> None:
+    def assert_in_import_dir(self, *segments: str | Path) -> None:
         """Join the ``segments`` and assert that this path exists in the import
         directory.
         """
@@ -185,7 +185,7 @@ class Assertions(_common.AssertionsMixin):
         if path:
             self.assert_exists(path)
 
-    def assert_not_in_import_dir(self, *segments: str | bytes | Path) -> None:
+    def assert_not_in_import_dir(self, *segments: str | Path) -> None:
         """Join the ``segments`` and assert that this path does not exist in
         the library directory.
         """
@@ -193,7 +193,7 @@ class Assertions(_common.AssertionsMixin):
         if path:
             self.assert_does_not_exist(path)
 
-    def assert_islink(self, *segments: str | bytes | Path) -> None:
+    def assert_islink(self, *segments: str | Path) -> None:
         """Join the ``segments`` with the `lib_dir` and assert that this path is a
         link.
         """
