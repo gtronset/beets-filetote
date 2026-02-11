@@ -122,16 +122,14 @@ class AssertionsMixin:
         """Assertion that a file does not exists."""
         assert not path.exists(), f"file exists: {path!r}"
 
-    def assert_equal_path(
-        self, path_a: str | bytes | Path, path_b: str | bytes | Path
-    ) -> None:
+    def assert_equal_path(self, path_a: str | Path, path_b: str | Path) -> None:
         """Check that two paths are equal."""
         # Normalize both to Path objects for comparison
         path_a_as_path = (
-            Path(os.fsdecode(path_a)) if isinstance(path_a, (bytes, str)) else path_a
+            Path(os.fsdecode(path_a)) if isinstance(path_a, (str, Path)) else path_a
         )
         path_b_as_path = (
-            Path(os.fsdecode(path_b)) if isinstance(path_b, (bytes, str)) else path_b
+            Path(os.fsdecode(path_b)) if isinstance(path_b, (str, Path)) else path_b
         )
 
         assert path_a_as_path.resolve() == path_b_as_path.resolve(), (

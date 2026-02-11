@@ -201,15 +201,6 @@ class Assertions(_common.AssertionsMixin):
         if path:
             assert path.is_symlink()
 
-    def assert_equal_path(
-        self, path_a: str | bytes | Path, path_b: str | bytes | Path
-    ) -> None:
-        """Check that two paths are equal (resolving relative paths/symlinks)."""
-        # _common.AssertionsMixin already has a robust implementation of this that
-        # handles Paths. We override here just to ensure we catch any str/bytes inputs
-        # if needed, defaulting to the specific implementation logic or reusing parent.
-        super().assert_equal_path(path_a, path_b)
-
     def assert_number_of_files_in_dir(
         self, count: int, *segments: str | bytes | Path
     ) -> None:

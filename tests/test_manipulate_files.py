@@ -8,7 +8,7 @@ from typing import TYPE_CHECKING
 
 import pytest
 
-from beets import config, util
+from beets import config
 
 from tests import _common
 from tests.helper import FiletoteTestCase
@@ -87,9 +87,9 @@ class FiletoteManipulateFiles(FiletoteTestCase):
         config["paths"]["ext:file"] = "$albumpath/newname"
         config["import"]["link"] = True
 
-        old_path = self.import_dir / "the_album" / "artifact.file"
+        old_path: Path = self.import_dir / "the_album" / "artifact.file"
 
-        new_path = self.lib_dir / "Tag Artist" / "Tag Album" / "newname.file"
+        new_path: Path = self.lib_dir / "Tag Artist" / "Tag Album" / "newname.file"
 
         self._run_cli_command("import")
 
@@ -98,7 +98,7 @@ class FiletoteManipulateFiles(FiletoteTestCase):
 
         self.assert_islink("Tag Artist", "Tag Album", "newname.file")
 
-        self.assert_equal_path(util.bytestring_path(os.readlink(new_path)), old_path)
+        self.assert_equal_path(new_path.readlink(), old_path)
 
     @pytest.mark.skipif(not _common.HAVE_HARDLINK, reason="need hardlinks")
     def test_import_hardlink_files(self) -> None:
