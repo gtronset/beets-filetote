@@ -114,16 +114,13 @@ class AssertionsMixin:
 
     assertions = unittest.TestCase()
 
-    def assert_exists(self, path: bytes | Path) -> None:
+    def assert_exists(self, path: Path) -> None:
         """Assertion that a file exists."""
-        # Handle both bytes (old tests) and Path (new tests)
-        path_as_path = Path(os.fsdecode(path)) if isinstance(path, bytes) else path
-        assert path_as_path.exists(), f"file does not exist: {path_as_path!r}"
+        assert path.exists(), f"file does not exist: {path!r}"
 
-    def assert_does_not_exist(self, path: bytes | Path) -> None:
+    def assert_does_not_exist(self, path: Path) -> None:
         """Assertion that a file does not exists."""
-        path_as_path = Path(os.fsdecode(path)) if isinstance(path, bytes) else path
-        assert not path_as_path.exists(), f"file exists: {path_as_path!r}"
+        assert not path.exists(), f"file exists: {path!r}"
 
     def assert_equal_path(
         self, path_a: str | bytes | Path, path_b: str | bytes | Path
