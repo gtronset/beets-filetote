@@ -51,8 +51,8 @@ class FiletoteReimportTest(FiletoteTestCase):
         log.debug("--- second import")
         self._run_cli_command("import")
 
-        self.assert_not_in_lib_dir("Tag Artist", "Tag Album", "artifact.file")
-        self.assert_in_lib_dir("1Tag Artist", "Tag Album", "artifact.file")
+        self.assert_not_in_lib_dir("Tag Artist/Tag Album/artifact.file")
+        self.assert_in_lib_dir("1Tag Artist/Tag Album/artifact.file")
 
     def test_reimport_artifacts_with_move(self) -> None:
         """Tests that when reimporting, moving works."""
@@ -66,8 +66,8 @@ class FiletoteReimportTest(FiletoteTestCase):
         log.debug("--- second import")
         self._run_cli_command("import")
 
-        self.assert_not_in_lib_dir("Tag Artist", "Tag Album", "artifact.file")
-        self.assert_in_lib_dir("1Tag Artist", "Tag Album", "artifact.file")
+        self.assert_not_in_lib_dir("Tag Artist/Tag Album/artifact.file")
+        self.assert_in_lib_dir("1Tag Artist/Tag Album/artifact.file")
 
     def test_do_nothing_when_paths_do_not_change_with_copy_import(self) -> None:
         """Tests that when paths are the same (before/after), no action is
@@ -79,8 +79,8 @@ class FiletoteReimportTest(FiletoteTestCase):
         self._run_cli_command("import")
 
         self.assert_number_of_files_in_dir(5, self.lib_dir / "Tag Artist" / "Tag Album")
-        self.assert_in_lib_dir("Tag Artist", "Tag Album", "artifact.file")
-        self.assert_in_lib_dir("Tag Artist", "Tag Album", "artifact2.file")
+        self.assert_in_lib_dir("Tag Artist/Tag Album/artifact.file")
+        self.assert_in_lib_dir("Tag Artist/Tag Album/artifact2.file")
 
     def test_do_nothing_when_paths_do_not_change_with_move_import(self) -> None:
         """Tests that when paths are the same (before/after), no action is
@@ -91,8 +91,8 @@ class FiletoteReimportTest(FiletoteTestCase):
         log.debug("--- second import")
         self._run_cli_command("import")
 
-        self.assert_in_lib_dir("Tag Artist", "Tag Album", "artifact.file")
-        self.assert_in_lib_dir("Tag Artist", "Tag Album", "artifact2.file")
+        self.assert_in_lib_dir("Tag Artist/Tag Album/artifact.file")
+        self.assert_in_lib_dir("Tag Artist/Tag Album/artifact2.file")
 
     def test_rename_with_copy_reimport(self) -> None:
         """Tests that renaming during `copy` works even when reimporting."""
@@ -102,8 +102,8 @@ class FiletoteReimportTest(FiletoteTestCase):
         log.debug("--- second import")
         self._run_cli_command("import")
 
-        self.assert_not_in_lib_dir("Tag Artist", "Tag Album", "artifact.file")
-        self.assert_in_lib_dir("Tag Artist", "Tag Album", "Tag Artist - Tag Album.file")
+        self.assert_not_in_lib_dir("Tag Artist/Tag Album/artifact.file")
+        self.assert_in_lib_dir("Tag Artist/Tag Album/Tag Artist - Tag Album.file")
 
     def test_rename_with_move_reimport(self) -> None:
         """Tests that renaming during `move` works even when reimporting."""
@@ -113,8 +113,8 @@ class FiletoteReimportTest(FiletoteTestCase):
         log.debug("--- second import")
         self._run_cli_command("import")
 
-        self.assert_not_in_lib_dir("Tag Artist", "Tag Album", "artifact.file")
-        self.assert_in_lib_dir("Tag Artist", "Tag Album", "Tag Artist - Tag Album.file")
+        self.assert_not_in_lib_dir("Tag Artist/Tag Album/artifact.file")
+        self.assert_in_lib_dir("Tag Artist/Tag Album/Tag Artist - Tag Album.file")
 
     def test_rename_when_paths_do_not_change(self) -> None:
         """This test considers the situation where the path format for a file extension
@@ -127,8 +127,8 @@ class FiletoteReimportTest(FiletoteTestCase):
         log.debug("--- second import")
         self._run_cli_command("import")
 
-        self.assert_not_in_lib_dir("Tag Artist", "Tag Album", "artifact.file")
-        self.assert_in_lib_dir("Tag Artist", "Tag Album", "Tag Album.file")
+        self.assert_not_in_lib_dir("Tag Artist/Tag Album/artifact.file")
+        self.assert_in_lib_dir("Tag Artist/Tag Album/Tag Album.file")
 
     def test_multiple_reimport_artifacts_with_move(self) -> None:
         """Tests that multiple reimports work the same as the initial action or
@@ -145,10 +145,10 @@ class FiletoteReimportTest(FiletoteTestCase):
         log.debug("--- first import")
         self._run_cli_command("import")
 
-        self.assert_not_in_lib_dir("Tag Artist", "Tag Album", "artifact.file")
-        self.assert_not_in_lib_dir("Tag Artist", "Tag Album", "artifact2.file")
-        self.assert_in_lib_dir("1Tag Artist", "Tag Album", "artifact - import I.file")
-        self.assert_in_lib_dir("1Tag Artist", "Tag Album", "artifact2 - import I.file")
+        self.assert_not_in_lib_dir("Tag Artist/Tag Album/artifact.file")
+        self.assert_not_in_lib_dir("Tag Artist/Tag Album/artifact2.file")
+        self.assert_in_lib_dir("1Tag Artist/Tag Album/artifact - import I.file")
+        self.assert_in_lib_dir("1Tag Artist/Tag Album/artifact2 - import I.file")
 
         log.debug("--- second import")
         self.lib.path_formats[0] = (
@@ -159,16 +159,10 @@ class FiletoteReimportTest(FiletoteTestCase):
         config["paths"]["ext:file"] = "$albumpath/$old_filename I"
         self._run_cli_command("import")
 
-        self.assert_not_in_lib_dir(
-            "1Tag Artist", "Tag Album", "artifact - import I.file"
-        )
-        self.assert_not_in_lib_dir(
-            "1Tag Artist", "Tag Album", "artifact2 - import I.file"
-        )
-        self.assert_in_lib_dir("2Tag Artist", "Tag Album", "artifact - import I I.file")
-        self.assert_in_lib_dir(
-            "2Tag Artist", "Tag Album", "artifact2 - import I I.file"
-        )
+        self.assert_not_in_lib_dir("1Tag Artist/Tag Album/artifact - import I.file")
+        self.assert_not_in_lib_dir("1Tag Artist/Tag Album/artifact2 - import I.file")
+        self.assert_in_lib_dir("2Tag Artist/Tag Album/artifact - import I I.file")
+        self.assert_in_lib_dir("2Tag Artist/Tag Album/artifact2 - import I I.file")
 
         log.debug("--- third import")
         self.lib.path_formats[0] = (
@@ -179,18 +173,10 @@ class FiletoteReimportTest(FiletoteTestCase):
 
         self._run_cli_command("import")
 
-        self.assert_not_in_lib_dir(
-            "2Tag Artist", "Tag Album", "artifact - import I I.file"
-        )
-        self.assert_not_in_lib_dir(
-            "2Tag Artist", "Tag Album", "artifact2 - import I I.file"
-        )
-        self.assert_in_lib_dir(
-            "3Tag Artist", "Tag Album", "artifact - import I I I.file"
-        )
-        self.assert_in_lib_dir(
-            "3Tag Artist", "Tag Album", "artifact2 - import I I I.file"
-        )
+        self.assert_not_in_lib_dir("2Tag Artist/Tag Album/artifact - import I I.file")
+        self.assert_not_in_lib_dir("2Tag Artist/Tag Album/artifact2 - import I I.file")
+        self.assert_in_lib_dir("3Tag Artist/Tag Album/artifact - import I I I.file")
+        self.assert_in_lib_dir("3Tag Artist/Tag Album/artifact2 - import I I I.file")
 
     def test_reimport_artifacts_with_query(self) -> None:
         """Tests that when reimporting, copying works."""
@@ -203,5 +189,5 @@ class FiletoteReimportTest(FiletoteTestCase):
         log.debug("--- second import")
         self._run_cli_command("import")
 
-        self.assert_not_in_lib_dir("Tag Artist", "Tag Album", "artifact.file")
-        self.assert_in_lib_dir("New Tag Artist", "Tag Album", "artifact.file")
+        self.assert_not_in_lib_dir("Tag Artist/Tag Album/artifact.file")
+        self.assert_in_lib_dir("New Tag Artist/Tag Album/artifact.file")

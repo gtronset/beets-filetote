@@ -9,10 +9,10 @@ from beets import config
 
 from tests.helper import FiletoteTestCase
 
-log = logging.getLogger("beets")
-
 if TYPE_CHECKING:
     from pathlib import Path
+
+log = logging.getLogger("beets")
 
 
 class FiletotePruningyTest(FiletoteTestCase):
@@ -25,6 +25,9 @@ class FiletotePruningyTest(FiletoteTestCase):
         super().setUp()
 
         self._create_flat_import_dir()
+
+        self.album_path: Path = self.import_dir / "the_album"
+
         self._setup_import_session(autotag=False, move=True)
 
     def test_prune_import_directory_when_emptied(self) -> None:
@@ -42,7 +45,7 @@ class FiletotePruningyTest(FiletoteTestCase):
         """Check that plugin only prunes nested folder when specified."""
         self._setup_import_session(
             autotag=False,
-            import_dir=self.import_dir / "the_album",
+            import_dir=self.album_path,
             move=True,
         )
         config["filetote"]["extensions"] = ".*"
@@ -55,7 +58,7 @@ class FiletotePruningyTest(FiletoteTestCase):
         """Tests that when an artifact is moved from a subdirectory within an album,
         the empty subdirectory is correctly pruned.
         """
-        artwork_dir_path: Path = self.import_dir / "the_album" / "Artwork"
+        artwork_dir_path: Path = self.album_path / "Artwork"
 
         self.create_file(artwork_dir_path / "background.jpg")
 
@@ -68,11 +71,11 @@ class FiletotePruningyTest(FiletoteTestCase):
 
         self._run_cli_command("import")
 
-        self.assert_in_lib_dir("Tag Artist", "Tag Album", "art", "background.jpg")
+        self.assert_in_lib_dir("Tag Artist/Tag Album/art/background.jpg")
 
-        self.assert_not_in_import_dir("the_album", "Artwork", "background.jpg")
+        self.assert_not_in_import_dir("the_album/Artwork/background.jpg")
 
-        self.assert_not_in_import_dir("the_album", "Artwork")
+        self.assert_not_in_import_dir("the_album/Artwork")
         self.assert_not_in_import_dir("the_album")
 
     def test_prune_import_expands_user_import_path(self) -> None:
@@ -81,7 +84,7 @@ class FiletotePruningyTest(FiletoteTestCase):
         """
         self._setup_import_session(
             autotag=False,
-            import_dir=self.import_dir / "the_album",
+            import_dir=self.album_path,
             move=True,
         )
         config["filetote"]["extensions"] = ".*"
@@ -120,9 +123,9 @@ class FiletotePruningyTest(FiletoteTestCase):
 
         self._run_cli_command("import")
 
-        self.assert_not_in_lib_dir("Tag Artist", "Tag Album")
+        self.assert_not_in_lib_dir("Tag Artist/Tag Album")
         self.assert_not_in_lib_dir("Tag Artist")
-        self.assert_in_lib_dir("1Tag Artist", "Tag Album", "artifact.file")
+        self.assert_in_lib_dir("1Tag Artist/Tag Album/artifact.file")
 
     def test_prune_reimport_copy(self) -> None:
         """Ensure directories are pruned when reimporting with 'copy'. The
@@ -155,9 +158,9 @@ class FiletotePruningyTest(FiletoteTestCase):
 
         self._run_cli_command("import")
 
-        self.assert_not_in_lib_dir("Tag Artist", "Tag Album")
+        self.assert_not_in_lib_dir("Tag Artist/Tag Album")
         self.assert_not_in_lib_dir("Tag Artist")
-        self.assert_in_lib_dir("1Tag Artist", "Tag Album", "artifact.file")
+        self.assert_in_lib_dir("1Tag Artist/Tag Album/artifact.file")
 
     def test_prune_reimport_query(self) -> None:
         """Check that plugin prunes to the root of the library when reimporting
@@ -187,9 +190,9 @@ class FiletotePruningyTest(FiletoteTestCase):
         log.debug("--- second import")
         self._run_cli_command("import")
 
-        self.assert_not_in_lib_dir("Tag Artist", "Tag Album")
+        self.assert_not_in_lib_dir("Tag Artist/Tag Album")
         self.assert_not_in_lib_dir("Tag Artist")
-        self.assert_in_lib_dir("New Tag Artist", "Tag Album", "artifact.file")
+        self.assert_in_lib_dir("New Tag Artist/Tag Album/artifact.file")
 
     def test_prune_move_query(self) -> None:
         """Check that plugin prunes any remaining empty album folders when using
@@ -218,9 +221,9 @@ class FiletotePruningyTest(FiletoteTestCase):
         log.debug("--- run mover")
         self._run_cli_command("move", query="artist:'Tag Artist'")
 
-        self.assert_not_in_lib_dir("Tag Artist", "Tag Album")
+        self.assert_not_in_lib_dir("Tag Artist/Tag Album")
         self.assert_not_in_lib_dir("Tag Artist")
-        self.assert_in_lib_dir("New Tag Artist", "Tag Album", "artifact.file")
+        self.assert_in_lib_dir("New Tag Artist/Tag Album/artifact.file")
 
     def test_prune_modify_query(self) -> None:
         """Check that plugin prunes any remaining empty album folders when using
@@ -251,9 +254,9 @@ class FiletotePruningyTest(FiletoteTestCase):
             "modify", query="artist:'Tag Artist'", mods={"artist": "New Tag Artist"}
         )
 
-        self.assert_not_in_lib_dir("Tag Artist", "Tag Album")
+        self.assert_not_in_lib_dir("Tag Artist/Tag Album")
         self.assert_not_in_lib_dir("Tag Artist")
-        self.assert_in_lib_dir("New Tag Artist", "Tag Album", "artifact.file")
+        self.assert_in_lib_dir("New Tag Artist/Tag Album/artifact.file")
 
     def test_prunes_multidisc_nested(self) -> None:
         """Ensures that multidisc nested directories are pruned correctly on move."""
@@ -264,6 +267,6 @@ class FiletotePruningyTest(FiletoteTestCase):
 
         self._run_cli_command("import")
 
-        self.assert_not_in_import_dir("the_album", "disc1")
-        self.assert_not_in_import_dir("the_album", "disc2")
+        self.assert_not_in_import_dir("the_album/disc1")
+        self.assert_not_in_import_dir("the_album/disc2")
         self.assert_not_in_import_dir("the_album")

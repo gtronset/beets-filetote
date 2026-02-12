@@ -43,11 +43,7 @@ class FiletoteFilename(FiletoteTestCase):
 
         self._run_cli_command("import")
 
-        self.assert_in_lib_dir(
-            "Tag Artist",
-            "Tag Album",
-            "\xe4rtifact.file",
-        )
+        self.assert_in_lib_dir("Tag Artist/Tag Album/\xe4rtifact.file")
 
     def test_import_dir_with_unicode_character_in_artifact_name_move(self) -> None:
         """Tests that unicode characters move as expected."""
@@ -60,11 +56,7 @@ class FiletoteFilename(FiletoteTestCase):
 
         self._run_cli_command("import")
 
-        self.assert_in_lib_dir(
-            "Tag Artist",
-            "Tag Album",
-            "\xe4rtifact.file",
-        )
+        self.assert_in_lib_dir("Tag Artist/Tag Album/\xe4rtifact.file")
 
     @pytest.mark.skipif(_common.PLATFORM == "win32", reason="win32")
     def test_import_with_illegal_character_in_artifact_name_obeys_beets(
@@ -94,9 +86,7 @@ class FiletoteFilename(FiletoteTestCase):
         self._run_cli_command("import")
 
         self.assert_in_lib_dir(
-            "Tag Artist",
-            "Album_ Subtitle",
-            "Album_ Subtitle - CoolName_ Album&Tag.log",
+            "Tag Artist/Album_ Subtitle/Album_ Subtitle - CoolName_ Album&Tag.log"
         )
 
     def test_import_dir_with_illegal_character_in_album_name(self) -> None:
@@ -116,9 +106,7 @@ class FiletoteFilename(FiletoteTestCase):
 
         self._run_cli_command("import")
 
-        self.assert_in_lib_dir(
-            "Tag Artist", "Tag Album_", "Tag Artist - Tag Album_.file"
-        )
+        self.assert_in_lib_dir("Tag Artist/Tag Album_/Tag Artist - Tag Album_.file")
 
     def test_rename_works_with_custom_replace(self) -> None:
         """Tests that custom "replace" settings work as expected."""
@@ -140,8 +128,4 @@ class FiletoteFilename(FiletoteTestCase):
 
         self._run_cli_command("import")
 
-        self.assert_in_lib_dir(
-            "Tag Artist",
-            "Tag Album",
-            "Tag_ Title\uff1f.file",
-        )
+        self.assert_in_lib_dir("Tag Artist/Tag Album/Tag_ Title\uff1f.file")

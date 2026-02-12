@@ -9,11 +9,10 @@ from beets import config
 
 from tests.helper import FiletoteTestCase, capture_log_with_traceback
 
-log = logging.getLogger("beets")
-
-
 if TYPE_CHECKING:
     from pathlib import Path
+
+log = logging.getLogger("beets")
 
 
 class FiletotePatternTest(FiletoteTestCase):
@@ -34,13 +33,13 @@ class FiletotePatternTest(FiletoteTestCase):
 
         self._run_cli_command("import")
 
-        self.assert_in_lib_dir("Tag Artist", "Tag Album", "track_1.lrc")
-        self.assert_in_lib_dir("Tag Artist", "Tag Album", "track_2.lrc")
-        self.assert_in_lib_dir("Tag Artist", "Tag Album", "track_3.lrc")
-        self.assert_in_lib_dir("Tag Artist", "Tag Album", "artifact.lrc")
-        self.assert_in_lib_dir("Tag Artist", "Tag Album", "artifact.file")
-        self.assert_in_lib_dir("Tag Artist", "Tag Album", "artifact2.file")
-        self.assert_in_lib_dir("Tag Artist", "Tag Album", "artifact.nfo")
+        self.assert_in_lib_dir("Tag Artist/Tag Album/track_1.lrc")
+        self.assert_in_lib_dir("Tag Artist/Tag Album/track_2.lrc")
+        self.assert_in_lib_dir("Tag Artist/Tag Album/track_3.lrc")
+        self.assert_in_lib_dir("Tag Artist/Tag Album/artifact.lrc")
+        self.assert_in_lib_dir("Tag Artist/Tag Album/artifact.file")
+        self.assert_in_lib_dir("Tag Artist/Tag Album/artifact2.file")
+        self.assert_in_lib_dir("Tag Artist/Tag Album/artifact.nfo")
 
     def test_patterns_match(self) -> None:
         """Tests that patterns are used to itentify artifacts."""
@@ -51,9 +50,9 @@ class FiletotePatternTest(FiletoteTestCase):
 
         self._run_cli_command("import")
 
-        self.assert_in_lib_dir("Tag Artist", "Tag Album", "artifact.file")
-        self.assert_in_lib_dir("Tag Artist", "Tag Album", "artifact2.file")
-        self.assert_in_lib_dir("Tag Artist", "Tag Album", "artifact.nfo")
+        self.assert_in_lib_dir("Tag Artist/Tag Album/artifact.file")
+        self.assert_in_lib_dir("Tag Artist/Tag Album/artifact2.file")
+        self.assert_in_lib_dir("Tag Artist/Tag Album/artifact.nfo")
 
     def test_patterns_subfolders_match(self) -> None:
         """Tests that patterns can match subdirectories/subfolders."""
@@ -72,9 +71,9 @@ class FiletotePatternTest(FiletoteTestCase):
 
         self._run_cli_command("import")
 
-        self.assert_in_lib_dir("Tag Artist", "Tag Album", "artifact.file")
-        self.assert_in_lib_dir("Tag Artist", "Tag Album", "artifact2.file")
-        self.assert_in_lib_dir("Tag Artist", "Tag Album", "artwork", "cover.jpg")
+        self.assert_in_lib_dir("Tag Artist/Tag Album/artifact.file")
+        self.assert_in_lib_dir("Tag Artist/Tag Album/artifact2.file")
+        self.assert_in_lib_dir("Tag Artist/Tag Album/artwork/cover.jpg")
 
     def test_patterns_of_folders_grab_all_files(self) -> None:
         """Tests that patterns of just folders grab all contents."""
@@ -104,9 +103,9 @@ class FiletotePatternTest(FiletoteTestCase):
 
         self._run_cli_command("import")
 
-        self.assert_in_lib_dir("Tag Artist", "Tag Album", "artwork", "cover.jpg")
-        self.assert_in_lib_dir("Tag Artist", "Tag Album", "cd.file")
-        self.assert_in_lib_dir("Tag Artist", "Tag Album", "sub1", "sub2", "sub.file")
+        self.assert_in_lib_dir("Tag Artist/Tag Album/artwork/cover.jpg")
+        self.assert_in_lib_dir("Tag Artist/Tag Album/cd.file")
+        self.assert_in_lib_dir("Tag Artist/Tag Album/sub1/sub2/sub.file")
 
     def test_patterns_path_sep_normalization(self) -> None:
         r"""Tests that path separators in patterns can work for both *Nix/macOS (/)
@@ -133,8 +132,8 @@ class FiletotePatternTest(FiletoteTestCase):
 
         self._run_cli_command("import")
 
-        self.assert_in_lib_dir("Tag Artist", "Tag Album", "artwork", "cover.jpg")
-        self.assert_in_lib_dir("Tag Artist", "Tag Album", "scans", "scan.jpg")
+        self.assert_in_lib_dir("Tag Artist/Tag Album/artwork/cover.jpg")
+        self.assert_in_lib_dir("Tag Artist/Tag Album/scans/scan.jpg")
 
     def test_patterns_path_renaming(self) -> None:
         """Tests that the path definition for `pattern:` prefix works."""
@@ -155,6 +154,6 @@ class FiletotePatternTest(FiletoteTestCase):
             if line.startswith("filetote:"):
                 log.info(line)
 
-        self.assert_in_lib_dir("Tag Artist", "Tag Album", "file-pattern artifact.file")
-        self.assert_in_lib_dir("Tag Artist", "Tag Album", "file-pattern artifact2.file")
-        self.assert_in_lib_dir("Tag Artist", "Tag Album", "nfo-pattern artifact.nfo")
+        self.assert_in_lib_dir("Tag Artist/Tag Album/file-pattern artifact.file")
+        self.assert_in_lib_dir("Tag Artist/Tag Album/file-pattern artifact2.file")
+        self.assert_in_lib_dir("Tag Artist/Tag Album/nfo-pattern artifact.nfo")

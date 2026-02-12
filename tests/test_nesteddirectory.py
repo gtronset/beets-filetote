@@ -41,16 +41,16 @@ class FiletoteFromNestedDirectoryTest(FiletoteTestCase):
             self._media_count + 4, self.lib_dir / "Tag Artist" / "Tag Album"
         )
 
-        self.assert_in_lib_dir("Tag Artist", "Tag Album", "artifact.file")
-        self.assert_in_lib_dir("Tag Artist", "Tag Album", "artifact2.file")
-        self.assert_in_lib_dir("Tag Artist", "Tag Album", "artifact3.file")
-        self.assert_in_lib_dir("Tag Artist", "Tag Album", "artifact4.file")
+        self.assert_in_lib_dir("Tag Artist/Tag Album/artifact.file")
+        self.assert_in_lib_dir("Tag Artist/Tag Album/artifact2.file")
+        self.assert_in_lib_dir("Tag Artist/Tag Album/artifact3.file")
+        self.assert_in_lib_dir("Tag Artist/Tag Album/artifact4.file")
 
-        self.assert_in_import_dir("the_album", "disc1", "artifact_disc1.nfo")
-        self.assert_in_import_dir("the_album", "disc2", "artifact_disc2.nfo")
+        self.assert_in_import_dir("the_album/disc1/artifact_disc1.nfo")
+        self.assert_in_import_dir("the_album/disc2/artifact_disc2.nfo")
 
-        self.assert_not_in_lib_dir("Tag Artist", "Tag Album", "artifact_disc1.nfo")
-        self.assert_not_in_lib_dir("Tag Artist", "Tag Album", "artifact_disc2.lrc")
+        self.assert_not_in_lib_dir("Tag Artist/Tag Album/artifact_disc1.nfo")
+        self.assert_not_in_lib_dir("Tag Artist/Tag Album/artifact_disc2.lrc")
 
     def test_copies_file_from_nested_to_nested_library(self) -> None:
         """Ensures that nested directory artifacts are relocated as expected
@@ -70,20 +70,16 @@ class FiletoteFromNestedDirectoryTest(FiletoteTestCase):
             5, self.lib_dir / "Tag Artist" / "Tag Album" / "02"
         )
 
-        self.assert_in_lib_dir("Tag Artist", "Tag Album", "01", "artifact.file")
-        self.assert_in_lib_dir("Tag Artist", "Tag Album", "01", "artifact2.file")
-        self.assert_in_lib_dir("Tag Artist", "Tag Album", "02", "artifact3.file")
-        self.assert_in_lib_dir("Tag Artist", "Tag Album", "02", "artifact4.file")
+        self.assert_in_lib_dir("Tag Artist/Tag Album/01/artifact.file")
+        self.assert_in_lib_dir("Tag Artist/Tag Album/01/artifact2.file")
+        self.assert_in_lib_dir("Tag Artist/Tag Album/02/artifact3.file")
+        self.assert_in_lib_dir("Tag Artist/Tag Album/02/artifact4.file")
 
-        self.assert_in_import_dir("the_album", "disc1", "artifact_disc1.nfo")
-        self.assert_in_import_dir("the_album", "disc2", "artifact_disc2.nfo")
+        self.assert_in_import_dir("the_album/disc1/artifact_disc1.nfo")
+        self.assert_in_import_dir("the_album/disc2/artifact_disc2.nfo")
 
-        self.assert_not_in_lib_dir(
-            "Tag Artist", "Tag Album", "01", "artifact_disc1.nfo"
-        )
-        self.assert_not_in_lib_dir(
-            "Tag Artist", "Tag Album", "02", "artifact_disc2.lrc"
-        )
+        self.assert_not_in_lib_dir("Tag Artist/Tag Album/01/artifact_disc1.nfo")
+        self.assert_not_in_lib_dir("Tag Artist/Tag Album/02/artifact_disc2.lrc")
 
     @pytest.mark.skipif(_common.PLATFORM == "win32", reason="win32")
     def test_copies_file_navigate_in_nested_library(self) -> None:
@@ -109,7 +105,7 @@ class FiletoteFromNestedDirectoryTest(FiletoteTestCase):
             3, self.lib_dir / "Tag Artist" / "Tag Album" / "02"
         )
 
-        self.assert_in_lib_dir("Tag Artist", "Tag Album", "artifacts", "artifact.file")
-        self.assert_in_lib_dir("Tag Artist", "Tag Album", "artifacts", "artifact2.file")
-        self.assert_in_lib_dir("Tag Artist", "Tag Album", "artifacts", "artifact3.file")
-        self.assert_in_lib_dir("Tag Artist", "Tag Album", "artifacts", "artifact4.file")
+        self.assert_in_lib_dir("Tag Artist/Tag Album/artifacts/artifact.file")
+        self.assert_in_lib_dir("Tag Artist/Tag Album/artifacts/artifact2.file")
+        self.assert_in_lib_dir("Tag Artist/Tag Album/artifacts/artifact3.file")
+        self.assert_in_lib_dir("Tag Artist/Tag Album/artifacts/artifact4.file")

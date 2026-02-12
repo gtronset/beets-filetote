@@ -29,7 +29,7 @@ class FiletoteRenameFiletoteFieldsTest(FiletoteTestCase):
 
         self._run_cli_command("import")
 
-        self.assert_in_lib_dir("Tag Artist", "Tag Album", "newname.file")
+        self.assert_in_lib_dir("Tag Artist/Tag Album/newname.file")
 
     def test_rename_field_old_filename(self) -> None:
         """Tests that the value of `old_filename` populates in renaming."""
@@ -38,8 +38,8 @@ class FiletoteRenameFiletoteFieldsTest(FiletoteTestCase):
 
         self._run_cli_command("import")
 
-        self.assert_in_lib_dir("Tag Artist", "Tag Album", "artifact.file")
-        self.assert_in_lib_dir("Tag Artist", "Tag Album", "artifact2.file")
+        self.assert_in_lib_dir("Tag Artist/Tag Album/artifact.file")
+        self.assert_in_lib_dir("Tag Artist/Tag Album/artifact2.file")
 
     def test_rename_field_medianame_old(self) -> None:
         """Tests that the value of `medianame_old` populates in renaming."""
@@ -48,7 +48,7 @@ class FiletoteRenameFiletoteFieldsTest(FiletoteTestCase):
 
         self._run_cli_command("import")
 
-        self.assert_in_lib_dir("Tag Artist", "Tag Album", "track_1.file")
+        self.assert_in_lib_dir("Tag Artist/Tag Album/track_1.file")
 
     def test_rename_field_medianame_new(self) -> None:
         """Tests that the value of `medianame_new` populates in renaming."""
@@ -61,9 +61,9 @@ class FiletoteRenameFiletoteFieldsTest(FiletoteTestCase):
 
         self._run_cli_command("import")
 
-        self.assert_in_lib_dir("Tag Artist", "Tag Album", "Tag Title 1.lrc")
-        self.assert_in_lib_dir("Tag Artist", "Tag Album", "Tag Title 2.lrc")
-        self.assert_in_lib_dir("Tag Artist", "Tag Album", "Tag Title 3.lrc")
+        self.assert_in_lib_dir("Tag Artist/Tag Album/Tag Title 1.lrc")
+        self.assert_in_lib_dir("Tag Artist/Tag Album/Tag Title 2.lrc")
+        self.assert_in_lib_dir("Tag Artist/Tag Album/Tag Title 3.lrc")
 
     def test_rename_field_subpath(self) -> None:
         """Tests that the value of `subpath` populates in renaming. Also tests that the
@@ -79,23 +79,11 @@ class FiletoteRenameFiletoteFieldsTest(FiletoteTestCase):
         self._run_cli_command("import")
 
         self.assert_in_lib_dir(
-            "Tag Artist",
-            "Tag Album",
-            "lyrics",
-            "lyric-subfolder",
-            "Tag Title 1.lrc",
+            "Tag Artist/Tag Album/lyrics/lyric-subfolder/Tag Title 1.lrc"
         )
         self.assert_in_lib_dir(
-            "Tag Artist",
-            "Tag Album",
-            "lyrics",
-            "lyric-subfolder",
-            "Tag Title 2.lrc",
+            "Tag Artist/Tag Album/lyrics/lyric-subfolder/Tag Title 2.lrc"
         )
         self.assert_in_lib_dir(
-            "Tag Artist",
-            "Tag Album",
-            "lyrics",
-            "lyric-subfolder",
-            "Tag Title 3.lrc",
+            "Tag Artist/Tag Album/lyrics/lyric-subfolder/Tag Title 3.lrc"
         )

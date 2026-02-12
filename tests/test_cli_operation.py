@@ -45,10 +45,10 @@ class FiletoteCLIOperation(FiletoteTestCase):
 
         self.assert_number_of_files_in_dir(self._base_file_count + 4, self.album_path)
 
-        self.assert_in_import_dir("the_album", "artifact.file")
-        self.assert_in_import_dir("the_album", "artifact2.file")
-        self.assert_in_import_dir("the_album", "artifact.nfo")
-        self.assert_in_import_dir("the_album", "artifact.lrc")
+        self.assert_in_import_dir("the_album/artifact.file")
+        self.assert_in_import_dir("the_album/artifact2.file")
+        self.assert_in_import_dir("the_album/artifact.nfo")
+        self.assert_in_import_dir("the_album/artifact.lrc")
 
     def test_import_config_copy_false_import_on_copy(self) -> None:
         """Tests that when config does not have an operation set, that
@@ -62,16 +62,9 @@ class FiletoteCLIOperation(FiletoteTestCase):
 
         self._run_cli_command("import", operation_option="copy")
 
-        self.assert_in_import_dir(
-            "the_album",
-            "\xe4rtifact.file",
-        )
+        self.assert_in_import_dir("the_album/\xe4rtifact.file")
 
-        self.assert_in_lib_dir(
-            "Tag Artist",
-            "Tag Album",
-            "\xe4rtifact.file",
-        )
+        self.assert_in_lib_dir("Tag Artist/Tag Album/\xe4rtifact.file")
 
     def test_import_config_copy_false_import_on_move(self) -> None:
         """Tests that when config does not have an operation set, that
@@ -85,16 +78,9 @@ class FiletoteCLIOperation(FiletoteTestCase):
 
         self._run_cli_command("import", operation_option="move")
 
-        self.assert_not_in_import_dir(
-            "the_album",
-            "\xe4rtifact.file",
-        )
+        self.assert_not_in_import_dir("the_album/\xe4rtifact.file")
 
-        self.assert_in_lib_dir(
-            "Tag Artist",
-            "Tag Album",
-            "\xe4rtifact.file",
-        )
+        self.assert_in_lib_dir("Tag Artist/Tag Album/\xe4rtifact.file")
 
     def test_import_config_copy_true_import_on_move(self) -> None:
         """Tests that when config operation is set to `copy`, that providing
@@ -108,16 +94,9 @@ class FiletoteCLIOperation(FiletoteTestCase):
 
         self._run_cli_command("import", operation_option="move")
 
-        self.assert_not_in_import_dir(
-            "the_album",
-            "\xe4rtifact.file",
-        )
+        self.assert_not_in_import_dir("the_album/\xe4rtifact.file")
 
-        self.assert_in_lib_dir(
-            "Tag Artist",
-            "Tag Album",
-            "\xe4rtifact.file",
-        )
+        self.assert_in_lib_dir("Tag Artist/Tag Album/\xe4rtifact.file")
 
     def test_import_config_move_true_import_on_copy(self) -> None:
         """Tests that when config operation is set to `move`, that providing
@@ -131,16 +110,9 @@ class FiletoteCLIOperation(FiletoteTestCase):
 
         self._run_cli_command("import", operation_option="copy")
 
-        self.assert_in_import_dir(
-            "the_album",
-            "\xe4rtifact.file",
-        )
+        self.assert_in_import_dir("the_album/\xe4rtifact.file")
 
-        self.assert_in_lib_dir(
-            "Tag Artist",
-            "Tag Album",
-            "\xe4rtifact.file",
-        )
+        self.assert_in_lib_dir("Tag Artist/Tag Album/\xe4rtifact.file")
 
     def test_move_on_move_command(self) -> None:
         """Check that plugin detects the correct operation for the "move" (or "mv")
@@ -162,13 +134,9 @@ class FiletoteCLIOperation(FiletoteTestCase):
 
         self._run_cli_command("move", query="artist:'Tag Artist'")
 
-        self.assert_not_in_lib_dir(
-            "Old Lib Artist",
-            "Tag Album",
-            "artifact.file",
-        )
+        self.assert_not_in_lib_dir("Old Lib Artist/Tag Album/artifact.file")
 
-        self.assert_in_lib_dir("Tag Artist", "Tag Album", "artifact.file")
+        self.assert_in_lib_dir("Tag Artist/Tag Album/artifact.file")
 
     def test_copy_on_move_command_copy(self) -> None:
         """Check that plugin detects the correct operation for the "move" (or "mv")
@@ -191,9 +159,9 @@ class FiletoteCLIOperation(FiletoteTestCase):
 
         self._run_cli_command("move", query="artist:'Tag Artist'", copy=True)
 
-        self.assert_in_lib_dir("Old Lib Artist", "Tag Album", "artifact.file")
+        self.assert_in_lib_dir("Old Lib Artist/Tag Album/artifact.file")
 
-        self.assert_in_lib_dir("Tag Artist", "Tag Album", "artifact.file")
+        self.assert_in_lib_dir("Tag Artist/Tag Album/artifact.file")
 
     def test_copy_on_move_command_export(self) -> None:
         """Check that plugin detects the correct operation for the "move" (or "mv")
@@ -216,9 +184,9 @@ class FiletoteCLIOperation(FiletoteTestCase):
 
         self._run_cli_command("move", query="artist:'Tag Artist'", export=True)
 
-        self.assert_in_lib_dir("Old Lib Artist", "Tag Album", "artifact.file")
+        self.assert_in_lib_dir("Old Lib Artist/Tag Album/artifact.file")
 
-        self.assert_in_lib_dir("Tag Artist", "Tag Album", "artifact.file")
+        self.assert_in_lib_dir("Tag Artist/Tag Album/artifact.file")
 
     def test_move_on_modify_command(self) -> None:
         """Check that plugin detects the correct operation for the "move" (or "mv")
@@ -242,13 +210,9 @@ class FiletoteCLIOperation(FiletoteTestCase):
             "modify", query="artist:'Tag Artist'", mods={"artist": "Tag Artist New"}
         )
 
-        self.assert_not_in_lib_dir(
-            "Old Lib Artist",
-            "Tag Album",
-            "artifact.file",
-        )
+        self.assert_not_in_lib_dir("Old Lib Artist/Tag Album/artifact.file")
 
-        self.assert_in_lib_dir("Tag Artist New", "Tag Album", "artifact.file")
+        self.assert_in_lib_dir("Tag Artist New/Tag Album/artifact.file")
 
     def test_move_on_update_move_command(self) -> None:
         """Check that plugin detects the correct operation for the "update"
@@ -269,13 +233,9 @@ class FiletoteCLIOperation(FiletoteTestCase):
             "update", query="artist:'Tag Artist'", fields=["artist"], move=True
         )
 
-        self.assert_not_in_lib_dir(
-            "Tag Artist",
-            "Tag Album",
-            "artifact.file",
-        )
+        self.assert_not_in_lib_dir("Tag Artist/Tag Album/artifact.file")
 
-        self.assert_in_lib_dir("New Artist Updated", "Tag Album", "artifact.file")
+        self.assert_in_lib_dir("New Artist Updated/Tag Album/artifact.file")
 
     def test_pairs_on_update_move_command(self) -> None:
         """Check that plugin handles "pairs" for the "update"
@@ -315,14 +275,9 @@ class FiletoteCLIOperation(FiletoteTestCase):
             "update", query="artist:'Tag Artist'", fields=["artist"], move=True
         )
 
-        self.assert_not_in_lib_dir(
-            "Tag Artist",
-            "Tag Album",
-            "artifact.file",
-        )
+        self.assert_not_in_lib_dir("Tag Artist/Tag Album/artifact.file")
 
         self.assert_in_lib_dir(
-            "New Artist Updated",
-            "Tag Album",
-            "Tag Album - 01 - New Artist Updated - Tag Title 1.lrc",
+            "New Artist Updated/Tag Album/Tag Album - 01 - New Artist Updated - "
+            "Tag Title 1.lrc"
         )

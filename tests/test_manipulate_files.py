@@ -13,10 +13,10 @@ from beets import config
 from tests import _common
 from tests.helper import FiletoteTestCase
 
-log = logging.getLogger("beets")
-
 if TYPE_CHECKING:
     from pathlib import Path
+
+log = logging.getLogger("beets")
 
 
 class FiletoteManipulateFiles(FiletoteTestCase):
@@ -42,10 +42,10 @@ class FiletoteManipulateFiles(FiletoteTestCase):
             self._base_file_count + 4, self.lib_dir / "Tag Artist" / "Tag Album"
         )
 
-        self.assert_in_lib_dir("Tag Artist", "Tag Album", "artifact.file")
-        self.assert_in_lib_dir("Tag Artist", "Tag Album", "artifact2.file")
-        self.assert_in_lib_dir("Tag Artist", "Tag Album", "artifact.nfo")
-        self.assert_in_lib_dir("Tag Artist", "Tag Album", "artifact.lrc")
+        self.assert_in_lib_dir("Tag Artist/Tag Album/artifact.file")
+        self.assert_in_lib_dir("Tag Artist/Tag Album/artifact2.file")
+        self.assert_in_lib_dir("Tag Artist/Tag Album/artifact.nfo")
+        self.assert_in_lib_dir("Tag Artist/Tag Album/artifact.lrc")
 
     def test_move_artifacts(self) -> None:
         """Test that move actually moves (and not just copies)."""
@@ -58,15 +58,15 @@ class FiletoteManipulateFiles(FiletoteTestCase):
             self._base_file_count + 4, self.lib_dir / "Tag Artist" / "Tag Album"
         )
 
-        self.assert_in_lib_dir("Tag Artist", "Tag Album", "artifact.file")
-        self.assert_in_lib_dir("Tag Artist", "Tag Album", "artifact2.file")
-        self.assert_in_lib_dir("Tag Artist", "Tag Album", "artifact.nfo")
-        self.assert_in_lib_dir("Tag Artist", "Tag Album", "artifact.lrc")
+        self.assert_in_lib_dir("Tag Artist/Tag Album/artifact.file")
+        self.assert_in_lib_dir("Tag Artist/Tag Album/artifact2.file")
+        self.assert_in_lib_dir("Tag Artist/Tag Album/artifact.nfo")
+        self.assert_in_lib_dir("Tag Artist/Tag Album/artifact.lrc")
 
-        self.assert_not_in_import_dir("the_album", "artifact.file")
-        self.assert_not_in_import_dir("the_album", "artifact2.file")
-        self.assert_not_in_import_dir("the_album", "artifact.nfo")
-        self.assert_not_in_import_dir("the_album", "artifact.lrc")
+        self.assert_not_in_import_dir("the_album/artifact.file")
+        self.assert_not_in_import_dir("the_album/artifact2.file")
+        self.assert_not_in_import_dir("the_album/artifact.nfo")
+        self.assert_not_in_import_dir("the_album/artifact.lrc")
 
     def test_artifacts_copymove_on_first_media_by_default(self) -> None:
         """By default, all eligible files are grabbed with the first item."""
@@ -77,8 +77,8 @@ class FiletoteManipulateFiles(FiletoteTestCase):
 
         self._run_cli_command("import")
 
-        self.assert_in_lib_dir("Tag Artist", "Tag Album", "track_1 - artifact.file")
-        self.assert_in_lib_dir("Tag Artist", "Tag Album", "track_1 - artifact2.file")
+        self.assert_in_lib_dir("Tag Artist/Tag Album/track_1 - artifact.file")
+        self.assert_in_lib_dir("Tag Artist/Tag Album/track_1 - artifact2.file")
 
     @pytest.mark.skipif(not _common.HAVE_SYMLINK, reason="need symlinks")
     def test_import_symlink_files(self) -> None:
@@ -93,10 +93,10 @@ class FiletoteManipulateFiles(FiletoteTestCase):
 
         self._run_cli_command("import")
 
-        self.assert_in_import_dir("the_album", "artifact.file")
-        self.assert_in_lib_dir("Tag Artist", "Tag Album", "newname.file")
+        self.assert_in_import_dir("the_album/artifact.file")
+        self.assert_in_lib_dir("Tag Artist/Tag Album/newname.file")
 
-        self.assert_islink("Tag Artist", "Tag Album", "newname.file")
+        self.assert_islink("Tag Artist/Tag Album/newname.file")
 
         self.assert_equal_path(new_path, old_path)
 
@@ -113,8 +113,8 @@ class FiletoteManipulateFiles(FiletoteTestCase):
 
         self._run_cli_command("import")
 
-        self.assert_in_import_dir("the_album", "artifact.file")
-        self.assert_in_lib_dir("Tag Artist", "Tag Album", "newname.file")
+        self.assert_in_import_dir("the_album/artifact.file")
+        self.assert_in_lib_dir("Tag Artist/Tag Album/newname.file")
 
         stat_old_path = os.stat(old_path)
         stat_new_path = os.stat(new_path)
@@ -133,5 +133,5 @@ class FiletoteManipulateFiles(FiletoteTestCase):
 
         self._run_cli_command("import")
 
-        self.assert_in_import_dir("the_album", "artifact.file")
-        self.assert_in_lib_dir("Tag Artist", "Tag Album", "newname.file")
+        self.assert_in_import_dir("the_album/artifact.file")
+        self.assert_in_lib_dir("Tag Artist/Tag Album/newname.file")

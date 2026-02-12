@@ -130,9 +130,6 @@ RSRC_TYPES = {
 }
 
 
-# TODO(gtronset): Remove backwards compatibility support for bytes paths in assertions
-# once all tests are updated to use Path objects instead of bytestring paths.
-# https://github.com/gtronset/beets-filetote/pull/255
 class Assertions(_common.AssertionsMixin):
     """Helper assertions for testing."""
 
@@ -141,35 +138,17 @@ class Assertions(_common.AssertionsMixin):
         self.lib_dir: Path | None = None
         self.import_dir: Path | None = None
 
-    def _join_segments(
-        self, root: Path | None, segments: tuple[str | bytes | Path, ...]
-    ) -> Path | None:
-        """Helper to join diverse segments into a Path, relative to a root."""
-        if root is None:
-            return None
+    def assert_in_lib_dir(self, relative_path: str | Path) -> None:
+        """Asserts that the relative path exists inside the library directory."""
+        if self.lib_dir:
+            self.assert_exists(self.lib_dir / relative_path)
 
-        # Convert all segments to strings/Path compatible format
-        # If tests pass bytes (old behavior), decode them.
-        resolved_segments = [
-            os.fsdecode(s) if isinstance(s, bytes) else str(s) for s in segments
-        ]
-        return root.joinpath(*resolved_segments)
-
-    def assert_in_lib_dir(self, *segments: str | bytes | Path) -> None:
-        """Join the ``segments`` and assert that this path exists in the library
+    def assert_not_in_lib_dir(self, relative_path: str | Path) -> None:
+        """Asserts that the relative path does not exist inside the library
         directory.
         """
-        path = self._join_segments(self.lib_dir, segments)
-        if path:
-            self.assert_exists(path)
-
-    def assert_not_in_lib_dir(self, *segments: str | Path) -> None:
-        """Join the ``segments`` and assert that this path does not exist in
-        the library directory.
-        """
-        path = self._join_segments(self.lib_dir, segments)
-        if path:
-            self.assert_does_not_exist(path)
+        if self.lib_dir:
+            self.assert_does_not_exist(self.lib_dir / relative_path)
 
     def assert_import_dir_exists(self, import_dir: Path | None = None) -> None:
         """Asserts that the import directory exists."""
@@ -177,29 +156,23 @@ class Assertions(_common.AssertionsMixin):
         if directory:
             self.assert_exists(directory)
 
-    def assert_in_import_dir(self, *segments: str | Path) -> None:
-        """Join the ``segments`` and assert that this path exists in the import
+    def assert_in_import_dir(self, relative_path: str | Path) -> None:
+        """Asserts that the relative path exists inside the import directory."""
+        if self.import_dir:
+            self.assert_exists(self.import_dir / relative_path)
+
+    def assert_not_in_import_dir(self, relative_path: str | Path) -> None:
+        """Asserts that the relative path does not exist inside the import directory."""
+        if self.import_dir:
+            self.assert_does_not_exist(self.import_dir / relative_path)
+
+    def assert_islink(self, relative_path: str | Path) -> None:
+        """Asserts that the relative path is a symbolic link inside the library
         directory.
         """
-        path = self._join_segments(self.import_dir, segments)
-        if path:
-            self.assert_exists(path)
-
-    def assert_not_in_import_dir(self, *segments: str | Path) -> None:
-        """Join the ``segments`` and assert that this path does not exist in
-        the library directory.
-        """
-        path = self._join_segments(self.import_dir, segments)
-        if path:
-            self.assert_does_not_exist(path)
-
-    def assert_islink(self, *segments: str | Path) -> None:
-        """Join the ``segments`` with the `lib_dir` and assert that this path is a
-        link.
-        """
-        path = self._join_segments(self.lib_dir, segments)
-        if path:
-            assert path.is_symlink()
+        if self.lib_dir:
+            path = self.lib_dir / relative_path
+            assert path.is_symlink(), f"Expected {path} to be a symbolic link"
 
     def assert_number_of_files_in_dir(self, count: int, directory: Path) -> None:
         """Assert that there are ``count`` files in the provided path."""
@@ -244,11 +217,13 @@ class HelperUtils:
                 sub_log_string = f"{subindent}{filename}"
                 log.debug(sub_log_string)
 
-    def get_rsrc_from_file_type(self, filetype: str) -> str:
+    def get_rsrc_from_extension(self, file_ext: str) -> str:
         """Gets the actual file matching extension if available, otherwise
         default to MP3.
         """
-        return RSRC_TYPES.get(filetype, RSRC_TYPES["mp3"])
+        file_type = file_ext.lstrip(".").lower()
+
+        return RSRC_TYPES.get(file_type, RSRC_TYPES["mp3"])
 
 
 class FiletoteTestCase(_common.TestCase, Assertions, HelperUtils):
@@ -732,8 +707,7 @@ class FiletoteTestCase(_common.TestCase, Assertions, HelperUtils):
 
         # Infer resource file from extension (e.g. .mp3 -> full.mp3)
         # Default to mp3 if unknown
-        file_ext = path.suffix.lstrip(".").lower()
-        resource_name = self.get_rsrc_from_file_type(file_ext)
+        resource_name = self.get_rsrc_from_extension(path.suffix)
 
         resource_path = RSRC / resource_name
 

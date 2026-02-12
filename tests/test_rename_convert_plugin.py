@@ -11,11 +11,10 @@ from beets import config, util
 
 from tests.helper import FiletoteTestCase, MediaSetup
 
-log = logging.getLogger("beets")
-
-
 if TYPE_CHECKING:
     from pathlib import Path
+
+log = logging.getLogger("beets")
 
 
 class FiletoteConvertRenameTest(FiletoteTestCase):
@@ -56,5 +55,5 @@ class FiletoteConvertRenameTest(FiletoteTestCase):
 
         self._run_cli_command("import")
 
-        self.assert_in_lib_dir("Tag Artist", "Tag Album", "artifact.file")
-        self.assert_in_lib_dir("Tag Artist", "Tag Album", "Tag Title 1.flac")
+        self.assert_in_lib_dir("Tag Artist/Tag Album/artifact.file")
+        self.assert_in_lib_dir("Tag Artist/Tag Album/Tag Title 1.flac")

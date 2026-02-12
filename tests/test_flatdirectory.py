@@ -34,14 +34,14 @@ class FiletoteFromFlatDirectoryTest(FiletoteTestCase):
             self._media_count + 2, self.lib_dir / "Tag Artist" / "Tag Album"
         )
 
-        self.assert_in_lib_dir("Tag Artist", "Tag Album", "artifact.file")
-        self.assert_in_lib_dir("Tag Artist", "Tag Album", "artifact2.file")
+        self.assert_in_lib_dir("Tag Artist/Tag Album/artifact.file")
+        self.assert_in_lib_dir("Tag Artist/Tag Album/artifact2.file")
 
-        self.assert_in_import_dir("the_album", "artifact.nfo")
-        self.assert_in_import_dir("the_album", "artifact.lrc")
+        self.assert_in_import_dir("the_album/artifact.nfo")
+        self.assert_in_import_dir("the_album/artifact.lrc")
 
-        self.assert_not_in_lib_dir("Tag Artist", "Tag Album", "artifact.nfo")
-        self.assert_not_in_lib_dir("Tag Artist", "Tag Album", "artifact.lrc")
+        self.assert_not_in_lib_dir("Tag Artist/Tag Album/artifact.nfo")
+        self.assert_not_in_lib_dir("Tag Artist/Tag Album/artifact.lrc")
 
     def test_exact_matching_configured_extension(self) -> None:
         """Test that extensions and other fields matching are exact, not just
@@ -57,11 +57,11 @@ class FiletoteFromFlatDirectoryTest(FiletoteTestCase):
             self._media_count + 2, self.lib_dir / "Tag Artist" / "Tag Album"
         )
 
-        self.assert_in_lib_dir("Tag Artist", "Tag Album", "artifact.file")
-        self.assert_in_lib_dir("Tag Artist", "Tag Album", "artifact2.file")
+        self.assert_in_lib_dir("Tag Artist/Tag Album/artifact.file")
+        self.assert_in_lib_dir("Tag Artist/Tag Album/artifact2.file")
 
-        self.assert_in_import_dir("the_album", "artifact.file2")
-        self.assert_not_in_lib_dir("Tag Artist", "Tag Album", "artifact.file2")
+        self.assert_in_import_dir("the_album/artifact.file2")
+        self.assert_not_in_lib_dir("Tag Artist/Tag Album/artifact.file2")
 
     def test_exclude_artifacts_matching_configured_exclude(self) -> None:
         """Test that specified excludes are not moved/copied."""
@@ -74,11 +74,11 @@ class FiletoteFromFlatDirectoryTest(FiletoteTestCase):
             self._media_count + 1, self.lib_dir / "Tag Artist" / "Tag Album"
         )
 
-        self.assert_in_lib_dir("Tag Artist", "Tag Album", "artifact.file")
+        self.assert_in_lib_dir("Tag Artist/Tag Album/artifact.file")
 
-        self.assert_not_in_lib_dir("Tag Artist", "Tag Album", "artifact2.file")
-        self.assert_not_in_lib_dir("Tag Artist", "Tag Album", "artifact.nfo")
-        self.assert_not_in_lib_dir("Tag Artist", "Tag Album", "artifact.lrc")
+        self.assert_not_in_lib_dir("Tag Artist/Tag Album/artifact2.file")
+        self.assert_not_in_lib_dir("Tag Artist/Tag Album/artifact.nfo")
+        self.assert_not_in_lib_dir("Tag Artist/Tag Album/artifact.lrc")
 
     def test_only_copy_artifacts_matching_configured_filename(self) -> None:
         """Test that only the specific file (by filename) is copied when specified."""
@@ -90,11 +90,11 @@ class FiletoteFromFlatDirectoryTest(FiletoteTestCase):
             self._media_count + 1, self.lib_dir / "Tag Artist" / "Tag Album"
         )
 
-        self.assert_in_lib_dir("Tag Artist", "Tag Album", "artifact.file")
+        self.assert_in_lib_dir("Tag Artist/Tag Album/artifact.file")
 
-        self.assert_not_in_lib_dir("Tag Artist", "Tag Album", "artifact2.file")
-        self.assert_not_in_lib_dir("Tag Artist", "Tag Album", "artifact.nfo")
-        self.assert_not_in_lib_dir("Tag Artist", "Tag Album", "artifact.lrc")
+        self.assert_not_in_lib_dir("Tag Artist/Tag Album/artifact2.file")
+        self.assert_not_in_lib_dir("Tag Artist/Tag Album/artifact.nfo")
+        self.assert_not_in_lib_dir("Tag Artist/Tag Album/artifact.lrc")
 
     def test_only_copy_artifacts_matching_configured_extension_and_filename(
         self,
@@ -109,11 +109,11 @@ class FiletoteFromFlatDirectoryTest(FiletoteTestCase):
             self._media_count + 3, self.lib_dir / "Tag Artist" / "Tag Album"
         )
 
-        self.assert_in_lib_dir("Tag Artist", "Tag Album", "artifact.file")
-        self.assert_in_lib_dir("Tag Artist", "Tag Album", "artifact2.file")
-        self.assert_in_lib_dir("Tag Artist", "Tag Album", "artifact.nfo")
+        self.assert_in_lib_dir("Tag Artist/Tag Album/artifact.file")
+        self.assert_in_lib_dir("Tag Artist/Tag Album/artifact2.file")
+        self.assert_in_lib_dir("Tag Artist/Tag Album/artifact.nfo")
 
-        self.assert_not_in_lib_dir("Tag Artist", "Tag Album", "artifact.lrc")
+        self.assert_not_in_lib_dir("Tag Artist/Tag Album/artifact.lrc")
 
     def test_copy_no_artifacts_by_default(self) -> None:
         """Ensure that all artifacts that match the extensions are moved by default."""
@@ -123,10 +123,10 @@ class FiletoteFromFlatDirectoryTest(FiletoteTestCase):
             self._media_count, self.lib_dir / "Tag Artist" / "Tag Album"
         )
 
-        self.assert_not_in_lib_dir("Tag Artist", "Tag Album", "artifact.file")
-        self.assert_not_in_lib_dir("Tag Artist", "Tag Album", "artifact2.file")
-        self.assert_not_in_lib_dir("Tag Artist", "Tag Album", "artifact.nfo")
-        self.assert_not_in_lib_dir("Tag Artist", "Tag Album", "artifact.lrc")
+        self.assert_not_in_lib_dir("Tag Artist/Tag Album/artifact.file")
+        self.assert_not_in_lib_dir("Tag Artist/Tag Album/artifact2.file")
+        self.assert_not_in_lib_dir("Tag Artist/Tag Album/artifact.nfo")
+        self.assert_not_in_lib_dir("Tag Artist/Tag Album/artifact.lrc")
 
     def test_shared_artifacts_handled_once_for_multi_item_album(self) -> None:
         """Tests that shared artifacts in a directory with multiple media files are
@@ -140,8 +140,8 @@ class FiletoteFromFlatDirectoryTest(FiletoteTestCase):
             self._media_count + 3, self.lib_dir / "Tag Artist" / "Tag Album"
         )
 
-        self.assert_in_lib_dir("Tag Artist", "Tag Album", "artifact.nfo")
-        self.assert_in_lib_dir("Tag Artist", "Tag Album", "artifact.file")
-        self.assert_in_lib_dir("Tag Artist", "Tag Album", "artifact2.file")
+        self.assert_in_lib_dir("Tag Artist/Tag Album/artifact.nfo")
+        self.assert_in_lib_dir("Tag Artist/Tag Album/artifact.file")
+        self.assert_in_lib_dir("Tag Artist/Tag Album/artifact2.file")
 
-        self.assert_not_in_lib_dir("Tag Artist", "Tag Album", "artifact.lrc")
+        self.assert_not_in_lib_dir("Tag Artist/Tag Album/artifact.lrc")

@@ -41,11 +41,9 @@ class FiletoteExcludeTest(FiletoteTestCase):
 
         self._run_cli_command("import")
 
-        self.assert_in_import_dir(
-            "the_album",
-            "not_to_be_moved.lrc",
-        )
-        self.assert_not_in_lib_dir("Tag Artist", "Tag Album", "not_to_be_moved.lrc")
+        self.assert_in_import_dir("the_album/not_to_be_moved.lrc")
+
+        self.assert_not_in_lib_dir("Tag Artist/Tag Album/not_to_be_moved.lrc")
 
     def test_exclude_strseq_of_filenames_by_string(self) -> None:
         """Tests to ensure the `exclude` config registers as a strseq (string
@@ -62,17 +60,11 @@ class FiletoteExcludeTest(FiletoteTestCase):
         with capture_log_with_traceback() as logs:
             self._run_cli_command("import")
 
-        self.assert_in_import_dir(
-            "the_album",
-            "not_to_be_moved.file",
-        )
-        self.assert_not_in_lib_dir("Tag Artist", "Tag Album", "not_to_be_moved.file")
+        self.assert_in_import_dir("the_album/not_to_be_moved.file")
+        self.assert_not_in_lib_dir("Tag Artist/Tag Album/not_to_be_moved.file")
 
-        self.assert_in_import_dir(
-            "the_album",
-            "not_to_be_moved.lrc",
-        )
-        self.assert_not_in_lib_dir("Tag Artist", "Tag Album", "not_to_be_moved.lrc")
+        self.assert_in_import_dir("the_album/not_to_be_moved.lrc")
+        self.assert_not_in_lib_dir("Tag Artist/Tag Album/not_to_be_moved.lrc")
 
         # Ensure the deprecation warning is present
         logs = [line for line in logs if line.startswith("filetote:")]
@@ -100,17 +92,11 @@ class FiletoteExcludeTest(FiletoteTestCase):
         with capture_log_with_traceback() as logs:
             self._run_cli_command("import")
 
-        self.assert_in_import_dir(
-            "the_album",
-            "not_to_be_moved.file",
-        )
-        self.assert_not_in_lib_dir("Tag Artist", "Tag Album", "not_to_be_moved.file")
+        self.assert_in_import_dir("the_album/not_to_be_moved.file")
+        self.assert_not_in_lib_dir("Tag Artist/Tag Album/not_to_be_moved.file")
 
-        self.assert_in_import_dir(
-            "the_album",
-            "not_to_be_moved.lrc",
-        )
-        self.assert_not_in_lib_dir("Tag Artist", "Tag Album", "not_to_be_moved.lrc")
+        self.assert_in_import_dir("the_album/not_to_be_moved.lrc")
+        self.assert_not_in_lib_dir("Tag Artist/Tag Album/not_to_be_moved.lrc")
 
         # Ensure the deprecation warning is present
         logs = [line for line in logs if line.startswith("filetote:")]
@@ -140,17 +126,11 @@ class FiletoteExcludeTest(FiletoteTestCase):
 
         self._run_cli_command("import")
 
-        self.assert_in_import_dir(
-            "the_album",
-            "not_to_be_moved.file",
-        )
-        self.assert_not_in_lib_dir("Tag Artist", "Tag Album", "not_to_be_moved.file")
+        self.assert_in_import_dir("the_album/not_to_be_moved.file")
+        self.assert_not_in_lib_dir("Tag Artist/Tag Album/not_to_be_moved.file")
 
-        self.assert_in_import_dir(
-            "the_album",
-            "not_to_be_moved.lrc",
-        )
-        self.assert_not_in_lib_dir("Tag Artist", "Tag Album", "not_to_be_moved.lrc")
+        self.assert_in_import_dir("the_album/not_to_be_moved.lrc")
+        self.assert_not_in_lib_dir("Tag Artist/Tag Album/not_to_be_moved.lrc")
 
     def test_exclude_dict_with_patterns(self) -> None:
         """Tests to ensure the `exclude` config and works with and patterns."""
@@ -167,11 +147,7 @@ class FiletoteExcludeTest(FiletoteTestCase):
 
         self._run_cli_command("import")
 
-        self.assert_in_lib_dir(
-            "Tag Artist",
-            "Tag Album",
-            "to_be_moved.file",
-        )
-        self.assert_not_in_lib_dir("Tag Artist", "Tag Album", "artifact.file")
-        self.assert_not_in_lib_dir("Tag Artist", "Tag Album", "not_to_be_moved.lrc")
-        self.assert_not_in_lib_dir("Tag Artist", "Tag Album", "artifact.lrc")
+        self.assert_in_lib_dir("Tag Artist/Tag Album/to_be_moved.file")
+        self.assert_not_in_lib_dir("Tag Artist/Tag Album/artifact.file")
+        self.assert_not_in_lib_dir("Tag Artist/Tag Album/not_to_be_moved.lrc")
+        self.assert_not_in_lib_dir("Tag Artist/Tag Album/artifact.lrc")
