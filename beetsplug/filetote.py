@@ -498,7 +498,7 @@ class FiletotePlugin(BeetsPlugin):
             artifact_path.name, replacements
         )
         dirname: Path = artifact_path.parent
-        artifact_path_sanitized: Path = dirname.joinpath(artifact_filename_sanitized)
+        artifact_path_sanitized: Path = dirname / artifact_filename_sanitized
 
         return artifact_path_sanitized
 
