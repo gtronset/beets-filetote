@@ -28,8 +28,7 @@ class FiletoteFilename(FiletoteTestCase):
 
         self._set_import_dir()
         self.album_path: Path = self.import_dir / "the_album"
-        self.rsrc_mp3: str = "full.mp3"
-        os.makedirs(self.album_path)
+        self.album_path.mkdir(parents=True, exist_ok=True)
 
         self._setup_import_session(autotag=False)
 
@@ -39,7 +38,7 @@ class FiletoteFilename(FiletoteTestCase):
         """Tests that unicode characters copy as expected."""
         self.create_file(self.album_path / "\xe4rtifact.file")
 
-        medium = self._create_medium(self.album_path / "track_1.mp3", self.rsrc_mp3)
+        medium = self.create_medium(self.album_path / "track_1.mp3")
         self.import_media = [medium]
 
         self._run_cli_command("import")
@@ -56,7 +55,7 @@ class FiletoteFilename(FiletoteTestCase):
 
         self.create_file(self.album_path / "\xe4rtifact.file")
 
-        medium = self._create_medium(self.album_path / "track_1.mp3", self.rsrc_mp3)
+        medium = self.create_medium(self.album_path / "track_1.mp3")
         self.import_media = [medium]
 
         self._run_cli_command("import")
@@ -86,9 +85,8 @@ class FiletoteFilename(FiletoteTestCase):
 
         self.create_file(self.album_path / "CoolName: Album&Tag.log")
 
-        medium = self._create_medium(
+        medium = self.create_medium(
             self.album_path / "track_1.mp3",
-            self.rsrc_mp3,
             MediaMeta(album="Album: Subtitle"),
         )
         self.import_media = [medium]
@@ -110,9 +108,8 @@ class FiletoteFilename(FiletoteTestCase):
         # Create import directory, illegal filename character used in the album name
         self.create_file(self.album_path / "artifact.file")
 
-        medium = self._create_medium(
+        medium = self.create_medium(
             self.album_path / "track_1.mp3",
-            self.rsrc_mp3,
             MediaMeta(album="Tag Album?"),
         )
         self.import_media = [medium]
@@ -135,9 +132,8 @@ class FiletoteFilename(FiletoteTestCase):
 
         self.create_file(self.album_path / "artifact.file")
 
-        medium = self._create_medium(
+        medium = self.create_medium(
             self.album_path / "track_1.mp3",
-            self.rsrc_mp3,
             MediaMeta(title="Tag: Title?"),
         )
         self.import_media = [medium]

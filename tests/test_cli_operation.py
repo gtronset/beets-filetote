@@ -23,8 +23,7 @@ class FiletoteCLIOperation(FiletoteTestCase):
 
         self._set_import_dir()
         self.album_path: Path = self.import_dir / "the_album"
-        self.rsrc_mp3: str = "full.mp3"
-        os.makedirs(self.album_path)
+        self.album_path.mkdir(parents=True, exist_ok=True)
 
         self._base_file_count: int = 0
 
@@ -44,9 +43,7 @@ class FiletoteCLIOperation(FiletoteTestCase):
 
         self._run_cli_command("import")
 
-        self.assert_number_of_files_in_dir(
-            self._base_file_count + 4, self.import_dir / "the_album"
-        )
+        self.assert_number_of_files_in_dir(self._base_file_count + 4, self.album_path)
 
         self.assert_in_import_dir("the_album", "artifact.file")
         self.assert_in_import_dir("the_album", "artifact2.file")
@@ -60,7 +57,7 @@ class FiletoteCLIOperation(FiletoteTestCase):
         self._setup_import_session(copy=False, autotag=False)
 
         self.create_file(self.album_path / "\xe4rtifact.file")
-        medium = self._create_medium(self.album_path / "track_1.mp3", self.rsrc_mp3)
+        medium = self.create_medium(self.album_path / "track_1.mp3")
         self.import_media = [medium]
 
         self._run_cli_command("import", operation_option="copy")
@@ -83,7 +80,7 @@ class FiletoteCLIOperation(FiletoteTestCase):
         self._setup_import_session(copy=False, autotag=False)
 
         self.create_file(self.album_path / "\xe4rtifact.file")
-        medium = self._create_medium(self.album_path / "track_1.mp3", self.rsrc_mp3)
+        medium = self.create_medium(self.album_path / "track_1.mp3")
         self.import_media = [medium]
 
         self._run_cli_command("import", operation_option="move")
@@ -106,7 +103,7 @@ class FiletoteCLIOperation(FiletoteTestCase):
         self._setup_import_session(copy=True, autotag=False)
 
         self.create_file(self.album_path / "\xe4rtifact.file")
-        medium = self._create_medium(self.album_path / "track_1.mp3", self.rsrc_mp3)
+        medium = self.create_medium(self.album_path / "track_1.mp3")
         self.import_media = [medium]
 
         self._run_cli_command("import", operation_option="move")
@@ -129,7 +126,7 @@ class FiletoteCLIOperation(FiletoteTestCase):
         self._setup_import_session(move=True, autotag=False)
 
         self.create_file(self.album_path / "\xe4rtifact.file")
-        medium = self._create_medium(self.album_path / "track_1.mp3", self.rsrc_mp3)
+        medium = self.create_medium(self.album_path / "track_1.mp3")
         self.import_media = [medium]
 
         self._run_cli_command("import", operation_option="copy")
@@ -263,7 +260,7 @@ class FiletoteCLIOperation(FiletoteTestCase):
 
         self._run_cli_command("import")
 
-        self._update_medium(
+        self.update_medium(
             path=(self.lib_dir / "Tag Artist" / "Tag Album" / "Tag Title 1.mp3"),
             meta_updates={"artist": "New Artist Updated"},
         )
@@ -306,7 +303,7 @@ class FiletoteCLIOperation(FiletoteTestCase):
 
         self._run_cli_command("import")
 
-        self._update_medium(
+        self.update_medium(
             path=self.lib_dir
             / "Tag Artist"
             / "Tag Album"

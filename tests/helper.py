@@ -697,9 +697,8 @@ class FiletoteTestCase(_common.TestCase, Assertions, HelperUtils):
             media_path = album_path / f"{trackname}.{file_type}"
 
             media_list.append(
-                self._create_medium(
+                self.create_medium(
                     path=media_path,
-                    resource_name=self.get_rsrc_from_file_type(file_type),
                     media_meta=MediaMeta(
                         title=f"{title_prefix}{count}", track=count, disc=disc
                     ),
@@ -719,8 +718,8 @@ class FiletoteTestCase(_common.TestCase, Assertions, HelperUtils):
 
         return media_list
 
-    def _create_medium(
-        self, path: Path, resource_name: str, media_meta: MediaMeta | None = None
+    def create_medium(
+        self, path: Path, media_meta: MediaMeta | None = None
     ) -> MediaFile:
         """Creates and saves a media file object located at path using resource_name
         from the beets test resources directory as initial data.
@@ -728,7 +727,14 @@ class FiletoteTestCase(_common.TestCase, Assertions, HelperUtils):
         if media_meta is None:
             media_meta = MediaMeta()
 
-        # Copy media file
+        # Ensure parent directory exists (consistency with create_file)
+        path.parent.mkdir(parents=True, exist_ok=True)
+
+        # Infer resource file from extension (e.g. .mp3 -> full.mp3)
+        # Default to mp3 if unknown
+        file_ext = path.suffix.lstrip(".").lower()
+        resource_name = self.get_rsrc_from_file_type(file_ext)
+
         resource_path = RSRC / resource_name
 
         shutil.copy(resource_path, path)
@@ -740,7 +746,8 @@ class FiletoteTestCase(_common.TestCase, Assertions, HelperUtils):
 
         return medium
 
-    def _update_medium(self, path: Path, meta_updates: dict[str, str]) -> None:
+    def update_medium(self, path: Path, meta_updates: dict[str, str]) -> None:
+        """Updates the metadata of an existing media file object located at path."""
         medium = MediaFile(str(path))
 
         for item, value in meta_updates.items():
