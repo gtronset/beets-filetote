@@ -844,10 +844,16 @@ class FiletotePlugin(BeetsPlugin):
                 ignored_artifacts.append(artifact_source)
                 continue
 
+            artifact_dest.parent.mkdir(parents=True, exist_ok=True)
+
+            # TODO(gtronset): This is not actually ever resulting in a different path
+            # due to the artifact_exists_in_dest() check above. This needs to be
+            # refactored to add a config setting to allow for unique naming in the case
+            # of a conflict instead of just skipping the file.
+            # https://github.com/gtronset/beets-filetote/pull/255
             artifact_dest_unique: bytes = util.unique_path(
                 util.bytestring_path(artifact_dest)
             )
-            util.mkdirall(artifact_dest_unique)
 
             # In copy and link modes, treat reimports specially: move in-library
             # files. (Out-of-library files are copied/moved as usual).
@@ -889,8 +895,8 @@ class FiletotePlugin(BeetsPlugin):
         """If enabled in config, output ignored files to beets logs."""
         if self.filetote_config.print_ignored and ignored_artifacts:
             self._log.warning("Ignored files:")
-            for artifact_filename in ignored_artifacts:
-                self._log.warning(f"   {artifact_filename.name}")
+            for artifact in ignored_artifacts:
+                self._log.warning(f"   {artifact.name}")
 
     def manipulate_artifact(
         self,

@@ -23,17 +23,20 @@ from mediafile import MediaFile
 from ._item_model import MediaMeta
 from tests import _common
 
+# TODO(gtronset): Remove this once beets 2.4 and 2.5 are no longer supported (the old
+# fallback import paths can be removed).
+# https://github.com/gtronset/beets-filetote/pull/253
 try:
     from beets.ui.commands.modify import modify_items
     from beets.ui.commands.move import move_items
     from beets.ui.commands.update import update_items
-except ImportError:  # fallback for Beets 2.4 and 2.5
+except ImportError:
     from beets.ui.commands import modify_items, move_items, update_items
 
 log = logging.getLogger("beets")
 
 # Test resources path.
-RSRC: Path = Path(__file__).parent / "rsrc"
+RSRC: Path = Path(__file__).resolve().parent / "rsrc"
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 
 
@@ -90,7 +93,7 @@ def import_plugin_module_statically(module_name: str) -> types.ModuleType:
     bypassing the `beetsplug` package namespace and avoiding contamination
     from integration tests that dynamically load plugins.
     """
-    module_path = PROJECT_ROOT / f"beetsplug/{module_name}.py"
+    module_path: Path = PROJECT_ROOT / f"beetsplug/{module_name}.py"
     return _load_module_from_path(module_name, str(module_path))
 
 
@@ -101,7 +104,7 @@ def _import_local_plugin(
     if str(PROJECT_ROOT) not in sys.path:
         sys.path.insert(0, str(PROJECT_ROOT))
 
-    module = _load_module_from_path(module_name, str(module_path))
+    module: types.ModuleType = _load_module_from_path(module_name, str(module_path))
 
     # Patch beetsplug namespace if needed
     namespace, _, submodule = module_name.partition(".")

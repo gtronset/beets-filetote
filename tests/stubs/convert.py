@@ -42,7 +42,7 @@ class ConvertPlugin(BeetsPlugin):
 
             # Actually create a dummy converted file
             dest.parent.mkdir(parents=True, exist_ok=True)
-            dest.write_bytes(b"FAKE " + target_format.encode().upper() + b" DATA")
+            dest.touch()
 
             # Update item.path to point to the new file (like real Convert)
             item.path = bytestring_path(dest)

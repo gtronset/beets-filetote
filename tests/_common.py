@@ -60,7 +60,7 @@ def check_hardlink() -> bool:
         dst = tmpdir / "hardlink_dst"
 
         try:
-            src.write_bytes(b"test")
+            src.touch()
 
             util.hardlink(util.bytestring_path(src), util.bytestring_path(dst))
 
@@ -84,6 +84,7 @@ def check_reflink() -> bool:
         dst = tmpdir / "reflink_dst"
 
         try:
+            # Bytes are needed to test copy-on-write (COW) behavior
             src.write_bytes(b"test")
 
             # Attempt the reflink. `fallback=False` ensures it fails if not supported,
@@ -94,8 +95,7 @@ def check_reflink() -> bool:
 
             return dst.exists() and src.stat().st_ino != dst.stat().st_ino
 
-        except (FilesystemError, ImportError, OSError) as e:
-            # Also catch ImportError in case the `reflink` lib is not installed
+        except (FilesystemError, OSError) as e:
             log.debug(f"Reflink check failed: {e}")
             return False
 
@@ -113,11 +113,11 @@ class AssertionsMixin:
 
     def assert_exists(self, path: Path) -> None:
         """Assertion that a file exists."""
-        assert path.exists(), f"file does not exist: {path!r}"
+        assert path.exists(), f"file does not exist: {path!s}"
 
     def assert_does_not_exist(self, path: Path) -> None:
         """Assertion that a file does not exists."""
-        assert not path.exists(), f"file exists: {path!r}"
+        assert not path.exists(), f"file exists: {path!s}"
 
     def assert_equal_path(self, path_a: Path, path_b: Path) -> None:
         """Check that two paths are equal. This resolves relative paths and symlinks, so
@@ -127,7 +127,7 @@ class AssertionsMixin:
         path_b_full = path_b.resolve()
 
         assert path_a_full == path_b_full, (
-            f"paths are not equal: {path_a!r} and {path_b!r}"
+            f"paths are not equal: {path_a!s} and {path_b!s}"
         )
 
 
