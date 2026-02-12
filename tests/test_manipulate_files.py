@@ -1,8 +1,6 @@
 """Tests manipulation of files for the beets-filetote plugin."""
 
 import logging
-import os
-import stat
 
 from typing import TYPE_CHECKING
 
@@ -88,7 +86,6 @@ class FiletoteManipulateFiles(FiletoteTestCase):
         config["import"]["link"] = True
 
         old_path: Path = self.import_dir / "the_album" / "artifact.file"
-
         new_path: Path = self.lib_dir / "Tag Artist" / "Tag Album" / "newname.file"
 
         self._run_cli_command("import")
@@ -108,7 +105,6 @@ class FiletoteManipulateFiles(FiletoteTestCase):
         config["import"]["hardlink"] = True
 
         old_path: Path = self.import_dir / "the_album" / "artifact.file"
-
         new_path: Path = self.lib_dir / "Tag Artist" / "Tag Album" / "newname.file"
 
         self._run_cli_command("import")
@@ -116,13 +112,10 @@ class FiletoteManipulateFiles(FiletoteTestCase):
         self.assert_in_import_dir("the_album/artifact.file")
         self.assert_in_lib_dir("Tag Artist/Tag Album/newname.file")
 
-        stat_old_path = os.stat(old_path)
-        stat_new_path = os.stat(new_path)
+        old_stat = old_path.stat()
+        new_stat = new_path.stat()
 
-        assert (stat_old_path[stat.ST_INO], stat_old_path[stat.ST_DEV]) == (
-            stat_new_path[stat.ST_INO],
-            stat_new_path[stat.ST_DEV],
-        )
+        assert (old_stat.st_ino, old_stat.st_dev) == (new_stat.st_ino, new_stat.st_dev)
 
     @pytest.mark.skipif(not _common.HAVE_REFLINK, reason="need reflinks")
     def test_import_reflink_files(self) -> None:
@@ -131,7 +124,16 @@ class FiletoteManipulateFiles(FiletoteTestCase):
         config["paths"]["ext:file"] = "$albumpath/newname"
         config["import"]["reflink"] = True
 
+        old_path: Path = self.import_dir / "the_album" / "artifact.file"
+        new_path: Path = self.lib_dir / "Tag Artist" / "Tag Album" / "newname.file"
+
         self._run_cli_command("import")
+
+        old_stat = old_path.stat()
+        new_stat = new_path.stat()
+
+        # Reflinks have distinct inodes!
+        assert old_stat.st_ino != new_stat.st_ino
 
         self.assert_in_import_dir("the_album/artifact.file")
         self.assert_in_lib_dir("Tag Artist/Tag Album/newname.file")

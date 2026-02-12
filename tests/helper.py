@@ -274,9 +274,9 @@ class FiletoteTestCase(_common.TestCase, Assertions, HelperUtils):
         lib.directory = util.bytestring_path(lib_dir)
 
         lib.path_formats = [
-            ("default", os.path.join("$artist", "$album", "$title")),
-            ("singleton:true", os.path.join("singletons", "$title")),
-            ("comp:true", os.path.join("compilations", "$album", "$title")),
+            ("default", self.fmt_path("$artist", "$album", "$title")),
+            ("singleton:true", self.fmt_path("singletons", "$title")),
+            ("comp:true", self.fmt_path("compilations", "$album", "$title")),
         ]
 
         return lib
