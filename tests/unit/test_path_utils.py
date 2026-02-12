@@ -46,7 +46,7 @@ class TestPathUtils(unittest.TestCase):
         mock_walk.return_value = [(b"/music/album", [], [b"cover.jpg", b"song.mp3"])]
 
         beets_types = {"mp3": "Audio"}
-        ignore_list = ["*.nfo"]  # Irreleant due to the mocked file list
+        ignore_list = ["*.nfo"]  # Irrelevant due to the mocked file list
 
         artifacts = path_utils.discover_artifacts(
             Path("/music/album"), ignore=ignore_list, beets_file_types=beets_types

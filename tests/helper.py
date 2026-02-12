@@ -535,7 +535,7 @@ class FiletoteTestCase(_common.TestCase, Assertions, HelperUtils):
         self._set_import_dir()
 
         album_path: Path = self.import_dir / "the_album"
-        album_path.mkdir(parents=True)  # Just use "parent true?"
+        album_path.mkdir(parents=True, exist_ok=True)
 
         # Create artifacts
         artifacts = [
