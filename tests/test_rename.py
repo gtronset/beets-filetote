@@ -5,7 +5,6 @@
 from __future__ import annotations
 
 import logging
-import os
 
 from typing import TYPE_CHECKING
 
@@ -264,15 +263,17 @@ class FiletoteRenameTest(FiletoteTestCase):
 
         config["paths"] = {
             # Lowest priority
-            "ext:log": os.path.join("$albumpath", "from_ext", "$old_filename"),
+            "ext:log": self.fmt_path("$albumpath", "from_ext", "$old_filename"),
             # Mid priority
-            "pattern:logs": os.path.join("$albumpath", "from_pattern", "$old_filename"),
+            "pattern:logs": self.fmt_path(
+                "$albumpath", "from_pattern", "$old_filename"
+            ),
             # High priority
-            "paired_ext:log": os.path.join(
+            "paired_ext:log": self.fmt_path(
                 "$albumpath", "from_paired", "$old_filename"
             ),
             # Highest priority
-            "filename:track_1.log": os.path.join(
+            "filename:track_1.log": self.fmt_path(
                 "$albumpath", "from_filename", "$old_filename"
             ),
         }
@@ -326,10 +327,10 @@ class FiletoteRenameTest(FiletoteTestCase):
         """
         config["filetote"]["extensions"] = ".file"
 
-        config["filetote"]["paths"]["filetote:default"] = os.path.join(
+        config["filetote"]["paths"]["filetote:default"] = self.fmt_path(
             "$albumpath", "Filetote", "$old_filename"
         )
-        config["paths"]["filetote:default"] = os.path.join(
+        config["paths"]["filetote:default"] = self.fmt_path(
             "$albumpath", "Beets", "$old_filename"
         )
 
@@ -358,7 +359,7 @@ class FiletoteRenameTest(FiletoteTestCase):
         """
         config["filetote"]["extensions"] = ".file"
 
-        config["paths"]["filetote:default"] = os.path.join(
+        config["paths"]["filetote:default"] = self.fmt_path(
             "$albumpath", "New", "$old_filename"
         )
 
@@ -375,7 +376,7 @@ class FiletoteRenameTest(FiletoteTestCase):
         """
         config["filetote"]["extensions"] = ".file"
 
-        config["filetote"]["paths"]["filetote:default"] = os.path.join(
+        config["filetote"]["paths"]["filetote:default"] = self.fmt_path(
             "$albumpath", "New", "$old_filename"
         )
 
@@ -393,10 +394,10 @@ class FiletoteRenameTest(FiletoteTestCase):
         """
         config["filetote"]["extensions"] = ".file"
 
-        config["paths"]["filetote:default"] = os.path.join(
+        config["paths"]["filetote:default"] = self.fmt_path(
             "$albumpath", "Paths", "$old_filename"
         )
-        config["filetote"]["paths"]["filetote:default"] = os.path.join(
+        config["filetote"]["paths"]["filetote:default"] = self.fmt_path(
             "$albumpath", "Filetote", "$old_filename"
         )
 
@@ -413,7 +414,7 @@ class FiletoteRenameTest(FiletoteTestCase):
         """
         config["filetote"]["pairing"]["enabled"] = True
 
-        config["paths"]["filetote-pairing:default"] = os.path.join(
+        config["paths"]["filetote-pairing:default"] = self.fmt_path(
             "$albumpath", "New", "$old_filename"
         )
 
@@ -430,7 +431,7 @@ class FiletoteRenameTest(FiletoteTestCase):
         """
         config["filetote"]["pairing"]["enabled"] = True
 
-        config["filetote"]["paths"]["filetote-pairing:default"] = os.path.join(
+        config["filetote"]["paths"]["filetote-pairing:default"] = self.fmt_path(
             "$albumpath", "New", "$old_filename"
         )
 
@@ -463,16 +464,18 @@ class FiletoteRenameTest(FiletoteTestCase):
         }
 
         config["paths"] = {
-            "pattern:cover": os.path.join(
+            "pattern:cover": self.fmt_path(
                 "$albumpath", "${album} - $old_filename - cover"
             ),
-            "filetote:default": os.path.join("$albumpath", "default", "$old_filename"),
-            "pattern:cue": os.path.join("$albumpath", "${album} - $old_filename - cue"),
+            "filetote:default": self.fmt_path("$albumpath", "default", "$old_filename"),
+            "pattern:cue": self.fmt_path(
+                "$albumpath", "${album} - $old_filename - cue"
+            ),
         }
 
         config["filetote"]["paths"] = {
-            "pattern:artwork": os.path.join("$albumpath", "$old_filename - artwork"),
-            "pattern:scans": os.path.join("$albumpath", "scans", "$old_filename"),
+            "pattern:artwork": self.fmt_path("$albumpath", "$old_filename - artwork"),
+            "pattern:scans": self.fmt_path("$albumpath", "scans", "$old_filename"),
         }
 
         self._run_cli_command("import")

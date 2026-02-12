@@ -1,7 +1,6 @@
 """Tests pruning for the beets-filetote plugin."""
 
 import logging
-import os
 
 from typing import TYPE_CHECKING
 
@@ -65,7 +64,7 @@ class FiletotePruningyTest(FiletoteTestCase):
         config["filetote"]["patterns"] = {"artwork": ["[aA]rtwork/"]}
         config["filetote"]["extensions"] = ".*"
         config["filetote"]["paths"] = {
-            "pattern:artwork": os.path.join("$albumpath", "art", "$old_filename")
+            "pattern:artwork": self.fmt_path("$albumpath", "art", "$old_filename")
         }
         config["import"]["move"] = True
 
@@ -115,7 +114,7 @@ class FiletotePruningyTest(FiletoteTestCase):
 
         self.lib.path_formats[0] = (
             "default",
-            os.path.join("1$artist", "$album", "$title"),
+            self.fmt_path("1$artist", "$album", "$title"),
         )
         self._setup_import_session(autotag=False, import_dir=self.lib_dir, move=True)
 
@@ -150,7 +149,7 @@ class FiletotePruningyTest(FiletoteTestCase):
 
         self.lib.path_formats[0] = (
             "default",
-            os.path.join("1$artist", "$album", "$title"),
+            self.fmt_path("1$artist", "$album", "$title"),
         )
         self._setup_import_session(autotag=False, import_dir=self.lib_dir, copy=True)
 
@@ -183,7 +182,7 @@ class FiletotePruningyTest(FiletoteTestCase):
         self._run_cli_command("import")
 
         self.lib.path_formats = [
-            ("default", os.path.join("New Tag Artist", "$album", "$title")),
+            ("default", self.fmt_path("New Tag Artist", "$album", "$title")),
         ]
         self._setup_import_session(query="artist", autotag=False, move=True)
 
@@ -215,7 +214,7 @@ class FiletotePruningyTest(FiletoteTestCase):
         self._run_cli_command("import")
 
         self.lib.path_formats = [
-            ("default", os.path.join("New Tag Artist", "$album", "$title")),
+            ("default", self.fmt_path("New Tag Artist", "$album", "$title")),
         ]
 
         log.debug("--- run mover")
@@ -246,7 +245,7 @@ class FiletotePruningyTest(FiletoteTestCase):
         self._run_cli_command("import")
 
         self.lib.path_formats = [
-            ("default", os.path.join("$artist", "$album", "$title")),
+            ("default", self.fmt_path("$artist", "$album", "$title")),
         ]
 
         log.debug("--- run modify")

@@ -1,7 +1,6 @@
 """Tests reimporting for the beets-filetote plugin."""
 
 import logging
-import os
 
 from beets import config
 
@@ -44,7 +43,7 @@ class FiletoteReimportTest(FiletoteTestCase):
         # Cause files to relocate (move) when reimported
         self.lib.path_formats[0] = (
             "default",
-            os.path.join("1$artist", "$album", "$title"),
+            self.fmt_path("1$artist", "$album", "$title"),
         )
         self._setup_import_session(autotag=False, import_dir=self.lib_dir)
 
@@ -59,7 +58,7 @@ class FiletoteReimportTest(FiletoteTestCase):
         # Cause files to relocate when reimported
         self.lib.path_formats[0] = (
             "default",
-            os.path.join("1$artist", "$album", "$title"),
+            self.fmt_path("1$artist", "$album", "$title"),
         )
         self._setup_import_session(autotag=False, import_dir=self.lib_dir, move=True)
 
@@ -96,7 +95,7 @@ class FiletoteReimportTest(FiletoteTestCase):
 
     def test_rename_with_copy_reimport(self) -> None:
         """Tests that renaming during `copy` works even when reimporting."""
-        config["paths"]["ext:file"] = os.path.join("$albumpath", "$artist - $album")
+        config["paths"]["ext:file"] = self.fmt_path("$albumpath", "$artist - $album")
         self._setup_import_session(autotag=False, import_dir=self.lib_dir)
 
         log.debug("--- second import")
@@ -107,7 +106,7 @@ class FiletoteReimportTest(FiletoteTestCase):
 
     def test_rename_with_move_reimport(self) -> None:
         """Tests that renaming during `move` works even when reimporting."""
-        config["paths"]["ext:file"] = os.path.join("$albumpath", "$artist - $album")
+        config["paths"]["ext:file"] = self.fmt_path("$albumpath", "$artist - $album")
         self._setup_import_session(autotag=False, import_dir=self.lib_dir, move=True)
 
         log.debug("--- second import")
@@ -121,7 +120,7 @@ class FiletoteReimportTest(FiletoteTestCase):
         is changed and files already in the library are reimported and renamed to
         reflect the change.
         """
-        config["paths"]["ext:file"] = os.path.join("$albumpath", "$album")
+        config["paths"]["ext:file"] = self.fmt_path("$albumpath", "$album")
         self._setup_import_session(autotag=False, import_dir=self.lib_dir, move=True)
 
         log.debug("--- second import")
@@ -137,10 +136,12 @@ class FiletoteReimportTest(FiletoteTestCase):
         # Cause files to relocate when reimported
         self.lib.path_formats[0] = (
             "default",
-            os.path.join("1$artist", "$album", "$title"),
+            self.fmt_path("1$artist", "$album", "$title"),
         )
         self._setup_import_session(autotag=False, import_dir=self.lib_dir, move=True)
-        config["paths"]["ext:file"] = "$albumpath/$old_filename - import I"
+        config["paths"]["ext:file"] = self.fmt_path(
+            "$albumpath", "$old_filename - import I"
+        )
 
         log.debug("--- first import")
         self._run_cli_command("import")
@@ -153,10 +154,10 @@ class FiletoteReimportTest(FiletoteTestCase):
         log.debug("--- second import")
         self.lib.path_formats[0] = (
             "default",
-            os.path.join("2$artist", "$album", "$title"),
+            self.fmt_path("2$artist", "$album", "$title"),
         )
         self._setup_import_session(autotag=False, import_dir=self.lib_dir, move=True)
-        config["paths"]["ext:file"] = "$albumpath/$old_filename I"
+        config["paths"]["ext:file"] = self.fmt_path("$albumpath", "$old_filename I")
         self._run_cli_command("import")
 
         self.assert_not_in_lib_dir("1Tag Artist/Tag Album/artifact - import I.file")
@@ -167,7 +168,7 @@ class FiletoteReimportTest(FiletoteTestCase):
         log.debug("--- third import")
         self.lib.path_formats[0] = (
             "default",
-            os.path.join("3$artist", "$album", "$title"),
+            self.fmt_path("3$artist", "$album", "$title"),
         )
         self._setup_import_session(autotag=False, import_dir=self.lib_dir, move=True)
 
@@ -182,7 +183,7 @@ class FiletoteReimportTest(FiletoteTestCase):
         """Tests that when reimporting, copying works."""
         # Cause files to relocate (move) when reimported
         self.lib.path_formats = [
-            ("default", os.path.join("New Tag Artist", "$album", "$title")),
+            ("default", self.fmt_path("New Tag Artist", "$album", "$title")),
         ]
         self._setup_import_session(query="artist", autotag=False, move=True)
 

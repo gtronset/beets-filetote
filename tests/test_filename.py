@@ -1,6 +1,5 @@
 """Tests file-naming for the beets-filetote plugin."""
 
-import os
 import re
 
 from typing import TYPE_CHECKING
@@ -72,7 +71,7 @@ class FiletoteFilename(FiletoteTestCase):
 
         self.lib.path_formats[0] = (
             "default",
-            os.path.join("$artist", "$album", "$album - $title"),
+            self.fmt_path("$artist", "$album", "$album - $title"),
         )
 
         self.create_file(self.album_path / "CoolName: Album&Tag.log")

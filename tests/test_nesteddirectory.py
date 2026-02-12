@@ -1,7 +1,6 @@
 """Tests nested directories for the beets-filetote plugin."""
 
 import logging
-import os
 
 import pytest
 
@@ -58,7 +57,7 @@ class FiletoteFromNestedDirectoryTest(FiletoteTestCase):
         """
         config["filetote"]["extensions"] = ".file"
         self.lib.path_formats = [
-            ("default", os.path.join("$artist", "$album", "$disc", "$title")),
+            ("default", self.fmt_path("$artist", "$album", "$disc", "$title")),
         ]
 
         self._run_cli_command("import")
@@ -89,11 +88,11 @@ class FiletoteFromNestedDirectoryTest(FiletoteTestCase):
         """
         config["filetote"]["extensions"] = ".file"
         config["filetote"]["paths"] = {
-            "ext:file": os.path.join("$albumpath", "..", "artifacts", "$old_filename"),
+            "ext:file": self.fmt_path("$albumpath", "..", "artifacts", "$old_filename"),
         }
 
         self.lib.path_formats = [
-            ("default", os.path.join("$artist", "$album", "$disc", "$title")),
+            ("default", self.fmt_path("$artist", "$album", "$disc", "$title")),
         ]
 
         self._run_cli_command("import")

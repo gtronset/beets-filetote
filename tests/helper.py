@@ -192,6 +192,13 @@ class HelperUtils:
     def _log_indenter(self, indent_level: int) -> str:
         return " " * 4 * (indent_level)
 
+    def fmt_path(self, *parts: str) -> str:
+        """Joins path components into a string using the current OS separator.
+
+        Useful for defining Beets path_formats without using os.path.join.
+        """
+        return str(Path(*parts))
+
     def create_file(self, path: Path) -> None:
         """Creates a file in a specific location, ensuring the parent directories
         exist.

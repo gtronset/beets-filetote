@@ -1,7 +1,5 @@
 """Tests CLI operations supersede config for the beets-filetote plugin."""
 
-import os
-
 from typing import TYPE_CHECKING
 
 from beets import config
@@ -123,13 +121,13 @@ class FiletoteCLIOperation(FiletoteTestCase):
         self._setup_import_session(move=True, autotag=False)
 
         self.lib.path_formats = [
-            ("default", os.path.join("Old Lib Artist", "$album", "$title")),
+            ("default", self.fmt_path("Old Lib Artist", "$album", "$title")),
         ]
 
         self._run_cli_command("import")
 
         self.lib.path_formats = [
-            ("default", os.path.join("$artist", "$album", "$title")),
+            ("default", self.fmt_path("$artist", "$album", "$title")),
         ]
 
         self._run_cli_command("move", query="artist:'Tag Artist'")
@@ -148,13 +146,13 @@ class FiletoteCLIOperation(FiletoteTestCase):
         self._setup_import_session(move=True, autotag=False)
 
         self.lib.path_formats = [
-            ("default", os.path.join("Old Lib Artist", "$album", "$title")),
+            ("default", self.fmt_path("Old Lib Artist", "$album", "$title")),
         ]
 
         self._run_cli_command("import")
 
         self.lib.path_formats = [
-            ("default", os.path.join("$artist", "$album", "$title")),
+            ("default", self.fmt_path("$artist", "$album", "$title")),
         ]
 
         self._run_cli_command("move", query="artist:'Tag Artist'", copy=True)
@@ -173,13 +171,13 @@ class FiletoteCLIOperation(FiletoteTestCase):
         self._setup_import_session(move=True, autotag=False)
 
         self.lib.path_formats = [
-            ("default", os.path.join("Old Lib Artist", "$album", "$title")),
+            ("default", self.fmt_path("Old Lib Artist", "$album", "$title")),
         ]
 
         self._run_cli_command("import")
 
         self.lib.path_formats = [
-            ("default", os.path.join("$artist", "$album", "$title")),
+            ("default", self.fmt_path("$artist", "$album", "$title")),
         ]
 
         self._run_cli_command("move", query="artist:'Tag Artist'", export=True)
@@ -197,13 +195,13 @@ class FiletoteCLIOperation(FiletoteTestCase):
         self._setup_import_session(move=True, autotag=False)
 
         self.lib.path_formats = [
-            ("default", os.path.join("Old Lib Artist", "$album", "$title")),
+            ("default", self.fmt_path("Old Lib Artist", "$album", "$title")),
         ]
 
         self._run_cli_command("import")
 
         self.lib.path_formats = [
-            ("default", os.path.join("$artist", "$album", "$title")),
+            ("default", self.fmt_path("$artist", "$album", "$title")),
         ]
 
         self._run_cli_command(
@@ -257,7 +255,9 @@ class FiletoteCLIOperation(FiletoteTestCase):
         self.lib.path_formats = [
             (
                 "default",
-                os.path.join("$artist", "$album", "$album - $track - $artist - $title"),
+                self.fmt_path(
+                    "$artist", "$album", "$album - $track - $artist - $title"
+                ),
             ),
         ]
 

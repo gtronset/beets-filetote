@@ -1,7 +1,6 @@
 """Tests "pattern" functionality for the beets-filetote plugin."""
 
 import logging
-import os
 
 from typing import TYPE_CHECKING
 
@@ -65,7 +64,7 @@ class FiletotePatternTest(FiletoteTestCase):
             "subfolder-pattern": ["/[aA]rtwork/cover.jpg"],
         }
 
-        config["paths"]["pattern:subfolder-pattern"] = os.path.join(
+        config["paths"]["pattern:subfolder-pattern"] = self.fmt_path(
             "$albumpath", "artwork", "$old_filename"
         )
 
@@ -93,11 +92,11 @@ class FiletotePatternTest(FiletoteTestCase):
             "subfolder3-pattern": ["Subfolder1/Subfolder2/"],
         }
 
-        config["paths"]["pattern:subfolder1-pattern"] = os.path.join(
+        config["paths"]["pattern:subfolder1-pattern"] = self.fmt_path(
             "$albumpath", "artwork", "$old_filename"
         )
 
-        config["paths"]["pattern:subfolder3-pattern"] = os.path.join(
+        config["paths"]["pattern:subfolder3-pattern"] = self.fmt_path(
             "$albumpath", "sub1", "sub2", "$old_filename"
         )
 
@@ -122,11 +121,11 @@ class FiletotePatternTest(FiletoteTestCase):
             "scans-pattern": ["[sS]cans\\"],
         }
 
-        config["paths"]["pattern:artwork-pattern"] = os.path.join(
+        config["paths"]["pattern:artwork-pattern"] = self.fmt_path(
             "$albumpath", "artwork", "$old_filename"
         )
 
-        config["paths"]["pattern:scans-pattern"] = os.path.join(
+        config["paths"]["pattern:scans-pattern"] = self.fmt_path(
             "$albumpath", "scans", "$old_filename"
         )
 

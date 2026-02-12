@@ -3,7 +3,6 @@
 """
 
 import logging
-import os
 
 from beets import config
 
@@ -40,7 +39,7 @@ class FiletoteInlineRenameTest(FiletoteTestCase):
 
         self.lib.path_formats[0] = (
             "default",
-            os.path.join("$artist", "$album", "%if{$multidisc,Disc $disc/}$title"),
+            self.fmt_path("$artist", "$album", "%if{$multidisc,Disc $disc/}$title"),
         )
 
         self._run_cli_command("import")

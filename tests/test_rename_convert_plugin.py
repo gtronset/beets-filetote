@@ -3,11 +3,10 @@
 """
 
 import logging
-import os
 
 from typing import TYPE_CHECKING
 
-from beets import config, util
+from beets import config
 
 from tests.helper import FiletoteTestCase, MediaSetup
 
@@ -40,11 +39,11 @@ class FiletoteConvertRenameTest(FiletoteTestCase):
         config["filetote"]["extensions"] = ".*"
 
         temp_convert_dir: Path = self.temp_dir / "temp_convert_dir"
-        os.makedirs(temp_convert_dir)
+        temp_convert_dir.mkdir(parents=True, exist_ok=True)
 
         config["convert"] = {
             "auto": True,
-            "dest": util.bytestring_path(self.lib_dir / "Tag Artist" / "Tag Album"),
+            "dest": str(self.lib_dir / "Tag Artist" / "Tag Album"),
             "copy_album_art": True,
             "delete_originals": False,
             "format": "flac",

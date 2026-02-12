@@ -1,7 +1,6 @@
 """Tests renaming Filetote custom fields for the beets-filetote plugin."""
 
 import logging
-import os
 
 from beets import config
 
@@ -72,7 +71,7 @@ class FiletoteRenameFiletoteFieldsTest(FiletoteTestCase):
         config["filetote"]["extensions"] = ".lrc"
         config["filetote"]["pairing"]["enabled"] = True
 
-        config["paths"]["ext:lrc"] = os.path.join(
+        config["paths"]["ext:lrc"] = self.fmt_path(
             "$albumpath", "$subpath$medianame_new"
         )
 
