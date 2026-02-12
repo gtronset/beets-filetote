@@ -137,17 +137,33 @@ class Assertions(_common.AssertionsMixin):
         self.lib_dir: Path | None = None
         self.import_dir: Path | None = None
 
+    def _resolve_relative_path(self, root: Path, relative_path: str | Path) -> Path:
+        """Joins a root path with a relative path, ensuring the input is actually
+        relative.
+
+        Prevents usage errors where passing an absolute path would silently discard the
+        root.
+        """
+        path_obj = Path(relative_path)
+
+        if path_obj.is_absolute():
+            raise ValueError(f"Path must be relative, got absolute: {path_obj}")
+
+        return root / path_obj
+
     def assert_in_lib_dir(self, relative_path: str | Path) -> None:
         """Asserts that the relative path exists inside the library directory."""
         if self.lib_dir:
-            self.assert_exists(self.lib_dir / relative_path)
+            self.assert_exists(self._resolve_relative_path(self.lib_dir, relative_path))
 
     def assert_not_in_lib_dir(self, relative_path: str | Path) -> None:
         """Asserts that the relative path does not exist inside the library
         directory.
         """
         if self.lib_dir:
-            self.assert_does_not_exist(self.lib_dir / relative_path)
+            self.assert_does_not_exist(
+                self._resolve_relative_path(self.lib_dir, relative_path)
+            )
 
     def assert_import_dir_exists(self, import_dir: Path | None = None) -> None:
         """Asserts that the import directory exists."""
@@ -158,19 +174,23 @@ class Assertions(_common.AssertionsMixin):
     def assert_in_import_dir(self, relative_path: str | Path) -> None:
         """Asserts that the relative path exists inside the import directory."""
         if self.import_dir:
-            self.assert_exists(self.import_dir / relative_path)
+            self.assert_exists(
+                self._resolve_relative_path(self.import_dir, relative_path)
+            )
 
     def assert_not_in_import_dir(self, relative_path: str | Path) -> None:
         """Asserts that the relative path does not exist inside the import directory."""
         if self.import_dir:
-            self.assert_does_not_exist(self.import_dir / relative_path)
+            self.assert_does_not_exist(
+                self._resolve_relative_path(self.import_dir, relative_path)
+            )
 
     def assert_islink(self, relative_path: str | Path) -> None:
         """Asserts that the relative path is a symbolic link inside the library
         directory.
         """
         if self.lib_dir:
-            path = self.lib_dir / relative_path
+            path = self._resolve_relative_path(self.lib_dir, relative_path)
             assert path.is_symlink(), f"Expected {path} to be a symbolic link"
 
     def assert_number_of_files_in_dir(self, count: int, directory: Path) -> None:
