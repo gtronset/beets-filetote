@@ -4,7 +4,6 @@
 import contextlib
 import importlib.util
 import logging
-import os
 import shutil
 import sys
 import types
@@ -210,18 +209,28 @@ class HelperUtils:
         """Provide a formatted list of files, directories, and their contents in
         logs.
         """
-        # Convert to string for os.walk logging
-        path_str = str(startpath)
-        for root, _dirs, files in os.walk(path_str):
-            level = root.replace(path_str, "").count(os.sep)
+        if not startpath.exists():
+            log.debug(f"{startpath} does not exist")
+            return
+
+        for root, _dirs, files in util.sorted_walk(startpath):
+            root_path = Path(util.displayable_path(root))
+
+            try:
+                relative_path = root_path.relative_to(startpath)
+
+                level = len(relative_path.parts)
+            except ValueError:
+                # Should not happen if walking inside valid startpath
+                level = 0
 
             indent = self._log_indenter(level)
-            log_string = f"{indent}{os.path.basename(root)}/"
+            log_string = f"{indent}{root_path.name}/"
             log.debug(log_string)
 
             subindent = self._log_indenter(level + 1)
             for filename in files:
-                sub_log_string = f"{subindent}{filename}"
+                sub_log_string = f"{subindent}{util.displayable_path(filename)}"
                 log.debug(sub_log_string)
 
     def get_rsrc_from_extension(self, file_ext: str) -> str:
