@@ -7,7 +7,7 @@ from dataclasses import dataclass
 class MediaMeta:
     """Metadata for created media files.
 
-    Follows typing from the [Beets Item](https://github.com/beetbox/beets/blob/v2.2.0/beets/library.py#L511-L604)
+    Follows typing from the [beets' Item](https://github.com/beetbox/beets/blob/v2.2.0/beets/library.py#L511-L604)
     """
 
     # TODO(gtronset): Update types for beets v2:

@@ -12,18 +12,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - Use `pathlib.Path` instead of `os.path` <https://github.com/gtronset/beets-filetote/pull/255>
+- Bump crate-ci/typos and fix misc. typos/grammar <https://github.com/gtronset/beets-filetote/pull/260>
 
 ## [1.3.1] - 2026-02-07
 
 ### Fixed
 
-- Fix Beets Versions and Move llvmlite to Dep Group <https://github.com/gtronset/beets-filetote/pull/257>
+- Fix beets Versions and Move llvmlite to Dep Group <https://github.com/gtronset/beets-filetote/pull/257>
 
 ## [1.3.0] - 2026-02-05
 
 ### Changed
 
-- Update Filetote to allow for Beets 2.6; Drop support for Beets 2.3 and Python 3.9 <https://github.com/gtronset/beets-filetote/pull/253>
+- Update Filetote to allow for beets 2.6; Drop support for beets 2.3 and Python 3.9 <https://github.com/gtronset/beets-filetote/pull/253>
 
 ## [1.2.0] - 2026-02-05
 
@@ -33,15 +34,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Use `numpy` >v2.1 for Py313+ <https://github.com/gtronset/beets-filetote/pull/238>
 - Refactor and improve Filetote functions, improve test suites loading, and misc. bug
   fixes <https://github.com/gtronset/beets-filetote/pull/249>
-- Upgrade precommit hooks & packages (Ruff, Typos, etc.) <https://github.com/gtronset/beets-filetote/pull/251>
+- Upgrade pre-commit hooks & packages (Ruff, Typos, etc.) <https://github.com/gtronset/beets-filetote/pull/251>
 
 ## [1.1.1] - 2025-12-15
 
 ### Fixed
 
 - Improve Hardlink, Reflink, and Symlink probing in Tests <https://github.com/gtronset/beets-filetote/pull/223>
-- Update Filetote to allow for newer Beets versions (2.4 & 2.5) and improve testing <https://github.com/gtronset/beets-filetote/pull/231>
-- Update Precommit & CHANGELOG <https://github.com/gtronset/beets-filetote/pull/235>
+- Update Filetote to allow for newer beets versions (2.4 & 2.5) and improve testing <https://github.com/gtronset/beets-filetote/pull/231>
+- Update pre-commit & CHANGELOG <https://github.com/gtronset/beets-filetote/pull/235>
 - Update Dependencies:
     - Bump actions/checkout from 5 to 6 <https://github.com/gtronset/beets-filetote/pull/225>
     - Bump crate-ci/typos from 1.36.3 to 1.40.0 <https://github.com/gtronset/beets-filetote/pull/228>
@@ -53,7 +54,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- Update Filetote to work with Beets v2.3.0 <https://github.com/gtronset/beets-filetote/pull/213>
+- Update Filetote to work with beets v2.3.0 <https://github.com/gtronset/beets-filetote/pull/213>
 
 ## Fixed
 
@@ -107,7 +108,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - Update Black version to fix vulnerability <https://github.com/gtronset/beets-filetote/pull/157>
-- Update Filetote to support Beets >=2.0.0 (and various cleanups) <https://github.com/gtronset/beets-filetote/pull/167>
+- Update Filetote to support beets >=2.0.0 (and various cleanups) <https://github.com/gtronset/beets-filetote/pull/167>
 
 ## [0.4.9] - 2024-04-20
 
@@ -180,7 +181,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- Refactor fields to allow Beets Item values <https://github.com/gtronset/beets-filetote/pull/90>
+- Refactor fields to allow beets Item values <https://github.com/gtronset/beets-filetote/pull/90>
 
 ## [0.4.0] - 2023-05-14
 

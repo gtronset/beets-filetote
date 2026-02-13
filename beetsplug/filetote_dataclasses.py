@@ -59,13 +59,13 @@ class FiletoteSessionData:
 
     @property
     def beets_lib(self) -> Library:
-        """Ensures the Beets Library is accessible and present."""
+        """Ensures the beets Library is accessible and present."""
         assert self._beets_lib is not None
         return self._beets_lib
 
     @property
     def library_path(self) -> Path:
-        """Ensures the Beets Library path is accessible and present."""
+        """Ensures the beets Library path is accessible and present."""
         assert self._library_path is not None
         return self._library_path
 
@@ -162,7 +162,7 @@ class FiletoteShared:
 
 @dataclass
 class FiletoteRun:
-    """Holds the state for a single Filetote run within a Beets command."""
+    """Holds the state for a single Filetote run within a beets command."""
 
     imported_items_paths: dict[int, Path] = field(default_factory=dict)
     process_queue: list[FiletoteArtifactCollection] = field(default_factory=list)
@@ -176,7 +176,7 @@ class FiletoteConfig:
     """Configuration settings for Filetote Item.
 
     Attributes:
-        session: Beets import session data. Populated once the
+        session: beets import session data. Populated once the
             `import_begin` is triggered.
         extensions: List of extensions of artifacts to target.
         filenames: List of filenames of artifacts to target.
