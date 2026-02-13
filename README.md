@@ -840,7 +840,7 @@ Please [report any issues] you may have and feel free to contribute.
 
 ## License
 
-Copyright (c) 2022-2025 Gavin Tronset
+Copyright (c) 2022-2026 Gavin Tronset
 
 Licensed under the [MIT license][license link].
 
