@@ -7,12 +7,11 @@ import sys
 import tempfile
 import unittest
 
+from pathlib import Path
+
 from beets import config, logging, util
 from beets.test._common import DummyIO  # noqa: PLC2701
 from beets.util import FilesystemError
-
-# Test resources path.
-RSRC = util.bytestring_path(os.path.join(os.path.dirname(__file__), "rsrc"))
 
 # Propagate to root logger so nosetest can capture it
 log = logging.getLogger("beets")
@@ -21,23 +20,26 @@ log.setLevel(logging.DEBUG)
 
 PLATFORM = sys.platform
 
-# OS feature testing functions. These functions utilize beets.util functions
-# to robustly test if symlinks, hardlinks, and reflinks are supported on
-# the current platform and filesystem, instead of simple OS Platform checks.
+# OS feature testing functions. These functions utilize `beets.util` functions
+# to test if symlinks, hardlinks, and reflinks are supported on the current platform
+# and filesystem, instead of just simple OS Platform checks (previously used).
+# These results are cached to avoid redundant checks across tests which helps
+# performance.
 
 
 @functools.lru_cache(maxsize=1)
 def check_symlink() -> bool:
-    """Robustly tests if symlinks are usable using beets.util.link."""
-    with tempfile.TemporaryDirectory() as tmpdir:
-        src_bytes = util.bytestring_path(os.path.join(tmpdir, "symlink_src"))
-        dst_bytes = util.bytestring_path(os.path.join(tmpdir, "symlink_dst"))
+    """Tests if symlinks are usable using `beets.util.link`."""
+    with tempfile.TemporaryDirectory() as tmpdir_str:
+        tmpdir = Path(tmpdir_str)
+        src = tmpdir / "symlink_src"
+        dst = tmpdir / "symlink_dst"
 
         try:
             # Symlink source does not need to exist, it's just a path/pointer.
-            util.link(src_bytes, dst_bytes)
+            util.link(util.bytestring_path(src), util.bytestring_path(dst))
 
-            return os.path.islink(dst_bytes)
+            return dst.is_symlink()
 
         except (FilesystemError, OSError) as e:
             # Catch Beets' custom error and any underlying OSError
@@ -47,21 +49,22 @@ def check_symlink() -> bool:
 
 @functools.lru_cache(maxsize=1)
 def check_hardlink() -> bool:
-    """Robustly tests if hardlinks are usable using beets.util.hardlink.
+    """Tests if hardlinks are usable using `beets.util.hardlink`.
 
-    The beets.util.hardlink function catches EXDEV errors and raises FilesystemError.
+    The `beets.util.hardlink` function catches EXDEV errors and raises
+    `FilesystemError`.
     """
-    with tempfile.TemporaryDirectory() as tmpdir:
-        src_bytes = util.bytestring_path(os.path.join(tmpdir, "hardlink_src"))
-        dst_bytes = util.bytestring_path(os.path.join(tmpdir, "hardlink_dst"))
+    with tempfile.TemporaryDirectory() as tmpdir_str:
+        tmpdir = Path(tmpdir_str)
+        src = tmpdir / "hardlink_src"
+        dst = tmpdir / "hardlink_dst"
 
         try:
-            with open(src_bytes, "wb") as f:
-                f.write(b"test")
+            src.touch()
 
-            util.hardlink(src_bytes, dst_bytes)
+            util.hardlink(util.bytestring_path(src), util.bytestring_path(dst))
 
-            return os.path.exists(dst_bytes) and os.path.samefile(src_bytes, dst_bytes)
+            return dst.exists() and src.stat().st_ino == dst.stat().st_ino
 
         except (FilesystemError, OSError) as e:
             log.debug(f"Hardlink check failed: {e}")
@@ -70,29 +73,29 @@ def check_hardlink() -> bool:
 
 @functools.lru_cache(maxsize=1)
 def check_reflink() -> bool:
-    """Robustly tests if reflinks are usable using beets.util.reflink.
+    """Tests if reflinks are usable using `beets.util.reflink`.
 
-    The beets.util.reflink function catches EXDEV and EOPNOTSUPP errors and
-    raises FilesystemError.
+    The `beets.util.reflink` function catches EXDEV and EOPNOTSUPP errors and
+    raises `FilesystemError`.
     """
-    with tempfile.TemporaryDirectory() as tmpdir:
-        src_bytes = util.bytestring_path(os.path.join(tmpdir, "reflink_src"))
-        dst_bytes = util.bytestring_path(os.path.join(tmpdir, "reflink_dst"))
+    with tempfile.TemporaryDirectory() as tmpdir_str:
+        tmpdir = Path(tmpdir_str)
+        src = tmpdir / "reflink_src"
+        dst = tmpdir / "reflink_dst"
 
         try:
-            with open(src_bytes, "wb") as f:
-                f.write(b"test")
+            # Bytes are needed to test copy-on-write (COW) behavior
+            src.write_bytes(b"test")
 
             # Attempt the reflink. `fallback=False` ensures it fails if not supported,
             # instead of silently performing a full copy.
-            util.reflink(src_bytes, dst_bytes, fallback=False)
-
-            return os.path.exists(dst_bytes) and not os.path.samefile(
-                src_bytes, dst_bytes
+            util.reflink(
+                util.bytestring_path(src), util.bytestring_path(dst), fallback=False
             )
 
-        except (FilesystemError, ImportError, OSError) as e:
-            # Also catch ImportError in case the `reflink` lib is not installed
+            return dst.exists() and src.stat().st_ino != dst.stat().st_ino
+
+        except (FilesystemError, OSError) as e:
             log.debug(f"Reflink check failed: {e}")
             return False
 
@@ -108,18 +111,23 @@ class AssertionsMixin:
 
     assertions = unittest.TestCase()
 
-    def assert_exists(self, path: bytes) -> None:
+    def assert_exists(self, path: Path) -> None:
         """Assertion that a file exists."""
-        assert os.path.exists(util.syspath(path)), f"file does not exist: {path!r}"
+        assert path.exists(), f"file does not exist: {path!s}"
 
-    def assert_does_not_exist(self, path: bytes) -> None:
+    def assert_does_not_exist(self, path: Path) -> None:
         """Assertion that a file does not exists."""
-        assert not os.path.exists(util.syspath(path)), f"file exists: {path!r}"
+        assert not path.exists(), f"file exists: {path!s}"
 
-    def assert_equal_path(self, path_a: bytes, path_b: bytes) -> None:
-        """Check that two paths are equal."""
-        assert util.normpath(path_a) == util.normpath(path_b), (
-            f"paths are not equal: {path_a!r} and {path_b!r}"
+    def assert_equal_path(self, path_a: Path, path_b: Path) -> None:
+        """Check that two paths are equal. This resolves relative paths and symlinks, so
+        it checks if the paths point to the same location on disk.
+        """
+        path_a_full = path_a.resolve()
+        path_b_full = path_b.resolve()
+
+        assert path_a_full == path_b_full, (
+            f"paths are not equal: {path_a!s} and {path_b!s}"
         )
 
 
@@ -140,22 +148,22 @@ class TestCase(unittest.TestCase):
 
         # Direct paths to a temporary directory. Tests can also use this
         # temporary directory.
-        self.temp_dir = util.bytestring_path(tempfile.mkdtemp())
+        self.temp_dir = Path(tempfile.mkdtemp())
 
-        config["statefile"] = os.fsdecode(os.path.join(self.temp_dir, b"state.pickle"))
-        config["library"] = os.fsdecode(os.path.join(self.temp_dir, b"library.db"))
-        config["directory"] = os.fsdecode(os.path.join(self.temp_dir, b"libdir"))
+        config["statefile"] = str(self.temp_dir / "state.pickle")
+        config["library"] = str(self.temp_dir / "library.db")
+        config["directory"] = str(self.temp_dir / "libdir")
 
         # Set $HOME, which is used by confit's `config_dir()` to create
         # directories.
         self._old_home = os.environ.get("HOME")
-        os.environ["HOME"] = os.fsdecode(self.temp_dir)
+        os.environ["HOME"] = str(self.temp_dir)
 
         # Initialize, but don't install, a DummyIO.
         self.in_out = DummyIO()
 
     def tearDown(self) -> None:
-        if os.path.isdir(self.temp_dir):
+        if self.temp_dir.is_dir():
             shutil.rmtree(self.temp_dir)
         if self._old_home is None:
             del os.environ["HOME"]

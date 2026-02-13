@@ -32,6 +32,7 @@ llvmlite = "^0.45.0"
 
 [tool.poetry.group.dev.dependencies]
 toml = ">=0.10.2"
+reflink = ">=0.2.1"
 
 [tool.poetry.group.lint.dependencies]
 mypy = "^1.19.0"
@@ -106,7 +107,7 @@ extend-select = [
     "TC",   # flake8-type-checking
     "UP",   # pyupgrade
     "W",    # pycodestyle
-    # "PTH", # flake8-use-pathlib
+    "PTH",  # flake8-use-pathlib
 ]
 # Allow unused variables when underscore-prefixed.
 dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"

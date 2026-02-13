@@ -29,4 +29,4 @@ class FiletoteM4BFilesIgnoredTest(FiletoteTestCase):
 
         self._run_cli_command("import")
 
-        self.assert_not_in_lib_dir(b"Tag Artist", b"Tag Album", b"track_1.m4b")
+        self.assert_not_in_lib_dir("Tag Artist/Tag Album/track_1.m4b")

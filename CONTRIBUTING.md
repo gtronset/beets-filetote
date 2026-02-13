@@ -21,6 +21,8 @@ For general information of working with Beets plugins, see the Beets documumenta
 [install `pre-commit`]: https://pre-commit.com/#install
 [For Developers]: https://beets.readthedocs.io/en/stable/dev/
 
+## Installation
+
 **1. Install Poetry & Tox:**
 
 ```sh
@@ -89,4 +91,18 @@ poetry run tox -p
 **Docker:**
 
 A Docker Compose configuration is available for running the plugin in a controlled
-environment. Running the `compose.yaml` file for details.
+environment. Running the [`compose.yaml`](./compose.yaml) file for details.
+
+## Path Handling
+
+This plugin enforces the usage of `pathlib.Path` over other strategies (e.g., `os.path`)
+to better-enforce modern practices and align with Beets' developer documentation (see
+[Handling Paths]).
+
+Accessing `Path` values on library items can be accomplished via the `.filepath`
+property on `Item` and `Album`, though Beets (as of version `2.6.1`) still passes
+bytestring values through event parameters. Thus, conversion to/from bytestring is still
+needed, though should only be done on the boundaries of the plugin. Use the internal
+`path_utils` module for safe conversion and path manipulation.
+
+[Handling Paths]: https://beets.readthedocs.io/en/stable/dev/paths.html

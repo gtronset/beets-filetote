@@ -28,7 +28,7 @@ class FiletoteNoFilesizeErrorTest(FiletoteTestCase):
         with capture_log_with_traceback() as logs:
             self._run_cli_command("import", operation_option="move")
 
-        self.assert_not_in_lib_dir(b"Tag Artist", b"Tag Album", b"artifact.nfo")
+        self.assert_not_in_lib_dir("Tag Artist/Tag Album/artifact.nfo")
 
         # check output log
         matching_logs = [
@@ -36,8 +36,4 @@ class FiletoteNoFilesizeErrorTest(FiletoteTestCase):
         ]
         assert not matching_logs
 
-        self.assert_in_lib_dir(
-            b"Tag Artist",
-            b"Tag Album",
-            b"filesize - 12820b.file",
-        )
+        self.assert_in_lib_dir("Tag Artist/Tag Album/filesize - 12820b.file")

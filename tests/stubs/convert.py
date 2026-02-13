@@ -2,8 +2,7 @@
 
 from __future__ import annotations
 
-import os
-
+from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
 from beets import config
@@ -30,19 +29,20 @@ class ConvertPlugin(BeetsPlugin):
         # directory
         convert_config = config["convert"]
         target_format = convert_config["format"].get(str)
-        dest_dir = convert_config["dest"].get(bytes)
+
+        dest_conf = convert_config["dest"].get(str)
+        dest_dir = Path(dest_conf)
 
         # For each imported item, simulate conversion
         for item in task.imported_items():
-            src = item.path
-            base, _ = os.path.splitext(os.path.basename(src))
-            dest = os.path.join(
-                dest_dir, bytestring_path(base) + b"." + target_format.encode()
-            )
+            src = item.filepath
+
+            base = src.stem
+            dest = dest_dir / f"{base}.{target_format}"
+
             # Actually create a dummy converted file
-            os.makedirs(os.path.dirname(dest), exist_ok=True)
-            with open(dest, "wb") as f:
-                f.write(b"FAKE " + target_format.encode().upper() + b" DATA")
+            dest.parent.mkdir(parents=True, exist_ok=True)
+            dest.touch()
 
             # Update item.path to point to the new file (like real Convert)
-            item.path = dest
+            item.path = bytestring_path(dest)

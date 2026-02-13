@@ -1,7 +1,6 @@
 """Tests pairing the beets-filetote plugin."""
 
 import logging
-import os
 
 from beets import config
 
@@ -22,8 +21,8 @@ class FiletotePairingTest(FiletoteTestCase):
 
         self._run_cli_command("import")
 
-        self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"track_1.lrc")
-        self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"artifact.lrc")
+        self.assert_in_lib_dir("Tag Artist/Tag Album/track_1.lrc")
+        self.assert_in_lib_dir("Tag Artist/Tag Album/artifact.lrc")
 
     def test_pairingonly_requires_pairing_enabled(self) -> None:
         """Test that without `enabled`, `pairing_only` does nothing."""
@@ -38,8 +37,8 @@ class FiletotePairingTest(FiletoteTestCase):
 
         self._run_cli_command("import")
 
-        self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"track_1.lrc")
-        self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"artifact.lrc")
+        self.assert_in_lib_dir("Tag Artist/Tag Album/track_1.lrc")
+        self.assert_in_lib_dir("Tag Artist/Tag Album/artifact.lrc")
 
     def test_pairing_disabled_copies_all_matches(self) -> None:
         """Ensure that when pairing is disabled it does not do anything with pairs."""
@@ -51,8 +50,8 @@ class FiletotePairingTest(FiletoteTestCase):
 
         self._run_cli_command("import")
 
-        self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"track_1.lrc")
-        self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"artifact.lrc")
+        self.assert_in_lib_dir("Tag Artist/Tag Album/track_1.lrc")
+        self.assert_in_lib_dir("Tag Artist/Tag Album/artifact.lrc")
 
     def test_pairing_enabled_copies_all_matches(self) -> None:
         """Ensure that all pairs are copied."""
@@ -64,9 +63,9 @@ class FiletotePairingTest(FiletoteTestCase):
 
         self._run_cli_command("import")
 
-        self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"Tag Title 1.lrc")
-        self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"Tag Title 2.lrc")
-        self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"artifact.lrc")
+        self.assert_in_lib_dir("Tag Artist/Tag Album/Tag Title 1.lrc")
+        self.assert_in_lib_dir("Tag Artist/Tag Album/Tag Title 2.lrc")
+        self.assert_in_lib_dir("Tag Artist/Tag Album/artifact.lrc")
 
     def test_paired_file_for_second_item_is_handled_once(self) -> None:
         """Tests that a paired file for a later item in an album is claimed
@@ -85,11 +84,9 @@ class FiletotePairingTest(FiletoteTestCase):
 
         self._run_cli_command("import")
 
-        self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"Tag Title 2-paired.lrc")
-        self.assert_not_in_lib_dir(
-            b"Tag Artist", b"Tag Album", b"Tag Title 1-generic.lrc"
-        )
-        self.assert_not_in_lib_dir(b"the_album", b"track_2.lrc")
+        self.assert_in_lib_dir("Tag Artist/Tag Album/Tag Title 2-paired.lrc")
+        self.assert_not_in_lib_dir("Tag Artist/Tag Album/Tag Title 1-generic.lrc")
+        self.assert_not_in_lib_dir("the_album/track_2.lrc")
 
     def test_pairing_enabled_works_without_pairs(self) -> None:
         """Ensure that even when there's not a pair, other files can be handled."""
@@ -103,7 +100,7 @@ class FiletotePairingTest(FiletoteTestCase):
 
         self._run_cli_command("import")
 
-        self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"artifact.lrc")
+        self.assert_in_lib_dir("Tag Artist/Tag Album/artifact.lrc")
 
     def test_pairing_does_not_require_pairs_for_all_media(self) -> None:
         """Ensure that when there's not a pair, other paired files still copy."""
@@ -115,12 +112,12 @@ class FiletotePairingTest(FiletoteTestCase):
         config["filetote"]["extensions"] = ".lrc"
         config["filetote"]["pairing"]["enabled"] = True
 
-        self.create_file(os.path.join(self.import_dir, b"the_album"), b"track_1.lrc")
+        self.create_file(self.import_dir / "the_album" / "track_1.lrc")
 
         self._run_cli_command("import")
 
-        self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"Tag Title 1.lrc")
-        self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"artifact.lrc")
+        self.assert_in_lib_dir("Tag Artist/Tag Album/Tag Title 1.lrc")
+        self.assert_in_lib_dir("Tag Artist/Tag Album/artifact.lrc")
 
     def test_pairingonly_disabled_copies_all_matches(self) -> None:
         """Ensure that `pairing_only` disabled allows other matches to an
@@ -137,9 +134,9 @@ class FiletotePairingTest(FiletoteTestCase):
 
         self._run_cli_command("import")
 
-        self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"Tag Title 1.lrc")
-        self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"Tag Title 2.lrc")
-        self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"artifact.lrc")
+        self.assert_in_lib_dir("Tag Artist/Tag Album/Tag Title 1.lrc")
+        self.assert_in_lib_dir("Tag Artist/Tag Album/Tag Title 2.lrc")
+        self.assert_in_lib_dir("Tag Artist/Tag Album/artifact.lrc")
 
     def test_pairingonly_processes_just_pairs(self) -> None:
         """Test that `pairing_only` means that only pairs meeting a certain
@@ -156,9 +153,9 @@ class FiletotePairingTest(FiletoteTestCase):
 
         self._run_cli_command("import")
 
-        self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"Tag Title 1.lrc")
-        self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"Tag Title 2.lrc")
-        self.assert_not_in_lib_dir(b"Tag Artist", b"Tag Album", b"artifact.lrc")
+        self.assert_in_lib_dir("Tag Artist/Tag Album/Tag Title 1.lrc")
+        self.assert_in_lib_dir("Tag Artist/Tag Album/Tag Title 2.lrc")
+        self.assert_not_in_lib_dir("Tag Artist/Tag Album/artifact.lrc")
 
     def test_pairingonly_does_not_require_pairs_for_all_media(self) -> None:
         """Ensure that `pairing_only` does not require  all media files for pairs to
@@ -175,15 +172,15 @@ class FiletotePairingTest(FiletoteTestCase):
             "pairing_only": True,
         }
 
-        self.create_file(os.path.join(self.import_dir, b"the_album"), b"track_1.lrc")
+        self.create_file(self.import_dir / "the_album" / "track_1.lrc")
 
         self._run_cli_command("import")
 
-        self.assert_in_import_dir(b"the_album", b"track_1.lrc")
-        self.assert_in_import_dir(b"the_album", b"artifact.lrc")
+        self.assert_in_import_dir("the_album/track_1.lrc")
+        self.assert_in_import_dir("the_album/artifact.lrc")
 
-        self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"Tag Title 1.lrc")
-        self.assert_not_in_lib_dir(b"Tag Artist", b"Tag Album", b"artifact.lrc")
+        self.assert_in_lib_dir("Tag Artist/Tag Album/Tag Title 1.lrc")
+        self.assert_not_in_lib_dir("Tag Artist/Tag Album/artifact.lrc")
 
     def test_pairing_extensions(self) -> None:
         """Ensure that paired extensions are seen and manipulated."""
@@ -198,20 +195,20 @@ class FiletotePairingTest(FiletoteTestCase):
             "extensions": ".lrc .kar",
         }
 
-        new_files = [b"track_1.kar", b"track_1.lrc", b"track_1.jpg"]
+        new_files = ["track_1.kar", "track_1.lrc", "track_1.jpg"]
 
         for filename in new_files:
-            self.create_file(os.path.join(self.import_dir, b"the_album"), filename)
+            self.create_file(self.import_dir / "the_album" / filename)
 
         self._run_cli_command("import")
 
-        self.assert_in_import_dir(b"the_album", b"track_1.lrc")
-        self.assert_in_import_dir(b"the_album", b"artifact.lrc")
+        self.assert_in_import_dir("the_album/track_1.lrc")
+        self.assert_in_import_dir("the_album/artifact.lrc")
 
-        self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"Tag Title 1.lrc")
-        self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"Tag Title 1.kar")
-        self.assert_not_in_lib_dir(b"Tag Artist", b"Tag Album", b"track_1.jpg")
-        self.assert_not_in_lib_dir(b"Tag Artist", b"Tag Album", b"artifact.lrc")
+        self.assert_in_lib_dir("Tag Artist/Tag Album/Tag Title 1.lrc")
+        self.assert_in_lib_dir("Tag Artist/Tag Album/Tag Title 1.kar")
+        self.assert_not_in_lib_dir("Tag Artist/Tag Album/track_1.jpg")
+        self.assert_not_in_lib_dir("Tag Artist/Tag Album/artifact.lrc")
 
     def test_pairing_extensions_are_addative_to_toplevel_extensions(self) -> None:
         """Ensure that those extensions defined in pairing extend any extensions
@@ -229,17 +226,17 @@ class FiletotePairingTest(FiletoteTestCase):
             "extensions": ".lrc",
         }
 
-        new_files = [b"track_1.kar", b"track_1.lrc", b"track_1.jpg"]
+        new_files = ["track_1.kar", "track_1.lrc", "track_1.jpg"]
 
         for filename in new_files:
-            self.create_file(os.path.join(self.import_dir, b"the_album"), filename)
+            self.create_file(self.import_dir / "the_album" / filename)
 
         self._run_cli_command("import")
 
-        self.assert_in_import_dir(b"the_album", b"track_1.lrc")
-        self.assert_in_import_dir(b"the_album", b"artifact.lrc")
+        self.assert_in_import_dir("the_album/track_1.lrc")
+        self.assert_in_import_dir("the_album/artifact.lrc")
 
-        self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"Tag Title 1.lrc")
-        self.assert_in_lib_dir(b"Tag Artist", b"Tag Album", b"track_1.jpg")
-        self.assert_not_in_lib_dir(b"Tag Artist", b"Tag Album", b"track_1.kar")
-        self.assert_not_in_lib_dir(b"Tag Artist", b"Tag Album", b"artifact.lrc")
+        self.assert_in_lib_dir("Tag Artist/Tag Album/Tag Title 1.lrc")
+        self.assert_in_lib_dir("Tag Artist/Tag Album/track_1.jpg")
+        self.assert_not_in_lib_dir("Tag Artist/Tag Album/track_1.kar")
+        self.assert_not_in_lib_dir("Tag Artist/Tag Album/artifact.lrc")
