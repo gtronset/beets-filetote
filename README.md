@@ -200,7 +200,7 @@ The fields available include [the standard metadata values] of the imported item
 > That said, `inline` and other plugins should work without issue [unless otherwise
 > specified here](#filetote-compatibility-with-other-plugins).
 
-The full set of [built-in functions] are also supported, except for `%aunique` - which
+The full set of [built-in functions] are also supported, except for `%aunique`, which
 will return an empty string.
 
 > [!IMPORTANT]
@@ -831,7 +831,7 @@ contribute, develop, or help can be found in [CONTRIBUTING.md].
 This plugin originated as a hard fork from [beets-copyartifacts (copyartifacts3)].
 
 Thank you to the original work done by Sami Barakat and Adrian Sampson, along with the
-larger [beets'](http://beets.io) community.
+larger beets' community.
 
 Please [report any issues] you may have and feel free to contribute.
 
