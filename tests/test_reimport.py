@@ -4,7 +4,7 @@ import logging
 
 from beets import config
 
-from tests.helper import FiletoteTestCase
+from tests.helper import FiletoteTestCase, capture_log_with_traceback
 
 log = logging.getLogger("beets")
 
@@ -31,6 +31,7 @@ class FiletoteReimportTest(FiletoteTestCase):
         self._setup_import_session(autotag=False, move=True)
 
         config["filetote"]["extensions"] = ".file"
+        config["paths"]["ext:file"] = self.fmt_path("$albumpath", "$old_filename")
 
         log.debug("--- initial import")
         self._run_cli_command("import")
@@ -92,6 +93,26 @@ class FiletoteReimportTest(FiletoteTestCase):
 
         self.assert_in_lib_dir("Tag Artist/Tag Album/artifact.file")
         self.assert_in_lib_dir("Tag Artist/Tag Album/artifact2.file")
+
+    def test_do_nothing_when_paths_are_identical_with_move_import(self) -> None:
+        """Tests that when source and destination paths are identical, Filetote
+        should skip processing entirely to avoid unnecessary "artifact already
+        exists" warnings.
+        """
+        self._setup_import_session(autotag=False, import_dir=self.lib_dir, move=True)
+
+        with capture_log_with_traceback() as logs:
+            log.debug("--- second import")
+            self._run_cli_command("import")
+
+        assert any("Source and destination are the same" in record for record in logs)
+
+        assert not any(
+            "Skipping artifact" in record and "already exists" in record
+            for record in logs
+        )
+
+        self.assert_in_lib_dir("Tag Artist/Tag Album/artifact.file")
 
     def test_rename_with_copy_reimport(self) -> None:
         """Tests that renaming during `copy` works even when reimporting."""
