@@ -30,7 +30,7 @@ def to_path(beets_path: PathLike) -> Path:
 
 def is_beets_file_type(file_ext: str, beets_file_types: dict[str, str]) -> bool:
     """Checks if the provided file extension is a music file/track
-    (i.e., already handled by Beets). `file_ext` should include the dot (e.g.,
+    (i.e., already handled by beets). `file_ext` should include the dot (e.g.,
     '.mp3').
     """
     return len(file_ext) > 1 and util.displayable_path(file_ext)[1:] in beets_file_types

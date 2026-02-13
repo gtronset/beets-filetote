@@ -96,11 +96,11 @@ environment. Running the [`compose.yaml`](./compose.yaml) file for details.
 ## Path Handling
 
 This plugin enforces the usage of `pathlib.Path` over other strategies (e.g., `os.path`)
-to better-enforce modern practices and align with Beets' developer documentation (see
+to better-enforce modern practices and align with beets' developer documentation (see
 [Handling Paths]).
 
 Accessing `Path` values on library items can be accomplished via the `.filepath`
-property on `Item` and `Album`, though Beets (as of version `2.6.1`) still passes
+property on `Item` and `Album`, though beets (as of version `2.6.1`) still passes
 bytestring values through event parameters. Thus, conversion to/from bytestring is still
 needed, though should only be done on the boundaries of the plugin. Use the internal
 `path_utils` module for safe conversion and path manipulation.

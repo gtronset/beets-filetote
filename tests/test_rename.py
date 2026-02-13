@@ -331,7 +331,7 @@ class FiletoteRenameTest(FiletoteTestCase):
             "$albumpath", "Filetote", "$old_filename"
         )
         config["paths"]["filetote:default"] = self.fmt_path(
-            "$albumpath", "Beets", "$old_filename"
+            "$albumpath", "beets", "$old_filename"
         )
 
         config["import"]["move"] = True

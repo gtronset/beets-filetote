@@ -65,7 +65,7 @@ class FiletoteSessionData:
 
     @property
     def library_path(self) -> Path:
-        """Ensures the Beets Library path is accessible and present."""
+        """Ensures the beets Library path is accessible and present."""
         assert self._library_path is not None
         return self._library_path
 
