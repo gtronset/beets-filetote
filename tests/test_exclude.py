@@ -57,7 +57,7 @@ class FiletoteExcludeTest(FiletoteTestCase):
 
         self.create_file(self.album_path / "not_to_be_moved.lrc")
 
-        with capture_log_with_traceback() as logs:
+        with capture_log_with_traceback("beets.filetote") as logs:
             self._run_cli_command("import")
 
         self.assert_in_import_dir("the_album/not_to_be_moved.file")
@@ -67,7 +67,6 @@ class FiletoteExcludeTest(FiletoteTestCase):
         self.assert_not_in_lib_dir("Tag Artist/Tag Album/not_to_be_moved.lrc")
 
         # Ensure the deprecation warning is present
-        logs = [line for line in logs if line.startswith("filetote:")]
         assert logs == [
             (
                 "filetote: Deprecation warning: The `exclude` setting should now use"
@@ -89,7 +88,7 @@ class FiletoteExcludeTest(FiletoteTestCase):
 
         self.create_file(self.album_path / "not_to_be_moved.lrc")
 
-        with capture_log_with_traceback() as logs:
+        with capture_log_with_traceback("beets.filetote") as logs:
             self._run_cli_command("import")
 
         self.assert_in_import_dir("the_album/not_to_be_moved.file")
@@ -99,7 +98,6 @@ class FiletoteExcludeTest(FiletoteTestCase):
         self.assert_not_in_lib_dir("Tag Artist/Tag Album/not_to_be_moved.lrc")
 
         # Ensure the deprecation warning is present
-        logs = [line for line in logs if line.startswith("filetote:")]
         assert logs == [
             (
                 "filetote: Deprecation warning: The `exclude` setting should now use"

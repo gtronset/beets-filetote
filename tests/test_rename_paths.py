@@ -4,7 +4,7 @@ import logging
 
 from beets import config
 
-from tests.helper import FiletoteTestCase, capture_log_with_traceback
+from tests.helper import FiletoteTestCase
 
 log = logging.getLogger("beets")
 
@@ -47,12 +47,7 @@ class FiletoteRenamePathsTest(FiletoteTestCase):
             "nfo-pattern": "$albumpath/nfo-pattern $old_filename",
         }
 
-        with capture_log_with_traceback() as logs:
-            self._run_cli_command("import")
-
-        for line in logs:
-            if line.startswith("filetote:"):
-                log.info(line)
+        self._run_cli_command("import")
 
         self.assert_in_lib_dir("Tag Artist/Tag Album/file-pattern artifact.file")
         self.assert_in_lib_dir("Tag Artist/Tag Album/nfo-pattern artifact.nfo")
@@ -74,12 +69,7 @@ class FiletoteRenamePathsTest(FiletoteTestCase):
             "nfo-pattern": "$albumpath/filetote_path $old_filename",
         }
 
-        with capture_log_with_traceback() as logs:
-            self._run_cli_command("import")
-
-        for line in logs:
-            if line.startswith("filetote:"):
-                log.info(line)
+        self._run_cli_command("import")
 
         self.assert_in_lib_dir("Tag Artist/Tag Album/filetote_path artifact.file")
         self.assert_in_lib_dir("Tag Artist/Tag Album/filetote_path artifact.nfo")

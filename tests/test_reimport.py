@@ -101,7 +101,7 @@ class FiletoteReimportTest(FiletoteTestCase):
         """
         self._setup_import_session(autotag=False, import_dir=self.lib_dir, move=True)
 
-        with capture_log_with_traceback() as logs:
+        with capture_log_with_traceback("beets.filetote") as logs:
             log.debug("--- second import")
             self._run_cli_command("import")
 

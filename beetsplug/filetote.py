@@ -834,9 +834,9 @@ class FiletotePlugin(BeetsPlugin):
             )
 
             if artifact_source == artifact_dest:
-                self._log.warning(
+                self._log.debug(
                     f"Source and destination are the same ({artifact_source}); "
-                    "skipping artifact processing."
+                    f"skipping artifact processing."
                 )
                 continue
 

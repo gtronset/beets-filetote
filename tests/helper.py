@@ -11,7 +11,7 @@ import types
 from collections.abc import Generator
 from dataclasses import asdict, dataclass
 from pathlib import Path
-from typing import Any, Literal, cast
+from typing import Any, Literal, TypeAlias, cast
 
 import beetsplug
 
@@ -32,6 +32,15 @@ try:
     from beets.ui.commands.update import update_items
 except ImportError:
     from beets.ui.commands import modify_items, move_items, update_items
+
+# beets uses the standard Python logging levels (integers)
+LogLevels: TypeAlias = Literal[
+    10,  # logging.DEBUG
+    20,  # logging.INFO
+    30,  # logging.WARNING
+    40,  # logging.ERROR
+    50,  # logging.CRITICAL
+]
 
 log = logging.getLogger("beets")
 
@@ -61,15 +70,34 @@ class ListLogHandler(logging.Handler):
 @contextlib.contextmanager
 def capture_log_with_traceback(
     logger_name: str = "beets",
+    level: LogLevels = logging.DEBUG,
 ) -> Generator[list[str], None, None]:
     """A context manager to capture log messages, including tracebacks."""
     logger = logging.getLogger(logger_name)
+
+    original_logger_level = logger.level
+    original_verbose = config["verbose"].get()
+
+    if level <= logging.DEBUG:
+        required_verbosity = 2
+    elif level <= logging.INFO:
+        required_verbosity = 1
+    else:
+        required_verbosity = 0
+
+    config["verbose"] = required_verbosity
+    logger.setLevel(level)
+
     handler = ListLogHandler()
     logger.addHandler(handler)
+
     try:
         yield handler.messages
     finally:
         logger.removeHandler(handler)
+
+        logger.setLevel(original_logger_level)
+        config["verbose"] = original_verbose
 
 
 def _load_module_from_path(module_name: str, module_path: str) -> types.ModuleType:
