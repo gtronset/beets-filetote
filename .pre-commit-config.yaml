@@ -16,7 +16,7 @@ repos:
             args: ["--maxkb=500"]
 
     - repo: https://github.com/astral-sh/ruff-pre-commit
-      rev: v0.15.0
+      rev: v0.15.1
       hooks:
           - id: ruff
             name: lint
@@ -102,7 +102,7 @@ repos:
 
     - repo: https://github.com/adhtruong/mirrors-typos
       # https://github.com/crate-ci/typos/issues/390
-      rev: v1.43.1
+      rev: v1.43.4
       hooks:
           - id: typos
             exclude: "(_typos.toml|.gitignore)"
