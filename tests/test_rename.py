@@ -323,7 +323,7 @@ class FiletoteRenameTest(FiletoteTestCase):
 
     def test_filetote_paths_priority_over_beets_paths(self) -> None:
         """Ensure that the Filetote `paths` settings take priority over
-        any matching-specified ones in Beets' `paths` settings.
+        any matching-specified ones in beets' `paths` settings.
         """
         config["filetote"]["extensions"] = ".file"
 

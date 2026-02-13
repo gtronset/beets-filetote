@@ -42,7 +42,7 @@ def check_symlink() -> bool:
             return dst.is_symlink()
 
         except (FilesystemError, OSError) as e:
-            # Catch Beets' custom error and any underlying OSError
+            # Catch beets' custom error and any underlying OSError
             log.debug(f"Symlink check failed: {e}")
             return False
 

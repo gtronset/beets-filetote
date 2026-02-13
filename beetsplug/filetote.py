@@ -108,7 +108,7 @@ class FiletotePlugin(BeetsPlugin):
         return self._filetote_config
 
     def _refresh_filetote_config(self) -> None:
-        """Refresh derived configuration from the current Beets config state."""
+        """Refresh derived configuration from the current beets config state."""
         # Preserve the existing session data if this is a refresh.
         previous_filetote_config = self._filetote_config
         session_data = (
@@ -189,12 +189,12 @@ class FiletotePlugin(BeetsPlugin):
         """Registers various file operation events and their corresponding functions.
 
         This method creates functions for file operation events like moving, copying,
-        linking, etc., and registers them as listeners for corresponding Beets events.
+        linking, etc., and registers them as listeners for corresponding beets events.
         It also registers other necessary listeners for plugin functionality
         (`pluginload`, `import_begin`, and `cli_exit`) which do not utilize generated
         function wrappers.
 
-        These functions act as wrappers for Beets events, forwarding the event name
+        These functions act as wrappers for beets events, forwarding the event name
         to the target function (e.g., 'move_event_listener()') along with any additional
         event-specific arguments.
 
@@ -226,7 +226,7 @@ class FiletotePlugin(BeetsPlugin):
 
     def _build_file_event_function(self, event: str) -> Callable[..., None]:
         """Creates a function that acts as a wrapper for specific file operation events
-        triggered by Beets, forwarding the event name to the corresponding target
+        triggered by beets, forwarding the event name to the corresponding target
         function.
         """
 
@@ -241,7 +241,7 @@ class FiletotePlugin(BeetsPlugin):
         """Gets all `path` formats from beets and parses those set for Filetote.
 
         Sets a default value for artifacts, then sets those paths from the Filetote's
-        `paths` node. After, then adds any applicable paths from Beets' `path` node,
+        `paths` node. After, then adds any applicable paths from beets' `path` node,
         unless there's already a representation from Filetote's node to give priority
         to Filetote's definitions.
         """
@@ -302,7 +302,7 @@ class FiletotePlugin(BeetsPlugin):
 
     def _register_session_settings(self, session: ImportSession) -> None:
         """Certain settings are only available and/or finalized once the
-        Beets import session begins.
+        beets import session begins.
         """
         self.filetote_config.session.adjust("operation", self._import_operation_type())
 
@@ -332,7 +332,7 @@ class FiletotePlugin(BeetsPlugin):
         return None
 
     def _event_operation_type(self, event: str) -> MoveOperation | None:
-        """Returns the file manipulations type. Requires a Beets event to be provided
+        """Returns the file manipulations type. Requires a beets event to be provided
         and the operation type is inferred based on the event name/type.
         """
         mapping = {
@@ -503,7 +503,7 @@ class FiletotePlugin(BeetsPlugin):
         return artifact_path_sanitized
 
     def _templatize_path_format(self, path_format: str | Template) -> Template:
-        """Ensures that the path format is a Beets Template."""
+        """Ensures that the path format is a beets Template."""
         subpath_template: Template
 
         if isinstance(path_format, Template):

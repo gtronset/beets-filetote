@@ -120,7 +120,7 @@ files it should care about. This can be done using the following:
 Unless otherwise specified, the default name for artifacts and extra files is:
 `$albumpath/$old_filename`. This means that by default, the file is essentially
 moved/copied into destination directory of the music item it gets grabbed with. This
-also means that the album folder is flattened and any subdirectory is removed by
+also means that the album folder is flattened, and any subdirectory is removed by
 default. To preserve subdirectories, [see `$subpath` usage](#subpath-renaming-example).
 
 > [!NOTE]
@@ -130,7 +130,7 @@ default. To preserve subdirectories, [see `$subpath` usage](#subpath-renaming-ex
 Configuration for renaming works in much the same way as beets [Path Formats], including
 the standard metadata values provided by beets along with `replace` settings. Filetote
 provides the below new path queries, which each takes a single corresponding value.
-These can be defined in either the top-level `paths` section of Beets' config or in the
+These can be defined in either the top-level `paths` section of beets' config or in the
 `paths` section of Filetote's config. Both of the following are equivalent:
 
 ```yaml
@@ -145,7 +145,7 @@ filetote:
 ```
 
 > [!IMPORTANT]
-> If you have the same path specified in both the top-level `paths` section of Beets'
+> If you have the same path specified in both the top-level `paths` section of beets'
 > config and in the `paths` section of Filetote's config, the Filetote's specification
 > will take precedence. There should not be a normal scenario where this is
 > intentionally utilized with Filetote's [new path queries](#new-path-queries), but it
@@ -177,11 +177,11 @@ the value in `paired_ext:` will take precedence over `pattern:` and `ext:`, and
 Renaming has the following considerations:
 
 The fields available include [the standard metadata values] of the imported item
-(`$albumartist`, `$album`, `$title`, etc.), along with Filetote-specific values of:
+(`$albumartist`, `$album`, `$title`, etc.), along with Filetote specific values of:
 
 - `$albumpath`: the entire path of the new destination of the item/track (a useful
-  shorthand for when the extra/artifact file will be moved alongside  the item/track).
-    - **Note**: Beets doesn't have a strict "album" path concept. All references are
+  shorthand for when the extra/artifact file will be moved alongside the item/track).
+    - **Note**: beets doesn't have a strict "album" path concept. All references are
       relative to Items (the actual media files). This is especially relevant for
       multi-disc files/albums, but usually isn't a problem. [Check the section on
       multi-discs](#advanced-renaming-for-multi-disc-albums) for more details.
@@ -200,8 +200,8 @@ The fields available include [the standard metadata values] of the imported item
 > That said, `inline` and other plugins should work without issue [unless otherwise
 > specified here](#filetote-compatibility-with-other-plugins).
 
-The full set of [built in functions] are also supported, with the exception of
-`%aunique` - which will return an empty string.
+The full set of [built-in functions] are also supported, except for `%aunique` - which
+will return an empty string.
 
 > [!IMPORTANT]
 > If there are rename rules set that result with multiple files that will have the
@@ -211,7 +211,7 @@ The full set of [built in functions] are also supported, with the exception of
 > uniqueness to each name.
 
 [the standard metadata values]: https://beets.readthedocs.io/en/stable/reference/pathformat.html#available-values
-[built in functions]: http://beets.readthedocs.org/en/stable/reference/pathformat.html#functions
+[built-in functions]: http://beets.readthedocs.org/en/stable/reference/pathformat.html#functions
 
 ##### Subpath Renaming Example
 
@@ -298,8 +298,8 @@ album's path would be the base/root for the pattern (ex: `CD1/*.jpg`). Patterns 
 work with or without the proceeding slash (`/`) (Windows users will need to
 use the appropriate slash `\`).
 
-Patterns specifying folders with a trailing slash will (ex: `albumpath/`) will match
-every file in that subdirectory irrespective of name or extension (it is equivalent to
+Specifying pattern folders with a trailing slash (ex: `albumpath/`) will match every
+file in that subdirectory irrespective of name or extension (it is equivalent to
 `albumpath/*.*`).
 
 Patterns are defined by a _name_ so that any customization for renaming can apply to the
@@ -559,8 +559,8 @@ filetote:
 
 beets imports multi-disc albums as a single unit ([see beets documentation]). By
 default, this results in the media importing to a single directory in the library.
-Artifacts and extra files in the initial subdirectories will brought by Filetote to the
-destination of the file's they're near, resulting in them landing where one would expect.
+Artifacts and extra files in the initial subdirectories will be brought by Filetote to the
+destination of the files they're near, resulting in them landing where one would expect.
 Because of this, the files will also be moved by Filetote to any specified subdirectory
 in the library if the path definition creates "Disc N" subfolders
 [as described in the beets documentation].
@@ -579,7 +579,7 @@ subfolders, this means that by default the artifact or extra file in question wi
 be in a subfolder.
 
 For macOS and Linux, to achieve a different location (say the media is in
-`Artist/Disc 01` but artifacts are intended to be in `Artist/Extras`), `..` can be used
+`Artist/Disc 01`, but artifacts are intended to be in `Artist/Extras`), `..` can be used
 to navigate to the parent directory of the `$albumpath` so that the entirety of the
 media's path does not have to be recreated. For Windows, the entire media path would
 need to be recreated as Windows sees `..` as an attempt to create a directory with the
@@ -715,7 +715,7 @@ filetote:
 
 Path definitions can also be specified similar to the way that `extrafiles` does;
 however, unlike `extrafiles` which would implicitly append the original filename to any
-path, Filetote is more explicit and you **must** include either `$old_filename` or
+path, Filetote is more explicit, and you **must** include either `$old_filename` or
 `$medianame_new` in your path definition.
 
 For example, to move all files from an artwork directory into a destination "artwork"
@@ -731,7 +731,7 @@ extrafiles:
     artworkdir: $albumpath/artwork
 ```
 
-To this filetote config, explicitly adding `$old_filename`:
+To this Filetote config, explicitly adding `$old_filename`:
 
 ```yaml
 filetote:
@@ -831,7 +831,7 @@ contribute, develop, or help can be found in [CONTRIBUTING.md].
 This plugin originated as a hard fork from [beets-copyartifacts (copyartifacts3)].
 
 Thank you to the original work done by Sami Barakat and Adrian Sampson, along with the
-larger [beets](http://beets.io) community.
+larger [beets'](http://beets.io) community.
 
 Please [report any issues] you may have and feel free to contribute.
 
