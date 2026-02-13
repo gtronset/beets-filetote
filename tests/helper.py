@@ -737,15 +737,15 @@ class FiletoteTestCase(_common.TestCase, Assertions, HelperUtils):
     ) -> MediaFile:
         """Creates and saves a media file object located at path using resource_name
         from the beets test resources directory as initial data.
+
+        The file type is inferred from the file extension (e.g. `.mp3` -> full.mp3).
+        Defaults to mp3 if unknown.
         """
         if media_meta is None:
             media_meta = MediaMeta()
 
-        # Ensure parent directory exists (consistency with create_file)
         path.parent.mkdir(parents=True, exist_ok=True)
 
-        # Infer resource file from extension (e.g. .mp3 -> full.mp3)
-        # Default to mp3 if unknown
         resource_name = self.get_rsrc_from_extension(path.suffix)
 
         resource_path = RSRC / resource_name
