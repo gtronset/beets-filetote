@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - Use `pathlib.Path` instead of `os.path` <https://github.com/gtronset/beets-filetote/pull/255>
+- Bump crate-ci/typos and fix misc. typos/grammar <https://github.com/gtronset/beets-filetote/pull/260>
 
 ## [1.3.1] - 2026-02-07
 
