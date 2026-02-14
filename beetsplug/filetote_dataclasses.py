@@ -259,6 +259,14 @@ class FiletoteConfig:
                     _validate_types_instance([field_.name], field_value, field_type)
                 case "duplicate_action":
                     _validate_types_instance([field_.name], field_value, str)
+
+                    allowed_actions = {"skip", "keep", "remove"}
+                    if field_value not in allowed_actions:
+                        _raise_type_validation_error(
+                            [field_.name],
+                            f"one of {allowed_actions}",
+                            field_value,
+                        )
                 case _:
                     raise NotImplementedError(
                         f"Validation for Filetote config field `{field_.name}` is not"
