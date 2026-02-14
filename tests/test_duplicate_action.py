@@ -33,8 +33,6 @@ class FiletoteReimportTest(FiletoteTestCase):
         config["filetote"]["extensions"] = ".file"
         config["paths"]["ext:file"] = self.fmt_path("$albumpath", "$old_filename")
 
-        # (self.import_dir / "the_album" / "artifact.file").write_text("OLD CONTENT")
-
         log.debug("--- initial import")
         self._run_cli_command("import")
 
