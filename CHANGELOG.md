@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Add `duplicate_action` to configure how Filetote handles artifact conflicts <https://github.com/gtronset/beets-filetote/pull/264>
+
 ### Changed
 
 - Use `pathlib.Path` instead of `os.path` <https://github.com/gtronset/beets-filetote/pull/255>
@@ -19,7 +23,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
-- Fix beets Versions and Move llvmlite to Dep Group <https://github.com/gtronset/beets-filetote/pull/257>
+- Fix beets Versions and Move `llvmlite` to Dep Group <https://github.com/gtronset/beets-filetote/pull/257>
 
 ## [1.3.0] - 2026-02-05
 
