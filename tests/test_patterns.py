@@ -6,7 +6,7 @@ from typing import TYPE_CHECKING
 
 from beets import config
 
-from tests.helper import FiletoteTestCase, capture_log_with_traceback
+from tests.helper import FiletoteTestCase
 
 if TYPE_CHECKING:
     from pathlib import Path
@@ -146,12 +146,7 @@ class FiletotePatternTest(FiletoteTestCase):
 
         config["paths"]["pattern:nfo-pattern"] = "$albumpath/nfo-pattern $old_filename"
 
-        with capture_log_with_traceback() as logs:
-            self._run_cli_command("import")
-
-        for line in logs:
-            if line.startswith("filetote:"):
-                log.info(line)
+        self._run_cli_command("import")
 
         self.assert_in_lib_dir("Tag Artist/Tag Album/file-pattern artifact.file")
         self.assert_in_lib_dir("Tag Artist/Tag Album/file-pattern artifact2.file")

@@ -25,15 +25,13 @@ class FiletoteNoFilesizeErrorTest(FiletoteTestCase):
         config["filetote"]["extensions"] = ".file .lrc"
         config["paths"]["ext:file"] = "$albumpath/filesize - ${filesize}b"
 
-        with capture_log_with_traceback() as logs:
+        with capture_log_with_traceback("beets.filetote") as logs:
             self._run_cli_command("import", operation_option="move")
 
         self.assert_not_in_lib_dir("Tag Artist/Tag Album/artifact.nfo")
 
         # check output log
-        matching_logs = [
-            line for line in logs if line.startswith("could not get filesize:")
-        ]
+        matching_logs = [line for line in logs if "could not get filesize:" in line]
         assert not matching_logs
 
         self.assert_in_lib_dir("Tag Artist/Tag Album/filesize - 12820b.file")

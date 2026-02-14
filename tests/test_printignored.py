@@ -19,14 +19,13 @@ class FiletotePrintIgnoredTest(FiletoteTestCase):
         """Tests to ensure the default behavior for printing ignored is "disabled"."""
         config["filetote"]["extensions"] = ".file"
 
-        with capture_log_with_traceback() as logs:
+        with capture_log_with_traceback("beets.filetote") as logs:
             self._run_cli_command("import")
 
         self.assert_not_in_lib_dir("Tag Artist/Tag Album/artifact.nfo")
         self.assert_not_in_lib_dir("Tag Artist/Tag Album/artifact.lrc")
 
         # check output log
-        logs = [line for line in logs if line.startswith("filetote:")]
         assert logs == []
 
     def test_print_ignored(self) -> None:
@@ -36,13 +35,12 @@ class FiletotePrintIgnoredTest(FiletoteTestCase):
         config["filetote"]["print_ignored"] = True
         config["filetote"]["extensions"] = ".file .lrc"
 
-        with capture_log_with_traceback() as logs:
+        with capture_log_with_traceback("beets.filetote") as logs:
             self._run_cli_command("import")
 
         self.assert_not_in_lib_dir("Tag Artist/Tag Album/artifact.nfo")
 
         # check output log
-        logs = [line for line in logs if line.startswith("filetote:")]
         assert logs == [
             "filetote: Ignored files:",
             "filetote:    artifact.nfo",

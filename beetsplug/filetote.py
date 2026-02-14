@@ -833,6 +833,13 @@ class FiletotePlugin(BeetsPlugin):
                 pattern_category,
             )
 
+            if artifact_source == artifact_dest:
+                self._log.debug(
+                    f"Source and destination are the same ({artifact_source}); "
+                    f"skipping artifact processing."
+                )
+                continue
+
             if path_utils.artifact_exists_in_dest(
                 artifact_source=artifact_source,
                 artifact_dest=artifact_dest,
