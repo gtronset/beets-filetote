@@ -122,6 +122,7 @@ class FiletotePlugin(BeetsPlugin):
             patterns=self.config["patterns"].get(dict),
             paths=self.config["paths"].get(dict),
             print_ignored=self.config["print_ignored"].get(bool),
+            duplicate_action=self.config["duplicate_action"].as_str(),
         )
 
         # Restore the session data to the new config object.
@@ -840,31 +841,41 @@ class FiletotePlugin(BeetsPlugin):
                 )
                 continue
 
+            # Default value is only used in the "remove" case (overwrite)
+            artifact_dest_unique: bytes = util.bytestring_path(artifact_dest)
+            should_replace: bool = self.filetote_config.duplicate_action == "remove"
+
             if path_utils.artifact_exists_in_dest(
                 artifact_source=artifact_source,
                 artifact_dest=artifact_dest,
             ):
                 self._log.warning(
-                    f"Skipping artifact `{artifact_filename}`"
-                    f" because it already exists in the destination."
+                    f"duplicate_action: {self.filetote_config.duplicate_action}"
                 )
-                ignored_artifacts.append(artifact_source)
-                continue
+                match self.filetote_config.duplicate_action:
+                    case "keep":
+                        # Keep both old and new artifacts, giving new artifact name
+                        # uniqueness (e.g., "file.1.txt")
+                        artifact_dest_unique = util.unique_path(artifact_dest_unique)
+                    case "remove":
+                        # Remove old artifact by replacing it with the new one.
+                        pass
+                    case _:
+                        # Default behavior ("skip") or fallback for unknown values.
+                        # Keeps the old artifact and skips moving the new one to avoid
+                        # overwriting.
+                        self._log.debug(
+                            f"Skipping artifact `{artifact_filename}`"
+                            f" because it already exists in the destination."
+                        )
+                        ignored_artifacts.append(artifact_source)
+                        continue
 
             artifact_dest.parent.mkdir(parents=True, exist_ok=True)
 
-            # TODO(gtronset): This is not actually ever resulting in a different path
-            # due to the artifact_exists_in_dest() check above. This needs to be
-            # refactored to add a config setting to allow for unique naming in the case
-            # of a conflict instead of just skipping the file.
-            # https://github.com/gtronset/beets-filetote/pull/255
-            artifact_dest_unique: bytes = util.unique_path(
-                util.bytestring_path(artifact_dest)
-            )
-
             # In copy and link modes, treat reimports specially: move in-library
             # files. (Out-of-library files are copied/moved as usual).
-            reimport: bool = path_utils.is_reimport(
+            is_reimport: bool = path_utils.is_reimport(
                 self.filetote_config.session.library_path,
                 self.filetote_config.session.import_path,
             )
@@ -875,12 +886,13 @@ class FiletotePlugin(BeetsPlugin):
                 operation,
                 util.bytestring_path(artifact_source),
                 artifact_dest_unique,
-                reimport,
+                is_reimport,
+                should_replace,
             )
 
             artifact_parent: Path = artifact_source.parent
 
-            if operation == MoveOperation.MOVE or reimport:
+            if operation == MoveOperation.MOVE or is_reimport:
                 # Prune vacated directory. Depending on the type of operation,
                 # this might be a specific import path, the base library, etc.
                 root_path: Path | None = path_utils.get_prune_root_path(
@@ -910,7 +922,8 @@ class FiletotePlugin(BeetsPlugin):
         operation: MoveOperation | None,
         artifact_source: PathBytes,
         artifact_dest: PathBytes,
-        reimport: bool | None = False,
+        is_reimport: bool | None = False,
+        replace: bool = False,
     ) -> None:
         """Copy, move, link, hardlink or reflink (depending on `operation`)
         the artifacts (as well as write metadata).
@@ -919,23 +932,25 @@ class FiletotePlugin(BeetsPlugin):
         If the operation is copy or a link but it's a reimport, move in-library
         files instead of copying.
         """
-        if operation != MoveOperation.MOVE and reimport:
+        if operation != MoveOperation.MOVE and is_reimport:
             self._log.warning(
                 f"Filetote Operation changed to MOVE from {operation} since this is a"
                 " reimport."
             )
 
-        if operation == MoveOperation.MOVE or reimport:
-            util.move(artifact_source, artifact_dest)
+        if operation == MoveOperation.MOVE or is_reimport:
+            util.move(artifact_source, artifact_dest, replace=replace)
         elif operation == MoveOperation.COPY:
-            util.copy(artifact_source, artifact_dest)
+            util.copy(artifact_source, artifact_dest, replace=replace)
         elif operation == MoveOperation.LINK:
-            util.link(artifact_source, artifact_dest)
+            util.link(artifact_source, artifact_dest, replace=replace)
         elif operation == MoveOperation.HARDLINK:
-            util.hardlink(artifact_source, artifact_dest)
+            util.hardlink(artifact_source, artifact_dest, replace=replace)
         elif operation == MoveOperation.REFLINK:
-            util.reflink(artifact_source, artifact_dest, fallback=False)
+            util.reflink(
+                artifact_source, artifact_dest, replace=replace, fallback=False
+            )
         elif operation == MoveOperation.REFLINK_AUTO:
-            util.reflink(artifact_source, artifact_dest, fallback=True)
+            util.reflink(artifact_source, artifact_dest, replace=replace, fallback=True)
         else:
             raise AssertionError(f"Unknown `MoveOperation`: {operation}")

@@ -173,7 +173,8 @@ class FiletoteRun:
 
 @dataclass
 class FiletoteConfig:
-    """Configuration settings for Filetote Item.
+    """Configuration settings for Filetote Item. Any item added to this dataclass needs
+    to be loaded in `_refresh_filetote_config()` in the main Filetote plugin class.
 
     Attributes:
         session: beets import session data. Populated once the
@@ -190,6 +191,8 @@ class FiletoteConfig:
             paths to define how artifact files should be renamed.
         print_ignored: Whether to output lists of ignored artifacts to the
             console as imports finish.
+        duplicate_action: How to handle artifacts when there is a conflict in the
+            destination. Options are `skip` (default), `keep`, and `remove`.
     """
 
     session: FiletoteSessionData = field(default_factory=FiletoteSessionData)
@@ -200,6 +203,7 @@ class FiletoteConfig:
     pairing: FiletotePairingData = field(default_factory=FiletotePairingData)
     paths: dict[str, str] = field(default_factory=dict)
     print_ignored: bool = False
+    duplicate_action: Literal["skip", "keep", "remove"] = "skip"
 
     def __post_init__(self) -> None:
         """Validates types upon initialization."""
@@ -253,6 +257,8 @@ class FiletoteConfig:
                     _validate_types_dict([field_.name], field_value, field_type=str)
                 case "print_ignored":
                     _validate_types_instance([field_.name], field_value, field_type)
+                case "duplicate_action":
+                    _validate_types_instance([field_.name], field_value, str)
                 case _:
                     raise NotImplementedError(
                         f"Validation for Filetote config field `{field_.name}` is not"
