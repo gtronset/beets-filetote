@@ -184,7 +184,7 @@ The fields available include [the standard metadata values] of the imported item
     - **Note**: beets doesn't have a strict "album" path concept. All references are
       relative to Items (the actual media files). This is especially relevant for
       multi-disc files/albums, but usually isn't a problem. [Check the section on
-      multi-discs](#advanced-renaming-for-multi-disc-albums) for more details.
+      multi-discs] for more details.
 - `$subpath`: Represents any subdirectories under the base album path where an
   extra/artifact file resides. For use when it is desirable to preserve the directory
   hierarchy in the albums. This respects the original capitalization of directory names.
@@ -198,20 +198,23 @@ The fields available include [the standard metadata values] of the imported item
 > [!WARNING]
 > The fields mentioned above are not usable within other plugins such as `inline`.
 > That said, `inline` and other plugins should work without issue [unless otherwise
-> specified here](#filetote-compatibility-with-other-plugins).
+> specified here].
 
 The full set of [built-in functions] are also supported, except for `%aunique`, which
 will return an empty string.
 
 > [!IMPORTANT]
-> If there are rename rules set that result with multiple files that will have the
-> exact same filename, only the first file will be added to the library; other files
-> that subsequently match will not be saved/renamed. To work around this,
-> `$old_filename` can be used in conjunction with other fields to help with adding
-> uniqueness to each name.
+> By default, if there are rename rules set that result with multiple files having the
+> exact same filename in the destination, only the first file will be added, and subsequent
+> files will be skipped to avoid overwriting. This behavior is configurable, see the
+> [Handling Duplicate Artifacts] section for details on how to change this to keep or
+> overwrite files.
 
 [the standard metadata values]: https://beets.readthedocs.io/en/stable/reference/pathformat.html#available-values
+[Check the section on multi-discs]: #advanced-renaming-for-multi-disc-albums
+[unless otherwise specified here]: #filetote-compatibility-with-other-plugins
 [built-in functions]: http://beets.readthedocs.org/en/stable/reference/pathformat.html#functions
+[Handling Duplicate Artifacts]: #handling-duplicate-artifacts-duplicate_action
 
 ##### Subpath Renaming Example
 
@@ -471,8 +474,38 @@ filetote:
 ```
 
 > [!IMPORTANT]
-> `exclude`-d files take precedence over other matching, meaning exclude will override
-other matches by either `extensions` or `filenames`.
+> `exclude`-qualiefied files take precedence over other matching, meaning exclude will override
+> other matches by either `extensions` or `filenames`.
+
+### Handling Duplicate Artifacts (`duplicate_action:`)
+
+When an artifact or extra file is imported, it is possible that a file with the same
+name already exists in the destination directory (for example, during a re-import or
+if multiple source files map to the same destination filename).
+
+The `duplicate_action` config option controls how Filetote handles these collisions:
+
+```yaml
+filetote:
+  duplicate_action: skip
+```
+
+The available options are:
+
+- `skip` (default): The existing file in the destination is preserved, and the new
+  file is ignored.
+- `keep`: Both files are kept. The new file is renamed by appending a number to
+  the filename (e.g., `artifact.1.log`) to make it unique, in the same way as how beets
+  handles duplicate music tracks.
+- `remove`: The new file overwrites the existing file. Use with caution!
+
+It is also possible to "sidestep" collisions, `$old_filename` can be used in conjunction
+with other fields to keep uniqueness in each name.
+
+> [!IMPORTANT]
+> If the source file and the destination file are actually the _same file in the same
+> place_ (i.e., the source and destination paths are identical), Filetote will always do
+> nothing, regardless of this setting.
 
 ### Import Operations
 
