@@ -38,7 +38,8 @@ class FiletoteReimportTest(FiletoteTestCase):
 
     def test_duplicate_action_default(self) -> None:
         """Tests that when `duplicate_action` default when not specified is 'skip',
-        that a warning is logged, and Filetoe does not overwrite or rename the file.
+        that a debug message is logged, and Filetote does not overwrite or rename the
+        file.
         """
         with capture_log_with_traceback("beets.filetote") as logs:
             log.debug("--- second import")
@@ -54,8 +55,8 @@ class FiletoteReimportTest(FiletoteTestCase):
         self.assert_not_in_lib_dir("Tag Artist/Tag Album/artifact.1.file")
 
     def test_duplicate_action_skip(self) -> None:
-        """Tests that when `duplicate_action` is 'skip' (default), that a warning is
-        logged, and Filetoe does not overwrite or rename the file.
+        """Tests that when `duplicate_action` is 'skip' (default), that a debug message
+        is logged, and Filetote does not overwrite or rename the file.
         """
         config["filetote"]["duplicate_action"] = "skip"
 
@@ -95,9 +96,6 @@ class FiletoteReimportTest(FiletoteTestCase):
     def test_duplicate_action_remove(self) -> None:
         """Tests that when `duplicate_action` is 'remove', we overwrite the
         existing artifact with the new one.
-        """
-        """Tests that when `duplicate_action` is 'keep', the incoming artifact is
-        renamed to be unique (e.g., artifact.1.file).
         """
         config["filetote"]["duplicate_action"] = "remove"
 

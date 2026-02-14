@@ -849,9 +849,6 @@ class FiletotePlugin(BeetsPlugin):
                 artifact_source=artifact_source,
                 artifact_dest=artifact_dest,
             ):
-                self._log.warning(
-                    f"duplicate_action: {self.filetote_config.duplicate_action}"
-                )
                 match self.filetote_config.duplicate_action:
                     case "keep":
                         # Keep both old and new artifacts, giving new artifact name

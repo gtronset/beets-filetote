@@ -474,7 +474,7 @@ filetote:
 ```
 
 > [!IMPORTANT]
-> `exclude`-qualiefied files take precedence over other matching, meaning exclude will override
+> `exclude`-qualified files take precedence over other matching, meaning exclude will override
 > other matches by either `extensions` or `filenames`.
 
 ### Handling Duplicate Artifacts (`duplicate_action:`)
