@@ -203,7 +203,7 @@ class FiletoteConfig:
     pairing: FiletotePairingData = field(default_factory=FiletotePairingData)
     paths: dict[str, str] = field(default_factory=dict)
     print_ignored: bool = False
-    duplicate_action: Literal["skip", "keep", "remove"] = "skip"
+    duplicate_action: Literal["merge", "skip", "keep", "remove"] = "merge"
 
     def __post_init__(self) -> None:
         """Validates types upon initialization."""
@@ -260,7 +260,7 @@ class FiletoteConfig:
                 case "duplicate_action":
                     _validate_types_instance([field_.name], field_value, str)
 
-                    allowed_actions = {"skip", "keep", "remove"}
+                    allowed_actions = {"merge", "skip", "keep", "remove"}
                     if field_value not in allowed_actions:
                         _raise_type_validation_error(
                             [field_.name],

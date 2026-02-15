@@ -205,9 +205,10 @@ will return an empty string.
 
 > [!IMPORTANT]
 > By default, if there are rename rules set that result with multiple files having the
-> exact same filename in the destination, only the first file will be added, and subsequent
-> files will be skipped to avoid overwriting. This behavior is configurable, see the
-> [Handling Duplicate Artifacts] section for details on how to change this to keep or
+> exact same filename in the destination, if the contents of the file are the same it
+> will not overwrite the old file. If the contents are different, it will copy/move the
+> new file with a unique name to persist both files. This behavior is configurable, see
+> the [Handling Duplicate Artifacts] section for details on how to change this to keep or
 > overwrite files.
 
 [the standard metadata values]: https://beets.readthedocs.io/en/stable/reference/pathformat.html#available-values
@@ -487,16 +488,19 @@ The `duplicate_action` config option controls how Filetote handles these collisi
 
 ```yaml
 filetote:
-  duplicate_action: skip
+  duplicate_action: merge
 ```
 
 The available options are:
 
-- `skip` (default): The existing file in the destination is preserved, and the new
+- `merge` (default): if the new file is the same in name and identical in content, do
+  not overwrite or rename it; if the content is different, it renames the new file to be
+  unique. The new file is renamed by appending a number to the filename (e.g.,
+  `artifact.1.log`) to make it unique, in the same way as how beets handles duplicate
+  music tracks.
+- `skip`: The existing file in the destination is preserved, and the new
   file is ignored.
-- `keep`: Both files are kept. The new file is renamed by appending a number to
-  the filename (e.g., `artifact.1.log`) to make it unique, in the same way as how beets
-  handles duplicate music tracks.
+- `keep`: Both files are kept. Renaming uses the method described in `merge`.
 - `remove`: The new file overwrites the existing file. Use with caution!
 
 It is also possible to "sidestep" collisions, `$old_filename` can be used in conjunction

@@ -845,28 +845,33 @@ class FiletotePlugin(BeetsPlugin):
             artifact_dest_unique: bytes = util.bytestring_path(artifact_dest)
             should_replace: bool = self.filetote_config.duplicate_action == "remove"
 
-            if path_utils.artifact_exists_in_dest(
-                artifact_source=artifact_source,
-                artifact_dest=artifact_dest,
-            ):
-                match self.filetote_config.duplicate_action:
-                    case "keep":
-                        # Keep both old and new artifacts, giving new artifact name
-                        # uniqueness (e.g., "file.1.txt")
-                        artifact_dest_unique = util.unique_path(artifact_dest_unique)
+            if artifact_dest.exists():
+                action = self.filetote_config.duplicate_action
+
+                # "merge" (Default) and backwards-compatible logic.
+                if action == "merge":
+                    if path_utils.artifact_exists_in_dest(
+                        artifact_source=artifact_source,
+                        artifact_dest=artifact_dest,
+                    ):
+                        action = "skip"
+                    else:
+                        action = "keep"
+
+                match action:
                     case "remove":
-                        # Remove old artifact by replacing it with the new one.
                         pass
-                    case _:
-                        # Default behavior ("skip") or fallback for unknown values.
-                        # Keeps the old artifact and skips moving the new one to avoid
-                        # overwriting.
+                    case "skip":
                         self._log.debug(
                             f"Skipping artifact `{artifact_filename}`"
                             f" because it already exists in the destination."
                         )
                         ignored_artifacts.append(artifact_source)
                         continue
+                    case _:
+                        # Keep both old and new artifacts, giving new artifact name
+                        # uniqueness (e.g., "file.1.txt")
+                        artifact_dest_unique = util.unique_path(artifact_dest_unique)
 
             artifact_dest.parent.mkdir(parents=True, exist_ok=True)
 
