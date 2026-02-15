@@ -841,7 +841,6 @@ class FiletotePlugin(BeetsPlugin):
                 )
                 continue
 
-            # Default value is only used in the "remove" case (overwrite)
             artifact_dest_unique: bytes = util.bytestring_path(artifact_dest)
             should_replace: bool = self.filetote_config.duplicate_action == "remove"
 
@@ -924,7 +923,7 @@ class FiletotePlugin(BeetsPlugin):
         operation: MoveOperation | None,
         artifact_source: PathBytes,
         artifact_dest: PathBytes,
-        is_reimport: bool | None = False,
+        is_reimport: bool = False,
         replace: bool = False,
     ) -> None:
         """Copy, move, link, hardlink or reflink (depending on `operation`)
