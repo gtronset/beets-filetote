@@ -9,7 +9,7 @@ from tests.helper import FiletoteTestCase, capture_log_with_traceback
 log = logging.getLogger("beets")
 
 
-class FiletoteReimportTest(FiletoteTestCase):
+class FiletoteDuplicateActionTest(FiletoteTestCase):
     """Tests to check that Filetote handles reimports correctly."""
 
     def setUp(self, _other_plugins: list[str] | None = None) -> None:
@@ -68,6 +68,8 @@ class FiletoteReimportTest(FiletoteTestCase):
         name and identical in content, but if the content is different, it renames the
         new file to be unique (e.g., artifact.1.file).
         """
+        config["filetote"]["duplicate_action"] = "merge"
+
         with capture_log_with_traceback("beets.filetote") as logs:
             log.debug("--- second import")
 
@@ -137,6 +139,8 @@ class FiletoteReimportTest(FiletoteTestCase):
 
         self.assert_in_lib_dir("Tag Artist/Tag Album/artifact.file")
         self.assert_in_lib_dir("Tag Artist/Tag Album/artifact.1.file")
+        self.assert_in_lib_dir("Tag Artist/Tag Album/artifact2.file")
+        self.assert_in_lib_dir("Tag Artist/Tag Album/artifact2.1.file")
 
     def test_duplicate_action_remove(self) -> None:
         """Tests that when `duplicate_action` is 'remove', we overwrite the

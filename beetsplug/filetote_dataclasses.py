@@ -192,7 +192,7 @@ class FiletoteConfig:
         print_ignored: Whether to output lists of ignored artifacts to the
             console as imports finish.
         duplicate_action: How to handle artifacts when there is a conflict in the
-            destination. Options are `skip` (default), `keep`, and `remove`.
+            destination. Options are `merge` (default), `skip`, `keep`, and `remove`.
     """
 
     session: FiletoteSessionData = field(default_factory=FiletoteSessionData)
