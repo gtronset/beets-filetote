@@ -258,15 +258,11 @@ class FiletoteConfig:
                 case "print_ignored":
                     _validate_types_instance([field_.name], field_value, field_type)
                 case "duplicate_action":
-                    _validate_types_instance([field_.name], field_value, str)
-
-                    allowed_actions = {"merge", "skip", "keep", "remove"}
-                    if field_value not in allowed_actions:
-                        _raise_type_validation_error(
-                            [field_.name],
-                            f"one of {allowed_actions}",
-                            field_value,
-                        )
+                    _validate_types_literal_str(
+                        [field_.name],
+                        field_value,
+                        {"merge", "skip", "keep", "remove"},
+                    )
                 case _:
                     raise NotImplementedError(
                         f"Validation for Filetote config field `{field_.name}` is not"
@@ -337,6 +333,20 @@ def _validate_types_str_seq(
                     "sequence/list of strings (type `list[str]`)",
                     elem,
                 )
+
+
+def _validate_types_literal_str(
+    field_name: list[str],
+    field_value: Any,
+    allowed_values: set[Any],
+) -> None:
+    _validate_types_instance(field_name, field_value, str)
+
+    if field_value not in allowed_values:
+        raise TypeError(
+            f'Value for Filetote config key "{_format_config_hierarchy(field_name)}"'
+            f" must be one of {allowed_values}, got `{field_value}`"
+        )
 
 
 def _raise_type_validation_error(
