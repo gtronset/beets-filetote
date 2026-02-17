@@ -183,8 +183,8 @@ The fields available include [the standard metadata values] of the imported item
   shorthand for when the extra/artifact file will be moved alongside the item/track).
     - **Note**: beets doesn't have a strict "album" path concept. All references are
       relative to Items (the actual media files). This is especially relevant for
-      multi-disc files/albums, but usually isn't a problem. [Check the section on
-      multi-discs] for more details.
+      multi-disc (multidisc) files/albums, but usually isn't a problem. [Check the
+      section on multi-discs] for more details.
 - `$subpath`: Represents any subdirectories under the base album path where an
   extra/artifact file resides. For use when it is desirable to preserve the directory
   hierarchy in the albums. This respects the original capitalization of directory names.
@@ -594,8 +594,8 @@ filetote:
 
 ## Multi-Disc and Nested Import Directories
 
-beets imports multi-disc albums as a single unit ([see beets documentation]). By
-default, this results in the media importing to a single directory in the library.
+beets imports multi-disc (multidisc) albums as a single unit ([see beets documentation]).
+By default, this results in the media importing to a single directory in the library.
 Artifacts and extra files in the initial subdirectories will be brought by Filetote to the
 destination of the files they're near, resulting in them landing where one would expect.
 Because of this, the files will also be moved by Filetote to any specified subdirectory

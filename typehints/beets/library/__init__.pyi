@@ -25,5 +25,6 @@ class LibModel(Model):
 class Item(LibModel):
     id: int
     path: bytes
+    disctotal: int
 
     def __init__(self) -> None: ...

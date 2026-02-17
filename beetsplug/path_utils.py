@@ -137,7 +137,7 @@ def is_path_within_ancestry(child_path: Path | None, parent_path: Path) -> bool:
     return child_path is not None and str(parent_path) in util.ancestry(str(child_path))
 
 
-def is_multi_disc(path_name: Path) -> bool:
+def is_multidisc(path_name: Path) -> bool:
     """Checks if a directory name matches the multi-disc pattern by replicating the
     beets importer's pattern matching for disc folders.
     """
@@ -150,6 +150,19 @@ def is_multi_disc(path_name: Path) -> bool:
             return True
 
     return False
+
+
+def get_multidisc_ignore_paths(parent_path: Path) -> list[str]:
+    """Returns a list of patterns to ignore standard disc directories.
+
+    This function scans that directory and returns the specific directory names that
+    match multi-disc criteria.
+    """
+    return [
+        item.name
+        for item in parent_path.iterdir()
+        if item.is_dir() and is_multidisc(item)
+    ]
 
 
 def is_allowed_extension(extension: str, allowed_extensions: Sequence[str]) -> bool:
@@ -206,7 +219,7 @@ def get_prune_root_path(
         root_path = import_path
     elif is_path_within_ancestry(
         child_path=artifact_path, parent_path=source_path
-    ) or is_multi_disc(source_path):
+    ) or is_multidisc(source_path):
         # If the artifact is within the source path or is multidisc, prune up to the
         # import path.
         root_path = import_path
