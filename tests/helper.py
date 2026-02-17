@@ -691,6 +691,7 @@ class FiletoteTestCase(_common.TestCase, Assertions, HelperUtils):
                     file_type=media_file.file_type,
                     count=media_file.count,
                     generate_pair=media_file.generate_pair,
+                    disctotal=2,
                 )
             )
 
@@ -706,6 +707,7 @@ class FiletoteTestCase(_common.TestCase, Assertions, HelperUtils):
                     generate_pair=media_file.generate_pair,
                     title_prefix="Super Tag Title ",
                     disc=2,
+                    disctotal=2,
                 )
             )
 
@@ -728,6 +730,7 @@ class FiletoteTestCase(_common.TestCase, Assertions, HelperUtils):
         file_type: str = "mp3",
         title_prefix: str = "Tag Title ",
         disc: int = 1,
+        disctotal: int = 1,
     ) -> list[MediaFile]:
         """Generates the desired number of media files and corresponding
         "paired" artifacts.
@@ -742,7 +745,10 @@ class FiletoteTestCase(_common.TestCase, Assertions, HelperUtils):
                 self.create_medium(
                     path=media_path,
                     media_meta=MediaMeta(
-                        title=f"{title_prefix}{count}", track=count, disc=disc
+                        title=f"{title_prefix}{count}",
+                        track=count,
+                        disc=disc,
+                        disctotal=disctotal,
                     ),
                 )
             )

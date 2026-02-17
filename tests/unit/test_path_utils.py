@@ -164,8 +164,72 @@ class TestPathUtils(unittest.TestCase):
             == import_path
         )
 
-    def test_is_multi_disc(self) -> None:
+    def test_is_multidisc(self) -> None:
         """Test multi-disc directory regex."""
-        assert path_utils.is_multi_disc(Path("CD1"))
-        assert path_utils.is_multi_disc(Path("disc 02"))
-        assert not path_utils.is_multi_disc(Path("Bonus"))
+        # Basic cases
+        assert path_utils.is_multidisc(Path("CD1"))
+        assert path_utils.is_multidisc(Path("CD 01"))
+        assert path_utils.is_multidisc(Path("Disc 1"))
+        assert path_utils.is_multidisc(Path("Disc01"))
+        assert path_utils.is_multidisc(Path("disk 1"))
+
+        # Case insensitivity
+        assert path_utils.is_multidisc(Path("cd 1"))
+        assert path_utils.is_multidisc(Path("DISC 2"))
+
+        # Separator variations ([\W_]*)
+        assert path_utils.is_multidisc(Path("CD-1"))
+        assert path_utils.is_multidisc(Path("CD_1"))
+        assert path_utils.is_multidisc(Path("CD.1"))
+        assert path_utils.is_multidisc(Path("CD - 01"))
+
+        # Complex prefixes (regex allows ".*" before marker)
+        assert path_utils.is_multidisc(Path("Album Name CD1"))
+        assert path_utils.is_multidisc(Path("Album Name - Disc 2"))
+
+        # Test nested subdirectories
+        assert path_utils.is_multidisc(Path("music/Album/CD1"))
+
+        # No digit at end
+        assert not path_utils.is_multidisc(Path("CD"))
+        assert not path_utils.is_multidisc(Path("Disc"))
+        assert not path_utils.is_multidisc(Path("CD Extras"))
+        assert not path_utils.is_multidisc(Path("Disc Art"))
+
+        # Non-Disk/CD text
+        assert not path_utils.is_multidisc(Path("Bonus"))
+        assert not path_utils.is_multidisc(Path("Artwork"))
+
+        # Word characters after disk/CD but before difits
+        assert not path_utils.is_multidisc(Path("Disk No. 1"))
+        assert not path_utils.is_multidisc(Path("CD Volume 1"))
+
+    @patch("pathlib.Path.iterdir")
+    def test_get_multidisc_ignore_paths(self, mock_iterdir: MagicMock) -> None:
+        """Test that multi-disc directories are correctly identified for ignoring."""
+        multidisc_parent_path = Path("/music/album")
+
+        cd1 = MagicMock(spec=Path)
+        cd1.name = "CD1"
+        cd1.is_dir.return_value = True
+
+        cd2 = MagicMock(spec=Path)
+        cd2.name = "CD2"
+        cd2.is_dir.return_value = True
+
+        bonus = MagicMock(spec=Path)
+        bonus.name = "Bonus"
+        bonus.is_dir.return_value = True
+
+        file_item = MagicMock(spec=Path)
+        file_item.name = "CD3.txt"
+        file_item.is_dir.return_value = False
+
+        mock_iterdir.return_value = [cd1, cd2, bonus, file_item]
+
+        ignore_paths = path_utils.get_multidisc_ignore_paths(multidisc_parent_path)
+
+        assert "CD1" in ignore_paths
+        assert "CD2" in ignore_paths
+        assert "Bonus" not in ignore_paths
+        assert "CD3.txt" not in ignore_paths

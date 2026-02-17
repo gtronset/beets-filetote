@@ -622,20 +622,51 @@ class FiletotePlugin(BeetsPlugin):
         """
         source_path: Path = item_source_path.parent
 
+        parent_artifacts: list[Path] = []
+
+        if beets_item.disctotal > 1 and path_utils.is_multidisc(source_path):
+            multidisc_parent_path: Path = source_path.parent
+
+            self._log.debug(
+                f"Directory `{source_path}` matches multi-disc pattern; "
+                f"treating parent `{multidisc_parent_path}` as album-level directory."
+            )
+
+            disc_specific_ignores: list[str] = path_utils.get_multidisc_ignore_paths(
+                multidisc_parent_path
+            )
+
+            if multidisc_parent_path not in self._run_state.dirs_seen:
+                # Add this directory to the seen list to avoid re-processing
+                self._run_state.dirs_seen.append(multidisc_parent_path)
+
+                parent_artifacts = path_utils.discover_artifacts(
+                    source_path=multidisc_parent_path,
+                    ignore=config["ignore"].as_str_seq() + disc_specific_ignores,
+                    beets_file_types=self._beets_file_types,
+                )
+
+        local_artifacts: list[Path] = []
+
         # Check if this path has not already been processed
         if source_path in self._run_state.dirs_seen:
             self._collect_paired_artifacts(
                 beets_item, item_source_path, item_destination_path
             )
-            return
 
-        # Add this directory to the seen list to avoid re-processing
-        self._run_state.dirs_seen.append(source_path)
+            if not parent_artifacts:
+                return
+        else:
+            # Add this directory to the seen list to avoid re-processing
+            self._run_state.dirs_seen.append(source_path)
 
-        # Discover all potential artifacts in the source directory
-        discovered_artifacts = path_utils.discover_artifacts(
-            source_path, config["ignore"].as_str_seq(), self._beets_file_types
-        )
+            local_artifacts = path_utils.discover_artifacts(
+                source_path=source_path,
+                ignore=config["ignore"].as_str_seq(),
+                beets_file_types=self._beets_file_types,
+            )
+
+        discovered_artifacts: list[Path] = local_artifacts + parent_artifacts
 
         # Classify artifacts as "individual", "paired", or "shared"
         item_source_filename: str = item_source_path.stem
