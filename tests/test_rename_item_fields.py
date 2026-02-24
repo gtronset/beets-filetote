@@ -50,7 +50,7 @@ class FiletoteRenameItemFieldsTest(FiletoteTestCase):
         self._run_cli_command("import")
 
         self.assert_in_lib_dir(
-            "Tag Artist/Tag Album/(2023-02-03) - Track 01 of 05 - Disc 01 of 07.file"
+            "Tag Artist/Tag Album/(2023-02-03) - Track 01 of 05 - Disc 01 of 01.file"
         )
 
     def test_rename_lyric_comment_item_fields(self) -> None:
