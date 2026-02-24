@@ -596,14 +596,26 @@ filetote:
 
 beets imports multi-disc (multidisc) albums as a single unit ([see beets documentation]).
 By default, this results in the media importing to a single directory in the library.
-Artifacts and extra files in the initial subdirectories will be brought by Filetote to the
-destination of the files they're near, resulting in them landing where one would expect.
-Because of this, the files will also be moved by Filetote to any specified subdirectory
-in the library if the path definition creates "Disc N" subfolders
-[as described in the beets documentation].
 
-In short, artifacts and extra files in these scenarios should simply just move/copy as
-expected.
+Filetote detects when an album is multi-disc and scans for artifacts in multiple locations:
+
+- **Disc Subdirectories:** Artifacts inside `./Album/Disc 1/`, `./Album/Disc 2/`, etc.,
+  are collected and associated with the tracks in those specific folders.
+- **Parent Album Directory:** Artifacts located in the root album folder
+  (`./Album/artwork/`, `./Album/booklet.pdf`, etc.) are also collected and moved/copied
+  alongside the media files.
+
+This ensures that "global" album artifacts (like artwork or logs) are preserved even
+when tracks are organized into subfolders.
+
+> [!NOTE]
+> Artifacts in the parent directory are treated as "shared" artifacts. To prevent false
+> matches, Filetote will **not** "pair" an artifact in the parent folder with a track in
+> a subdirectory (e.g., `Album/01.lrc` will not pair with `Album/Disc 1/01.mp3`). Artifacts
+> must be in the same directory or a subdirectory of the track to be paired.
+
+Files will be moved by Filetote to any specified subdirectory in the library if the path
+definition creates "Disc N" subfolders [as described in the beets documentation].
 
 [see beets documentation]: https://beets.readthedocs.io/en/stable/faq.html#import-a-multi-disc-album
 [as described in the beets documentation]: https://beets.readthedocs.io/en/stable/faq.html#create-disc-n-directories-for-multi-disc-albums
