@@ -73,7 +73,7 @@ class FiletoteMultidiscParentTest(FiletoteTestCase):
         """
         config["filetote"]["extensions"] = ".file"
 
-        # Use disc foldersto verify artifacts stay with their own disc.
+        # Use disc folders to verify artifacts stay with their own disc.
         self.lib.path_formats = [
             ("default", self.fmt_path("$artist", "$album", "$disc", "$title")),
         ]
