@@ -73,11 +73,18 @@ class FiletoteMultidiscParentTest(FiletoteTestCase):
         """
         config["filetote"]["extensions"] = ".file"
 
+        # Use disc foldersto verify artifacts stay with their own disc.
+        self.lib.path_formats = [
+            ("default", self.fmt_path("$artist", "$album", "$disc", "$title")),
+        ]
+
         self._run_cli_command("import")
 
-        self.assert_in_lib_dir("Tag Artist/Tag Album/artifact.file")
+        self.assert_in_lib_dir("Tag Artist/Tag Album/01/artifact.file")
+        self.assert_not_in_lib_dir("Tag Artist/Tag Album/02/artifact.file")
 
-        self.assert_in_lib_dir("Tag Artist/Tag Album/artifact3.file")
+        self.assert_in_lib_dir("Tag Artist/Tag Album/02/artifact3.file")
+        self.assert_not_in_lib_dir("Tag Artist/Tag Album/01/artifact3.file")
 
     def test_preserves_parent_structure_with_pattern(self) -> None:
         """Verify that original structure for Parent artifacts can be recreated."""
@@ -102,11 +109,12 @@ class FiletoteMultidiscParentTest(FiletoteTestCase):
             "pairing_only": True,
         }
 
-        self.create_file(self.album_path / "1-01.lrc")
+        self.create_file(self.album_path / "track_1.lrc")
+        self.delete_file(self.album_path / "disc1" / "track_1.lrc")
 
         self._run_cli_command("import")
 
-        self.assert_not_in_lib_dir("Tag Artist/Tag Album/1-01.lrc")
+        self.assert_not_in_lib_dir("Tag Artist/Tag Album/Tag Title 1.lrc")
 
     def test_mixed_root_and_disc_content(self) -> None:
         """Verify behavior when an album has tracks at both Root and Disc levels

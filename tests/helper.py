@@ -256,6 +256,11 @@ class HelperUtils:
         path.parent.mkdir(parents=True, exist_ok=True)
         path.touch()
 
+    def delete_file(self, path: Path) -> None:
+        """Deletes a file at a specific location, if it exists."""
+        if path.exists():
+            path.unlink()
+
     def list_files(self, startpath: Path) -> None:
         """Provide a formatted list of files, directories, and their contents in
         logs.

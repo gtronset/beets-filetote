@@ -200,7 +200,7 @@ class TestPathUtils(unittest.TestCase):
         assert not path_utils.is_multidisc(Path("Bonus"))
         assert not path_utils.is_multidisc(Path("Artwork"))
 
-        # Word characters after disk/CD but before difits
+        # Word characters after disk/CD but before digits
         assert not path_utils.is_multidisc(Path("Disk No. 1"))
         assert not path_utils.is_multidisc(Path("CD Volume 1"))
 
