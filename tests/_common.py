@@ -135,7 +135,7 @@ class DummyOut:
         return "".join(self.buf)
 
     def flush(self) -> None:
-        self.clear()
+        pass
 
     def clear(self) -> None:
         self.buf = []
@@ -192,9 +192,9 @@ class DummyIO:
         sys.stdout = self.stdout
 
     def restore(self) -> None:
-        if self._orig_stdin:
+        if self._orig_stdin is not None:
             sys.stdin = self._orig_stdin
-        if self._orig_stdout:
+        if self._orig_stdout is not None:
             sys.stdout = self._orig_stdout
 
 
