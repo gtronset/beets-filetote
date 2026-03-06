@@ -33,6 +33,10 @@ class FiletoteDuplicateActionTest(FiletoteTestCase):
         config["filetote"]["extensions"] = ".file"
         config["paths"]["ext:file"] = self.fmt_path("$albumpath", "$old_filename")
 
+        # Set a default duplicate_action for the initial import to prevent
+        # "keep" is safe here since the first import has no duplicates to resolve.
+        config["import"]["duplicate_action"] = "keep"
+
         log.debug("--- initial import")
         self._run_cli_command("import")
 
@@ -68,6 +72,7 @@ class FiletoteDuplicateActionTest(FiletoteTestCase):
         name and identical in content, but if the content is different, it renames the
         new file to be unique (e.g., artifact.1.file).
         """
+        config["import"]["duplicate_action"] = "merge"
         config["filetote"]["duplicate_action"] = "merge"
 
         with capture_log_with_traceback("beets.filetote") as logs:
@@ -94,6 +99,8 @@ class FiletoteDuplicateActionTest(FiletoteTestCase):
         """Tests that when `duplicate_action` is 'skip', that a debug message
         is logged, and Filetote does not overwrite or rename the file.
         """
+        # The Item needs to be copied/moved still for the artifacts to be processed
+        config["import"]["duplicate_action"] = "keep"
         config["filetote"]["duplicate_action"] = "skip"
 
         with capture_log_with_traceback("beets.filetote") as logs:
@@ -124,6 +131,7 @@ class FiletoteDuplicateActionTest(FiletoteTestCase):
         """Tests that when `duplicate_action` is 'keep', the incoming artifact is
         renamed to be unique (e.g., artifact.1.file).
         """
+        config["import"]["duplicate_action"] = "keep"
         config["filetote"]["duplicate_action"] = "keep"
 
         with capture_log_with_traceback("beets.filetote") as logs:
@@ -146,6 +154,7 @@ class FiletoteDuplicateActionTest(FiletoteTestCase):
         """Tests that when `duplicate_action` is 'remove', we overwrite the
         existing artifact with the new one.
         """
+        config["import"]["duplicate_action"] = "remove"
         config["filetote"]["duplicate_action"] = "remove"
 
         with capture_log_with_traceback("beets.filetote") as logs:
