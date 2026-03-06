@@ -31,7 +31,7 @@ class MediaMeta:
     track: int = 1
     tracktotal: int = 5
     disc: int = 1
-    disctotal: int = 7
+    disctotal: int = 1
     lyrics: str = "Tag lyrics"
     comments: str = "Tag comments"
     bpm: int = 8

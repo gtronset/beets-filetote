@@ -18,6 +18,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Use `pathlib.Path` instead of `os.path` <https://github.com/gtronset/beets-filetote/pull/255>
 - Bump crate-ci/typos and fix misc. typos/grammar <https://github.com/gtronset/beets-filetote/pull/260>
 - Don't emit "skipping artifact" logs if artifact is being moved to same as source <https://github.com/gtronset/beets-filetote/pull/262>
+- Smarter multi-disc handling and album path detection <https://github.com/gtronset/beets-filetote/pull/265>
 
 ## [1.3.1] - 2026-02-07
 
