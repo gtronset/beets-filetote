@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- Vendor DummyIO as a temporarily stopgap <https://github.com/gtronset/beets-filetote/pull/272>
+
 ### Added
 
 - Add `duplicate_action` to configure how Filetote handles artifact conflicts <https://github.com/gtronset/beets-filetote/pull/264>
