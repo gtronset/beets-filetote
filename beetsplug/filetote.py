@@ -678,7 +678,6 @@ class FiletotePlugin(BeetsPlugin):
             beets_file_types=self._beets_file_types,
         )
 
-        # Classify artifacts as "individual", "paired", or "shared"
         self._queue_artifacts(
             local_artifacts,
             source_path,
@@ -695,7 +694,9 @@ class FiletotePlugin(BeetsPlugin):
         item_source_path: Path,
         item_destination_path: Path,
     ) -> None:
-        """Classifies and queues artifacts from a specific source directory."""
+        """Classifies artifacts as "individual", "paired", or "shared" and queues them
+        from a specific source directory.
+        """
         item_source_parent: Path = item_source_path.parent
         item_source_filename: str = item_source_path.stem
 
