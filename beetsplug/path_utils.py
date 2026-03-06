@@ -145,7 +145,7 @@ def is_multidisc(path_name: Path) -> bool:
 
     for marker in MULTIDISC_MARKERS:
         p = MULTIDISC_PAT_FMT.replace(b"%s", marker)
-        pat = re.compile(p, re.I)
+        pat = re.compile(p, re.IGNORECASE)
         if pat.match(path_name_bytes):
             return True
 

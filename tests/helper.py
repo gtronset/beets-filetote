@@ -63,7 +63,7 @@ class ListLogHandler(logging.Handler):
         msg = self.format(record)
         # The formatter adds "\nNone" for records without exceptions. Strip it.
         if msg.endswith("\nNone"):
-            msg = msg[:-5]
+            msg = msg.removesuffix("\nNone")
         self.messages.append(msg)
 
 
@@ -436,9 +436,7 @@ class FiletoteTestCase(_common.TestCase, Assertions, HelperUtils):
                 ]
 
         for modname in list(sys.modules):
-            if modname.startswith("beetsplug.filetote") or modname.startswith(
-                "beetsplug.audible"
-            ):
+            if modname.startswith(("beetsplug.filetote", "beetsplug.audible")):
                 del sys.modules[modname]
 
     def _run_cli_command(
