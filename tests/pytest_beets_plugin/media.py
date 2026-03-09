@@ -9,7 +9,7 @@ from pathlib import Path
 from mediafile import MediaFile
 
 from ._item_model import MediaMeta
-from .utils import RSRC, BeetsTestUtils
+from .utils import RESOURCES_DIR, BeetsTestUtils
 
 log = logging.getLogger("beets")
 
@@ -37,7 +37,7 @@ class MediaCreator(BeetsTestUtils):
         path.parent.mkdir(parents=True, exist_ok=True)
 
         resource_name = self.get_rsrc_from_extension(path.suffix)
-        resource_path = RSRC / resource_name
+        resource_path = RESOURCES_DIR / resource_name
 
         shutil.copy(resource_path, path)
         medium = MediaFile(str(path))

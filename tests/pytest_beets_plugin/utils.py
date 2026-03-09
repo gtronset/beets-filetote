@@ -9,11 +9,11 @@ from beets import util
 log = logging.getLogger("beets")
 
 # Test resources path.
-RSRC: Path = Path(__file__).resolve().parents[1] / "rsrc"
+RESOURCES_DIR: Path = Path(__file__).resolve().parent / "resources"
 PROJECT_ROOT: Path = Path(__file__).resolve().parents[2]
 
 # More types may be expanded as testing becomes more sophisticated.
-RSRC_TYPES: dict[str, str] = {
+SAMPLE_MEDIA_FILES: dict[str, str] = {
     "mp3": "full.mp3",
     "flac": "full.flac",
     "wav": "full.wav",
@@ -74,7 +74,7 @@ class BeetsTestUtils:
     def get_rsrc_from_extension(self, file_ext: str) -> str:
         """Get the resource file matching extension, defaulting to MP3."""
         file_type = file_ext.lstrip(".").lower()
-        return RSRC_TYPES.get(file_type, RSRC_TYPES["mp3"])
+        return SAMPLE_MEDIA_FILES.get(file_type, SAMPLE_MEDIA_FILES["mp3"])
 
 
 # Backward-compatible alias
