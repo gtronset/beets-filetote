@@ -25,15 +25,17 @@ RSRC_TYPES: dict[str, str] = {
 class BeetsTestUtils:
     """Utility methods for beets plugin tests (no test state)."""
 
-    def _log_indenter(self, indent_level: int) -> str:
-        return " " * 4 * indent_level
-
     def fmt_path(self, *parts: str) -> str:
-        """Join path components into a string using the current OS separator."""
+        """Join path components into a string using the current OS separator.
+
+        Useful for defining Beets path_formats without using os.path.join.
+        """
         return str(Path(*parts))
 
     def create_file(self, path: Path) -> None:
-        """Create a file, ensuring parent directories exist."""
+        """Creates a file in a specific location, ensuring the parent directories
+        exist.
+        """
         path.parent.mkdir(parents=True, exist_ok=True)
         path.touch()
 
@@ -42,8 +44,13 @@ class BeetsTestUtils:
         if path.exists():
             path.unlink()
 
+    def _log_indenter(self, indent_level: int) -> str:
+        return " " * 4 * indent_level
+
     def list_files(self, startpath: Path) -> None:
-        """Log a tree-like listing of a directory."""
+        """Provide a formatted list of files, directories, and their contents in
+        logs.
+        """
         if not startpath.exists():
             log.debug(f"{startpath} does not exist")
             return

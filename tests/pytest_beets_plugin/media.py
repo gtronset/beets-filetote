@@ -71,7 +71,9 @@ class MediaCreator(BeetsTestUtils):
         disc: int = 1,
         disctotal: int = 1,
     ) -> list[MediaFile]:
-        """Generate media files with optional paired .lrc files."""
+        """Generate the desired number of media files with optional paired .lrc
+        files.
+        """
         media_list: list[MediaFile] = []
 
         while count > 0:
