@@ -3,6 +3,7 @@
 import logging
 import shutil
 
+from contextlib import AbstractContextManager
 from pathlib import Path
 from typing import Any, Literal
 
@@ -12,6 +13,7 @@ from mediafile import MediaFile
 
 from ._item_model import MediaMeta
 from .assertions import BeetsAssertions
+from .logging import LogLevels, capture_beets_log
 from .media import MediaCreator, MediaSetup
 from .plugin_lifecycle import _activate_plugins, _deactivate_plugins
 
@@ -63,6 +65,42 @@ class BeetsPluginFixture(BeetsAssertions, MediaCreator):
         self.import_media: list[MediaFile] | None = None
         self.importer: ImportSession | None = None
         self.paths: Path | None = None
+
+    @property
+    def log(self) -> logging.Logger:
+        """Logger for use in tests.
+
+        Avoids needing ``import logging`` in test files::
+
+            env.log.debug("current config: %s", env.config.dump())
+        """
+        return log
+
+    @property
+    def config(self) -> Any:
+        """Access the beets global configuration.
+
+        Eliminates the need for ``from beets import config`` in test files::
+
+            env.config["filetote"]["extensions"] = ".file"
+            env.config["import"]["move"] = True
+        """
+        return config
+
+    def capture_log(
+        self,
+        logger_name: str = "beets",
+        level: LogLevels = logging.DEBUG,
+    ) -> AbstractContextManager[list[str]]:
+        """Capture log messages from a named logger.
+
+        Delegates to :func:`.logging.capture_beets_log`::
+
+            with env.capture_log("beets.filetote") as logs:
+                env.run_cli_command("import")
+            assert "filetote: Ignored files:" in logs
+        """
+        return capture_beets_log(logger_name, level)
 
     # --- Import directory creation ------------------------------------------
 
