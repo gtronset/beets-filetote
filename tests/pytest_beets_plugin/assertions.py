@@ -63,7 +63,11 @@ class BeetsAssertions:
         assert_does_not_exist(resolve_relative_path(self.lib_dir, relative_path))
 
     def assert_import_dir_exists(self, check_dir: Path | None = None) -> None:
-        """Asserts that the import directory exists."""
+        """Asserts that the import directory exists.
+
+        Useful for validating functions that clean up or remove folders within the
+        import directory.
+        """
         directory = check_dir or self.import_dir
         if directory:
             assert_exists(directory)
@@ -79,7 +83,7 @@ class BeetsAssertions:
             assert_does_not_exist(resolve_relative_path(self.import_dir, relative_path))
 
     def assert_islink(self, relative_path: str | Path) -> None:
-        """Assert that a path is a symbolic link."""
+        """Assert that a given path is a symbolic link."""
         if self.lib_dir:
             path = resolve_relative_path(self.lib_dir, relative_path)
             assert path.is_symlink(), f"Expected {path} to be a symbolic link"

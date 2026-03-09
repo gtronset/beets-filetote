@@ -9,15 +9,19 @@ This file should be deleted once all tests are migrated.
 from __future__ import annotations
 
 import logging
+import os
 import shutil
 import sys
+import tempfile
+import unittest
 
+from pathlib import Path
 from typing import TYPE_CHECKING, Any, Literal
 
 from beets import config, library, plugins, util
 from beets.importer import ImportSession
 
-from .._common import TestCase
+from ._io import DummyIO
 from ._loader import _import_local_plugin
 from .assertions import BeetsAssertions
 from .media import MediaCreator, MediaSetup
@@ -38,18 +42,50 @@ except ImportError:
     )
 
 if TYPE_CHECKING:
-    from pathlib import Path
-
     from mediafile import MediaFile
 
 
 log = logging.getLogger("beets")
 
 
+class TestCase(unittest.TestCase):
+    """A unittest.TestCase subclass that saves and restores beets'
+    global configuration.
+
+    Deprecated: migrate tests to use the ``beets_plugin_env`` fixture instead.
+    """
+
+    def setUp(self) -> None:
+        # A "clean" source list including only the defaults.
+        config.sources = []
+        config.read(user=False, defaults=True)
+
+        # Direct paths to a temporary directory. Tests can also use this
+        # temporary directory.
+        self.temp_dir = Path(tempfile.mkdtemp())
+
+        config["statefile"] = str(self.temp_dir / "state.pickle")
+        config["library"] = str(self.temp_dir / "library.db")
+        config["directory"] = str(self.temp_dir / "libdir")
+
+        # Set $HOME, which is used by confit's `config_dir()` to create
+        # directories.
+        self._old_home = os.environ.get("HOME")
+        os.environ["HOME"] = str(self.temp_dir)
+
+        # Initialize, but don't install, a DummyIO.
+        self.in_out = DummyIO()
+
+
 class FiletoteTestCase(TestCase, BeetsAssertions, MediaCreator):
     """Legacy unittest-based test case for beets-filetote.
 
     Deprecated: migrate tests to use the ``beets_plugin_env`` fixture instead.
+
+    Provides common setup and teardown, a convenience method for exercising the
+    plugin/importer, tools to setup a library, a directory containing files
+    that are to be imported and an import session. The class also provides stubs
+    for the autotagging library and assertions helpers.
     """
 
     def setUp(self, other_plugins: list[str] | None = None) -> None:
@@ -105,6 +141,8 @@ class FiletoteTestCase(TestCase, BeetsAssertions, MediaCreator):
                 else:
                     obj = sys.modules[obj_path]
             except (KeyError, AttributeError):
+                # If the module or attribute doesn't exist, skip it. This seems to
+                # always happen (at least in test failures).
                 log.warning(f"Could not resolve path `{obj_path}` for teardown.")
                 continue
 
@@ -117,9 +155,11 @@ class FiletoteTestCase(TestCase, BeetsAssertions, MediaCreator):
         super().tearDown()
 
     def load_plugins(self, other_plugins: list[str]) -> None:
+        """Loads and sets up the plugin(s) for the test module."""
         plugin_list: list[str] = ["filetote"]
         plugin_class_list: list[Any] = []
 
+        # Always load the local Filetote plugin
         filetote_path = PROJECT_ROOT / "beetsplug/filetote.py"
         filetote_class = _import_local_plugin(
             filetote_path, "FiletotePlugin", "beetsplug.filetote"
@@ -150,8 +190,12 @@ class FiletoteTestCase(TestCase, BeetsAssertions, MediaCreator):
         plugins.load_plugins()
 
     def unload_plugins(self) -> None:
+        """Unload all plugins and remove the from the configuration."""
         config["plugins"] = []
 
+        # In case `audible` or another plugin is included, iterate through
+        # each plugin class and clear listeners and instances to ensure a clean slate
+        # for the next test.
         if plugins._instances:
             classes = list(plugins._classes)
             for plugin_class in classes:
@@ -172,11 +216,20 @@ class FiletoteTestCase(TestCase, BeetsAssertions, MediaCreator):
         command: Literal["import", "modify", "move", "update"],
         **kwargs: Any,
     ) -> None:
+        """Create an instance of the plugin, run the supplied command, and
+        remove/unregister the plugin instance so a new instance can
+        be created when this method is run again.
+        This is a convenience method that can be called to set-up, exercise,
+        and tear-down the system under test after setting any config options
+        and before assertions are made regarding changes to the filesystem.
+        """
         log_string = f"Running CLI: {command}"
         log.debug(log_string)
 
         self.load_plugins(self.plugins)
 
+        # Get the function associated with the provided command name and run it with the
+        # provided kwargs.
         command_func = getattr(self, f"_run_cli_{command}")
         command_func(**kwargs)
 
@@ -193,6 +246,9 @@ class FiletoteTestCase(TestCase, BeetsAssertions, MediaCreator):
     def _run_cli_import(
         self, operation_option: Literal["copy", "move"] | None = None
     ) -> None:
+        """Runs the "import" CLI command. This should be called with
+        _run_cli_command().
+        """
         if not self.importer:
             return
 
@@ -214,6 +270,9 @@ class FiletoteTestCase(TestCase, BeetsAssertions, MediaCreator):
         pretend: bool = False,
         export: bool = False,
     ) -> None:
+        """Runs the "move" CLI command. This should be called with
+        _run_cli_command().
+        """
         move_items(
             self.lib,
             dest_dir,
@@ -234,6 +293,9 @@ class FiletoteTestCase(TestCase, BeetsAssertions, MediaCreator):
         move: bool = True,
         album: str | None = None,
     ) -> None:
+        """Runs the "modify" CLI command. This should be called with
+        _run_cli_command().
+        """
         mods = mods or {}
         dels = dels or {}
 
@@ -257,6 +319,9 @@ class FiletoteTestCase(TestCase, BeetsAssertions, MediaCreator):
         pretend: bool = False,
         fields: list[str] | None = None,
     ) -> None:
+        """Runs the "update" CLI command. This should be called with
+        _run_cli_command().
+        """
         update_items(
             lib=self.lib,
             query=query,
@@ -271,6 +336,11 @@ class FiletoteTestCase(TestCase, BeetsAssertions, MediaCreator):
         media_files: list[MediaSetup] | None = None,
         pair_subfolders: bool = False,
     ) -> None:
+        """Creates a directory with media files and artifacts.
+        Sets ``self.import_dir`` to the path of the directory. Also sets
+        ``self.import_media`` to a list :class:`MediaFile` for all the media files in
+        the directory.
+        """
         if media_files is None:
             media_files = [MediaSetup(pair_subfolders=pair_subfolders)]
 
@@ -313,6 +383,11 @@ class FiletoteTestCase(TestCase, BeetsAssertions, MediaCreator):
         disc1_media_files: list[MediaSetup] | None = None,
         disc2_media_files: list[MediaSetup] | None = None,
     ) -> None:
+        """Creates a directory with media files and artifacts nested in subdirectories.
+        Sets ``self.import_dir`` to the path of the directory. Also sets
+        ``self.import_media`` to a list :class:`MediaFile` for all the media files in
+        the directory.
+        """
         if disc1_media_files is None:
             disc1_media_files = [MediaSetup()]
         if disc2_media_files is None:
@@ -408,6 +483,7 @@ class FiletoteTestCase(TestCase, BeetsAssertions, MediaCreator):
 
         self.paths = import_dir
 
+        # ImportSession expects a list of bytestring path
         import_path: list[bytes] = (
             [util.bytestring_path(import_dir)] if import_dir else []
         )
