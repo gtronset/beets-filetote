@@ -83,11 +83,12 @@ def _unload_plugins() -> None:
 def _teardown_plugin_state() -> None:
     """Clear global plugin registries."""
     attrs_to_clear = [
-        ("plugins", "_instances"),
-        ("plugins", "_classes"),
-        ("plugins", "_event_listeners"),
-        ("plugins.BeetsPlugin", "listeners"),
-        ("plugins.BeetsPlugin", "_raw_listeners"),
+        ("beets.plugins", "_instances"),
+        ("beets.plugins", "_classes"),
+        ("beets.plugins", "_event_listeners"),
+        ("beets.plugins.BeetsPlugin", "listeners"),
+        ("beets.plugins.BeetsPlugin", "_raw_listeners"),
+        ("beets.plugins.BeetsPlugin", "_raw_listeners"),
     ]
 
     for obj_path, attr in attrs_to_clear:
@@ -99,6 +100,7 @@ def _teardown_plugin_state() -> None:
             else:
                 obj = sys.modules[obj_path]
         except (KeyError, AttributeError):
+            # If the module or attribute doesn't exist, skip it.
             log.warning("Could not resolve path `%s` for teardown.", obj_path)
             continue
 

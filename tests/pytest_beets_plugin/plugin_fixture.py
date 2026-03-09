@@ -284,7 +284,12 @@ class BeetsPluginFixture(BeetsAssertions, MediaCreator):
         command: Literal["import", "modify", "move", "update"],
         **kwargs: Any,
     ) -> None:
-        """Run a beets CLI command with plugins loaded."""
+        """Load plugins, run a CLI command, unload plugins, and log results.
+
+        This is a convenience method that can be called to set-up, exercise,
+        and tear-down the system under test after setting any config options
+        and before assertions are made regarding changes to the filesystem.
+        """
         log_string = f"Running CLI: {command}"
         log.debug(log_string)
 
@@ -306,6 +311,7 @@ class BeetsPluginFixture(BeetsAssertions, MediaCreator):
     def _run_cli_import(
         self, operation_option: Literal["copy", "move"] | None = None
     ) -> None:
+        """Run the ``import`` CLI command."""
         if not self.importer:
             return
 
@@ -327,6 +333,7 @@ class BeetsPluginFixture(BeetsAssertions, MediaCreator):
         pretend: bool = False,
         export: bool = False,
     ) -> None:
+        """Run the ``move`` CLI command."""
         move_items(
             self.lib,
             dest_dir,
@@ -347,6 +354,7 @@ class BeetsPluginFixture(BeetsAssertions, MediaCreator):
         move: bool = True,
         album: str | None = None,
     ) -> None:
+        """Run the ``modify`` CLI command."""
         mods = mods or {}
         dels = dels or {}
 
@@ -370,6 +378,7 @@ class BeetsPluginFixture(BeetsAssertions, MediaCreator):
         pretend: bool = False,
         fields: list[str] | None = None,
     ) -> None:
+        """Run the ``update`` CLI command."""
         update_items(
             lib=self.lib,
             query=query,

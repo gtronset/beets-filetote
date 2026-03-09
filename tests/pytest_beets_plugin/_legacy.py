@@ -11,7 +11,6 @@ from __future__ import annotations
 import logging
 import os
 import shutil
-import sys
 import tempfile
 import unittest
 
@@ -22,10 +21,9 @@ from beets import config, library, plugins, util
 from beets.importer import ImportSession
 
 from ._io import DummyIO
-from ._loader import _import_local_plugin
 from .assertions import BeetsAssertions
 from .media import MediaCreator, MediaSetup
-from .utils import PROJECT_ROOT
+from .plugin_lifecycle import _load_plugins, _teardown_plugin_state, _unload_plugins
 
 # TODO(gtronset): Remove this once beets 2.4 and 2.5 are no longer supported (the old
 # fallback import paths can be removed).
@@ -122,94 +120,11 @@ class FiletoteTestCase(TestCase, BeetsAssertions, MediaCreator):
         return lib
 
     def tearDown(self) -> None:
-        self.unload_plugins()
-
-        attrs_to_clear = [
-            ("plugins", "_instances"),
-            ("plugins", "_classes"),
-            ("plugins", "_event_listeners"),
-            ("plugins.BeetsPlugin", "listeners"),
-            ("plugins.BeetsPlugin", "_raw_listeners"),
-        ]
-
-        for obj_path, attr in attrs_to_clear:
-            try:
-                if "." in obj_path:
-                    module_path, class_name = obj_path.rsplit(".", 1)
-                    module = sys.modules[module_path]
-                    obj = getattr(module, class_name)
-                else:
-                    obj = sys.modules[obj_path]
-            except (KeyError, AttributeError):
-                # If the module or attribute doesn't exist, skip it. This seems to
-                # always happen (at least in test failures).
-                log.warning(f"Could not resolve path `{obj_path}` for teardown.")
-                continue
-
-            if hasattr(obj, attr):
-                val = getattr(obj, attr)
-                if val is not None and hasattr(val, "clear"):
-                    val.clear()
+        _unload_plugins()
+        _teardown_plugin_state()
 
         self.lib._close()
         super().tearDown()
-
-    def load_plugins(self, other_plugins: list[str]) -> None:
-        """Loads and sets up the plugin(s) for the test module."""
-        plugin_list: list[str] = ["filetote"]
-        plugin_class_list: list[Any] = []
-
-        # Always load the local Filetote plugin
-        filetote_path = PROJECT_ROOT / "beetsplug/filetote.py"
-        filetote_class = _import_local_plugin(
-            filetote_path, "FiletotePlugin", "beetsplug.filetote"
-        )
-        plugin_class_list.append(filetote_class)
-
-        stub_map = {
-            "audible": ("tests/stubs/audible.py", "Audible"),
-            "convert": ("tests/stubs/convert.py", "ConvertPlugin"),
-            "inline": ("tests/stubs/inline.py", "InlinePlugin"),
-        }
-
-        for other_plugin in other_plugins:
-            if other_plugin in stub_map:
-                stub_path, class_name = stub_map[other_plugin]
-                abs_stub_path = PROJECT_ROOT / stub_path
-                plugin_class = _import_local_plugin(
-                    abs_stub_path, class_name, f"beetsplug.{other_plugin}"
-                )
-                plugin_class_list.append(plugin_class)
-                plugin_list.append(other_plugin)
-            else:
-                msg = f"Attempt to load unknown plugin: {other_plugin}"
-                raise AssertionError(msg)
-
-        plugins._classes = set(plugin_class_list)
-        config["plugins"] = plugin_list
-        plugins.load_plugins()
-
-    def unload_plugins(self) -> None:
-        """Unload all plugins and remove the from the configuration."""
-        config["plugins"] = []
-
-        # In case `audible` or another plugin is included, iterate through
-        # each plugin class and clear listeners and instances to ensure a clean slate
-        # for the next test.
-        if plugins._instances:
-            classes = list(plugins._classes)
-            for plugin_class in classes:
-                if plugin_class.listeners:
-                    for event in list(plugin_class.listeners):
-                        plugin_class.listeners[event].clear()
-                instances = plugins._instances
-                plugins._instances = [
-                    inst for inst in instances if not isinstance(inst, plugin_class)
-                ]
-
-        for modname in list(sys.modules):
-            if modname.startswith(("beetsplug.filetote", "beetsplug.audible")):
-                del sys.modules[modname]
 
     def _run_cli_command(
         self,
@@ -226,7 +141,7 @@ class FiletoteTestCase(TestCase, BeetsAssertions, MediaCreator):
         log_string = f"Running CLI: {command}"
         log.debug(log_string)
 
-        self.load_plugins(self.plugins)
+        _load_plugins(self.plugins)
 
         # Get the function associated with the provided command name and run it with the
         # provided kwargs.
@@ -234,7 +149,7 @@ class FiletoteTestCase(TestCase, BeetsAssertions, MediaCreator):
         command_func(**kwargs)
 
         plugins.send("cli_exit", lib=self.lib)
-        self.unload_plugins()
+        _unload_plugins()
 
         log.debug("--- library structure")
         self.list_files(self.lib_dir)
