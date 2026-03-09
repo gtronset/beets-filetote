@@ -3,7 +3,7 @@
 import logging
 import shutil
 
-from contextlib import AbstractContextManager
+from collections.abc import Generator
 from pathlib import Path
 from typing import Any, Literal
 
@@ -91,16 +91,30 @@ class BeetsPluginFixture(BeetsAssertions, MediaCreator):
         self,
         logger_name: str = "beets",
         level: LogLevels = logging.DEBUG,
-    ) -> AbstractContextManager[list[str]]:
+    ) -> Generator[list[str]]:
         """Capture log messages from a named logger.
 
-        Delegates to :func:`.logging.capture_beets_log`::
+        Sets ``config["verbose"]`` appropriately for the requested level,
+        then delegates to :func:`.logging.capture_beets_log`::
 
             with env.capture_log("beets.filetote") as logs:
                 env.run_cli_command("import")
             assert "filetote: Ignored files:" in logs
         """
-        return capture_beets_log(logger_name, level)
+        original_verbose = config["verbose"].get()
+
+        if level <= logging.DEBUG:
+            config["verbose"] = 2
+        elif level <= logging.INFO:
+            config["verbose"] = 1
+        else:
+            config["verbose"] = 0
+
+        try:
+            with capture_beets_log(logger_name, level) as messages:
+                yield messages
+        finally:
+            config["verbose"] = original_verbose
 
     # --- Import directory creation ------------------------------------------
 
