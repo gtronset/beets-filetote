@@ -8,7 +8,7 @@ import unittest
 from pathlib import Path
 from unittest.mock import MagicMock, patch
 
-from tests.helper import load_plugin_source
+from tests.pytest_beets_plugin import load_plugin_source
 
 path_utils = load_plugin_source("path_utils")
 
