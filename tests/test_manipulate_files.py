@@ -8,7 +8,6 @@ import pytest
 
 from beets import config
 
-from tests import _common
 from tests.helper import FiletoteTestCase
 
 if TYPE_CHECKING:
@@ -78,7 +77,7 @@ class FiletoteManipulateFiles(FiletoteTestCase):
         self.assert_in_lib_dir("Tag Artist/Tag Album/track_1 - artifact.file")
         self.assert_in_lib_dir("Tag Artist/Tag Album/track_1 - artifact2.file")
 
-    @pytest.mark.skipif(not _common.HAVE_SYMLINK, reason="need symlinks")
+    @pytest.mark.needs_symlink
     def test_import_symlink_files(self) -> None:
         """Tests that the `symlink` operation correctly symlinks files."""
         config["filetote"]["extensions"] = ".file"
@@ -97,7 +96,7 @@ class FiletoteManipulateFiles(FiletoteTestCase):
 
         self.assert_equal_path(new_path, old_path)
 
-    @pytest.mark.skipif(not _common.HAVE_HARDLINK, reason="need hardlinks")
+    @pytest.mark.needs_hardlink
     def test_import_hardlink_files(self) -> None:
         """Tests that the `hardlink` operation correctly hardlinks files."""
         config["filetote"]["extensions"] = ".file"
@@ -117,7 +116,7 @@ class FiletoteManipulateFiles(FiletoteTestCase):
 
         assert (old_stat.st_ino, old_stat.st_dev) == (new_stat.st_ino, new_stat.st_dev)
 
-    @pytest.mark.skipif(not _common.HAVE_REFLINK, reason="need reflinks")
+    @pytest.mark.needs_reflink
     def test_import_reflink_files(self) -> None:
         """Tests that the `reflink` operation correctly links files."""
         config["filetote"]["extensions"] = ".file"

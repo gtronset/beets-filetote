@@ -6,8 +6,6 @@ This file should be deleted once all tests are migrated.
 
 # ruff: noqa: SLF001
 
-from __future__ import annotations
-
 import logging
 import os
 import shutil

@@ -1,20 +1,15 @@
 """Media file creation and management for beets plugin tests."""
 
-from __future__ import annotations
-
 import logging
 import shutil
 
 from dataclasses import asdict, dataclass
-from typing import TYPE_CHECKING
+from pathlib import Path
 
 from mediafile import MediaFile
 
 from ._item_model import MediaMeta
 from .utils import RSRC, BeetsTestUtils
-
-if TYPE_CHECKING:
-    from pathlib import Path
 
 log = logging.getLogger("beets")
 

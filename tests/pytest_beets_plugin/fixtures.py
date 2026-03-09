@@ -1,7 +1,5 @@
 """Pytest fixtures for beets plugin tests."""
 
-# from __future__ import annotations
-
 # ruff: noqa: SLF001
 
 import logging
@@ -20,17 +18,9 @@ from .utils import BeetsTestUtils
 
 log = logging.getLogger("beets")
 
-# Path to the project root (two levels up from this file).
-_PROJECT_ROOT = Path(__file__).resolve().parents[2]
-
-
-# ---------------------------------------------------------------------------
-# Low-level fixtures
-# ---------------------------------------------------------------------------
-
 
 @pytest.fixture
-def beets_config(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> Generator[None]:
+def _beets_config(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> Generator[None]:
     """Isolate beets global configuration for a single test."""
     config.sources = []
     config.read(user=False, defaults=True)
@@ -47,7 +37,7 @@ def beets_config(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> Generator[N
 
 
 @pytest.fixture
-def beets_io() -> Generator[DummyIO]:
+def _beets_io() -> Generator[DummyIO]:
     """Install a DummyIO that captures stdin/stdout."""
     io = DummyIO()
     io.install()
@@ -55,54 +45,37 @@ def beets_io() -> Generator[DummyIO]:
     io.restore()
 
 
-# ---------------------------------------------------------------------------
-# Library / directory fixtures
-# ---------------------------------------------------------------------------
-
-
 @pytest.fixture
-def lib_dir(tmp_path: Path) -> Path:
-    """Create and return the library directory."""
-    d = tmp_path / "testlib_dir"
-    d.mkdir(parents=True, exist_ok=True)
-    return d
+def _beets_lib(
+    tmp_path: Path, _beets_config: None
+) -> Generator[tuple[library.Library, Path]]:
+    """Create a beets Library backed by a temporary database.
 
-
-@pytest.fixture
-def beets_lib(
-    tmp_path: Path, lib_dir: Path, _beets_config: None
-) -> Generator[library.Library]:
-    """Create a beets Library backed by a temporary database."""
+    Returns a ``(lib, lib_dir)`` tuple. Depends on ``_beets_config`` to
+    ensure config is isolated before the library is created.
+    Closes the library on teardown.
+    """
     helpers = BeetsTestUtils()
-    lib_db = tmp_path / "testlib.blb"
 
+    lib_dir = tmp_path / "testlib_dir"
+    lib_dir.mkdir(parents=True, exist_ok=True)
+
+    lib_db = tmp_path / "testlib.blb"
     lib = library.Library(util.bytestring_path(lib_db))
     lib.directory = util.bytestring_path(lib_dir)
-
     lib.path_formats = [
         ("default", helpers.fmt_path("$artist", "$album", "$title")),
         ("singleton:true", helpers.fmt_path("singletons", "$title")),
         ("comp:true", helpers.fmt_path("compilations", "$album", "$title")),
     ]
 
-    yield lib
+    yield lib, lib_dir
 
     lib._close()
 
 
 @pytest.fixture
-def import_dir(tmp_path: Path) -> Path:
-    """Return the import source directory path."""
-    return tmp_path / "testsrc_dir"
-
-
-# ---------------------------------------------------------------------------
-# Plugin lifecycle
-# ---------------------------------------------------------------------------
-
-
-@pytest.fixture
-def beets_plugin_lifecycle() -> Generator[None]:
+def _beets_plugin_lifecycle() -> Generator[None]:
     """Ensure plugins are cleaned up after each test."""
     yield
     _unload_plugins()
@@ -117,28 +90,25 @@ def beets_plugin_lifecycle() -> Generator[None]:
 @pytest.fixture
 def beets_plugin_env(
     tmp_path: Path,
-    beets_lib: library.Library,
-    lib_dir: Path,
-    import_dir: Path,
+    _beets_lib: tuple[library.Library, Path],
     _beets_io: DummyIO,
     _beets_plugin_lifecycle: None,
 ) -> BeetsPluginFixture:
     """The primary fixture for beets plugin tests.
 
-    Usage::
+    Composes domain fixtures:
 
-        def test_something(beets_plugin_env: BeetsPluginFixture) -> None:
-            beets_plugin_env.create_flat_import_dir()
-            beets_plugin_env.setup_import_session(autotag=False)
-            config["filetote"]["extensions"] = ".file"
-            beets_plugin_env.run_cli_command("import")
-            beets_plugin_env.assert_in_lib_dir(
-                "Tag Artist/Tag Album/artifact.file"
-            )
+    - ``_beets_config`` — config isolation (pulled in via ``_beets_lib``)
+    - ``_beets_lib`` — temporary library + database (with teardown)
+    - ``_beets_io`` — stdin/stdout capture
+    - ``_beets_plugin_lifecycle`` — plugin teardown on exit
     """
+    lib, lib_dir = _beets_lib
+    import_dir = tmp_path / "testsrc_dir"
+
     return BeetsPluginFixture(
         tmp_path=tmp_path,
-        lib=beets_lib,
+        lib=lib,
         lib_dir=lib_dir,
         import_dir=import_dir,
     )

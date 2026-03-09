@@ -1,17 +1,13 @@
 """Logging helpers for beets plugin tests."""
 
-from __future__ import annotations
-
 import contextlib
 import logging
 import re
 
-from typing import TYPE_CHECKING, Any, Literal, TypeAlias
+from collections.abc import Generator
+from typing import Any, Literal, TypeAlias
 
 from beets import config
-
-if TYPE_CHECKING:
-    from collections.abc import Generator
 
 LogLevels: TypeAlias = Literal[
     10,  # logging.DEBUG

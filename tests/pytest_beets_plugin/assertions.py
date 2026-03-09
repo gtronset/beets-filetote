@@ -4,8 +4,6 @@ All assertion logic is consolidated here. Both ``BeetsPluginFixture`` and
 the legacy ``Assertions`` class delegate to these functions.
 """
 
-from __future__ import annotations
-
 from pathlib import Path
 
 
