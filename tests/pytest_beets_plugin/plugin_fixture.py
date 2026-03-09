@@ -1,7 +1,5 @@
 """BeetsPluginFixture: the main test helper object for beets plugin tests."""
 
-# from __future__ import annotations
-
 import logging
 import shutil
 

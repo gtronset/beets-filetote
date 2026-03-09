@@ -6,7 +6,6 @@ import pytest
 
 from beets import config
 
-from tests import _common
 from tests.helper import FiletoteTestCase
 
 log = logging.getLogger("beets")
@@ -80,7 +79,7 @@ class FiletoteFromNestedDirectoryTest(FiletoteTestCase):
         self.assert_not_in_lib_dir("Tag Artist/Tag Album/01/artifact_disc1.nfo")
         self.assert_not_in_lib_dir("Tag Artist/Tag Album/02/artifact_disc2.lrc")
 
-    @pytest.mark.skipif(_common.PLATFORM == "win32", reason="win32")
+    @pytest.mark.skip_win32
     def test_copies_file_navigate_in_nested_library(self) -> None:
         """Ensures that nested directory artifacts are relocated using `..` without
         issue. This is skipped in Windows since `..` is taken literally instead of as

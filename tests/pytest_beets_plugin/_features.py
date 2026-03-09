@@ -5,8 +5,6 @@ platform. Results are cached and exposed as module-level constants for use
 with ``pytest.mark.skipif``.
 """
 
-from __future__ import annotations
-
 import functools
 import logging
 import sys

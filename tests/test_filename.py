@@ -9,7 +9,6 @@ import pytest
 from beets import config
 
 from ._item_model import MediaMeta
-from tests import _common
 from tests.helper import FiletoteTestCase
 
 if TYPE_CHECKING:
@@ -57,7 +56,7 @@ class FiletoteFilename(FiletoteTestCase):
 
         self.assert_in_lib_dir("Tag Artist/Tag Album/\xe4rtifact.file")
 
-    @pytest.mark.skipif(_common.PLATFORM == "win32", reason="win32")
+    @pytest.mark.skip_win32
     def test_import_with_illegal_character_in_artifact_name_obeys_beets(
         self,
     ) -> None:

@@ -2,12 +2,11 @@
 
 # ruff: noqa: SLF001
 
-from __future__ import annotations
-
 import logging
 import sys
 
-from typing import TYPE_CHECKING, Any
+from pathlib import Path
+from typing import Any
 
 from beets import config, plugins
 
@@ -15,9 +14,6 @@ from ._loader import _import_local_plugin
 from .utils import PROJECT_ROOT
 
 log = logging.getLogger("beets")
-
-if TYPE_CHECKING:
-    from pathlib import Path
 
 
 def _load_plugins(

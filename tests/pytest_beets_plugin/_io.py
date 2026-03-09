@@ -1,7 +1,5 @@
 """Vendored DummyIO for mocking stdin/stdout in beets plugin tests."""
 
-from __future__ import annotations
-
 import sys
 
 from typing import TYPE_CHECKING

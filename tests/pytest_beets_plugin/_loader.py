@@ -1,19 +1,15 @@
 """Plugin loading utilities for beets plugin tests."""
 
-from __future__ import annotations
-
 import importlib.util
 import sys
 
-from typing import TYPE_CHECKING, cast
+from pathlib import Path
+from types import ModuleType
+from typing import cast
+
+from beets.plugins import BeetsPlugin
 
 from .utils import PROJECT_ROOT
-
-if TYPE_CHECKING:
-    from pathlib import Path
-    from types import ModuleType
-
-    from beets.plugins import BeetsPlugin
 
 
 def _load_module_from_path(module_name: str, module_path: str | Path) -> ModuleType:
