@@ -88,12 +88,30 @@ def capture_beets_log(
 ) -> Generator[list[str], None, None]:
     """Context manager that captures log output from a beets logger.
 
+    Only manipulates the logger level and handler — does **not** touch
+    ``beets.config``.  The caller (typically :class:`BeetsPluginFixture`)
+    is responsible for ensuring ``config["verbose"]`` is set appropriately.
+
     Usage::
 
         with capture_beets_log("beets.filetote") as logs:
             do_something()
         assert any("expected message" in line for line in logs)
     """
+    # Uncomment once capture_log_with_traceback is fully removed
+    # logger = logging.getLogger(logger_name)
+    # original_level = logger.level
+
+    # logger.setLevel(level)
+    # handler = ListLogHandler()
+    # logger.addHandler(handler)
+
+    # try:
+    #     yield handler.messages
+    # finally:
+    #     logger.removeHandler(handler)
+    #     logger.setLevel(original_level)
+
     logger = logging.getLogger(logger_name)
 
     original_logger_level = logger.level

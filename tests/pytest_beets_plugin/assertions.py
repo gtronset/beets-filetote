@@ -94,7 +94,3 @@ class BeetsAssertions:
         assert actual_count == count, (
             f"Expected {count} files in {directory}, found {actual_count}"
         )
-
-
-# Backward-compatible alias
-AssertionsMixin = BeetsAssertions
