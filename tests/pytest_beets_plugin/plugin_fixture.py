@@ -13,7 +13,7 @@ from mediafile import MediaFile
 from ._item_model import MediaMeta
 from .assertions import BeetsAssertions
 from .media import MediaCreator, MediaSetup
-from .plugin_lifecycle import _load_plugins, _unload_plugins
+from .plugin_lifecycle import _activate_plugins, _deactivate_plugins
 
 # TODO(gtronset): Remove this once beets 2.4 and 2.5 are no longer supported.
 # https://github.com/gtronset/beets-filetote/pull/253
@@ -291,13 +291,13 @@ class BeetsPluginFixture(BeetsAssertions, MediaCreator):
         log_string = f"Running CLI: {command}"
         log.debug(log_string)
 
-        _load_plugins(self.plugins)
+        _activate_plugins(self.plugins)
 
         command_func = getattr(self, f"_run_cli_{command}")
         command_func(**kwargs)
 
         plugins.send("cli_exit", lib=self.lib)
-        _unload_plugins()
+        _deactivate_plugins()
 
         log.debug("--- library structure")
         self.list_files(self.lib_dir)

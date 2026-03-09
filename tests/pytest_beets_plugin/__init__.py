@@ -19,11 +19,11 @@ from .logging import (
 from .media import MediaCreator, MediaSetup
 from .plugin_fixture import BeetsPluginFixture
 from .plugin_lifecycle import (
+    _activate_plugins,
     _clear_plugin_state,
+    _deactivate_plugins,
     _load_module_from_file,
     _load_plugin_class,
-    _load_plugins,
-    _unload_plugins,
     load_plugin_source,
 )
 from .utils import PROJECT_ROOT, RSRC, RSRC_TYPES, BeetsTestUtils, HelperUtils
@@ -47,11 +47,11 @@ __all__ = [
     "MediaCreator",
     "MediaMeta",
     "MediaSetup",
+    "_activate_plugins",
     "_clear_plugin_state",
+    "_deactivate_plugins",
     "_load_module_from_file",
     "_load_plugin_class",
-    "_load_plugins",
-    "_unload_plugins",
     "capture_beets_log",
     "capture_log_with_traceback",  # Legacy (deprecated)
     "install_beets_log_fix",

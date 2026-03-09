@@ -62,12 +62,12 @@ def _load_plugin_class(
     return cast("type[BeetsPlugin]", getattr(module, class_name))
 
 
-def _load_plugins(
+def _activate_plugins(
     other_plugins: list[str] | None = None,
     *,
     project_root: Path = PROJECT_ROOT,
 ) -> None:
-    """Load filetote (and optional stub plugins) into the beets plugin system."""
+    """Load, register, and configure Filetote (and optional stub plugins)."""
     other_plugins = other_plugins or []
     plugin_list: list[str] = ["filetote"]
     plugin_class_list: list[Any] = []
@@ -102,8 +102,8 @@ def _load_plugins(
     plugins.load_plugins()
 
 
-def _unload_plugins() -> None:
-    """Unload all plugins and clean up global state."""
+def _deactivate_plugins() -> None:
+    """Deregister all plugins, clear listeners, and purge from sys.modules."""
     config["plugins"] = []
 
     if plugins._instances:
@@ -123,7 +123,7 @@ def _unload_plugins() -> None:
 
 
 def _clear_plugin_state() -> None:
-    """Clear global plugin registries."""
+    """Clear global plugin registries (instances, classes, listeners)."""
     attrs_to_clear = [
         ("beets.plugins", "_instances"),
         ("beets.plugins", "_classes"),

@@ -21,7 +21,11 @@ from beets.importer import ImportSession
 from ._io import DummyIO
 from .assertions import BeetsAssertions
 from .media import MediaCreator, MediaSetup
-from .plugin_lifecycle import _clear_plugin_state, _load_plugins, _unload_plugins
+from .plugin_lifecycle import (
+    _activate_plugins,
+    _clear_plugin_state,
+    _deactivate_plugins,
+)
 
 # TODO(gtronset): Remove this once beets 2.4 and 2.5 are no longer supported (the old
 # fallback import paths can be removed).
@@ -118,7 +122,7 @@ class FiletoteTestCase(TestCase, BeetsAssertions, MediaCreator):
         return lib
 
     def tearDown(self) -> None:
-        _unload_plugins()
+        _deactivate_plugins()
         _clear_plugin_state()
 
         self.lib._close()
@@ -139,7 +143,7 @@ class FiletoteTestCase(TestCase, BeetsAssertions, MediaCreator):
         log_string = f"Running CLI: {command}"
         log.debug(log_string)
 
-        _load_plugins(self.plugins)
+        _activate_plugins(self.plugins)
 
         # Get the function associated with the provided command name and run it with the
         # provided kwargs.
@@ -147,7 +151,7 @@ class FiletoteTestCase(TestCase, BeetsAssertions, MediaCreator):
         command_func(**kwargs)
 
         plugins.send("cli_exit", lib=self.lib)
-        _unload_plugins()
+        _deactivate_plugins()
 
         log.debug("--- library structure")
         self.list_files(self.lib_dir)
