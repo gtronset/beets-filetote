@@ -79,9 +79,9 @@ def _activate_plugins(
     plugin_class_list.append(filetote_class)
 
     stub_map: dict[str, tuple[str, str]] = {
-        "audible": ("tests/stubs/audible.py", "Audible"),
-        "convert": ("tests/stubs/convert.py", "ConvertPlugin"),
-        "inline": ("tests/stubs/inline.py", "InlinePlugin"),
+        "audible": ("tests/pytest_beets_plugin/stubs/audible.py", "Audible"),
+        "convert": ("tests/pytest_beets_plugin/stubs/convert.py", "ConvertPlugin"),
+        "inline": ("tests/pytest_beets_plugin/stubs/inline.py", "InlinePlugin"),
     }
 
     for other_plugin in other_plugins:

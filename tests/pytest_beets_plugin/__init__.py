@@ -26,7 +26,13 @@ from .plugin_lifecycle import (
     _load_plugin_class,
     load_plugin_source,
 )
-from .utils import PROJECT_ROOT, RSRC, RSRC_TYPES, BeetsTestUtils, HelperUtils
+from .utils import (
+    PROJECT_ROOT,
+    RESOURCES_DIR,
+    SAMPLE_MEDIA_FILES,
+    BeetsTestUtils,
+    HelperUtils,
+)
 
 __all__ = [
     "HAVE_HARDLINK",
@@ -34,8 +40,8 @@ __all__ = [
     "HAVE_SYMLINK",
     "PLATFORM",
     "PROJECT_ROOT",
-    "RSRC",
-    "RSRC_TYPES",
+    "RESOURCES_DIR",
+    "SAMPLE_MEDIA_FILES",
     "AssertionsMixin",  # Legacy (deprecated)
     "BeetsAssertions",
     "BeetsPluginFixture",
