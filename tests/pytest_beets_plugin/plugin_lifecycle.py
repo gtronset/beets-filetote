@@ -1,19 +1,65 @@
-"""Plugin loading and unloading utilities for beets plugin tests."""
+"""Plugin loading, unloading, and module import utilities for beets plugin tests."""
 
 # ruff: noqa: SLF001
 
+import importlib.util
 import logging
 import sys
 
 from pathlib import Path
-from typing import Any
+from types import ModuleType
+from typing import Any, cast
 
 from beets import config, plugins
+from beets.plugins import BeetsPlugin
 
-from ._loader import _import_local_plugin
 from .utils import PROJECT_ROOT
 
 log = logging.getLogger("beets")
+
+
+def _load_module_from_file(module_name: str, module_path: str | Path) -> ModuleType:
+    """Core helper to load a module from a specific file path."""
+    spec = importlib.util.spec_from_file_location(module_name, str(module_path))
+    if not (spec and spec.loader):
+        msg = f"Could not create module spec for {module_name} at {module_path}"
+        raise ImportError(msg)
+
+    module = importlib.util.module_from_spec(spec)
+    sys.modules[module_name] = module
+    spec.loader.exec_module(module)
+    return module
+
+
+def load_plugin_source(module_name: str) -> ModuleType:
+    """Load a plugin module directly from its source file.
+
+    Useful for unit tests that need to import a module statically,
+    bypassing the ``beetsplug`` package namespace.
+    """
+    module_path: Path = PROJECT_ROOT / f"beetsplug/{module_name}.py"
+    return _load_module_from_file(module_name, module_path)
+
+
+def _load_plugin_class(
+    module_path: Path,
+    class_name: str,
+    module_name: str,
+) -> type[BeetsPlugin]:
+    """Dynamically import a plugin class from a local file."""
+    import beetsplug  # Lazy import to avoid loading before typeguard # noqa: PLC0415
+
+    if str(PROJECT_ROOT) not in sys.path:
+        sys.path.insert(0, str(PROJECT_ROOT))
+
+    module: ModuleType = _load_module_from_file(module_name, module_path)
+
+    # Patch beetsplug namespace if needed
+    namespace, _, submodule = module_name.partition(".")
+    if namespace == "beetsplug" and submodule:
+        setattr(beetsplug, submodule, module)
+        sys.modules[f"beetsplug.{submodule}"] = module
+    return cast("type[BeetsPlugin]", getattr(module, class_name))
 
 
 def _load_plugins(
@@ -27,7 +73,7 @@ def _load_plugins(
     plugin_class_list: list[Any] = []
 
     filetote_path = project_root / "beetsplug/filetote.py"
-    filetote_class = _import_local_plugin(
+    filetote_class = _load_plugin_class(
         filetote_path, "FiletotePlugin", "beetsplug.filetote"
     )
     plugin_class_list.append(filetote_class)
@@ -42,7 +88,7 @@ def _load_plugins(
         if other_plugin in stub_map:
             stub_path, class_name = stub_map[other_plugin]
             abs_stub_path = project_root / stub_path
-            plugin_class = _import_local_plugin(
+            plugin_class = _load_plugin_class(
                 abs_stub_path, class_name, f"beetsplug.{other_plugin}"
             )
             plugin_class_list.append(plugin_class)
@@ -76,7 +122,7 @@ def _unload_plugins() -> None:
             del sys.modules[modname]
 
 
-def _teardown_plugin_state() -> None:
+def _clear_plugin_state() -> None:
     """Clear global plugin registries."""
     attrs_to_clear = [
         ("beets.plugins", "_instances"),

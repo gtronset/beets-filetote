@@ -9,9 +9,9 @@ from typing import Any
 
 import pytest
 
-from tests.helper import import_plugin_module_statically
+from tests.helper import load_plugin_source
 
-filetote_dataclasses = import_plugin_module_statically("filetote_dataclasses")
+filetote_dataclasses = load_plugin_source("filetote_dataclasses")
 
 
 class TestTypeErrorFunctions(unittest.TestCase):
