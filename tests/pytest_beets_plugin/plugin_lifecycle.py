@@ -11,7 +11,8 @@ from typing import TYPE_CHECKING, Any
 
 from beets import config, plugins
 
-from .helper import PROJECT_ROOT, _import_local_plugin
+from ._loader import _import_local_plugin
+from .utils import PROJECT_ROOT
 
 log = logging.getLogger("beets")
 
