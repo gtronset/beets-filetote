@@ -13,7 +13,7 @@ from .pytest_beets_plugin import (
     FiletoteTestCase,
     MediaSetup,
     capture_log_with_traceback,
-    import_plugin_module_statically,
+    load_plugin_source,
 )
 
 __all__ = [
@@ -21,5 +21,5 @@ __all__ = [
     "FiletoteTestCase",
     "MediaSetup",
     "capture_log_with_traceback",
-    "import_plugin_module_statically",
+    "load_plugin_source",
 ]

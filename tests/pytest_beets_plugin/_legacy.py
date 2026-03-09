@@ -21,7 +21,7 @@ from beets.importer import ImportSession
 from ._io import DummyIO
 from .assertions import BeetsAssertions
 from .media import MediaCreator, MediaSetup
-from .plugin_lifecycle import _load_plugins, _teardown_plugin_state, _unload_plugins
+from .plugin_lifecycle import _clear_plugin_state, _load_plugins, _unload_plugins
 
 # TODO(gtronset): Remove this once beets 2.4 and 2.5 are no longer supported (the old
 # fallback import paths can be removed).
@@ -119,7 +119,7 @@ class FiletoteTestCase(TestCase, BeetsAssertions, MediaCreator):
 
     def tearDown(self) -> None:
         _unload_plugins()
-        _teardown_plugin_state()
+        _clear_plugin_state()
 
         self.lib._close()
         super().tearDown()

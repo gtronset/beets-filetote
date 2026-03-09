@@ -22,9 +22,7 @@ def pytest_configure(config: pytest.Config) -> None:
         config.addinivalue_line("markers", f"{name}: {description}")
 
 
-def pytest_collection_modifyitems(
-    _config: pytest.Config, items: list[pytest.Item]
-) -> None:
+def pytest_collection_modifyitems(items: list[pytest.Item]) -> None:
     """Auto-skip tests marked with unavailable feature requirements."""
     for item in items:
         for name, (available, reason) in _FEATURE_MARKERS.items():

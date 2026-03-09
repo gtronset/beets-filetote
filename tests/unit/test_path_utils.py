@@ -8,9 +8,9 @@ import unittest
 from pathlib import Path
 from unittest.mock import MagicMock, patch
 
-from tests.helper import import_plugin_module_statically
+from tests.helper import load_plugin_source
 
-path_utils = import_plugin_module_statically("path_utils")
+path_utils = load_plugin_source("path_utils")
 
 
 class TestPathUtils(unittest.TestCase):

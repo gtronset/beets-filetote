@@ -13,7 +13,7 @@ from beets import config, library, util
 
 from ._io import DummyIO
 from .plugin_fixture import BeetsPluginFixture
-from .plugin_lifecycle import _teardown_plugin_state, _unload_plugins
+from .plugin_lifecycle import _clear_plugin_state, _unload_plugins
 from .utils import BeetsTestUtils
 
 log = logging.getLogger("beets")
@@ -79,7 +79,7 @@ def _beets_plugin_lifecycle() -> Generator[None]:
     """Ensure plugins are cleaned up after each test."""
     yield
     _unload_plugins()
-    _teardown_plugin_state()
+    _clear_plugin_state()
 
 
 # ---------------------------------------------------------------------------
