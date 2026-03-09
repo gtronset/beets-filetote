@@ -5,7 +5,6 @@
 import logging
 import shutil
 
-from dataclasses import asdict
 from pathlib import Path
 from typing import Any, Literal
 
@@ -14,7 +13,8 @@ from beets.importer import ImportSession
 from mediafile import MediaFile
 
 from ._item_model import MediaMeta
-from .helper import RSRC, BeetsTestUtils, MediaSetup
+from .assertions import BeetsAssertions
+from .media import MediaCreator, MediaSetup
 from .plugin_lifecycle import _load_plugins, _unload_plugins
 
 # TODO(gtronset): Remove this once beets 2.4 and 2.5 are no longer supported.
@@ -34,8 +34,12 @@ except ImportError:
 log = logging.getLogger("beets")
 
 
-class BeetsPluginFixture(BeetsTestUtils):
+class BeetsPluginFixture(BeetsAssertions, MediaCreator):
     """A non-TestCase helper providing the same API as FiletoteTestCase.
+
+    Composes:
+    - ``BeetsAssertions`` for all assertion methods
+    - ``MediaCreator`` (extends ``BeetsTestUtils``) for media/file operations
 
     Designed to be generic for any beets plugin's test suite.
     """
@@ -61,104 +65,6 @@ class BeetsPluginFixture(BeetsTestUtils):
         self.import_media: list[MediaFile] | None = None
         self.importer: ImportSession | None = None
         self.paths: Path | None = None
-
-    # --- Assertions ---------------------------------------------------------
-
-    @staticmethod
-    def assert_exists(path: Path) -> None:
-        """Assert that a file exists."""
-        assert path.exists(), f"file does not exist: {path!s}"
-
-    @staticmethod
-    def assert_does_not_exist(path: Path) -> None:
-        """Assert that a file does not exist."""
-        assert not path.exists(), f"file exists: {path!s}"
-
-    @staticmethod
-    def assert_equal_path(path_a: Path, path_b: Path) -> None:
-        """Check that two paths point to the same resolved location."""
-        assert path_a.resolve() == path_b.resolve(), (
-            f"paths are not equal: {path_a!s} and {path_b!s}"
-        )
-
-    def _resolve_relative_path(self, root: Path, relative_path: str | Path) -> Path:
-        path_obj = Path(relative_path)
-        if path_obj.is_absolute():
-            msg = f"Path must be relative, got absolute: {path_obj}"
-            raise ValueError(msg)
-        return root / path_obj
-
-    def assert_in_lib_dir(self, relative_path: str | Path) -> None:
-        """Assert that a file exists relative to the library directory."""
-        self.assert_exists(self._resolve_relative_path(self.lib_dir, relative_path))
-
-    def assert_not_in_lib_dir(self, relative_path: str | Path) -> None:
-        """Assert that a file does not exist relative to the library dir."""
-        self.assert_does_not_exist(
-            self._resolve_relative_path(self.lib_dir, relative_path)
-        )
-
-    def assert_import_dir_exists(self, check_dir: Path | None = None) -> None:
-        """Assert that the import directory (or given directory) exists."""
-        directory = check_dir or self.import_dir
-        if directory:
-            self.assert_exists(directory)
-
-    def assert_in_import_dir(self, relative_path: str | Path) -> None:
-        """Assert that a file exists relative to the import directory."""
-        if self.import_dir:
-            self.assert_exists(
-                self._resolve_relative_path(self.import_dir, relative_path)
-            )
-
-    def assert_not_in_import_dir(self, relative_path: str | Path) -> None:
-        """Assert that a file does not exist relative to the import dir."""
-        if self.import_dir:
-            self.assert_does_not_exist(
-                self._resolve_relative_path(self.import_dir, relative_path)
-            )
-
-    def assert_islink(self, relative_path: str | Path) -> None:
-        """Assert that a path in the library directory is a symbolic link."""
-        path = self._resolve_relative_path(self.lib_dir, relative_path)
-        assert path.is_symlink(), f"Expected {path} to be a symbolic link"
-
-    def assert_number_of_files_in_dir(self, count: int, directory: Path) -> None:
-        """Assert that a directory contains exactly ``count`` entries."""
-        assert directory.exists(), f"Directory does not exist: {directory}"
-        assert directory.is_dir(), f"Path is not a directory: {directory}"
-        actual_count = len(list(directory.iterdir()))
-        assert actual_count == count, (
-            f"Expected {count} files in {directory}, found {actual_count}"
-        )
-
-    # --- Media creation -----------------------------------------------------
-
-    def create_medium(
-        self, path: Path, media_meta: MediaMeta | None = None
-    ) -> MediaFile:
-        """Create a media file at ``path`` with the given metadata."""
-        if media_meta is None:
-            media_meta = MediaMeta()
-
-        path.parent.mkdir(parents=True, exist_ok=True)
-
-        resource_name = self.get_rsrc_from_extension(path.suffix)
-        resource_path = RSRC / resource_name
-        shutil.copy(resource_path, path)
-        medium = MediaFile(str(path))
-
-        for item, value in asdict(media_meta).items():
-            setattr(medium, item, value)
-        medium.save()
-        return medium
-
-    def update_medium(self, path: Path, meta_updates: dict[str, str]) -> None:
-        """Update metadata on an existing media file."""
-        medium = MediaFile(str(path))
-        for item, value in meta_updates.items():
-            setattr(medium, item, value)
-        medium.save()
 
     # --- Import directory creation ------------------------------------------
 

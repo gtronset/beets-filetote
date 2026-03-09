@@ -58,6 +58,9 @@ follow_imports = "skip"
 [tool.pytest]
 testpaths = ["./tests"]
 filterwarnings = ["ignore::DeprecationWarning:.*confuse"]
+log_level = "DEBUG"
+log_cli = false
+log_format = "%(name)s %(levelname)s %(message)s"
 
 [tool.ruff]
 line-length = 88

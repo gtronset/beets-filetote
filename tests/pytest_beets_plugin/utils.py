@@ -1,0 +1,76 @@
+"""General utility methods for beets plugin tests."""
+
+from __future__ import annotations
+
+import logging
+
+from pathlib import Path
+
+from beets import util
+
+log = logging.getLogger("beets")
+
+# Test resources path.
+RSRC: Path = Path(__file__).resolve().parents[1] / "rsrc"
+PROJECT_ROOT: Path = Path(__file__).resolve().parents[2]
+
+# More types may be expanded as testing becomes more sophisticated.
+RSRC_TYPES: dict[str, str] = {
+    "mp3": "full.mp3",
+    "flac": "full.flac",
+    "wav": "full.wav",
+}
+
+
+class BeetsTestUtils:
+    """Utility methods for beets plugin tests (no test state)."""
+
+    def _log_indenter(self, indent_level: int) -> str:
+        return " " * 4 * indent_level
+
+    def fmt_path(self, *parts: str) -> str:
+        """Join path components into a string using the current OS separator."""
+        return str(Path(*parts))
+
+    def create_file(self, path: Path) -> None:
+        """Create a file, ensuring parent directories exist."""
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.touch()
+
+    def delete_file(self, path: Path) -> None:
+        """Delete a file at a specific location, if it exists."""
+        if path.exists():
+            path.unlink()
+
+    def list_files(self, startpath: Path) -> None:
+        """Log a tree-like listing of a directory."""
+        if not startpath.exists():
+            log.debug(f"{startpath} does not exist")
+            return
+
+        for root, _dirs, files in util.sorted_walk(startpath):
+            root_path = Path(util.displayable_path(root))
+
+            try:
+                relative_path = root_path.relative_to(startpath)
+                level = len(relative_path.parts)
+            except ValueError:
+                level = 0
+
+            indent = self._log_indenter(level)
+            log_string = f"{indent}{root_path.name}/"
+            log.debug(log_string)
+
+            subindent = self._log_indenter(level + 1)
+            for filename in files:
+                sub_log_string = f"{subindent}{util.displayable_path(filename)}"
+                log.debug(sub_log_string)
+
+    def get_rsrc_from_extension(self, file_ext: str) -> str:
+        """Get the resource file matching extension, defaulting to MP3."""
+        file_type = file_ext.lstrip(".").lower()
+        return RSRC_TYPES.get(file_type, RSRC_TYPES["mp3"])
+
+
+# Backward-compatible alias
+HelperUtils = BeetsTestUtils

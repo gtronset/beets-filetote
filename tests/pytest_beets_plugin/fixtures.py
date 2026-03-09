@@ -13,10 +13,10 @@ import pytest
 
 from beets import config, library, util
 
-from ._common import DummyIO
-from .helper import BeetsTestUtils
+from ._io import DummyIO
 from .plugin_fixture import BeetsPluginFixture
 from .plugin_lifecycle import _teardown_plugin_state, _unload_plugins
+from .utils import BeetsTestUtils
 
 log = logging.getLogger("beets")
 
@@ -94,6 +94,11 @@ def beets_lib(
 def import_dir(tmp_path: Path) -> Path:
     """Return the import source directory path."""
     return tmp_path / "testsrc_dir"
+
+
+# ---------------------------------------------------------------------------
+# Plugin lifecycle
+# ---------------------------------------------------------------------------
 
 
 @pytest.fixture

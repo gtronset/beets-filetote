@@ -16,18 +16,12 @@ from pathlib import Path
 
 from beets import config
 
-from .pytest_beets_plugin._common import (  # noqa: F401
+from .pytest_beets_plugin import (
     HAVE_HARDLINK,
     HAVE_REFLINK,
     HAVE_SYMLINK,
     PLATFORM,
-    DummyIn,
     DummyIO,
-    DummyOut,
-    InputError,
-    check_hardlink,
-    check_reflink,
-    check_symlink,
 )
 from .pytest_beets_plugin.assertions import AssertionsMixin
 
@@ -72,8 +66,4 @@ __all__ = [
     "HAVE_SYMLINK",
     "PLATFORM",
     "AssertionsMixin",
-    # "DummyIn",
-    # "DummyOut",
-    # "InputError",
-    # "TestCase",
 ]
