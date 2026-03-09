@@ -2,31 +2,47 @@
 plugin, when the beets-audible plugin is loaded.
 """
 
-import logging
+from typing import TYPE_CHECKING
 
-from beets import config
+import pytest
 
-from tests.helper import FiletoteTestCase, MediaSetup
+if TYPE_CHECKING:
+    from tests.pytest_beets_plugin.plugin_fixture import BeetsPluginFixture
 
-log = logging.getLogger("beets")
+from tests.pytest_beets_plugin import MediaSetup
 
 
-class FiletoteM4BFilesIgnoredTest(FiletoteTestCase):
+class TestFiletoteM4BFilesIgnored:
     """Tests to check that Filetote does not copy music/audiobook files when the
     beets-audible plugin is present.
     """
 
-    def setUp(self, _other_plugins: list[str] | None = None) -> None:
-        """Provides shared setup for tests."""
-        super().setUp(other_plugins=["audible"])
+    @pytest.fixture(autouse=True)
+    def _setup_audible(self, beets_plugin_env: "BeetsPluginFixture") -> None:
+        """All tests in this class load the audible stub plugin."""
+        beets_plugin_env.plugins = ["audible"]
 
-    def test_expanded_music_file_types_are_ignored(self) -> None:
+    def test_expanded_music_file_types_are_ignored(
+        self, beets_plugin_env: "BeetsPluginFixture"
+    ) -> None:
         """Ensure that `.m4b` file types are ignored by Filetote."""
-        self._create_flat_import_dir(media_files=[MediaSetup(file_type="m4b", count=1)])
-        self._setup_import_session(autotag=False)
+        env = beets_plugin_env
+        env.create_flat_import_dir(
+            media_files=[
+                MediaSetup(file_type="mp3", count=1),
+                MediaSetup(file_type="m4b", count=1),
+            ]
+        )
+        env.setup_import_session(autotag=False)
+        env.config["filetote"]["extensions"] = ".lrc"
 
-        config["filetote"]["extensions"] = ".*"
+        env.run_cli_command("import")
 
-        self._run_cli_command("import")
+        env.assert_in_import_dir("the_album/track_1.mp3")
+        env.assert_in_import_dir("the_album/track_1.m4b")
 
-        self.assert_not_in_lib_dir("Tag Artist/Tag Album/track_1.m4b")
+        env.assert_in_lib_dir("Tag Artist/Tag Album/Tag Title 1.mp3")
+        env.assert_in_lib_dir("Tag Artist/Tag Album/Tag Title 1.m4b")
+
+        # Filetote should NOT copy m4b as an artifact (source-named)
+        env.assert_not_in_lib_dir("Tag Artist/Tag Album/track_1.m4b")
