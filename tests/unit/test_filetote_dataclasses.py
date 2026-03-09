@@ -9,7 +9,7 @@ from typing import Any
 
 import pytest
 
-from tests.helper import load_plugin_source
+from tests.pytest_beets_plugin import load_plugin_source
 
 filetote_dataclasses = load_plugin_source("filetote_dataclasses")
 

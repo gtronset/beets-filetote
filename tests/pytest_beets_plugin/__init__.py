@@ -1,15 +1,8 @@
 """pytest-beets-plugin: Test helpers and fixtures for beets plugin development."""
 
-from ._features import (
-    HAVE_HARDLINK,
-    HAVE_REFLINK,
-    HAVE_SYMLINK,
-    PLATFORM,
-)
 from ._io import DummyIO
 from ._item_model import MediaMeta
 from ._legacy import FiletoteTestCase
-from .assertions import AssertionsMixin, BeetsAssertions
 from .logging import (
     ListLogHandler,
     capture_beets_log,
@@ -27,23 +20,11 @@ from .plugin_lifecycle import (
     load_plugin_source,
 )
 from .utils import (
-    PROJECT_ROOT,
-    RESOURCES_DIR,
-    SAMPLE_MEDIA_FILES,
     BeetsTestUtils,
     HelperUtils,
 )
 
 __all__ = [
-    "HAVE_HARDLINK",
-    "HAVE_REFLINK",
-    "HAVE_SYMLINK",
-    "PLATFORM",
-    "PROJECT_ROOT",
-    "RESOURCES_DIR",
-    "SAMPLE_MEDIA_FILES",
-    "AssertionsMixin",  # Legacy (deprecated)
-    "BeetsAssertions",
     "BeetsPluginFixture",
     "BeetsTestUtils",
     "DummyIO",

@@ -8,8 +8,8 @@ import pytest
 
 from beets import config
 
-from ._item_model import MediaMeta
 from tests.helper import FiletoteTestCase
+from tests.pytest_beets_plugin import MediaMeta
 
 if TYPE_CHECKING:
     from pathlib import Path
