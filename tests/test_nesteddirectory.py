@@ -1,4 +1,6 @@
-"""Tests nested directories for the beets-filetote plugin."""
+"""Tests multi-disc album import (nested directory structure) for the beets-filetote
+plugin.
+"""
 
 import logging
 
@@ -11,10 +13,10 @@ from tests.helper import FiletoteTestCase
 log = logging.getLogger("beets")
 
 
-class FiletoteFromNestedDirectoryTest(FiletoteTestCase):
-    """Tests to check that Filetote copies or moves artifact files from a nested
-    directory structure. i.e. songs in an album are imported from two directories
-    corresponding to disc numbers or flat option is used.
+class TestMultiDiscImport(FiletoteTestCase):
+    """Tests that Filetote copies or moves artifact files during multi-disc
+    album imports, where songs are organized in subdirectories (e.g., disc1/,
+    disc2/).
     """
 
     def setUp(self, _other_plugins: list[str] | None = None) -> None:
