@@ -261,7 +261,7 @@ class FiletoteTestCase(TestCase, BeetsAssertions, MediaCreator):
         if media_files is None:
             media_files = [MediaSetup(pair_subfolders=pair_subfolders)]
 
-        self._set_import_dir()
+        self._reset_import_dir()
 
         album_path: Path = self.import_dir / "the_album"
         album_path.mkdir(parents=True, exist_ok=True)
@@ -310,7 +310,7 @@ class FiletoteTestCase(TestCase, BeetsAssertions, MediaCreator):
         if disc2_media_files is None:
             disc2_media_files = [MediaSetup()]
 
-        self._set_import_dir()
+        self._reset_import_dir()
 
         album_path: Path = self.import_dir / "the_album"
         disc1_path: Path = album_path / "disc1"
@@ -370,7 +370,7 @@ class FiletoteTestCase(TestCase, BeetsAssertions, MediaCreator):
         log.debug("--- import directory created")
         self.list_files(self.import_dir)
 
-    def _set_import_dir(self) -> None:
+    def _reset_import_dir(self) -> None:
         self.import_dir = self.temp_dir / "testsrc_dir"
         if self.import_dir.is_dir():
             shutil.rmtree(self.import_dir)

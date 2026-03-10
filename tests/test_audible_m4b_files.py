@@ -18,15 +18,15 @@ class TestFiletoteM4BFilesIgnored:
     """
 
     @pytest.fixture(autouse=True)
-    def _setup_audible(self, beets_plugin_env: "BeetsPluginFixture") -> None:
+    def _setup(self, beets_plugin_env: "BeetsPluginFixture") -> None:
         """All tests in this class load the audible stub plugin."""
-        beets_plugin_env.plugins = ["audible"]
+        self.env = beets_plugin_env
+        self.env.plugins = ["audible"]
 
-    def test_expanded_music_file_types_are_ignored(
-        self, beets_plugin_env: "BeetsPluginFixture"
-    ) -> None:
+    def test_expanded_music_file_types_are_ignored(self) -> None:
         """Ensure that `.m4b` file types are ignored by Filetote."""
-        env = beets_plugin_env
+        env = self.env
+
         env.create_flat_import_dir(
             media_files=[
                 MediaSetup(file_type="mp3", count=1),

@@ -120,7 +120,10 @@ class BeetsPluginFixture(BeetsAssertions, MediaCreator):
 
     # --- Import directory creation ------------------------------------------
 
-    def _set_import_dir(self) -> None:
+    def _reset_import_dir(self) -> None:
+        """Reset the import directory by deleting it if it exists. This is needed for
+        tests that do reimports and/or multiple actions in its runs.
+        """
         if self.import_dir.is_dir():
             shutil.rmtree(self.import_dir)
 
@@ -173,7 +176,7 @@ class BeetsPluginFixture(BeetsAssertions, MediaCreator):
         file_type: str = "mp3",
     ) -> Path:
         """Create a minimal import directory with artifacts and media."""
-        self._set_import_dir()
+        self._reset_import_dir()
 
         album_path: Path = self.import_dir / "the_album"
         album_path.mkdir(parents=True, exist_ok=True)
@@ -204,7 +207,7 @@ class BeetsPluginFixture(BeetsAssertions, MediaCreator):
         if media_files is None:
             media_files = [MediaSetup(pair_subfolders=pair_subfolders)]
 
-        self._set_import_dir()
+        self._reset_import_dir()
 
         album_path: Path = self.import_dir / "the_album"
         album_path.mkdir(parents=True, exist_ok=True)
@@ -255,7 +258,7 @@ class BeetsPluginFixture(BeetsAssertions, MediaCreator):
         if disc2_media_files is None:
             disc2_media_files = [MediaSetup()]
 
-        self._set_import_dir()
+        self._reset_import_dir()
 
         album_path: Path = self.import_dir / "the_album"
         disc1_path: Path = album_path / "disc1"
