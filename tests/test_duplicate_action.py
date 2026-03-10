@@ -1,114 +1,120 @@
 """Tests `duplicate_action` config for the beets-filetote plugin."""
 
-import logging
+from typing import TYPE_CHECKING
 
-from beets import config
+import pytest
 
-from tests.helper import FiletoteTestCase, capture_log_with_traceback
+if TYPE_CHECKING:
+    from tests.pytest_beets_plugin.plugin_fixture import BeetsPluginFixture
 
-log = logging.getLogger("beets")
 
-
-class FiletoteDuplicateActionTest(FiletoteTestCase):
+class TestFiletoteDuplicateAction:
     """Tests to check that Filetote handles reimports correctly."""
 
-    def setUp(self, _other_plugins: list[str] | None = None) -> None:
-        """Setup subsequent import directory of the below structure.
+    @pytest.fixture(autouse=True)
+    def _setup(self, beets_plugin_env: "BeetsPluginFixture") -> None:
+        """Perform an initial import so each test starts with artifacts in the
+        library.
 
-        Ex:
-        testlib_dir/
-            Tag Artist/
-                Tag Album/
-                    Tag Title 1.mp3
-                    Tag Title 2.mp3
-                    Tag Title 3.mp3
-                    artifact.file
-                    artifact2.file
+        Library structure after setup::
+
+            testlib_dir/
+                Tag Artist/
+                    Tag Album/
+                        Tag Title 1.mp3
+                        Tag Title 2.mp3
+                        Tag Title 3.mp3
+                        artifact.file
+                        artifact2.file
         """
-        super().setUp()
+        self.env = beets_plugin_env
+        env = self.env
 
-        self._create_flat_import_dir()
-        self._setup_import_session(autotag=False, move=True)
+        env.create_flat_import_dir()
+        env.setup_import_session(autotag=False, move=True)
 
-        config["filetote"]["extensions"] = ".file"
-        config["paths"]["ext:file"] = self.fmt_path("$albumpath", "$old_filename")
+        env.config["filetote"]["extensions"] = ".file"
+        env.config["paths"]["ext:file"] = env.fmt_path("$albumpath", "$old_filename")
 
-        # Set a default duplicate_action for the initial import to prevent
         # "keep" is safe here since the first import has no duplicates to resolve.
-        config["import"]["duplicate_action"] = "keep"
+        env.config["import"]["duplicate_action"] = "keep"
 
-        log.debug("--- initial import")
-        self._run_cli_command("import")
+        env.log.debug("--- initial import")
+        env.run_cli_command("import")
 
     def test_duplicate_action_default(self) -> None:
-        """Tests that when `duplicate_action` default when not specified is 'merge',
-        that a debug message is logged, and Filetote does not overwrite or rename the
-        file if it is the same in name and identical in content, but if the content is
-        different, it renames the new file to be unique (e.g., artifact.1.file).
+        """Tests that when ``duplicate_action`` is not specified (defaults to
+        'merge'), Filetote skips identical files and renames files with
+        different content to be unique (e.g., artifact.1.file).
         """
-        with capture_log_with_traceback("beets.filetote") as logs:
-            log.debug("--- second import")
+        env = self.env
 
-            self._create_flat_import_dir()
+        with env.capture_log("beets.filetote") as logs:
+            env.log.debug("--- second import")
 
-            (self.import_dir / "the_album" / "artifact.file").write_text("NEW CONTENT")
+            env.create_flat_import_dir()
 
-            self._run_cli_command("import")
+            (env.import_dir / "the_album" / "artifact.file").write_text("NEW CONTENT")
+
+            env.run_cli_command("import")
 
         assert any(
             "Skipping artifact `artifact2.file`" in line and "already exists" in line
             for line in logs
         )
 
-        self.assert_in_lib_dir("Tag Artist/Tag Album/artifact.file")
-        self.assert_in_lib_dir("Tag Artist/Tag Album/artifact.1.file")
-        self.assert_in_lib_dir("Tag Artist/Tag Album/artifact2.file")
+        env.assert_in_lib_dir("Tag Artist/Tag Album/artifact.file")
+        env.assert_in_lib_dir("Tag Artist/Tag Album/artifact.1.file")
+        env.assert_in_lib_dir("Tag Artist/Tag Album/artifact2.file")
 
-        self.assert_not_in_lib_dir("Tag Artist/Tag Album/artifact2.1.file")
+        env.assert_not_in_lib_dir("Tag Artist/Tag Album/artifact2.1.file")
 
     def test_duplicate_action_merge(self) -> None:
-        """Tests that when `duplicate_action` is 'merge', that a debug message is
-        logged, and Filetote does not overwrite or rename the file if it is the same in
-        name and identical in content, but if the content is different, it renames the
-        new file to be unique (e.g., artifact.1.file).
+        """Tests that when ``duplicate_action`` is 'merge', Filetote skips
+        identical files and renames files with different content to be unique
+        (e.g., artifact.1.file).
         """
-        config["import"]["duplicate_action"] = "merge"
-        config["filetote"]["duplicate_action"] = "merge"
+        env = self.env
 
-        with capture_log_with_traceback("beets.filetote") as logs:
-            log.debug("--- second import")
+        env.config["import"]["duplicate_action"] = "merge"
+        env.config["filetote"]["duplicate_action"] = "merge"
 
-            self._create_flat_import_dir()
+        with env.capture_log("beets.filetote") as logs:
+            env.log.debug("--- second import")
 
-            (self.import_dir / "the_album" / "artifact.file").write_text("NEW CONTENT")
+            env.create_flat_import_dir()
 
-            self._run_cli_command("import")
+            (env.import_dir / "the_album" / "artifact.file").write_text("NEW CONTENT")
+
+            env.run_cli_command("import")
 
         assert any(
             "Skipping artifact `artifact2.file`" in line and "already exists" in line
             for line in logs
         )
 
-        self.assert_in_lib_dir("Tag Artist/Tag Album/artifact.file")
-        self.assert_in_lib_dir("Tag Artist/Tag Album/artifact.1.file")
-        self.assert_in_lib_dir("Tag Artist/Tag Album/artifact2.file")
+        env.assert_in_lib_dir("Tag Artist/Tag Album/artifact.file")
+        env.assert_in_lib_dir("Tag Artist/Tag Album/artifact.1.file")
+        env.assert_in_lib_dir("Tag Artist/Tag Album/artifact2.file")
 
-        self.assert_not_in_lib_dir("Tag Artist/Tag Album/artifact2.1.file")
+        env.assert_not_in_lib_dir("Tag Artist/Tag Album/artifact2.1.file")
 
     def test_duplicate_action_skip(self) -> None:
-        """Tests that when `duplicate_action` is 'skip', that a debug message
-        is logged, and Filetote does not overwrite or rename the file.
+        """Tests that when ``duplicate_action`` is 'skip', Filetote logs a
+        message and does not overwrite or rename the file.
         """
+        env = self.env
+
         # The Item needs to be copied/moved still for the artifacts to be processed
-        config["import"]["duplicate_action"] = "keep"
-        config["filetote"]["duplicate_action"] = "skip"
+        env.config["import"]["duplicate_action"] = "keep"
+        env.config["filetote"]["duplicate_action"] = "skip"
 
-        with capture_log_with_traceback("beets.filetote") as logs:
-            log.debug("--- second import")
+        with env.capture_log("beets.filetote") as logs:
+            env.log.debug("--- second import")
 
-            self._create_flat_import_dir()
+            env.create_flat_import_dir()
 
-            self._run_cli_command("import")
+            env.run_cli_command("import")
 
         skipped_logs = [
             line
@@ -116,61 +122,66 @@ class FiletoteDuplicateActionTest(FiletoteTestCase):
             if "Skipping artifact" in line and "already exists" in line
         ]
 
-        assert any("Skipping artifact `artifact.file`" in line for line in skipped_logs)
-        assert any(
-            "Skipping artifact `artifact2.file`" in line for line in skipped_logs
-        )
+        expected_skips = [
+            "artifact.file",
+            "artifact2.file",
+        ]
 
-        expected_count: int = 2
+        for name in expected_skips:
+            assert any(f"Skipping artifact `{name}`" in line for line in skipped_logs)
 
-        assert len(skipped_logs) == expected_count
+        assert len(skipped_logs) == len(expected_skips)
 
-        self.assert_not_in_lib_dir("Tag Artist/Tag Album/artifact.1.file")
+        env.assert_not_in_lib_dir("Tag Artist/Tag Album/artifact.1.file")
 
     def test_duplicate_action_keep(self) -> None:
-        """Tests that when `duplicate_action` is 'keep', the incoming artifact is
-        renamed to be unique (e.g., artifact.1.file).
+        """Tests that when ``duplicate_action`` is 'keep', the incoming artifact
+        is renamed to be unique (e.g., artifact.1.file).
         """
-        config["import"]["duplicate_action"] = "keep"
-        config["filetote"]["duplicate_action"] = "keep"
+        env = self.env
 
-        with capture_log_with_traceback("beets.filetote") as logs:
-            log.debug("--- second import")
+        env.config["import"]["duplicate_action"] = "keep"
+        env.config["filetote"]["duplicate_action"] = "keep"
 
-            self._create_flat_import_dir()
+        with env.capture_log("beets.filetote") as logs:
+            env.log.debug("--- second import")
 
-            self._run_cli_command("import")
+            env.create_flat_import_dir()
+
+            env.run_cli_command("import")
 
         assert not any(
             "Skipping artifact" in line and "already exists" in line for line in logs
         )
 
-        self.assert_in_lib_dir("Tag Artist/Tag Album/artifact.file")
-        self.assert_in_lib_dir("Tag Artist/Tag Album/artifact.1.file")
-        self.assert_in_lib_dir("Tag Artist/Tag Album/artifact2.file")
-        self.assert_in_lib_dir("Tag Artist/Tag Album/artifact2.1.file")
+        env.assert_in_lib_dir("Tag Artist/Tag Album/artifact.file")
+        env.assert_in_lib_dir("Tag Artist/Tag Album/artifact.1.file")
+        env.assert_in_lib_dir("Tag Artist/Tag Album/artifact2.file")
+        env.assert_in_lib_dir("Tag Artist/Tag Album/artifact2.1.file")
 
     def test_duplicate_action_remove(self) -> None:
-        """Tests that when `duplicate_action` is 'remove', we overwrite the
-        existing artifact with the new one.
+        """Tests that when ``duplicate_action`` is 'remove', the existing
+        artifact is overwritten with the new one.
         """
-        config["import"]["duplicate_action"] = "remove"
-        config["filetote"]["duplicate_action"] = "remove"
+        env = self.env
 
-        with capture_log_with_traceback("beets.filetote") as logs:
-            log.debug("--- second import")
+        env.config["import"]["duplicate_action"] = "remove"
+        env.config["filetote"]["duplicate_action"] = "remove"
 
-            self._create_flat_import_dir()
+        with env.capture_log("beets.filetote") as logs:
+            env.log.debug("--- second import")
 
-            (self.import_dir / "the_album" / "artifact.file").write_text("NEW CONTENT")
+            env.create_flat_import_dir()
 
-            self._run_cli_command("import")
+            (env.import_dir / "the_album" / "artifact.file").write_text("NEW CONTENT")
+
+            env.run_cli_command("import")
 
         assert not any(
             "Skipping artifact" in line and "already exists" in line for line in logs
         )
 
-        dest_file = self.lib_dir / "Tag Artist/Tag Album/artifact.file"
+        dest_file = env.lib_dir / "Tag Artist/Tag Album/artifact.file"
         assert dest_file.read_text() == "NEW CONTENT"
 
-        self.assert_not_in_lib_dir("Tag Artist/Tag Album/artifact.1.file")
+        env.assert_not_in_lib_dir("Tag Artist/Tag Album/artifact.1.file")

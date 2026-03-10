@@ -1,5 +1,6 @@
 """BeetsPluginFixture: the main test helper object for beets plugin tests."""
 
+import contextlib
 import logging
 import shutil
 
@@ -87,6 +88,7 @@ class BeetsPluginFixture(BeetsAssertions, MediaCreator):
         """
         return config
 
+    @contextlib.contextmanager
     def capture_log(
         self,
         logger_name: str = "beets",
