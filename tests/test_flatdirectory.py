@@ -22,7 +22,7 @@ class FiletoteFromFlatDirectoryTest(FiletoteTestCase):
         self._create_flat_import_dir()
         self._setup_import_session(autotag=False)
 
-        self._base_file_count = self._media_count + self._pairs_count
+        self._base_file_count = self.media_count + self.pairs_count
 
     def test_only_copies_files_matching_configured_extension(self) -> None:
         """Test that Filetote only copies files by specific extension when set."""
@@ -31,7 +31,7 @@ class FiletoteFromFlatDirectoryTest(FiletoteTestCase):
         self._run_cli_command("import")
 
         self.assert_number_of_files_in_dir(
-            self._media_count + 2, self.lib_dir / "Tag Artist" / "Tag Album"
+            self.media_count + 2, self.lib_dir / "Tag Artist" / "Tag Album"
         )
 
         self.assert_in_lib_dir("Tag Artist/Tag Album/artifact.file")
@@ -54,7 +54,7 @@ class FiletoteFromFlatDirectoryTest(FiletoteTestCase):
         self._run_cli_command("import")
 
         self.assert_number_of_files_in_dir(
-            self._media_count + 2, self.lib_dir / "Tag Artist" / "Tag Album"
+            self.media_count + 2, self.lib_dir / "Tag Artist" / "Tag Album"
         )
 
         self.assert_in_lib_dir("Tag Artist/Tag Album/artifact.file")
@@ -71,7 +71,7 @@ class FiletoteFromFlatDirectoryTest(FiletoteTestCase):
         self._run_cli_command("import")
 
         self.assert_number_of_files_in_dir(
-            self._media_count + 1, self.lib_dir / "Tag Artist" / "Tag Album"
+            self.media_count + 1, self.lib_dir / "Tag Artist" / "Tag Album"
         )
 
         self.assert_in_lib_dir("Tag Artist/Tag Album/artifact.file")
@@ -87,7 +87,7 @@ class FiletoteFromFlatDirectoryTest(FiletoteTestCase):
         self._run_cli_command("import")
 
         self.assert_number_of_files_in_dir(
-            self._media_count + 1, self.lib_dir / "Tag Artist" / "Tag Album"
+            self.media_count + 1, self.lib_dir / "Tag Artist" / "Tag Album"
         )
 
         self.assert_in_lib_dir("Tag Artist/Tag Album/artifact.file")
@@ -106,7 +106,7 @@ class FiletoteFromFlatDirectoryTest(FiletoteTestCase):
         self._run_cli_command("import")
 
         self.assert_number_of_files_in_dir(
-            self._media_count + 3, self.lib_dir / "Tag Artist" / "Tag Album"
+            self.media_count + 3, self.lib_dir / "Tag Artist" / "Tag Album"
         )
 
         self.assert_in_lib_dir("Tag Artist/Tag Album/artifact.file")
@@ -120,7 +120,7 @@ class FiletoteFromFlatDirectoryTest(FiletoteTestCase):
         self._run_cli_command("import")
 
         self.assert_number_of_files_in_dir(
-            self._media_count, self.lib_dir / "Tag Artist" / "Tag Album"
+            self.media_count, self.lib_dir / "Tag Artist" / "Tag Album"
         )
 
         self.assert_not_in_lib_dir("Tag Artist/Tag Album/artifact.file")
@@ -137,7 +137,7 @@ class FiletoteFromFlatDirectoryTest(FiletoteTestCase):
         self._run_cli_command("import")
 
         self.assert_number_of_files_in_dir(
-            self._media_count + 3, self.lib_dir / "Tag Artist" / "Tag Album"
+            self.media_count + 3, self.lib_dir / "Tag Artist" / "Tag Album"
         )
 
         self.assert_in_lib_dir("Tag Artist/Tag Album/artifact.nfo")

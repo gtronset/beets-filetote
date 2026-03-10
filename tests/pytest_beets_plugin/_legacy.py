@@ -98,8 +98,8 @@ class FiletoteTestCase(TestCase, BeetsAssertions, MediaCreator):
         self.lib: library.Library = self._create_library(self.lib_dir)
 
         self.rsrc_mp3: str = "full.mp3"
-        self._media_count: int = 0
-        self._pairs_count: int = 0
+        self.media_count: int = 0
+        self.pairs_count: int = 0
 
         self.import_dir: Path = self.temp_dir / "import_dir"
         self.import_media: list[MediaFile] | None = None
@@ -289,7 +289,7 @@ class FiletoteTestCase(TestCase, BeetsAssertions, MediaCreator):
                 )
             )
 
-        self._media_count = self._pairs_count = media_file_count
+        self.media_count = self.pairs_count = media_file_count
         self.import_media = media_list
 
         log.debug("--- import directory created")
@@ -363,8 +363,8 @@ class FiletoteTestCase(TestCase, BeetsAssertions, MediaCreator):
                 )
             )
 
-        self._pairs_count = media_file_count
-        self._media_count = media_file_count
+        self.pairs_count = media_file_count
+        self.media_count = media_file_count
         self.import_media = media_list
 
         log.debug("--- import directory created")
