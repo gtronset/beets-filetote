@@ -171,7 +171,7 @@ class BeetsPluginFixture(BeetsAssertions, MediaCreator):
         artifacts: list[str] | None = None,
         media_count: int = 1,
         file_type: str = "mp3",
-    ) -> None:
+    ) -> Path:
         """Create a minimal import directory with artifacts and media."""
         self._set_import_dir()
 
@@ -193,11 +193,13 @@ class BeetsPluginFixture(BeetsAssertions, MediaCreator):
         log.debug("--- import directory created")
         self.list_files(self.import_dir)
 
+        return album_path
+
     def create_flat_import_dir(
         self,
         media_files: list[MediaSetup] | None = None,
         pair_subfolders: bool = False,
-    ) -> None:
+    ) -> Path:
         """Create a flat (single-disc) import directory structure."""
         if media_files is None:
             media_files = [MediaSetup(pair_subfolders=pair_subfolders)]
@@ -239,11 +241,13 @@ class BeetsPluginFixture(BeetsAssertions, MediaCreator):
         log.debug("--- import directory created")
         self.list_files(self.import_dir)
 
+        return album_path
+
     def create_nested_import_dir(
         self,
         disc1_media_files: list[MediaSetup] | None = None,
         disc2_media_files: list[MediaSetup] | None = None,
-    ) -> None:
+    ) -> Path:
         """Create a nested (multi-disc) import directory structure."""
         if disc1_media_files is None:
             disc1_media_files = [MediaSetup()]
@@ -316,6 +320,8 @@ class BeetsPluginFixture(BeetsAssertions, MediaCreator):
 
         log.debug("--- import directory created")
         self.list_files(self.import_dir)
+
+        return album_path
 
     # --- Import session setup -----------------------------------------------
 

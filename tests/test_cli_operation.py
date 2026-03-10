@@ -5,6 +5,8 @@ from typing import TYPE_CHECKING
 import pytest
 
 if TYPE_CHECKING:
+    from pathlib import Path
+
     from tests.pytest_beets_plugin.plugin_fixture import BeetsPluginFixture
 
 
@@ -25,7 +27,7 @@ class TestFiletoteCLIOperation:
         """
         env = self.env
 
-        env.create_flat_import_dir()
+        album_path: Path = env.create_flat_import_dir()
         env.setup_import_session(autotag=False)
 
         base_file_count = env.media_count + env.pairs_count
@@ -35,7 +37,6 @@ class TestFiletoteCLIOperation:
 
         env.run_cli_command("import")
 
-        album_path = env.import_dir / "the_album"
         env.assert_number_of_files_in_dir(base_file_count + 4, album_path)
 
         env.assert_in_import_dir("the_album/artifact.file")
