@@ -26,7 +26,7 @@ class FiletoteManipulateFiles(FiletoteTestCase):
         self._create_flat_import_dir()
         self._setup_import_session(autotag=False, copy=False)
 
-        self._base_file_count = self._media_count + self._pairs_count
+        self._base_file_count = self.media_count + self.pairs_count
 
     def test_copy_artifacts(self) -> None:
         """Test that copy actually copies (and not just moves)."""

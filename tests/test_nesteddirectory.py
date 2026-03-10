@@ -24,7 +24,7 @@ class FiletoteFromNestedDirectoryTest(FiletoteTestCase):
         self._create_nested_import_dir()
         self._setup_import_session(autotag=False)
 
-        self._base_file_count = self._media_count + self._pairs_count
+        self._base_file_count = self.media_count + self.pairs_count
 
     def test_copies_file_from_nested_to_library(self) -> None:
         """Ensures that nested directories are handled by beets and the the files
@@ -36,7 +36,7 @@ class FiletoteFromNestedDirectoryTest(FiletoteTestCase):
         self._run_cli_command("import")
 
         self.assert_number_of_files_in_dir(
-            self._media_count + 4, self.lib_dir / "Tag Artist" / "Tag Album"
+            self.media_count + 4, self.lib_dir / "Tag Artist" / "Tag Album"
         )
 
         self.assert_in_lib_dir("Tag Artist/Tag Album/artifact.file")

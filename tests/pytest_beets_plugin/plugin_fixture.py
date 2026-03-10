@@ -60,8 +60,8 @@ class BeetsPluginFixture(BeetsAssertions, MediaCreator):
         self.plugins = other_plugins or []
 
         self.rsrc_mp3: str = "full.mp3"
-        self._media_count: int = 0
-        self._pairs_count: int = 0
+        self.media_count: int = 0
+        self.pairs_count: int = 0
         self.import_media: list[MediaFile] | None = None
         self.importer: ImportSession | None = None
         self.paths: Path | None = None
@@ -164,6 +164,33 @@ class BeetsPluginFixture(BeetsAssertions, MediaCreator):
 
         return media_list
 
+    def create_simple_import_dir(
+        self,
+        artifacts: list[str] | None = None,
+        media_count: int = 1,
+        file_type: str = "mp3",
+    ) -> None:
+        """Create a minimal import directory with artifacts and media."""
+        self._set_import_dir()
+
+        album_path: Path = self.import_dir / "the_album"
+        album_path.mkdir(parents=True, exist_ok=True)
+
+        for artifact in artifacts or []:
+            self.create_file(album_path / artifact)
+
+        media_list: list[MediaFile] = [
+            self.create_medium(album_path / f"track_{i}.{file_type}")
+            for i in range(1, media_count + 1)
+        ]
+
+        self.media_count = media_count
+        self.pairs_count = 0
+        self.import_media = media_list
+
+        log.debug("--- import directory created")
+        self.list_files(self.import_dir)
+
     def create_flat_import_dir(
         self,
         media_files: list[MediaSetup] | None = None,
@@ -204,7 +231,7 @@ class BeetsPluginFixture(BeetsAssertions, MediaCreator):
                 )
             )
 
-        self._media_count = self._pairs_count = media_file_count
+        self.media_count = self.pairs_count = media_file_count
         self.import_media = media_list
 
         log.debug("--- import directory created")
@@ -281,8 +308,8 @@ class BeetsPluginFixture(BeetsAssertions, MediaCreator):
                 )
             )
 
-        self._pairs_count = media_file_count
-        self._media_count = media_file_count
+        self.pairs_count = media_file_count
+        self.media_count = media_file_count
         self.import_media = media_list
 
         log.debug("--- import directory created")
