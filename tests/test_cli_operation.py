@@ -17,7 +17,7 @@ class TestFiletoteCLIOperation:
 
     @pytest.fixture(autouse=True)
     def _setup(self, beets_plugin_env: BeetsPluginFixture) -> None:
-        """All tests in this class load the audible stub plugin."""
+        """Set up the beets-filetote plugin configuration for these tests."""
         self.env = beets_plugin_env
         self.env.config["filetote"]["extensions"] = ".file"
 

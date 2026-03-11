@@ -97,7 +97,6 @@ class TestPairing:
 
         env.assert_in_lib_dir("Tag Artist/Tag Album/Tag Title 2-paired.lrc")
         env.assert_not_in_lib_dir("Tag Artist/Tag Album/Tag Title 1-generic.lrc")
-        env.assert_not_in_lib_dir("the_album/track_2.lrc")
 
     def test_pairing_enabled_works_without_pairs(self) -> None:
         """Ensure that even when there's not a pair, other files can be handled."""

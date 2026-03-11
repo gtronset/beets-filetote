@@ -138,8 +138,9 @@ class BeetsPluginFixture(BeetsAssertions, MediaCreator):
         title_prefix: str = "Tag Title ",
         disc: int = 1,
         disctotal: int = 1,
-    ) -> list[MediaFile]:
+    ) -> tuple[list[MediaFile], int]:
         media_list: list[MediaFile] = []
+        pairs_generated: int = 0
 
         while count > 0:
             trackname = f"{filename_prefix}{count}"
@@ -166,8 +167,9 @@ class BeetsPluginFixture(BeetsAssertions, MediaCreator):
 
                 pair_path.mkdir(parents=True, exist_ok=True)
                 self.create_file(pair_path / f"{trackname}.lrc")
+                pairs_generated += 1
 
-        return media_list
+        return media_list, pairs_generated
 
     def create_simple_import_dir(
         self,
@@ -223,22 +225,25 @@ class BeetsPluginFixture(BeetsAssertions, MediaCreator):
             self.create_file(album_path / artifact)
 
         media_file_count: int = 0
+        pairs_count: int = 0
         media_list: list[MediaFile] = []
 
         for media_file in media_files:
             media_file_count += media_file.count
 
-            media_list.extend(
-                self._generate_paired_media_list(
-                    album_path=album_path,
-                    file_type=media_file.file_type,
-                    count=media_file.count,
-                    generate_pair=media_file.generate_pair,
-                    pair_subfolders=media_file.pair_subfolders,
-                )
+            generated_media, generated_pairs = self._generate_paired_media_list(
+                album_path=album_path,
+                file_type=media_file.file_type,
+                count=media_file.count,
+                generate_pair=media_file.generate_pair,
+                pair_subfolders=media_file.pair_subfolders,
             )
 
-        self.media_count = self.pairs_count = media_file_count
+            media_list.extend(generated_media)
+            pairs_count += generated_pairs
+
+        self.media_count = media_file_count
+        self.pairs_count = pairs_count
         self.import_media = media_list
 
         log.debug("--- import directory created")
@@ -286,39 +291,42 @@ class BeetsPluginFixture(BeetsAssertions, MediaCreator):
             self.create_file(disc2_path / artifact)
 
         media_file_count: int = 0
+        pairs_count: int = 0
         media_list: list[MediaFile] = []
 
         for media_file in disc1_media_files:
             media_file_count += media_file.count
 
-            media_list.extend(
-                self._generate_paired_media_list(
-                    album_path=disc1_path,
-                    file_type=media_file.file_type,
-                    count=media_file.count,
-                    generate_pair=media_file.generate_pair,
-                    disctotal=2,
-                )
+            generated_media, generated_pairs = self._generate_paired_media_list(
+                album_path=disc1_path,
+                file_type=media_file.file_type,
+                count=media_file.count,
+                generate_pair=media_file.generate_pair,
+                disctotal=2,
             )
+
+            media_list.extend(generated_media)
+            pairs_count += generated_pairs
 
         for media_file in disc2_media_files:
             media_file_count += media_file.count
 
-            media_list.extend(
-                self._generate_paired_media_list(
-                    album_path=disc2_path,
-                    filename_prefix="supertrack_",
-                    file_type=media_file.file_type,
-                    count=media_file.count,
-                    generate_pair=media_file.generate_pair,
-                    title_prefix="Super Tag Title ",
-                    disc=2,
-                    disctotal=2,
-                )
+            generated_media, generated_pairs = self._generate_paired_media_list(
+                album_path=disc2_path,
+                filename_prefix="supertrack_",
+                file_type=media_file.file_type,
+                count=media_file.count,
+                generate_pair=media_file.generate_pair,
+                title_prefix="Super Tag Title ",
+                disc=2,
+                disctotal=2,
             )
 
-        self.pairs_count = media_file_count
+            media_list.extend(generated_media)
+            pairs_count += generated_pairs
+
         self.media_count = media_file_count
+        self.pairs_count = pairs_count
         self.import_media = media_list
 
         log.debug("--- import directory created")
