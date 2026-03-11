@@ -7,8 +7,6 @@ import re
 from collections.abc import Generator
 from typing import Any, Literal, TypeAlias
 
-from beets import config
-
 LogLevels: TypeAlias = Literal[
     10,  # logging.DEBUG
     20,  # logging.INFO
@@ -98,35 +96,10 @@ def capture_beets_log(
             do_something()
         assert any("expected message" in line for line in logs)
     """
-    # Uncomment once capture_log_with_traceback is fully removed
-    # logger = logging.getLogger(logger_name)
-    # original_level = logger.level
-
-    # logger.setLevel(level)
-    # handler = ListLogHandler()
-    # logger.addHandler(handler)
-
-    # try:
-    #     yield handler.messages
-    # finally:
-    #     logger.removeHandler(handler)
-    #     logger.setLevel(original_level)
-
     logger = logging.getLogger(logger_name)
+    original_level = logger.level
 
-    original_logger_level = logger.level
-    original_verbose = config["verbose"].get()
-
-    if level <= logging.DEBUG:
-        required_verbosity = 2
-    elif level <= logging.INFO:
-        required_verbosity = 1
-    else:
-        required_verbosity = 0
-
-    config["verbose"] = required_verbosity
     logger.setLevel(level)
-
     handler = ListLogHandler()
     logger.addHandler(handler)
 
@@ -134,9 +107,4 @@ def capture_beets_log(
         yield handler.messages
     finally:
         logger.removeHandler(handler)
-        logger.setLevel(original_logger_level)
-        config["verbose"] = original_verbose
-
-
-# Backward-compatible alias
-capture_log_with_traceback = capture_beets_log
+        logger.setLevel(original_level)
