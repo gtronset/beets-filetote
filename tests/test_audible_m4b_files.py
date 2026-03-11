@@ -29,7 +29,7 @@ class TestFiletoteM4BFilesIgnored:
             ]
         )
         env.setup_import_session(autotag=False)
-        env.config["filetote"]["extensions"] = ".lrc"
+        env.config["filetote"]["extensions"] = ".*"
 
         env.run_cli_command("import")
 

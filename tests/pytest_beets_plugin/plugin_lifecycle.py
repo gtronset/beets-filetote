@@ -17,6 +17,12 @@ from .utils import PROJECT_ROOT
 
 log = logging.getLogger("beets")
 
+_STUB_MAP: dict[str, tuple[str, str]] = {
+    "audible": ("tests/pytest_beets_plugin/stubs/audible.py", "Audible"),
+    "convert": ("tests/pytest_beets_plugin/stubs/convert.py", "ConvertPlugin"),
+    "inline": ("tests/pytest_beets_plugin/stubs/inline.py", "InlinePlugin"),
+}
+
 
 def _load_module_from_file(module_name: str, module_path: str | Path) -> ModuleType:
     """Core helper to load a module from a specific file path."""
@@ -78,15 +84,9 @@ def _activate_plugins(
     )
     plugin_class_list.append(filetote_class)
 
-    stub_map: dict[str, tuple[str, str]] = {
-        "audible": ("tests/pytest_beets_plugin/stubs/audible.py", "Audible"),
-        "convert": ("tests/pytest_beets_plugin/stubs/convert.py", "ConvertPlugin"),
-        "inline": ("tests/pytest_beets_plugin/stubs/inline.py", "InlinePlugin"),
-    }
-
     for other_plugin in other_plugins:
-        if other_plugin in stub_map:
-            stub_path, class_name = stub_map[other_plugin]
+        if other_plugin in _STUB_MAP:
+            stub_path, class_name = _STUB_MAP[other_plugin]
             abs_stub_path = project_root / stub_path
             plugin_class = _load_plugin_class(
                 abs_stub_path, class_name, f"beetsplug.{other_plugin}"
@@ -118,7 +118,12 @@ def _deactivate_plugins() -> None:
             ]
 
     for modname in list(sys.modules):
-        if modname.startswith(("beetsplug.filetote", "beetsplug.audible")):
+        if modname.startswith((
+            "beetsplug.filetote",
+            "beetsplug.audible",
+            "beetsplug.convert",
+            "beetsplug.inline",
+        )):
             del sys.modules[modname]
 
 
@@ -129,7 +134,6 @@ def _clear_plugin_state() -> None:
         ("beets.plugins", "_classes"),
         ("beets.plugins", "_event_listeners"),
         ("beets.plugins.BeetsPlugin", "listeners"),
-        ("beets.plugins.BeetsPlugin", "_raw_listeners"),
         ("beets.plugins.BeetsPlugin", "_raw_listeners"),
     ]
 
