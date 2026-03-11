@@ -1,46 +1,53 @@
 """Tests print ignored for the beets-filetote plugin."""
 
-from beets import config
+from typing import TYPE_CHECKING
 
-from tests.helper import FiletoteTestCase, capture_log_with_traceback
+import pytest
+
+if TYPE_CHECKING:
+    from tests.pytest_beets_plugin.plugin_fixture import BeetsPluginFixture
 
 
-class FiletotePrintIgnoredTest(FiletoteTestCase):
+class TestPrintIgnored:
     """Tests to check print ignored files functionality and configuration."""
 
-    def setUp(self, _other_plugins: list[str] | None = None) -> None:
+    @pytest.fixture(autouse=True)
+    def _setup(self, beets_plugin_env: "BeetsPluginFixture") -> None:
         """Provides shared setup for tests."""
-        super().setUp()
+        self.env = beets_plugin_env
 
-        self._create_flat_import_dir()
-        self._setup_import_session(autotag=False)
+        env = self.env
+        env.create_flat_import_dir()
+        env.setup_import_session(autotag=False)
 
     def test_do_not_print_ignored_by_default(self) -> None:
         """Tests to ensure the default behavior for printing ignored is "disabled"."""
-        config["filetote"]["extensions"] = ".file"
+        env = self.env
 
-        with capture_log_with_traceback("beets.filetote") as logs:
-            self._run_cli_command("import")
+        env.config["filetote"]["extensions"] = ".file"
 
-        self.assert_not_in_lib_dir("Tag Artist/Tag Album/artifact.nfo")
-        self.assert_not_in_lib_dir("Tag Artist/Tag Album/artifact.lrc")
+        with env.capture_log("beets.filetote") as logs:
+            env.run_cli_command("import")
 
-        # check output log
+        env.assert_not_in_lib_dir("Tag Artist/Tag Album/artifact.nfo")
+        env.assert_not_in_lib_dir("Tag Artist/Tag Album/artifact.lrc")
+
         assert logs == []
 
     def test_print_ignored(self) -> None:
         """Tests that when `print_ignored` is enabled, it prints out all files not
         handled by Filetote.
         """
-        config["filetote"]["print_ignored"] = True
-        config["filetote"]["extensions"] = ".file .lrc"
+        env = self.env
 
-        with capture_log_with_traceback("beets.filetote") as logs:
-            self._run_cli_command("import")
+        env.config["filetote"]["print_ignored"] = True
+        env.config["filetote"]["extensions"] = ".file .lrc"
 
-        self.assert_not_in_lib_dir("Tag Artist/Tag Album/artifact.nfo")
+        with env.capture_log("beets.filetote") as logs:
+            env.run_cli_command("import")
 
-        # check output log
+        env.assert_not_in_lib_dir("Tag Artist/Tag Album/artifact.nfo")
+
         assert logs == [
             "filetote: Ignored files:",
             "filetote:    artifact.nfo",
