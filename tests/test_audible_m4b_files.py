@@ -2,14 +2,9 @@
 plugin, when the beets-audible plugin is loaded.
 """
 
-from typing import TYPE_CHECKING
-
 import pytest
 
-if TYPE_CHECKING:
-    from tests.pytest_beets_plugin.plugin_fixture import BeetsPluginFixture
-
-from tests.pytest_beets_plugin import MediaSetup
+from tests.pytest_beets_plugin import BeetsPluginFixture, MediaSetup
 
 
 class TestFiletoteM4BFilesIgnored:
@@ -18,7 +13,7 @@ class TestFiletoteM4BFilesIgnored:
     """
 
     @pytest.fixture(autouse=True)
-    def _setup(self, beets_plugin_env: "BeetsPluginFixture") -> None:
+    def _setup(self, beets_plugin_env: BeetsPluginFixture) -> None:
         """All tests in this class load the audible stub plugin."""
         self.env = beets_plugin_env
         self.env.plugins = ["audible"]

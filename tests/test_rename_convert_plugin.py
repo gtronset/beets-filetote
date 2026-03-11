@@ -1,13 +1,8 @@
 """Tests that renaming works as expected when the `convert` plugin is loaded."""
 
-from typing import TYPE_CHECKING
-
 import pytest
 
-from tests.pytest_beets_plugin import MediaSetup
-
-if TYPE_CHECKING:
-    from tests.pytest_beets_plugin.plugin_fixture import BeetsPluginFixture
+from tests.pytest_beets_plugin import BeetsPluginFixture, MediaSetup
 
 
 class TestConvertPluginRename:
@@ -16,7 +11,7 @@ class TestConvertPluginRename:
     """
 
     @pytest.fixture(autouse=True)
-    def _setup(self, beets_plugin_env: "BeetsPluginFixture") -> None:
+    def _setup(self, beets_plugin_env: BeetsPluginFixture) -> None:
         """All tests in this class load the convert plugin."""
         self.env = beets_plugin_env
         self.env.plugins = ["convert"]

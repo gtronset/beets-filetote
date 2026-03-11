@@ -51,9 +51,7 @@ def _beets_lib(
 ) -> Generator[tuple[library.Library, Path]]:
     """Create a beets Library backed by a temporary database.
 
-    Returns a ``(lib, lib_dir)`` tuple. Depends on ``_beets_config`` to
-    ensure config is isolated before the library is created.
-    Closes the library on teardown.
+    Properly closes the library on teardown.
     """
     helpers = BeetsTestUtils()
 
@@ -112,3 +110,42 @@ def beets_plugin_env(
         lib_dir=lib_dir,
         import_dir=import_dir,
     )
+
+
+# ---------------------------------------------------------------------------
+# Convenience fixtures — common setups
+# ---------------------------------------------------------------------------
+
+
+@pytest.fixture
+def beets_flat_env(beets_plugin_env: BeetsPluginFixture) -> BeetsPluginFixture:
+    """A flat (single-disc) import directory with a default copy session.
+
+    Calls::
+
+        env.create_flat_import_dir()
+        env.setup_import_session(autotag=False)
+
+    Use ``beets_plugin_env`` directly when you need custom arguments
+    for either method.
+    """
+    beets_plugin_env.create_flat_import_dir()
+    beets_plugin_env.setup_import_session(autotag=False)
+    return beets_plugin_env
+
+
+@pytest.fixture
+def beets_nested_env(beets_plugin_env: BeetsPluginFixture) -> BeetsPluginFixture:
+    """A nested (multi-disc) import directory with a default copy session.
+
+    Calls::
+
+        env.create_nested_import_dir()
+        env.setup_import_session(autotag=False)
+
+    Use ``beets_plugin_env`` directly when you need custom arguments
+    for either method.
+    """
+    beets_plugin_env.create_nested_import_dir()
+    beets_plugin_env.setup_import_session(autotag=False)
+    return beets_plugin_env
