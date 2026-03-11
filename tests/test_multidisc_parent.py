@@ -32,22 +32,6 @@ class TestMultidiscParent:
 
         env.setup_import_session(autotag=False)
 
-    # def setUp(self, _other_plugins: list[str] | None = None) -> None:
-    #     """Provides shared setup for tests."""
-    #     super().setUp()
-
-    #     self._create_nested_import_dir()
-
-    #     self.album_path = self.import_dir / "the_album"
-
-    #     self.create_file(self.album_path / "summary.txt")
-    #     self.create_file(self.album_path / "artifact.nfo")
-
-    #     (self.album_path / "artwork").mkdir()
-    #     self.create_file(self.album_path / "artwork" / "poster.jpg")
-
-    #     self._setup_import_session(autotag=False)
-
     def test_collects_parent_artifacts(self) -> None:
         """Ensures artifacts in the parent album directory are collected and
         moved to the destination library, alongside the disc contents.

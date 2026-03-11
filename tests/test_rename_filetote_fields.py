@@ -1,88 +1,99 @@
 """Tests renaming Filetote custom fields for the beets-filetote plugin."""
 
-import logging
+from typing import TYPE_CHECKING
 
-from beets import config
+import pytest
 
-from tests.helper import FiletoteTestCase
+if TYPE_CHECKING:
+    from tests.pytest_beets_plugin.plugin_fixture import BeetsPluginFixture
 
-log = logging.getLogger("beets")
 
-
-class FiletoteRenameFiletoteFieldsTest(FiletoteTestCase):
+class TestRenameFiletoteFields:
     """Tests to check that Filetote renames using Filetote-provided fields as
     expected for custom path formats.
     """
 
-    def setUp(self, _other_plugins: list[str] | None = None) -> None:
+    @pytest.fixture(autouse=True)
+    def _setup(self, beets_plugin_env: "BeetsPluginFixture") -> None:
         """Provides shared setup for tests."""
-        super().setUp()
+        self.env = beets_plugin_env
 
-        self._create_flat_import_dir(pair_subfolders=True)
-        self._setup_import_session(autotag=False, move=True)
+        env = self.env
+        env.create_flat_import_dir(pair_subfolders=True)
+        env.setup_import_session(autotag=False, move=True)
 
     def test_rename_field_albumpath(self) -> None:
         """Tests that the value of `albumpath` populates in renaming."""
-        config["filetote"]["extensions"] = ".file"
-        config["paths"]["ext:file"] = "$albumpath/newname"
+        env = self.env
 
-        self._run_cli_command("import")
+        env.config["filetote"]["extensions"] = ".file"
+        env.config["paths"]["ext:file"] = "$albumpath/newname"
 
-        self.assert_in_lib_dir("Tag Artist/Tag Album/newname.file")
+        env.run_cli_command("import")
+
+        env.assert_in_lib_dir("Tag Artist/Tag Album/newname.file")
 
     def test_rename_field_old_filename(self) -> None:
         """Tests that the value of `old_filename` populates in renaming."""
-        config["filetote"]["extensions"] = ".file"
-        config["paths"]["ext:file"] = "$albumpath/$old_filename"
+        env = self.env
 
-        self._run_cli_command("import")
+        env.config["filetote"]["extensions"] = ".file"
+        env.config["paths"]["ext:file"] = "$albumpath/$old_filename"
 
-        self.assert_in_lib_dir("Tag Artist/Tag Album/artifact.file")
-        self.assert_in_lib_dir("Tag Artist/Tag Album/artifact2.file")
+        env.run_cli_command("import")
+
+        env.assert_in_lib_dir("Tag Artist/Tag Album/artifact.file")
+        env.assert_in_lib_dir("Tag Artist/Tag Album/artifact2.file")
 
     def test_rename_field_medianame_old(self) -> None:
         """Tests that the value of `medianame_old` populates in renaming."""
-        config["filetote"]["extensions"] = ".file"
-        config["paths"]["ext:file"] = "$albumpath/$medianame_old"
+        env = self.env
 
-        self._run_cli_command("import")
+        env.config["filetote"]["extensions"] = ".file"
+        env.config["paths"]["ext:file"] = "$albumpath/$medianame_old"
 
-        self.assert_in_lib_dir("Tag Artist/Tag Album/track_1.file")
+        env.run_cli_command("import")
+
+        env.assert_in_lib_dir("Tag Artist/Tag Album/track_1.file")
 
     def test_rename_field_medianame_new(self) -> None:
         """Tests that the value of `medianame_new` populates in renaming."""
-        config["filetote"]["extensions"] = ".lrc"
-        config["filetote"]["pairing"] = {
+        env = self.env
+
+        env.config["filetote"]["extensions"] = ".lrc"
+        env.config["filetote"]["pairing"] = {
             "enabled": True,
             "pairing_only": True,
         }
-        config["paths"]["ext:lrc"] = "$albumpath/$medianame_new"
+        env.config["paths"]["ext:lrc"] = "$albumpath/$medianame_new"
 
-        self._run_cli_command("import")
+        env.run_cli_command("import")
 
-        self.assert_in_lib_dir("Tag Artist/Tag Album/Tag Title 1.lrc")
-        self.assert_in_lib_dir("Tag Artist/Tag Album/Tag Title 2.lrc")
-        self.assert_in_lib_dir("Tag Artist/Tag Album/Tag Title 3.lrc")
+        env.assert_in_lib_dir("Tag Artist/Tag Album/Tag Title 1.lrc")
+        env.assert_in_lib_dir("Tag Artist/Tag Album/Tag Title 2.lrc")
+        env.assert_in_lib_dir("Tag Artist/Tag Album/Tag Title 3.lrc")
 
     def test_rename_field_subpath(self) -> None:
         """Tests that the value of `subpath` populates in renaming. Also tests that the
-        default lyric file moves as expected without a trailing pah separator.
+        default lyric file moves as expected without a trailing path separator.
         """
-        config["filetote"]["extensions"] = ".lrc"
-        config["filetote"]["pairing"]["enabled"] = True
+        env = self.env
 
-        config["paths"]["ext:lrc"] = self.fmt_path(
+        env.config["filetote"]["extensions"] = ".lrc"
+        env.config["filetote"]["pairing"]["enabled"] = True
+
+        env.config["paths"]["ext:lrc"] = env.fmt_path(
             "$albumpath", "$subpath$medianame_new"
         )
 
-        self._run_cli_command("import")
+        env.run_cli_command("import")
 
-        self.assert_in_lib_dir(
+        env.assert_in_lib_dir(
             "Tag Artist/Tag Album/lyrics/lyric-subfolder/Tag Title 1.lrc"
         )
-        self.assert_in_lib_dir(
+        env.assert_in_lib_dir(
             "Tag Artist/Tag Album/lyrics/lyric-subfolder/Tag Title 2.lrc"
         )
-        self.assert_in_lib_dir(
+        env.assert_in_lib_dir(
             "Tag Artist/Tag Album/lyrics/lyric-subfolder/Tag Title 3.lrc"
         )
