@@ -3,8 +3,6 @@
 
 from __future__ import annotations
 
-import unittest
-
 from typing import Any
 
 import pytest
@@ -14,7 +12,7 @@ from tests.pytest_beets_plugin import load_plugin_source
 filetote_dataclasses = load_plugin_source("filetote_dataclasses")
 
 
-class TestTypeErrorFunctions(unittest.TestCase):
+class TestTypeErrorFunctions:
     """Test for functions in `filetote_dataclasses`, esp. TypeError validations."""
 
     def test__validate_types_instance(self) -> None:
@@ -39,15 +37,12 @@ class TestTypeErrorFunctions(unittest.TestCase):
         field_type: Any,
         expected_type: Any,
     ) -> None:
-        """Helper Function to test that the instance function correctly checks for the
+        """Helper function to test that the instance function correctly checks for the
         types.
         """
-        try:
-            filetote_dataclasses._validate_types_instance(
-                field_name, field_value, field_type
-            )
-        except TypeError as e:
-            self.fail(f"Exception {type(e)} was raised unexpectedly: {e}")
+        filetote_dataclasses._validate_types_instance(
+            field_name, field_value, field_type
+        )
 
         with pytest.raises(TypeError) as assert_test_message:
             filetote_dataclasses._validate_types_instance(
@@ -65,10 +60,7 @@ class TestTypeErrorFunctions(unittest.TestCase):
     def test__validate_types_dict(self) -> None:
         """Ensure the dict function correctly checks for the types."""
         # Test the positive outcome of dict comparison
-        try:
-            filetote_dataclasses._validate_types_dict(["test"], {"key": "value"}, str)
-        except TypeError as e:
-            self.fail(f"Exception {type(e)} was raised unexpectedly: {e}")
+        filetote_dataclasses._validate_types_dict(["test"], {"key": "value"}, str)
 
         # Fail if the key isn't a string
         with pytest.raises(TypeError) as non_string_key_test:
@@ -90,7 +82,7 @@ class TestTypeErrorFunctions(unittest.TestCase):
             " string (`str`), got `<class 'list'>`"
         )
 
-        # Fail the the inner list value isn't a string
+        # Fail the inner list value isn't a string
         with pytest.raises(TypeError) as wrong_value_type_test:
             filetote_dataclasses._validate_types_dict(
                 ["test"], {"key": [123]}, list, list_subtype=str
@@ -105,10 +97,7 @@ class TestTypeErrorFunctions(unittest.TestCase):
     def test__validate_types_str_seq(self) -> None:
         """Ensure the str_seq correctly checks for the types."""
         # Test the positive outcome of a `list[str]`
-        try:
-            filetote_dataclasses._validate_types_str_seq(["test"], ["string"], '""')
-        except TypeError as e:
-            self.fail(f"Exception {type(e)} was raised unexpectedly: {e}")
+        filetote_dataclasses._validate_types_str_seq(["test"], ["string"], '""')
 
         # Fail if the value isn't a List
         with pytest.raises(TypeError) as non_list_test:
@@ -121,7 +110,7 @@ class TestTypeErrorFunctions(unittest.TestCase):
             " `<class 'type'>`"
         )
 
-        # Fail the the inner list value isn't a string
+        # Fail the inner list value isn't a string
         with pytest.raises(TypeError) as non_string_item_test:
             filetote_dataclasses._validate_types_str_seq(["test"], [123], '""')
 
@@ -169,7 +158,7 @@ class TestTypeErrorFunctions(unittest.TestCase):
         )
 
     def test__format_config_hierarchy(self) -> None:
-        """Tests that the output matches the format `[level1][level2[level3]`, etc."""
+        """Tests that the output matches the format `[level1][level2][level3]`, etc."""
         single = filetote_dataclasses._format_config_hierarchy(["config"])
         assert single == "[config]"
 
