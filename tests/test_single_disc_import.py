@@ -118,7 +118,9 @@ class TestFiletoteFromFlatDirectory:
         env.assert_not_in_lib_dir("Tag Artist/Tag Album/artifact.lrc")
 
     def test_copy_no_artifacts_by_default(self) -> None:
-        """Ensure that all artifacts that match the extensions are moved by default."""
+        """Ensure that no artifacts are copied by default (i.e., Filetote needs to be
+        configured).
+        """
         env = self.env
         env.run_cli_command("import")
 

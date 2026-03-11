@@ -2,30 +2,60 @@
 plugin, when the beets-audible plugin is loaded.
 """
 
-import pytest
-
 from tests.pytest_beets_plugin import BeetsPluginFixture, MediaSetup
 
 
+# TODO(gtronset): mediafile.TYPES only contains a subset of formats that MediaFile/
+# Mutagen can actually read. These additional types are known to be importable by
+# beets (via Mutagen's MP4, ASF, and WAV handlers) but are absent from
+# the TYPES dict. Without these, Filetote would incorrectly treat them as
+# artifacts.
+#
+# See: https://github.com/beetbox/mediafile/blob/master/mediafile/constants.py
+# See: https://mutagen.readthedocs.io/en/latest/api/mp4.html
+# _ADDITIONAL_MEDIA_TYPES: dict[str, str] = {
+#     # Mutagen MP4 container variants (not in mediafile.TYPES)
+#     "m4a": "AAC",
+#     "m4b": "AAC Audiobook",
+#     "m4v": "M4V",
+#     "mp4": "MP4",
+#     # Mutagen ASF/WMA (mediafile.TYPES lists "asf" but not "wma")
+#     "wma": "Windows Media",
+#     # Alternate WAV extension (mediafile.TYPES lists "wav" but not "wave")
+#     "wave": "WAVE",
+# }
+# ...
+# # File types handled by beets, used to check if a file is an artifact.
+# # Combine mediafile.TYPES with known additional Mutagen-supported formats.
+# self._beets_file_types: dict[str, str] = {
+#     **BEETS_FILE_TYPES,
+#     **_ADDITIONAL_MEDIA_TYPES,
+# }
+# --END
+# https://github.com/gtronset/beets-filetote/pull/275
 class TestFiletoteM4BFilesIgnored:
     """Tests to check that Filetote does not copy music/audiobook files when the
     beets-audible plugin is present.
+
+    Without the audible plugin, ``m4b`` is not in ``mediafile.TYPES``, so
+    Filetote treats it as an artifact and copies it using its source filename.
+    When audible is loaded, Filetote adds ``m4b`` to its internal file type
+    list and skips it, letting beets handle the import normally.
     """
 
-    @pytest.fixture(autouse=True)
-    def _setup(self, beets_plugin_env: BeetsPluginFixture) -> None:
-        """All tests in this class load the audible stub plugin."""
-        self.env = beets_plugin_env
-        self.env.plugins = ["audible"]
-
-    def test_expanded_music_file_types_are_ignored(self) -> None:
-        """Ensure that `.m4b` file types are ignored by Filetote."""
-        env = self.env
+    def test_m4b_not_copied_as_artifact_with_audible(
+        self, beets_plugin_env: BeetsPluginFixture
+    ) -> None:
+        """With audible loaded, Filetote recognizes ``.m4b`` as a music file
+        type and does NOT copy it as an artifact.
+        """
+        env = beets_plugin_env
+        env.plugins = ["audible"]
 
         env.create_flat_import_dir(
             media_files=[
                 MediaSetup(file_type="mp3", count=1),
-                MediaSetup(file_type="m4b", count=1),
+                MediaSetup(file_type="m4b", count=1, generate_pair=False),
             ]
         )
         env.setup_import_session(autotag=False)
@@ -41,3 +71,33 @@ class TestFiletoteM4BFilesIgnored:
 
         # Filetote should NOT copy m4b as an artifact (source-named)
         env.assert_not_in_lib_dir("Tag Artist/Tag Album/track_1.m4b")
+
+    def test_m4b_copied_as_artifact_without_audible(
+        self, beets_plugin_env: BeetsPluginFixture
+    ) -> None:
+        """Without audible, ``m4b`` is NOT in Filetote's file type list, so
+        Filetote treats it as an artifact and copies it with its source
+        filename.
+
+        Note: beets also imports it as media (MediaFile can read m4b via
+        Mutagen's MP4 handler), so both the artifact copy AND the media
+        import exist in the library.
+        """
+        env = beets_plugin_env
+
+        env.create_flat_import_dir(
+            media_files=[
+                MediaSetup(file_type="mp3", count=1),
+                MediaSetup(file_type="m4b", count=1, generate_pair=False),
+            ]
+        )
+        env.setup_import_session(autotag=False)
+        env.config["filetote"]["extensions"] = ".*"
+
+        env.run_cli_command("import")
+
+        # Without audible, Filetote copies m4b as an artifact
+        env.assert_in_lib_dir("Tag Artist/Tag Album/track_1.m4b")
+
+        # beets ALSO imports it as media
+        env.assert_in_lib_dir("Tag Artist/Tag Album/Tag Title 1.m4b")

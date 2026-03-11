@@ -23,7 +23,7 @@ class TestMultiDiscImport:
         env.setup_import_session(autotag=False)
 
     def test_copies_file_from_nested_to_library(self) -> None:
-        """Ensures that nested directories are handled by beets and the the files
+        """Ensures that nested directories are handled by beets and the files
         relocate as expected following the default beets behavior (moves to a
         single directory).
         """
