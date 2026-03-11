@@ -10,8 +10,8 @@ A plugin that moves non-music extra files, attachments, and artifacts during imp
 CLI file manipulation actions (`move`, `modify`, reimport, etc.) for [beets], a music
 library manager (and much more!).
 
-The most recent versions of this plugin runs on Python 3.10+ in beets `v2.4` and above
-(<`v2.7`), though older versions of the plugin have additional compatibility back to `v1.6`.
+This plugin runs on Python 3.10+ in beets `v2.4` and above (<`v2.8`), though older
+versions of the plugin have additional compatibility back to `v1.6`.
 
 [beets]: https://beets.io/
 

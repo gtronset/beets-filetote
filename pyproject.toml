@@ -24,7 +24,7 @@ classifiers = [
 
 [tool.poetry.dependencies]
 python = "^3.10"
-beets = ">=2.4.0,<2.7.0"
+beets = ">=2.4.0,<2.8.0"
 mediafile = ">=0.12.0"
 
 [tool.poetry.group.llvmlite.dependencies]
@@ -152,6 +152,7 @@ env_list = [
     "beets-2.4",
     "beets-2.5",
     "beets-2.6",
+    "beets-2.7",
     "beets-master",
 ]
 
@@ -259,6 +260,35 @@ commands = [
     ],
 ]
 
+[tool.tox.env.beets-2.7]
+description = "Test with beets~=2.7.0"
+commands_pre = [
+    [
+        "poetry",
+        "install",
+        "--no-root",
+        "--sync",
+    ],
+    [
+        "poetry",
+        "run",
+        "pip",
+        "install",
+        "beets~=2.7.0",
+    ],
+]
+commands = [
+    [
+        "poetry",
+        "run",
+        "pytest",
+        "-n",
+        "auto",
+        "tests",
+        "--typeguard-packages=beetsplug",
+    ],
+]
+
 [tool.tox.env.beets-master]
 description = "Test with beets from master branch"
 commands_pre = [
@@ -276,7 +306,6 @@ commands_pre = [
         "beets@git+https://github.com/beetbox/beets.git@master",
     ],
 ]
-deps = []
 commands = [
     [
         "poetry",
