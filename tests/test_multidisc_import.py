@@ -2,12 +2,9 @@
 plugin.
 """
 
-from typing import TYPE_CHECKING
-
 import pytest
 
-if TYPE_CHECKING:
-    from tests.pytest_beets_plugin.plugin_fixture import BeetsPluginFixture
+from tests.pytest_beets_plugin import BeetsPluginFixture
 
 
 class TestMultiDiscImport:
@@ -17,7 +14,7 @@ class TestMultiDiscImport:
     """
 
     @pytest.fixture(autouse=True)
-    def _setup(self, beets_plugin_env: "BeetsPluginFixture") -> None:
+    def _setup(self, beets_plugin_env: BeetsPluginFixture) -> None:
         """Provides shared setup for tests."""
         self.env = beets_plugin_env
 

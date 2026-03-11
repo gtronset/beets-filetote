@@ -4,10 +4,10 @@ from typing import TYPE_CHECKING
 
 import pytest
 
+from tests.pytest_beets_plugin import BeetsPluginFixture
+
 if TYPE_CHECKING:
     from pathlib import Path
-
-    from tests.pytest_beets_plugin.plugin_fixture import BeetsPluginFixture
 
 
 class TestFiletoteCLIOperation:
@@ -16,7 +16,7 @@ class TestFiletoteCLIOperation:
     """
 
     @pytest.fixture(autouse=True)
-    def _setup(self, beets_plugin_env: "BeetsPluginFixture") -> None:
+    def _setup(self, beets_plugin_env: BeetsPluginFixture) -> None:
         """All tests in this class load the audible stub plugin."""
         self.env = beets_plugin_env
         self.env.config["filetote"]["extensions"] = ".file"
