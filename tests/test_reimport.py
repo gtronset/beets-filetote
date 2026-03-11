@@ -1,215 +1,237 @@
 """Tests reimporting for the beets-filetote plugin."""
 
-import logging
+from typing import TYPE_CHECKING
 
-from beets import config
+import pytest
 
-from tests.helper import FiletoteTestCase, capture_log_with_traceback
+if TYPE_CHECKING:
+    from tests.pytest_beets_plugin.plugin_fixture import BeetsPluginFixture
 
-log = logging.getLogger("beets")
 
-
-class FiletoteReimportTest(FiletoteTestCase):
+class TestReimport:
     """Tests to check that Filetote handles reimports correctly."""
 
-    def setUp(self, _other_plugins: list[str] | None = None) -> None:
-        """Setup subsequent import directory of the below structure.
+    @pytest.fixture(autouse=True)
+    def _setup(self, beets_plugin_env: "BeetsPluginFixture") -> None:
+        """Perform an initial import so each test starts with artifacts in the
+        library.
 
-        Ex:
-        testlib_dir/
-            Tag Artist/
-                Tag Album/
-                    Tag Title 1.mp3
-                    Tag Title 2.mp3
-                    Tag Title 3.mp3
-                    artifact.file
-                    artifact2.file
+        Library structure after setup::
+
+            testlib_dir/
+                Tag Artist/
+                    Tag Album/
+                        Tag Title 1.mp3
+                        Tag Title 2.mp3
+                        Tag Title 3.mp3
+                        artifact.file
+                        artifact2.file
         """
-        super().setUp()
+        self.env = beets_plugin_env
 
-        self._create_flat_import_dir()
-        self._setup_import_session(autotag=False, move=True)
+        env = self.env
+        env.create_flat_import_dir()
+        env.setup_import_session(autotag=False, move=True)
 
-        config["filetote"]["extensions"] = ".file"
-        config["paths"]["ext:file"] = self.fmt_path("$albumpath", "$old_filename")
+        env.config["filetote"]["extensions"] = ".file"
+        env.config["paths"]["ext:file"] = env.fmt_path("$albumpath", "$old_filename")
 
-        log.debug("--- initial import")
-        self._run_cli_command("import")
+        env.log.debug("--- initial import")
+        env.run_cli_command("import")
 
     def test_reimport_artifacts_with_copy(self) -> None:
         """Tests that when reimporting, copying actually results in a move. The
         operation gets changed to `move` when the media file is already in the
         library (hence, reimport).
         """
-        # Cause files to relocate (move) when reimported
-        self.lib.path_formats[0] = (
+        env = self.env
+
+        env.lib.path_formats[0] = (
             "default",
-            self.fmt_path("1$artist", "$album", "$title"),
+            env.fmt_path("1$artist", "$album", "$title"),
         )
-        self._setup_import_session(autotag=False, import_dir=self.lib_dir)
+        env.setup_import_session(autotag=False, import_dir=env.lib_dir)
 
-        log.debug("--- second import")
-        self._run_cli_command("import")
+        env.log.debug("--- second import")
+        env.run_cli_command("import")
 
-        self.assert_not_in_lib_dir("Tag Artist/Tag Album/artifact.file")
-        self.assert_in_lib_dir("1Tag Artist/Tag Album/artifact.file")
+        env.assert_not_in_lib_dir("Tag Artist/Tag Album/artifact.file")
+        env.assert_in_lib_dir("1Tag Artist/Tag Album/artifact.file")
 
     def test_reimport_artifacts_with_move(self) -> None:
         """Tests that when reimporting, moving works."""
-        # Cause files to relocate when reimported
-        self.lib.path_formats[0] = (
+        env = self.env
+
+        env.lib.path_formats[0] = (
             "default",
-            self.fmt_path("1$artist", "$album", "$title"),
+            env.fmt_path("1$artist", "$album", "$title"),
         )
-        self._setup_import_session(autotag=False, import_dir=self.lib_dir, move=True)
+        env.setup_import_session(autotag=False, import_dir=env.lib_dir, move=True)
 
-        log.debug("--- second import")
-        self._run_cli_command("import")
+        env.log.debug("--- second import")
+        env.run_cli_command("import")
 
-        self.assert_not_in_lib_dir("Tag Artist/Tag Album/artifact.file")
-        self.assert_in_lib_dir("1Tag Artist/Tag Album/artifact.file")
+        env.assert_not_in_lib_dir("Tag Artist/Tag Album/artifact.file")
+        env.assert_in_lib_dir("1Tag Artist/Tag Album/artifact.file")
 
     def test_do_nothing_when_paths_do_not_change_with_copy_import(self) -> None:
         """Tests that when paths are the same (before/after), no action is
         taken for default `copy` action.
         """
-        self._setup_import_session(autotag=False, import_dir=self.lib_dir)
+        env = self.env
 
-        log.debug("--- second import")
-        self._run_cli_command("import")
+        env.setup_import_session(autotag=False, import_dir=env.lib_dir)
 
-        self.assert_number_of_files_in_dir(5, self.lib_dir / "Tag Artist" / "Tag Album")
-        self.assert_in_lib_dir("Tag Artist/Tag Album/artifact.file")
-        self.assert_in_lib_dir("Tag Artist/Tag Album/artifact2.file")
+        env.log.debug("--- second import")
+        env.run_cli_command("import")
+
+        env.assert_number_of_files_in_dir(5, env.lib_dir / "Tag Artist" / "Tag Album")
+        env.assert_in_lib_dir("Tag Artist/Tag Album/artifact.file")
+        env.assert_in_lib_dir("Tag Artist/Tag Album/artifact2.file")
 
     def test_do_nothing_when_paths_do_not_change_with_move_import(self) -> None:
         """Tests that when paths are the same (before/after), no action is
         taken for default `move` action.
         """
-        self._setup_import_session(autotag=False, import_dir=self.lib_dir, move=True)
+        env = self.env
 
-        log.debug("--- second import")
-        self._run_cli_command("import")
+        env.setup_import_session(autotag=False, import_dir=env.lib_dir, move=True)
 
-        self.assert_in_lib_dir("Tag Artist/Tag Album/artifact.file")
-        self.assert_in_lib_dir("Tag Artist/Tag Album/artifact2.file")
+        env.log.debug("--- second import")
+        env.run_cli_command("import")
+
+        env.assert_in_lib_dir("Tag Artist/Tag Album/artifact.file")
+        env.assert_in_lib_dir("Tag Artist/Tag Album/artifact2.file")
 
     def test_do_nothing_when_paths_are_identical_with_move_import(self) -> None:
         """Tests that when source and destination paths are identical, Filetote
         should skip processing entirely to avoid unnecessary "artifact already
         exists" warnings.
         """
-        self._setup_import_session(autotag=False, import_dir=self.lib_dir, move=True)
+        env = self.env
 
-        with capture_log_with_traceback("beets.filetote") as logs:
-            log.debug("--- second import")
-            self._run_cli_command("import")
+        env.setup_import_session(autotag=False, import_dir=env.lib_dir, move=True)
 
-        assert any("Source and destination are the same" in record for record in logs)
+        with env.capture_log("beets.filetote") as logs:
+            env.log.debug("--- second import")
+            env.run_cli_command("import")
+
+        assert any("Source and destination are the same" in line for line in logs)
 
         assert not any(
-            "Skipping artifact" in record and "already exists" in record
-            for record in logs
+            "Skipping artifact" in line and "already exists" in line for line in logs
         )
 
-        self.assert_in_lib_dir("Tag Artist/Tag Album/artifact.file")
+        env.assert_in_lib_dir("Tag Artist/Tag Album/artifact.file")
 
     def test_rename_with_copy_reimport(self) -> None:
         """Tests that renaming during `copy` works even when reimporting."""
-        config["paths"]["ext:file"] = self.fmt_path("$albumpath", "$artist - $album")
-        self._setup_import_session(autotag=False, import_dir=self.lib_dir)
+        env = self.env
 
-        log.debug("--- second import")
-        self._run_cli_command("import")
+        env.config["paths"]["ext:file"] = env.fmt_path("$albumpath", "$artist - $album")
+        env.setup_import_session(autotag=False, import_dir=env.lib_dir)
 
-        self.assert_not_in_lib_dir("Tag Artist/Tag Album/artifact.file")
-        self.assert_in_lib_dir("Tag Artist/Tag Album/Tag Artist - Tag Album.file")
+        env.log.debug("--- second import")
+        env.run_cli_command("import")
+
+        env.assert_not_in_lib_dir("Tag Artist/Tag Album/artifact.file")
+        env.assert_in_lib_dir("Tag Artist/Tag Album/Tag Artist - Tag Album.file")
 
     def test_rename_with_move_reimport(self) -> None:
         """Tests that renaming during `move` works even when reimporting."""
-        config["paths"]["ext:file"] = self.fmt_path("$albumpath", "$artist - $album")
-        self._setup_import_session(autotag=False, import_dir=self.lib_dir, move=True)
+        env = self.env
 
-        log.debug("--- second import")
-        self._run_cli_command("import")
+        env.config["paths"]["ext:file"] = env.fmt_path("$albumpath", "$artist - $album")
+        env.setup_import_session(autotag=False, import_dir=env.lib_dir, move=True)
 
-        self.assert_not_in_lib_dir("Tag Artist/Tag Album/artifact.file")
-        self.assert_in_lib_dir("Tag Artist/Tag Album/Tag Artist - Tag Album.file")
+        env.log.debug("--- second import")
+        env.run_cli_command("import")
+
+        env.assert_not_in_lib_dir("Tag Artist/Tag Album/artifact.file")
+        env.assert_in_lib_dir("Tag Artist/Tag Album/Tag Artist - Tag Album.file")
 
     def test_rename_when_paths_do_not_change(self) -> None:
         """This test considers the situation where the path format for a file extension
         is changed and files already in the library are reimported and renamed to
         reflect the change.
         """
-        config["paths"]["ext:file"] = self.fmt_path("$albumpath", "$album")
-        self._setup_import_session(autotag=False, import_dir=self.lib_dir, move=True)
+        env = self.env
 
-        log.debug("--- second import")
-        self._run_cli_command("import")
+        env.config["paths"]["ext:file"] = env.fmt_path("$albumpath", "$album")
+        env.setup_import_session(autotag=False, import_dir=env.lib_dir, move=True)
 
-        self.assert_not_in_lib_dir("Tag Artist/Tag Album/artifact.file")
-        self.assert_in_lib_dir("Tag Artist/Tag Album/Tag Album.file")
+        env.log.debug("--- second import")
+        env.run_cli_command("import")
+
+        env.assert_not_in_lib_dir("Tag Artist/Tag Album/artifact.file")
+        env.assert_in_lib_dir("Tag Artist/Tag Album/Tag Album.file")
 
     def test_multiple_reimport_artifacts_with_move(self) -> None:
         """Tests that multiple reimports work the same as the initial action or
         a single reimport.
         """
-        # Cause files to relocate when reimported
-        self.lib.path_formats[0] = (
+        env = self.env
+
+        # --- first reimport
+        env.lib.path_formats[0] = (
             "default",
-            self.fmt_path("1$artist", "$album", "$title"),
+            env.fmt_path("1$artist", "$album", "$title"),
         )
-        self._setup_import_session(autotag=False, import_dir=self.lib_dir, move=True)
-        config["paths"]["ext:file"] = self.fmt_path(
+        env.setup_import_session(autotag=False, import_dir=env.lib_dir, move=True)
+        env.config["paths"]["ext:file"] = env.fmt_path(
             "$albumpath", "$old_filename - import I"
         )
 
-        log.debug("--- first import")
-        self._run_cli_command("import")
+        env.log.debug("--- first reimport")
+        env.run_cli_command("import")
 
-        self.assert_not_in_lib_dir("Tag Artist/Tag Album/artifact.file")
-        self.assert_not_in_lib_dir("Tag Artist/Tag Album/artifact2.file")
-        self.assert_in_lib_dir("1Tag Artist/Tag Album/artifact - import I.file")
-        self.assert_in_lib_dir("1Tag Artist/Tag Album/artifact2 - import I.file")
+        env.assert_not_in_lib_dir("Tag Artist/Tag Album/artifact.file")
+        env.assert_not_in_lib_dir("Tag Artist/Tag Album/artifact2.file")
+        env.assert_in_lib_dir("1Tag Artist/Tag Album/artifact - import I.file")
+        env.assert_in_lib_dir("1Tag Artist/Tag Album/artifact2 - import I.file")
 
-        log.debug("--- second import")
-        self.lib.path_formats[0] = (
+        # --- second reimport
+        env.lib.path_formats[0] = (
             "default",
-            self.fmt_path("2$artist", "$album", "$title"),
+            env.fmt_path("2$artist", "$album", "$title"),
         )
-        self._setup_import_session(autotag=False, import_dir=self.lib_dir, move=True)
-        config["paths"]["ext:file"] = self.fmt_path("$albumpath", "$old_filename I")
-        self._run_cli_command("import")
+        env.setup_import_session(autotag=False, import_dir=env.lib_dir, move=True)
+        env.config["paths"]["ext:file"] = env.fmt_path("$albumpath", "$old_filename I")
 
-        self.assert_not_in_lib_dir("1Tag Artist/Tag Album/artifact - import I.file")
-        self.assert_not_in_lib_dir("1Tag Artist/Tag Album/artifact2 - import I.file")
-        self.assert_in_lib_dir("2Tag Artist/Tag Album/artifact - import I I.file")
-        self.assert_in_lib_dir("2Tag Artist/Tag Album/artifact2 - import I I.file")
+        env.log.debug("--- second reimport")
+        env.run_cli_command("import")
 
-        log.debug("--- third import")
-        self.lib.path_formats[0] = (
+        env.assert_not_in_lib_dir("1Tag Artist/Tag Album/artifact - import I.file")
+        env.assert_not_in_lib_dir("1Tag Artist/Tag Album/artifact2 - import I.file")
+        env.assert_in_lib_dir("2Tag Artist/Tag Album/artifact - import I I.file")
+        env.assert_in_lib_dir("2Tag Artist/Tag Album/artifact2 - import I I.file")
+
+        # --- third reimport
+        env.lib.path_formats[0] = (
             "default",
-            self.fmt_path("3$artist", "$album", "$title"),
+            env.fmt_path("3$artist", "$album", "$title"),
         )
-        self._setup_import_session(autotag=False, import_dir=self.lib_dir, move=True)
+        env.setup_import_session(autotag=False, import_dir=env.lib_dir, move=True)
 
-        self._run_cli_command("import")
+        env.log.debug("--- third reimport")
+        env.run_cli_command("import")
 
-        self.assert_not_in_lib_dir("2Tag Artist/Tag Album/artifact - import I I.file")
-        self.assert_not_in_lib_dir("2Tag Artist/Tag Album/artifact2 - import I I.file")
-        self.assert_in_lib_dir("3Tag Artist/Tag Album/artifact - import I I I.file")
-        self.assert_in_lib_dir("3Tag Artist/Tag Album/artifact2 - import I I I.file")
+        env.assert_not_in_lib_dir("2Tag Artist/Tag Album/artifact - import I I.file")
+        env.assert_not_in_lib_dir("2Tag Artist/Tag Album/artifact2 - import I I.file")
+        env.assert_in_lib_dir("3Tag Artist/Tag Album/artifact - import I I I.file")
+        env.assert_in_lib_dir("3Tag Artist/Tag Album/artifact2 - import I I I.file")
 
     def test_reimport_artifacts_with_query(self) -> None:
-        """Tests that when reimporting, copying works."""
-        # Cause files to relocate (move) when reimported
-        self.lib.path_formats = [
-            ("default", self.fmt_path("New Tag Artist", "$album", "$title")),
+        """Tests that when reimporting with a query, artifacts are moved."""
+        env = self.env
+
+        env.lib.path_formats = [
+            ("default", env.fmt_path("New Tag Artist", "$album", "$title")),
         ]
-        self._setup_import_session(query="artist", autotag=False, move=True)
+        env.setup_import_session(query="artist", autotag=False, move=True)
 
-        log.debug("--- second import")
-        self._run_cli_command("import")
+        env.log.debug("--- second import")
+        env.run_cli_command("import")
 
-        self.assert_not_in_lib_dir("Tag Artist/Tag Album/artifact.file")
-        self.assert_in_lib_dir("New Tag Artist/Tag Album/artifact.file")
+        env.assert_not_in_lib_dir("Tag Artist/Tag Album/artifact.file")
+        env.assert_in_lib_dir("New Tag Artist/Tag Album/artifact.file")
