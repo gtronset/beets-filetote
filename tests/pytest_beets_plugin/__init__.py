@@ -2,11 +2,9 @@
 
 from ._io import DummyIO
 from ._item_model import MediaMeta
-from ._legacy import FiletoteTestCase
 from .logging import (
     ListLogHandler,
     capture_beets_log,
-    capture_log_with_traceback,
     install_beets_log_fix,
 )
 from .media import MediaCreator, MediaSetup
@@ -21,15 +19,12 @@ from .plugin_lifecycle import (
 )
 from .utils import (
     BeetsTestUtils,
-    HelperUtils,
 )
 
 __all__ = [
     "BeetsPluginFixture",
     "BeetsTestUtils",
     "DummyIO",
-    "FiletoteTestCase",  # Legacy (deprecated)
-    "HelperUtils",  # Legacy (deprecated)
     "ListLogHandler",
     "MediaCreator",
     "MediaMeta",
@@ -40,7 +35,6 @@ __all__ = [
     "_load_module_from_file",
     "_load_plugin_class",
     "capture_beets_log",
-    "capture_log_with_traceback",  # Legacy (deprecated)
     "install_beets_log_fix",
     "load_plugin_source",
 ]

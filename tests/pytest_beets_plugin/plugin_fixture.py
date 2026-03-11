@@ -93,7 +93,7 @@ class BeetsPluginFixture(BeetsAssertions, MediaCreator):
         self,
         logger_name: str = "beets",
         level: LogLevels = logging.DEBUG,
-    ) -> Generator[list[str]]:
+    ) -> Generator[list[str], None, None]:
         """Capture log messages from a named logger.
 
         Sets ``config["verbose"]`` appropriately for the requested level,

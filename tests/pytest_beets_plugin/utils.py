@@ -75,7 +75,3 @@ class BeetsTestUtils:
         """Get the resource file matching extension, defaulting to MP3."""
         file_type = file_ext.lstrip(".").lower()
         return SAMPLE_MEDIA_FILES.get(file_type, SAMPLE_MEDIA_FILES["mp3"])
-
-
-# Backward-compatible alias
-HelperUtils = BeetsTestUtils
