@@ -14,7 +14,7 @@ _EXCLUDE_DEPRECATION_MSG = (
 )
 
 
-class TestFiletoteExclude:
+class TestExclude:
     """Tests to ensure the `exclude` settings properly excludes files in the
     beets-filetote plugin.
     """

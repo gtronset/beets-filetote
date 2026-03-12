@@ -4,19 +4,23 @@
 
 import logging
 
-from collections.abc import Generator
+from collections.abc import Callable, Generator
 from pathlib import Path
+from typing import Any
 
 import pytest
 
 from beets import config, library, util
 
 from ._io import DummyIO
+from .media import MediaSetup
 from .plugin_fixture import BeetsPluginFixture
 from .plugin_lifecycle import _clear_plugin_state, _deactivate_plugins
 from .utils import BeetsTestUtils
 
 log = logging.getLogger("beets")
+
+BeetsEnvFactory = Callable[..., BeetsPluginFixture]
 
 
 @pytest.fixture
@@ -118,34 +122,73 @@ def beets_plugin_env(
 
 
 @pytest.fixture
-def beets_flat_env(beets_plugin_env: BeetsPluginFixture) -> BeetsPluginFixture:
-    """A flat (single-disc) import directory with a default copy session.
+def beets_flat_env(
+    beets_plugin_env: BeetsPluginFixture,
+) -> BeetsEnvFactory:
+    """Factory fixture for flat (single-disc) import environments.
 
-    Calls::
+    Returns a callable that creates the import dir and configures the
+    session. All ``setup_import_session`` kwargs are forwarded::
 
-        env.create_flat_import_dir()
-        env.setup_import_session(autotag=False)
+        def test_copy(self, beets_flat_env):
+            env = beets_flat_env()  # defaults: autotag=False, copy=True
 
-    Use ``beets_plugin_env`` directly when you need custom arguments
-    for either method.
+        def test_move(self, beets_flat_env):
+            env = beets_flat_env(move=True)
+
+        def test_custom_media(self, beets_flat_env):
+            env = beets_flat_env(
+                media_files=[MediaSetup(file_type="wav", count=2)],
+                move=True,
+                pair_subfolders=True,
+            )
     """
-    beets_plugin_env.create_flat_import_dir()
-    beets_plugin_env.setup_import_session(autotag=False)
-    return beets_plugin_env
+
+    def _factory(
+        media_files: list[MediaSetup] | None = None,
+        pair_subfolders: bool = False,
+        **session_kwargs: Any,
+    ) -> BeetsPluginFixture:
+        session_kwargs.setdefault("autotag", False)
+
+        beets_plugin_env.create_flat_import_dir(
+            media_files=media_files,
+            pair_subfolders=pair_subfolders,
+        )
+        beets_plugin_env.setup_import_session(**session_kwargs)
+        return beets_plugin_env
+
+    return _factory
 
 
 @pytest.fixture
-def beets_nested_env(beets_plugin_env: BeetsPluginFixture) -> BeetsPluginFixture:
-    """A nested (multi-disc) import directory with a default copy session.
+def beets_nested_env(
+    beets_plugin_env: BeetsPluginFixture,
+) -> BeetsEnvFactory:
+    """Factory fixture for nested (multi-disc) import environments.
 
-    Calls::
+    Returns a callable that creates the import dir and configures the
+    session. All ``setup_import_session`` kwargs are forwarded::
 
-        env.create_nested_import_dir()
-        env.setup_import_session(autotag=False)
+        def test_copy(self, beets_nested_env):
+            env = beets_nested_env()  # defaults: autotag=False, copy=True
 
-    Use ``beets_plugin_env`` directly when you need custom arguments
-    for either method.
+        def test_move(self, beets_nested_env):
+            env = beets_nested_env(move=True)
     """
-    beets_plugin_env.create_nested_import_dir()
-    beets_plugin_env.setup_import_session(autotag=False)
-    return beets_plugin_env
+
+    def _factory(
+        disc1_media_files: list[MediaSetup] | None = None,
+        disc2_media_files: list[MediaSetup] | None = None,
+        **session_kwargs: Any,
+    ) -> BeetsPluginFixture:
+        session_kwargs.setdefault("autotag", False)
+
+        beets_plugin_env.create_nested_import_dir(
+            disc1_media_files=disc1_media_files,
+            disc2_media_files=disc2_media_files,
+        )
+        beets_plugin_env.setup_import_session(**session_kwargs)
+        return beets_plugin_env
+
+    return _factory

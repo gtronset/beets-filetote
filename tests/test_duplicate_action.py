@@ -5,7 +5,7 @@ import pytest
 from tests.pytest_beets_plugin import BeetsPluginFixture
 
 
-class TestFiletoteDuplicateAction:
+class TestDuplicateAction:
     """Tests to check that Filetote handles reimports correctly."""
 
     @pytest.fixture(autouse=True)

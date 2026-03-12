@@ -7,7 +7,7 @@ import pytest
 from tests.pytest_beets_plugin import BeetsPluginFixture
 
 
-class TestFiletoteFromFlatDirectory:
+class TestFromFlatDirectory:
     """Tests that Filetote copies or moves artifact files during single-disc
     album imports. Also tests ``extensions`` and ``filenames`` config options.
     """
