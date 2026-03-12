@@ -33,7 +33,7 @@ from tests.pytest_beets_plugin import BeetsPluginFixture, MediaSetup
 # }
 # --END
 # https://github.com/gtronset/beets-filetote/pull/275
-class TestFiletoteM4BFilesIgnored:
+class TestM4BFilesIgnored:
     """Tests to check that Filetote does not copy music/audiobook files when the
     beets-audible plugin is present.
 

@@ -10,7 +10,7 @@ if TYPE_CHECKING:
     from pathlib import Path
 
 
-class TestFiletoteCLIOperation:
+class TestCLIOperation:
     """Tests to check handling of the operation (copy, move, etc.) can be
     overridden by the CLI.
     """

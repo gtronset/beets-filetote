@@ -7,7 +7,7 @@ import pytest
 from tests.pytest_beets_plugin import BeetsPluginFixture
 
 
-class TestFiletoteFilename:
+class TestFilename:
     """Tests to check handling of artifacts with filenames containing unicode
     characters.
     """
