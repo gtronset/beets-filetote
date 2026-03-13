@@ -72,6 +72,6 @@ class BeetsTestUtils:
                 log.debug(sub_log_string)
 
     def get_rsrc_from_extension(self, file_ext: str) -> str:
-        """Get the resource file matching extension, defaulting to MP3."""
+        """Get the resource file matching extension, defaulting to `MP3`."""
         file_type = file_ext.lstrip(".").lower()
         return SAMPLE_MEDIA_FILES.get(file_type, SAMPLE_MEDIA_FILES["mp3"])

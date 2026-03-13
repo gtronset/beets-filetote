@@ -99,9 +99,9 @@ class BeetsPluginFixture(BeetsAssertions, MediaCreator):
         Sets `config["verbose"]` appropriately for the requested level, then delegates
         to `.logging.capture_beets_log`:
 
-            with env.capture_log("beets.filetote") as logs:
+            with env.capture_log("beets.tests") as logs:
                 env.run_cli_command("import")
-            assert "filetote: Ignored files:" in logs
+            assert "tests: Ignored files:" in logs
         """
         original_verbose = config["verbose"].get()
 
@@ -117,8 +117,6 @@ class BeetsPluginFixture(BeetsAssertions, MediaCreator):
                 yield messages
         finally:
             config["verbose"] = original_verbose
-
-    # --- Import directory creation ------------------------------------------
 
     def _reset_import_dir(self) -> None:
         """Reset the import directory by deleting it if it exists. This is needed for
@@ -340,8 +338,6 @@ class BeetsPluginFixture(BeetsAssertions, MediaCreator):
 
         return album_path
 
-    # --- Import session setup -----------------------------------------------
-
     def setup_import_session(  # noqa: PLR0913
         self,
         import_dir: Path | None = None,
@@ -378,8 +374,6 @@ class BeetsPluginFixture(BeetsAssertions, MediaCreator):
             paths=import_path,
             query=query,
         )
-
-    # --- CLI command runners ------------------------------------------------
 
     def run_cli_command(
         self,

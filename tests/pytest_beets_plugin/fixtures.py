@@ -84,11 +84,6 @@ def _beets_plugin_lifecycle() -> Generator[None]:
     _clear_plugin_state()
 
 
-# ---------------------------------------------------------------------------
-# Main entry-point fixture
-# ---------------------------------------------------------------------------
-
-
 @pytest.fixture
 def beets_plugin_env(
     tmp_path: Path,
@@ -114,11 +109,6 @@ def beets_plugin_env(
         lib_dir=lib_dir,
         import_dir=import_dir,
     )
-
-
-# ---------------------------------------------------------------------------
-# Convenience fixtures — common setups
-# ---------------------------------------------------------------------------
 
 
 @pytest.fixture
