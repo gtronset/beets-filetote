@@ -2,7 +2,8 @@
 plugin, when the beets-audible plugin is loaded.
 """
 
-from tests.pytest_beets_plugin import BeetsPluginFixture, MediaSetup
+from tests.pytest_beets_plugin import MediaSetup
+from tests.pytest_beets_plugin.fixtures import BeetsEnvFactory
 
 
 # TODO(gtronset): mediafile.TYPES only contains a subset of formats that MediaFile/
@@ -44,21 +45,18 @@ class TestM4BFilesIgnored:
     """
 
     def test_m4b_not_copied_as_artifact_with_audible(
-        self, beets_plugin_env: BeetsPluginFixture
+        self, beets_flat_env: BeetsEnvFactory
     ) -> None:
         """With audible loaded, Filetote recognizes ``.m4b`` as a music file
         type and does NOT copy it as an artifact.
         """
-        env = beets_plugin_env
-        env.plugins = ["audible"]
-
-        env.create_flat_import_dir(
+        env = beets_flat_env(
             media_files=[
                 MediaSetup(file_type="mp3", count=1),
                 MediaSetup(file_type="m4b", count=1, generate_pair=False),
             ]
         )
-        env.setup_import_session(autotag=False)
+        env.plugins = ["audible"]
         env.config["filetote"]["extensions"] = ".*"
 
         env.run_cli_command("import")
@@ -73,7 +71,7 @@ class TestM4BFilesIgnored:
         env.assert_not_in_lib_dir("Tag Artist/Tag Album/track_1.m4b")
 
     def test_m4b_copied_as_artifact_without_audible(
-        self, beets_plugin_env: BeetsPluginFixture
+        self, beets_flat_env: BeetsEnvFactory
     ) -> None:
         """Without audible, ``m4b`` is NOT in Filetote's file type list, so
         Filetote treats it as an artifact and copies it with its source
@@ -83,15 +81,12 @@ class TestM4BFilesIgnored:
         Mutagen's MP4 handler), so both the artifact copy AND the media
         import exist in the library.
         """
-        env = beets_plugin_env
-
-        env.create_flat_import_dir(
+        env = beets_flat_env(
             media_files=[
                 MediaSetup(file_type="mp3", count=1),
                 MediaSetup(file_type="m4b", count=1, generate_pair=False),
             ]
         )
-        env.setup_import_session(autotag=False)
         env.config["filetote"]["extensions"] = ".*"
 
         env.run_cli_command("import")

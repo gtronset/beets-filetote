@@ -1,8 +1,7 @@
 """Tests that renaming works as expected when the `convert` plugin is loaded."""
 
-import pytest
-
-from tests.pytest_beets_plugin import BeetsPluginFixture, MediaSetup
+from tests.pytest_beets_plugin import MediaSetup
+from tests.pytest_beets_plugin.fixtures import BeetsEnvFactory
 
 
 class TestConvertPluginRename:
@@ -10,20 +9,15 @@ class TestConvertPluginRename:
     `convert` plugin is loaded.
     """
 
-    @pytest.fixture(autouse=True)
-    def _setup(self, beets_plugin_env: BeetsPluginFixture) -> None:
-        """All tests in this class load the convert plugin."""
-        self.env = beets_plugin_env
-        self.env.plugins = ["convert"]
-
-    def test_rename_works_with_convert_plugin(self) -> None:
+    def test_rename_works_with_convert_plugin(
+        self, beets_flat_env: BeetsEnvFactory
+    ) -> None:
         """Ensure that Filetote can find artifacts as expected when the `convert`
         plugin is enabled.
         """
-        env = self.env
+        env = beets_flat_env(media_files=[MediaSetup(file_type="wav", count=1)])
 
-        env.create_flat_import_dir(media_files=[MediaSetup(file_type="wav", count=1)])
-        env.setup_import_session(autotag=False)
+        env.plugins = ["convert"]
 
         env.config["filetote"]["extensions"] = ".*"
 

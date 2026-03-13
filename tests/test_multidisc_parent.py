@@ -2,7 +2,7 @@
 
 import pytest
 
-from tests.pytest_beets_plugin import BeetsPluginFixture
+from tests.pytest_beets_plugin.fixtures import BeetsEnvFactory
 
 
 class TestMultidiscParent:
@@ -12,22 +12,11 @@ class TestMultidiscParent:
     """
 
     @pytest.fixture(autouse=True)
-    def _setup(self, beets_plugin_env: BeetsPluginFixture) -> None:
+    def _setup(self, beets_nested_env: BeetsEnvFactory) -> None:
         """Provides shared setup for tests."""
-        self.env = beets_plugin_env
-
-        env = self.env
-        env.create_nested_import_dir()
-
-        album_path = env.import_dir / "the_album"
-
-        env.create_file(album_path / "summary.txt")
-        env.create_file(album_path / "artifact.nfo")
-
-        (album_path / "artwork").mkdir()
-        env.create_file(album_path / "artwork" / "poster.jpg")
-
-        env.setup_import_session(autotag=False)
+        self.env = beets_nested_env(
+            parent_artifacts=["summary.txt", "artifact.nfo", "artwork/poster.jpg"]
+        )
 
     def test_collects_parent_artifacts(self) -> None:
         """Ensures artifacts in the parent album directory are collected and

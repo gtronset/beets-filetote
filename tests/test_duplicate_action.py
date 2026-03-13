@@ -2,14 +2,14 @@
 
 import pytest
 
-from tests.pytest_beets_plugin import BeetsPluginFixture
+from tests.pytest_beets_plugin.fixtures import BeetsEnvFactory
 
 
 class TestDuplicateAction:
     """Tests to check that Filetote handles reimports correctly."""
 
     @pytest.fixture(autouse=True)
-    def _setup(self, beets_plugin_env: BeetsPluginFixture) -> None:
+    def _setup(self, beets_flat_env: BeetsEnvFactory) -> None:
         """Perform an initial import so each test starts with artifacts in the
         library.
 
@@ -24,11 +24,8 @@ class TestDuplicateAction:
                         artifact.file
                         artifact2.file
         """
-        self.env = beets_plugin_env
+        self.env = beets_flat_env(move=True)
         env = self.env
-
-        env.create_flat_import_dir()
-        env.setup_import_session(autotag=False, move=True)
 
         env.config["filetote"]["extensions"] = ".file"
         env.config["paths"]["ext:file"] = env.fmt_path("$albumpath", "$old_filename")
@@ -37,6 +34,22 @@ class TestDuplicateAction:
         env.config["import"]["duplicate_action"] = "keep"
 
         env.log.debug("--- initial import")
+        env.run_cli_command("import")
+
+    def _reimport(self, modify_artifact: str | None = None) -> None:
+        """Create a fresh import dir and run a second import.
+
+        Args:
+            modify_artifact: If provided, overwrite this file with new content
+                before reimporting, so the duplicate has different content.
+        """
+        env = self.env
+
+        env.create_flat_import_dir()
+
+        if modify_artifact:
+            (env.import_dir / "the_album" / modify_artifact).write_text("NEW CONTENT")
+
         env.run_cli_command("import")
 
     def test_duplicate_action_default(self) -> None:
@@ -48,12 +61,7 @@ class TestDuplicateAction:
 
         with env.capture_log("beets.filetote") as logs:
             env.log.debug("--- second import")
-
-            env.create_flat_import_dir()
-
-            (env.import_dir / "the_album" / "artifact.file").write_text("NEW CONTENT")
-
-            env.run_cli_command("import")
+            self._reimport(modify_artifact="artifact.file")
 
         assert any(
             "Skipping artifact `artifact2.file`" in line and "already exists" in line
@@ -78,12 +86,7 @@ class TestDuplicateAction:
 
         with env.capture_log("beets.filetote") as logs:
             env.log.debug("--- second import")
-
-            env.create_flat_import_dir()
-
-            (env.import_dir / "the_album" / "artifact.file").write_text("NEW CONTENT")
-
-            env.run_cli_command("import")
+            self._reimport(modify_artifact="artifact.file")
 
         assert any(
             "Skipping artifact `artifact2.file`" in line and "already exists" in line
@@ -108,10 +111,7 @@ class TestDuplicateAction:
 
         with env.capture_log("beets.filetote") as logs:
             env.log.debug("--- second import")
-
-            env.create_flat_import_dir()
-
-            env.run_cli_command("import")
+            self._reimport()
 
         skipped_logs = [
             line
@@ -142,10 +142,7 @@ class TestDuplicateAction:
 
         with env.capture_log("beets.filetote") as logs:
             env.log.debug("--- second import")
-
-            env.create_flat_import_dir()
-
-            env.run_cli_command("import")
+            self._reimport()
 
         assert not any(
             "Skipping artifact" in line and "already exists" in line for line in logs
@@ -167,12 +164,7 @@ class TestDuplicateAction:
 
         with env.capture_log("beets.filetote") as logs:
             env.log.debug("--- second import")
-
-            env.create_flat_import_dir()
-
-            (env.import_dir / "the_album" / "artifact.file").write_text("NEW CONTENT")
-
-            env.run_cli_command("import")
+            self._reimport(modify_artifact="artifact.file")
 
         assert not any(
             "Skipping artifact" in line and "already exists" in line for line in logs

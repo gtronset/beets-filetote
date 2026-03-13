@@ -2,14 +2,14 @@
 
 import pytest
 
-from tests.pytest_beets_plugin import BeetsPluginFixture
+from tests.pytest_beets_plugin.fixtures import BeetsEnvFactory
 
 
 class TestReimport:
     """Tests to check that Filetote handles reimports correctly."""
 
     @pytest.fixture(autouse=True)
-    def _setup(self, beets_plugin_env: BeetsPluginFixture) -> None:
+    def _setup(self, beets_flat_env: BeetsEnvFactory) -> None:
         """Perform an initial import so each test starts with artifacts in the
         library.
 
@@ -24,11 +24,9 @@ class TestReimport:
                         artifact.file
                         artifact2.file
         """
-        self.env = beets_plugin_env
+        self.env = beets_flat_env(move=True)
 
         env = self.env
-        env.create_flat_import_dir()
-        env.setup_import_session(autotag=False, move=True)
 
         env.config["filetote"]["extensions"] = ".file"
         env.config["paths"]["ext:file"] = env.fmt_path("$albumpath", "$old_filename")

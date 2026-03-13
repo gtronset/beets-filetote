@@ -175,11 +175,18 @@ def beets_nested_env(
 
         def test_move(self, beets_nested_env):
             env = beets_nested_env(move=True)
+
+        def test_parent_files(self, beets_nested_env):
+            env = beets_nested_env(
+                parent_artifacts=["summary.txt", "artwork/poster.jpg"],
+                move=True,
+            )
     """
 
     def _factory(
         disc1_media_files: list[MediaSetup] | None = None,
         disc2_media_files: list[MediaSetup] | None = None,
+        parent_artifacts: list[str] | None = None,
         **session_kwargs: Any,
     ) -> BeetsPluginFixture:
         session_kwargs.setdefault("autotag", False)
@@ -187,6 +194,7 @@ def beets_nested_env(
         beets_plugin_env.create_nested_import_dir(
             disc1_media_files=disc1_media_files,
             disc2_media_files=disc2_media_files,
+            parent_artifacts=parent_artifacts,
         )
         beets_plugin_env.setup_import_session(**session_kwargs)
         return beets_plugin_env

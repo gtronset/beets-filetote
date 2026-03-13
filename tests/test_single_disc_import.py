@@ -4,7 +4,7 @@ plugin.
 
 import pytest
 
-from tests.pytest_beets_plugin import BeetsPluginFixture
+from tests.pytest_beets_plugin.fixtures import BeetsEnvFactory
 
 
 class TestFromFlatDirectory:
@@ -13,12 +13,9 @@ class TestFromFlatDirectory:
     """
 
     @pytest.fixture(autouse=True)
-    def _setup(self, beets_plugin_env: BeetsPluginFixture) -> None:
+    def _setup(self, beets_flat_env: BeetsEnvFactory) -> None:
         """Provides shared setup for tests."""
-        self.env = beets_plugin_env
-
-        self.env.create_flat_import_dir()
-        self.env.setup_import_session(autotag=False)
+        self.env = beets_flat_env()
 
     def test_only_copies_files_matching_configured_extension(self) -> None:
         """Test that Filetote only copies files by specific extension when set."""

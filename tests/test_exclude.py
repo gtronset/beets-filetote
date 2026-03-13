@@ -4,7 +4,7 @@ plugin.
 
 import pytest
 
-from tests.pytest_beets_plugin import BeetsPluginFixture
+from tests.pytest_beets_plugin.fixtures import BeetsEnvFactory
 
 _EXCLUDE_DEPRECATION_MSG = (
     "filetote: Deprecation warning: The `exclude` setting should now use"
@@ -20,11 +20,9 @@ class TestExclude:
     """
 
     @pytest.fixture(autouse=True)
-    def _setup(self, beets_plugin_env: BeetsPluginFixture) -> None:
+    def _setup(self, beets_flat_env: BeetsEnvFactory) -> None:
         """Provides shared setup for tests."""
-        self.env = beets_plugin_env
-        self.env.create_flat_import_dir()
-        self.env.setup_import_session(move=True, autotag=False)
+        self.env = beets_flat_env(move=True)
 
     def test_exclude_rule_overrides_inclusion_rules(self) -> None:
         """Tests to ensure the `exclude` config properly excludes files even when
