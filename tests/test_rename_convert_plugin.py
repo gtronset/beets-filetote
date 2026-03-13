@@ -1,7 +1,6 @@
 """Tests that renaming works as expected when the `convert` plugin is loaded."""
 
-from tests.pytest_beets_plugin import MediaSetup
-from tests.pytest_beets_plugin.fixtures import BeetsEnvFactory
+from tests.pytest_beets_plugin import BeetsEnvFactory, MediaSetup
 
 
 class TestConvertPluginRename:

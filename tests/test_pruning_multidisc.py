@@ -1,6 +1,6 @@
 """Tests pruning of multi-disc imports for the beets-filetote plugin."""
 
-from tests.pytest_beets_plugin.fixtures import BeetsEnvFactory
+from tests.pytest_beets_plugin import BeetsEnvFactory
 
 
 class TestPruningMultiDisc:
