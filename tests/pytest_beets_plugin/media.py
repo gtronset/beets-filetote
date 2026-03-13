@@ -30,7 +30,7 @@ class MediaCreator(BeetsTestUtils):
     def create_medium(
         self, path: Path, media_meta: MediaMeta | None = None
     ) -> MediaFile:
-        """Create a media file at ``path`` with the given metadata."""
+        """Create a media file at `path` with the given metadata."""
         if media_meta is None:
             media_meta = MediaMeta()
 
@@ -66,7 +66,7 @@ class MediaCreator(BeetsTestUtils):
         disc: int = 1,
         disctotal: int = 1,
     ) -> list[MediaFile]:
-        """Generate the desired number of media files with optional paired .lrc
+        """Generate the desired number of media files with optional paired `.lrc`
         files.
         """
         media_list: list[MediaFile] = []

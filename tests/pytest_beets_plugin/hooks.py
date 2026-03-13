@@ -1,7 +1,7 @@
 """Pytest hooks for pytest-beets-plugin.
 
-Registers custom markers and auto-skip logic for platform feature
-requirements (symlinks, hardlinks, reflinks, Platform, etc.).
+Registers custom markers and auto-skip logic for platform feature requirements
+(symlinks, hardlinks, reflinks, Platform, etc.).
 """
 
 import pytest

@@ -1,4 +1,4 @@
-"""Tests "pattern" functionality for the beets-filetote plugin."""
+"""Tests "pattern" functionality for the Filetote plugin."""
 
 import pytest
 
@@ -100,8 +100,8 @@ class TestPatterns:
         env.assert_in_lib_dir("Tag Artist/Tag Album/sub1/sub2/sub.file")
 
     def test_patterns_path_sep_normalization(self) -> None:
-        r"""Tests that path separators in patterns can work for both \*Nix/macOS (/)
-        and Windows (\\).
+        r"""Tests that path separators in patterns can work for both Unix-like/macOS
+        (`/`) and Windows (`\\`).
         """
         env = self.env
         album_path = env.import_dir / "the_album"

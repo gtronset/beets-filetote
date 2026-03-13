@@ -1,4 +1,4 @@
-"""Tests renaming Filetote custom fields for the beets-filetote plugin."""
+"""Tests renaming Filetote custom fields for the Filetote plugin."""
 
 import pytest
 

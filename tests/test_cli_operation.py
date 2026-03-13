@@ -1,4 +1,4 @@
-"""Tests CLI operations supersede config for the beets-filetote plugin."""
+"""Tests CLI operations supersede config for the Filetote plugin."""
 
 from typing import TYPE_CHECKING
 
@@ -11,8 +11,8 @@ if TYPE_CHECKING:
 
 
 class TestCLIOperation:
-    """Tests to check handling of the operation (copy, move, etc.) can be
-    overridden by the CLI.
+    """Tests to check handling of the operation (copy, move, etc.) can be overridden by
+    the CLI.
     """
 
     @pytest.fixture(autouse=True)
@@ -22,8 +22,8 @@ class TestCLIOperation:
         self.env.config["filetote"]["extensions"] = ".file"
 
     def test_do_nothing_when_not_copying_or_moving(self) -> None:
-        """Check that plugin leaves everything alone when not
-        copying (-C command line option) and not moving.
+        """Check that plugin leaves everything alone when not copying (`-C` command-line
+        option) and not moving.
         """
         env = self.env
 
@@ -45,8 +45,8 @@ class TestCLIOperation:
         env.assert_in_import_dir("the_album/artifact.lrc")
 
     def test_import_config_copy_false_import_on_copy(self) -> None:
-        """Tests that when config does not have an operation set, that
-        providing it as `--copy` in the CLI correctly overrides.
+        """Tests that when config does not have an operation set, that providing it as
+        `--copy` in the CLI correctly overrides.
         """
         env = self.env
 
@@ -60,8 +60,8 @@ class TestCLIOperation:
         env.assert_in_lib_dir("Tag Artist/Tag Album/artifact.file")
 
     def test_import_config_copy_false_import_on_move(self) -> None:
-        """Tests that when config does not have an operation set, that
-        providing it as `--move` in the CLI correctly overrides.
+        """Tests that when config does not have an operation set, that providing it as
+        `--move` in the CLI correctly overrides.
         """
         env = self.env
 
@@ -75,8 +75,8 @@ class TestCLIOperation:
         env.assert_in_lib_dir("Tag Artist/Tag Album/artifact.file")
 
     def test_import_config_copy_true_import_on_move(self) -> None:
-        """Tests that when config operation is set to `copy`, that providing
-        `--move` in the CLI correctly overrides.
+        """Tests that when config operation is set to `copy`, that providing `--move` in
+        the CLI correctly overrides.
         """
         env = self.env
 
@@ -90,8 +90,8 @@ class TestCLIOperation:
         env.assert_in_lib_dir("Tag Artist/Tag Album/artifact.file")
 
     def test_import_config_move_true_import_on_copy(self) -> None:
-        """Tests that when config operation is set to `move`, that providing
-        `--copy` in the CLI correctly overrides.
+        """Tests that when config operation is set to `move`, that providing `--copy` in
+        the CLI correctly overrides.
         """
         env = self.env
 
@@ -105,8 +105,8 @@ class TestCLIOperation:
         env.assert_in_lib_dir("Tag Artist/Tag Album/artifact.file")
 
     def test_move_on_move_command(self) -> None:
-        """Check that plugin detects the correct operation for the "move" (or "mv")
-        command, which is MOVE by default.
+        """Check that plugin detects the correct operation for the `move` (or `mv`)
+        command, which is `MOVE` by default.
         """
         env = self.env
 
@@ -130,8 +130,8 @@ class TestCLIOperation:
         env.assert_in_lib_dir("Tag Artist/Tag Album/artifact.file")
 
     def test_copy_on_move_command_copy(self) -> None:
-        """Check that plugin detects the correct operation for the "move" (or "mv")
-        command when "copy" is set. The files should be present in both the original
+        """Check that plugin detects the correct operation for the `move` (or `mv`)
+        command when `copy` is set. The files should be present in both the original
         and new Library locations.
         """
         env = self.env
@@ -156,8 +156,8 @@ class TestCLIOperation:
         env.assert_in_lib_dir("Tag Artist/Tag Album/artifact.file")
 
     def test_copy_on_move_command_export(self) -> None:
-        """Check that plugin detects the correct operation for the "move" (or "mv")
-        command when "export" is set. This functionally is the same as "copy" but
+        """Check that plugin detects the correct operation for the `move` (or `mv`)
+        command when `export` is set. This functionally is the same as `copy` but
         does not alter the Library data.
         """
         env = self.env
@@ -182,8 +182,8 @@ class TestCLIOperation:
         env.assert_in_lib_dir("Tag Artist/Tag Album/artifact.file")
 
     def test_move_on_modify_command(self) -> None:
-        """Check that plugin detects the correct operation for the "move" (or "mv")
-        command, which is MOVE by default.
+        """Check that plugin detects the correct operation for the `move` (or `mv`)
+        command, which is `MOVE` by default.
         """
         env = self.env
 
@@ -209,8 +209,8 @@ class TestCLIOperation:
         env.assert_in_lib_dir("Tag Artist New/Tag Album/artifact.file")
 
     def test_move_on_update_move_command(self) -> None:
-        """Check that plugin detects the correct operation for the "update"
-        command, which will MOVE by default.
+        """Check that plugin detects the correct operation for the `update` command,
+        which will `MOVE` by default.
         """
         env = self.env
 
@@ -233,8 +233,8 @@ class TestCLIOperation:
         env.assert_in_lib_dir("New Artist Updated/Tag Album/artifact.file")
 
     def test_pairs_on_update_move_command(self) -> None:
-        """Check that plugin handles "pairs" for the "update"
-        command, which will MOVE by default.
+        """Check that plugin handles "pairs" for the `update` command, which will `MOVE`
+        by default.
         """
         env = self.env
 

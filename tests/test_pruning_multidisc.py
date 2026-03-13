@@ -1,11 +1,11 @@
-"""Tests pruning of multi-disc imports for the beets-filetote plugin."""
+"""Tests pruning of multi-disc imports for the Filetote plugin."""
 
 from tests.pytest_beets_plugin import BeetsEnvFactory
 
 
 class TestPruningMultiDisc:
-    """Tests to check that Filetote correctly "prunes" directories when
-    it moves artifact files from nested (multi-disc) imports.
+    """Tests to check that Filetote correctly "prunes" directories when it moves
+    artifact files from nested (multi-disc) imports.
     """
 
     def test_prunes_multidisc_nested(self, beets_nested_env: BeetsEnvFactory) -> None:

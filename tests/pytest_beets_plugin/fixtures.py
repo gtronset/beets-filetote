@@ -100,10 +100,10 @@ def beets_plugin_env(
 
     Composes domain fixtures:
 
-    - ``_beets_config`` — config isolation (pulled in via ``_beets_lib``)
-    - ``_beets_lib`` — temporary library + database (with teardown)
-    - ``_beets_io`` — stdin/stdout capture
-    - ``_beets_plugin_lifecycle`` — plugin teardown on exit
+    - `_beets_config` — config isolation (pulled in via `_beets_lib`)
+    - `_beets_lib` — temporary library + database (with teardown)
+    - `_beets_io` — stdin/stdout capture
+    - `_beets_plugin_lifecycle` — plugin teardown on exit
     """
     lib, lib_dir = _beets_lib
     import_dir = tmp_path / "testsrc_dir"
@@ -127,8 +127,8 @@ def beets_flat_env(
 ) -> BeetsEnvFactory:
     """Factory fixture for flat (single-disc) import environments.
 
-    Returns a callable that creates the import dir and configures the
-    session. All ``setup_import_session`` kwargs are forwarded::
+    Returns a callable that creates the import dir and configures the session. All
+    `setup_import_session` kwargs are forwarded:
 
         def test_copy(self, beets_flat_env):
             env = beets_flat_env()  # defaults: autotag=False, copy=True
@@ -167,8 +167,8 @@ def beets_nested_env(
 ) -> BeetsEnvFactory:
     """Factory fixture for nested (multi-disc) import environments.
 
-    Returns a callable that creates the import dir and configures the
-    session. All ``setup_import_session`` kwargs are forwarded::
+    Returns a callable that creates the import dir and configures the session. All
+    `setup_import_session` kwargs are forwarded:
 
         def test_copy(self, beets_nested_env):
             env = beets_nested_env()  # defaults: autotag=False, copy=True

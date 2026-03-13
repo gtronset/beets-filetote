@@ -1,4 +1,4 @@
-"""Tests multi-disc album import (nested directory structure) for the beets-filetote
+"""Tests multi-disc album import (nested directory structure) for the Filetote
 plugin.
 """
 
@@ -8,9 +8,8 @@ from tests.pytest_beets_plugin import BeetsEnvFactory
 
 
 class TestMultiDiscImport:
-    """Tests that Filetote copies or moves artifact files during multi-disc
-    album imports, where songs are organized in subdirectories (e.g., disc1/,
-    disc2/).
+    """Tests that Filetote copies or moves artifact files during multi-disc album
+    imports, where songs are organized in subdirectories (e.g., `disc1/`, `disc2/`).
     """
 
     @pytest.fixture(autouse=True)
@@ -19,9 +18,8 @@ class TestMultiDiscImport:
         self.env = beets_nested_env()
 
     def test_copies_file_from_nested_to_library(self) -> None:
-        """Ensures that nested directories are handled by beets and the files
-        relocate as expected following the default beets behavior (moves to a
-        single directory).
+        """Ensures that nested directories are handled by beets and the files relocate
+        as expected following the default beets behavior (moves to a single directory).
         """
         env = self.env
         env.config["filetote"]["extensions"] = ".file"
@@ -44,8 +42,8 @@ class TestMultiDiscImport:
         env.assert_not_in_lib_dir("Tag Artist/Tag Album/artifact_disc2.lrc")
 
     def test_copies_file_from_nested_to_nested_library(self) -> None:
-        """Ensures that nested directory artifacts are relocated as expected
-        when beets is set to use a nested library destination.
+        """Ensures that nested directory artifacts are relocated as expected when beets
+        is set to use a nested library destination.
         """
         env = self.env
         env.config["filetote"]["extensions"] = ".file"
@@ -76,8 +74,8 @@ class TestMultiDiscImport:
     @pytest.mark.skip_win32
     def test_copies_file_navigate_in_nested_library(self) -> None:
         """Ensures that nested directory artifacts are relocated using `..` without
-        issue. This is skipped in Windows since `..` is taken literally instead of as
-        a path component.
+        issue. This is skipped in Windows since `..` is taken literally instead of as a
+        path component.
         """
         env = self.env
         env.config["filetote"]["extensions"] = ".file"

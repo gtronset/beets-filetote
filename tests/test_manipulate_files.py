@@ -1,4 +1,4 @@
-"""Tests manipulation of files for the beets-filetote plugin."""
+"""Tests manipulation of files for the Filetote plugin."""
 
 from typing import TYPE_CHECKING
 

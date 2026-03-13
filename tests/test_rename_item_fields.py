@@ -1,4 +1,4 @@
-"""Tests renaming Item fields for the beets-filetote plugin."""
+"""Tests renaming Item fields for the Filetote plugin."""
 
 import pytest
 
@@ -6,8 +6,8 @@ from tests.pytest_beets_plugin import BeetsEnvFactory
 
 
 class TestRenameItemFields:
-    """Tests to check that Filetote renames using default Item fields as
-    expected for custom path formats.
+    """Tests to check that Filetote renames using default Item fields as expected for
+    custom path formats.
     """
 
     @pytest.fixture(autouse=True)
@@ -82,9 +82,8 @@ class TestRenameItemFields:
         )
 
     def test_rename_mb_item_fields(self) -> None:
-        """Tests that the value of `mb_albumid`, `mb_artistid`,
-        `mb_albumartistid`, `mb_trackid`, `mb_releasetrackid`,
-        and `mb_workid` populate in renaming.
+        """Tests that the value of `mb_albumid`, `mb_artistid`, `mb_albumartistid`,
+        `mb_trackid`, `mb_releasetrackid`, and `mb_workid` populate in renaming.
         """
         env = self.env
 

@@ -7,14 +7,14 @@ import pytest
 from tests.pytest_beets_plugin import BeetsEnvFactory
 
 _WILDCARD_EXT_ERROR = (
-    "Error: path query `ext:.*` is not valid. If you are"
-    " trying to set a default/fallback, please use `filetote:default` instead."
+    "Error: path query `ext:.*` is not valid. If you are trying to set"
+    " a default/fallback, please use `filetote:default` instead."
 )
 
 
 class TestRename:
-    """Tests to check that Filetote renames as expected for custom path
-    formats (both by extension and filename).
+    """Tests to check that Filetote renames as expected for custom path formats (both
+    by extension and filename).
     """
 
     @pytest.fixture(autouse=True)
@@ -94,8 +94,8 @@ class TestRename:
         env.assert_in_lib_dir("Tag Artist/Tag Album/Tag Title 3.lrc")
 
     def test_rename_paired_ext_is_prioritized_over_ext(self) -> None:
-        """Tests that paired path definitions supersede `ext` ones when there's
-        a collision.
+        """Tests that paired path definitions supersede `ext` ones when there's a
+        collision.
         """
         env = self.env
 
@@ -146,9 +146,9 @@ class TestRename:
         env.assert_not_in_import_dir("the_album/artifact.nfo")
 
     def test_rename_ignores_file_when_name_conflicts(self) -> None:
-        """Ensure that if there are multiple files that would rename to the
-        exact same name, that only the first is renamed (moved/copied/etc.)
-        but not subsequent ones that conflict.
+        """Ensure that if there are multiple files that would rename to the exact same
+        name, that only the first is renamed (moved/copied/etc.) but not subsequent ones
+        that conflict.
         """
         env = self.env
 
@@ -272,7 +272,7 @@ class TestRename:
         """Tests that the path query priority is correctly enforced when multiple
         rules could apply.
 
-        The expected priority is: filename > paired_ext > pattern > ext.
+        The expected priority is: `filename` > `paired_ext` > `pattern` > `ext`.
         """
         env = self.env
         album_path = env.import_dir / "the_album"
@@ -339,8 +339,8 @@ class TestRename:
         assert str(exception_info.value) == _WILDCARD_EXT_ERROR
 
     def test_filetote_paths_priority_over_beets_paths(self) -> None:
-        """Ensure that the Filetote `paths` settings take priority over
-        any matching-specified ones in beets' `paths` settings.
+        """Ensure that the Filetote `paths` settings take priority over any
+        matching-specified ones in beets' `paths` settings.
         """
         env = self.env
 

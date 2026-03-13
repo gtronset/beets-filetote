@@ -1,4 +1,4 @@
-"""Tests single-disc album import (flat directory structure) for the beets-filetote
+"""Tests single-disc album import (flat directory structure) for the Filetote
 plugin.
 """
 
@@ -8,8 +8,8 @@ from tests.pytest_beets_plugin import BeetsEnvFactory
 
 
 class TestFromFlatDirectory:
-    """Tests that Filetote copies or moves artifact files during single-disc
-    album imports. Also tests ``extensions`` and ``filenames`` config options.
+    """Tests that Filetote copies or moves artifact files during single-disc album
+    imports. Also tests `extensions` and `filenames` config options.
     """
 
     @pytest.fixture(autouse=True)
@@ -39,8 +39,8 @@ class TestFromFlatDirectory:
         env.assert_not_in_lib_dir("Tag Artist/Tag Album/artifact.lrc")
 
     def test_exact_matching_configured_extension(self) -> None:
-        """Test that extensions and other fields matching are exact, not just
-        partial matches.
+        """Test that extensions and other fields matching are exact, not just partial
+        matches.
         """
         env = self.env
         env.config["filetote"]["extensions"] = ".file"

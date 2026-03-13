@@ -1,4 +1,4 @@
-"""Tests file-naming for the beets-filetote plugin."""
+"""Tests file-naming for the Filetote plugin."""
 
 import re
 
@@ -47,8 +47,8 @@ class TestFilename:
         self,
     ) -> None:
         """Tests that illegal characters in file name are replaced following beets
-        conventions. This is skipped in Windows as the characters used here are
-        not allowed.
+        conventions. This is skipped in Windows as the characters used here are not
+        allowed.
         """
         env = self.env
 

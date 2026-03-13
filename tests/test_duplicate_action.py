@@ -1,4 +1,4 @@
-"""Tests `duplicate_action` config for the beets-filetote plugin."""
+"""Tests `duplicate_action` config for the Filetote plugin."""
 
 import pytest
 
@@ -13,7 +13,7 @@ class TestDuplicateAction:
         """Perform an initial import so each test starts with artifacts in the
         library.
 
-        Library structure after setup::
+        Library structure after setup:
 
             testlib_dir/
                 Tag Artist/
@@ -40,8 +40,8 @@ class TestDuplicateAction:
         """Create a fresh import dir and run a second import.
 
         Args:
-            modify_artifact: If provided, overwrite this file with new content
-                before reimporting, so the duplicate has different content.
+            modify_artifact: If provided, overwrite this file with new content before
+                reimporting, so the duplicate has different content.
         """
         env = self.env
 
@@ -53,9 +53,9 @@ class TestDuplicateAction:
         env.run_cli_command("import")
 
     def test_duplicate_action_default(self) -> None:
-        """Tests that when ``duplicate_action`` is not specified (defaults to
-        'merge'), Filetote skips identical files and renames files with
-        different content to be unique (e.g., artifact.1.file).
+        """Tests that when `duplicate_action` is not specified (defaults to `merge`),
+        Filetote skips identical files and renames files with different content to be
+        unique (e.g., `artifact.1.file`).
         """
         env = self.env
 
@@ -75,9 +75,9 @@ class TestDuplicateAction:
         env.assert_not_in_lib_dir("Tag Artist/Tag Album/artifact2.1.file")
 
     def test_duplicate_action_merge(self) -> None:
-        """Tests that when ``duplicate_action`` is 'merge', Filetote skips
+        """Tests that when `duplicate_action` is 'merge', Filetote skips
         identical files and renames files with different content to be unique
-        (e.g., artifact.1.file).
+        (e.g., `artifact.1.file`).
         """
         env = self.env
 
@@ -100,8 +100,8 @@ class TestDuplicateAction:
         env.assert_not_in_lib_dir("Tag Artist/Tag Album/artifact2.1.file")
 
     def test_duplicate_action_skip(self) -> None:
-        """Tests that when ``duplicate_action`` is 'skip', Filetote logs a
-        message and does not overwrite or rename the file.
+        """Tests that when `duplicate_action` is 'skip', Filetote logs a message and
+        does not overwrite or rename the file.
         """
         env = self.env
 
@@ -132,8 +132,8 @@ class TestDuplicateAction:
         env.assert_not_in_lib_dir("Tag Artist/Tag Album/artifact.1.file")
 
     def test_duplicate_action_keep(self) -> None:
-        """Tests that when ``duplicate_action`` is 'keep', the incoming artifact
-        is renamed to be unique (e.g., artifact.1.file).
+        """Tests that when `duplicate_action` is 'keep', the incoming artifact is
+        renamed to be unique (e.g., `artifact.1.file`).
         """
         env = self.env
 
@@ -154,8 +154,8 @@ class TestDuplicateAction:
         env.assert_in_lib_dir("Tag Artist/Tag Album/artifact2.1.file")
 
     def test_duplicate_action_remove(self) -> None:
-        """Tests that when ``duplicate_action`` is 'remove', the existing
-        artifact is overwritten with the new one.
+        """Tests that when `duplicate_action` is 'remove', the existing artifact is
+        overwritten with the new one.
         """
         env = self.env
 

@@ -23,15 +23,14 @@ _beets_log_fix_installed = False
 
 
 def install_beets_log_fix() -> None:
-    """Monkey-patch beets logger to handle ``str.format``-style strings.
+    """Monkey-patch beets logger to handle `str.format`-style strings.
 
-    Beets uses ``log.debug("Sending event: {}", event)`` and
-    ``log.debug("Parsed query: {!r}", query)`` which are
-    ``str.format`` style, but Python's :mod:`logging` expects printf
-    style (``%s``).  This causes :class:`TypeError` when a DEBUG-level
-    handler is attached (e.g. by pytest's ``log_level = "DEBUG"``).
+    Beets uses `log.debug("Sending event: {}", event)` and `log.debug("Parsed query:
+    {!r}", query)` which are `str.format` style, but Python's :mod:`logging` expects
+    printf style (`%s`).  This causes :class:`TypeError` when a DEBUG-level handler is
+    attached (e.g. by pytest's `log_level = "DEBUG"`).
 
-    Call once at session startup (e.g. from ``conftest.py``).
+    Call once at session startup (e.g. from `conftest.py`).
     """
     global _beets_log_fix_installed  # noqa: PLW0603
     if _beets_log_fix_installed:
@@ -86,11 +85,11 @@ def capture_beets_log(
 ) -> Generator[list[str], None, None]:
     """Context manager that captures log output from a beets logger.
 
-    Only manipulates the logger level and handler — does **not** touch
-    ``beets.config``.  The caller (typically :class:`BeetsPluginFixture`)
-    is responsible for ensuring ``config["verbose"]`` is set appropriately.
+    Only manipulates the logger level and handler — does **not** touch `beets.config`.
+    The caller (typically :class:`BeetsPluginFixture`) is responsible for ensuring
+    `config["verbose"]` is set appropriately.
 
-    Usage::
+    Usage:
 
         with capture_beets_log("beets.filetote") as logs:
             do_something()

@@ -39,8 +39,8 @@ class BeetsPluginFixture(BeetsAssertions, MediaCreator):
     """A non-TestCase helper providing the same API as FiletoteTestCase.
 
     Composes:
-    - ``BeetsAssertions`` for all assertion methods
-    - ``MediaCreator`` (extends ``BeetsTestUtils``) for media/file operations
+    - `BeetsAssertions` for all assertion methods
+    - `MediaCreator` (extends `BeetsTestUtils`) for media/file operations
 
     Designed to be generic for any beets plugin's test suite.
     """
@@ -71,7 +71,7 @@ class BeetsPluginFixture(BeetsAssertions, MediaCreator):
     def log(self) -> logging.Logger:
         """Logger for use in tests.
 
-        Avoids needing ``import logging`` in test files::
+        Avoids needing `import logging` in test files:
 
             env.log.debug("current config: %s", env.config.dump())
         """
@@ -81,7 +81,7 @@ class BeetsPluginFixture(BeetsAssertions, MediaCreator):
     def config(self) -> Any:
         """Access the beets global configuration.
 
-        Eliminates the need for ``from beets import config`` in test files::
+        Eliminates the need for `from beets import config` in test files:
 
             env.config["filetote"]["extensions"] = ".file"
             env.config["import"]["move"] = True
@@ -96,8 +96,8 @@ class BeetsPluginFixture(BeetsAssertions, MediaCreator):
     ) -> Generator[list[str], None, None]:
         """Capture log messages from a named logger.
 
-        Sets ``config["verbose"]`` appropriately for the requested level,
-        then delegates to :func:`.logging.capture_beets_log`::
+        Sets `config["verbose"]` appropriately for the requested level, then delegates
+        to `.logging.capture_beets_log`:
 
             with env.capture_log("beets.filetote") as logs:
                 env.run_cli_command("import")
@@ -353,7 +353,7 @@ class BeetsPluginFixture(BeetsAssertions, MediaCreator):
         autotag: bool = True,
         query: str | None = None,
     ) -> None:
-        """Configure an ``ImportSession`` for the test."""
+        """Configure an `ImportSession` for the test."""
         config["import"]["copy"] = copy
         config["import"]["delete"] = delete
         config["import"]["timid"] = True
@@ -413,7 +413,7 @@ class BeetsPluginFixture(BeetsAssertions, MediaCreator):
     def _run_cli_import(
         self, operation_option: Literal["copy", "move"] | None = None
     ) -> None:
-        """Run the ``import`` CLI command."""
+        """Run the `import` CLI command."""
         if not self.importer:
             return
 
@@ -435,7 +435,7 @@ class BeetsPluginFixture(BeetsAssertions, MediaCreator):
         pretend: bool = False,
         export: bool = False,
     ) -> None:
-        """Run the ``move`` CLI command."""
+        """Run the `move` CLI command."""
         move_items(
             self.lib,
             dest_dir,
@@ -456,7 +456,7 @@ class BeetsPluginFixture(BeetsAssertions, MediaCreator):
         move: bool = True,
         album: str | None = None,
     ) -> None:
-        """Run the ``modify`` CLI command."""
+        """Run the `modify` CLI command."""
         mods = mods or {}
         dels = dels or {}
 
@@ -480,7 +480,7 @@ class BeetsPluginFixture(BeetsAssertions, MediaCreator):
         pretend: bool = False,
         fields: list[str] | None = None,
     ) -> None:
-        """Run the ``update`` CLI command."""
+        """Run the `update` CLI command."""
         update_items(
             lib=self.lib,
             query=query,

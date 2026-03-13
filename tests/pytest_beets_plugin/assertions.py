@@ -1,7 +1,7 @@
 """Assertion helpers for beets plugin tests.
 
-All assertion logic is consolidated here. Both ``BeetsPluginFixture`` and
-the legacy ``Assertions`` class delegate to these functions.
+All assertion logic is consolidated here. Both `BeetsPluginFixture` and the legacy
+`Assertions` class delegate to these functions.
 """
 
 from pathlib import Path
@@ -27,10 +27,9 @@ def resolve_relative_path(root: Path, relative_path: str | Path) -> Path:
 
 
 class BeetsAssertions:
-    """Mixin providing assertion methods bound to ``lib_dir`` and ``import_dir``.
+    """Mixin providing assertion methods bound to `lib_dir` and `import_dir`.
 
-    Subclasses or composing classes must set ``lib_dir`` and ``import_dir``
-    attributes.
+    Subclasses or composing classes must set `lib_dir` and `import_dir` attributes.
     """
 
     lib_dir: Path
@@ -87,7 +86,7 @@ class BeetsAssertions:
             assert path.is_symlink(), f"Expected {path} to be a symbolic link"
 
     def assert_number_of_files_in_dir(self, count: int, directory: Path) -> None:
-        """Assert that there are ``count`` files in the provided path."""
+        """Assert that there are `count` files in the provided path."""
         assert directory.exists(), f"Directory does not exist: {directory}"
         assert directory.is_dir(), f"Path is not a directory: {directory}"
         actual_count = len(list(directory.iterdir()))

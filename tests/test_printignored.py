@@ -1,4 +1,4 @@
-"""Tests print ignored for the beets-filetote plugin."""
+"""Tests print ignored for the Filetote plugin."""
 
 import pytest
 

@@ -1,4 +1,4 @@
-"""Tests pruning of single-disc imports for the beets-filetote plugin."""
+"""Tests pruning of single-disc imports for the Filetote plugin."""
 
 from typing import TYPE_CHECKING
 
@@ -11,8 +11,8 @@ if TYPE_CHECKING:
 
 
 class TestPruning:
-    """Tests to check that Filetote correctly "prunes" directories when
-    it moves artifact files.
+    """Tests to check that Filetote correctly "prunes" directories when it moves
+    artifact files.
     """
 
     @pytest.fixture(autouse=True)
@@ -118,9 +118,9 @@ class TestPruning:
         env.assert_in_lib_dir("1Tag Artist/Tag Album/artifact.file")
 
     def test_prune_reimport_copy(self) -> None:
-        """Ensure directories are pruned when reimporting with 'copy'. The
-        operation gets changed to `move` when the media file is already in the
-        library (hence, reimport).
+        """Ensure directories are pruned when reimporting with 'copy'. The operation
+        gets changed to `move` when the media file is already in the library (hence,
+        reimport).
         """
         env = self.env
 
@@ -143,8 +143,8 @@ class TestPruning:
         env.assert_in_lib_dir("1Tag Artist/Tag Album/artifact.file")
 
     def test_prune_reimport_query(self) -> None:
-        """Check that plugin prunes to the root of the library when reimporting
-        from library using `import` with a query.
+        """Check that plugin prunes to the root of the library when reimporting from
+        library using `import` with a query.
         """
         env = self.env
 
@@ -166,8 +166,8 @@ class TestPruning:
         env.assert_in_lib_dir("New Tag Artist/Tag Album/artifact.file")
 
     def test_prune_move_query(self) -> None:
-        """Check that plugin prunes any remaining empty album folders when using
-        the `move` with a query.
+        """Check that plugin prunes any remaining empty album folders when using the
+        `move` with a query.
         """
         env = self.env
 
@@ -188,8 +188,8 @@ class TestPruning:
         env.assert_in_lib_dir("New Tag Artist/Tag Album/artifact.file")
 
     def test_prune_modify_query(self) -> None:
-        """Check that plugin prunes any remaining empty album folders when using
-        the `modify` with a query.
+        """Check that plugin prunes any remaining empty album folders when using the
+        `modify` with a query.
         """
         env = self.env
 
