@@ -1,4 +1,4 @@
-"""Tests pairing for the beets-filetote plugin."""
+"""Tests pairing for the Filetote plugin."""
 
 from tests.pytest_beets_plugin import BeetsEnvFactory, MediaSetup
 

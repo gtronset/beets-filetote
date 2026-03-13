@@ -6,9 +6,8 @@ from tests.pytest_beets_plugin import BeetsEnvFactory
 
 
 class TestMultidiscParent:
-    """Tests that Filetote correctly handles artifacts located in the parent
-    directory of a multi-disc album (e.g., Album/summary.txt alongside
-    Album/Disc1/).
+    """Tests that Filetote correctly handles artifacts located in the parent directory
+    of a multi-disc album (e.g., `Album/summary.txt` alongside `Album/Disc1/`).
     """
 
     @pytest.fixture(autouse=True)
@@ -19,8 +18,8 @@ class TestMultidiscParent:
         )
 
     def test_collects_parent_artifacts(self) -> None:
-        """Ensures artifacts in the parent album directory are collected and
-        moved to the destination library, alongside the disc contents.
+        """Ensures artifacts in the parent album directory are collected and moved to
+        the destination library, alongside the disc contents.
         """
         env = self.env
 
@@ -40,8 +39,8 @@ class TestMultidiscParent:
         env.assert_in_lib_dir("Tag Artist/Tag Album/poster.jpg")
 
     def test_collects_parent_artifacts_into_disc_paths(self) -> None:
-        """Ensures that if the user has a nested library path (Album/Disc 01/),
-        the parent artifacts are effectively copied/moved relative to the items.
+        """Ensures that if the user has a nested library path (`Album/Disc 01/`), the
+        parent artifacts are effectively copied/moved relative to the items.
 
         Ensure that artifacts in the Parent are only processed once.
         """
@@ -63,7 +62,7 @@ class TestMultidiscParent:
         env.assert_not_in_lib_dir("Tag Artist/Tag Album/02/summary.txt")
 
     def test_ignores_sibling_disc_folders(self) -> None:
-        """Verify that when processing artifacts for Disc 1, artifacts from Disc 2
+        """Verify that when processing artifacts for `Disc 1`, artifacts from `Disc 2`
         (sibling folder) are not grabbed while scanning the parent.
         """
         env = self.env
@@ -96,8 +95,9 @@ class TestMultidiscParent:
         env.assert_in_lib_dir("Tag Artist/Tag Album/artwork/poster.jpg")
 
     def test_parent_artifacts_do_not_pair_with_subdirectory_tracks(self) -> None:
-        """Verify that an artifact in the Parent folder ("Aunt") does NOT pair
-        with a track in a Subdirectory ("Niece"), even if names match.
+        """Verify that an artifact in the Parent folder ("Aunt") does NOT pair with a
+        track in a Subdirectory ("Niece"), even if names match.
+
         Example: `Album/01.lrc` should NOT pair with `Album/CD1/01.mp3`.
         """
         env = self.env
@@ -119,7 +119,8 @@ class TestMultidiscParent:
     def test_mixed_root_and_disc_content(self) -> None:
         """Verify behavior when an album has tracks at both Root and Disc levels
         (ideally, should never occur).
-        E.g. Album/01.mp3 AND Album/CD1/01.mp3.
+
+        E.g. `Album/01.mp3` AND `Album/CD1/01.mp3`.
         """
         env = self.env
         env.config["filetote"]["extensions"] = [".txt", ".file"]

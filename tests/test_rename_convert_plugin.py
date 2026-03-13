@@ -4,8 +4,8 @@ from tests.pytest_beets_plugin import BeetsEnvFactory, MediaSetup
 
 
 class TestConvertPluginRename:
-    """Tests that renaming using `item_fields` work as expected when the
-    `convert` plugin is loaded.
+    """Tests that renaming using `item_fields` work as expected when the `convert`
+    plugin is loaded.
     """
 
     def test_rename_works_with_convert_plugin(

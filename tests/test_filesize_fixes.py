@@ -1,6 +1,4 @@
-"""Tests to ensure no "could not get filesize" error occurs in the beets-filetote
-plugin.
-"""
+"""Tests to ensure no "could not get filesize" error occurs in the Filetote plugin."""
 
 from tests.pytest_beets_plugin import BeetsEnvFactory
 
@@ -10,8 +8,8 @@ class TestNoFilesizeError:
 
     def test_no_filesize_error(self, beets_flat_env: BeetsEnvFactory) -> None:
         """Tests to ensure no "could not get filesize" error occurs by confirming no
-        warning log is emitted and ensuring the hidden filesize metadata value is
-        not `0`.
+        warning log is emitted and ensuring the hidden filesize metadata value is not
+        `0`.
         """
         env = beets_flat_env()
 

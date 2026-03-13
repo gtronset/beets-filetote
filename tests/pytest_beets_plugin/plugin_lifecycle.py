@@ -40,8 +40,8 @@ def _load_module_from_file(module_name: str, module_path: str | Path) -> ModuleT
 def load_plugin_source(module_name: str) -> ModuleType:
     """Load a plugin module directly from its source file.
 
-    Useful for unit tests that need to import a module statically,
-    bypassing the ``beetsplug`` package namespace.
+    Useful for unit tests that need to import a module statically, bypassing the
+    `beetsplug` package namespace.
     """
     module_path: Path = PROJECT_ROOT / f"beetsplug/{module_name}.py"
     return _load_module_from_file(module_name, module_path)

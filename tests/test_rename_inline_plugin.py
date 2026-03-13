@@ -1,20 +1,20 @@
-"""Tests that renaming using `item_fields` work as expected when the
-`inline` plugin is loaded.
+"""Tests that renaming using `item_fields` work as expected when the `inline` plugin is
+loaded.
 """
 
 from tests.pytest_beets_plugin import BeetsEnvFactory
 
 
 class TestInlinePluginRename:
-    """Tests that renaming using `item_fields` work as expected when the
-    `inline` plugin is loaded.
+    """Tests that renaming using `item_fields` work as expected when the `inline` plugin
+    is loaded.
     """
 
     def test_rename_works_with_inline_plugin(
         self, beets_flat_env: BeetsEnvFactory
     ) -> None:
-        """Ensure that Filetote can rename fields as expected when the `inline`
-        plugin is enabled.
+        """Ensure that Filetote can rename fields as expected when the `inline` plugin
+        is enabled.
         """
         env = beets_flat_env()
 

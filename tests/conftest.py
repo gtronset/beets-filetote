@@ -1,6 +1,6 @@
 """Pytest configuration for beets-filetote tests.
 
-Imports fixtures from the ``pytest_beets_plugin`` package so they are
+Imports fixtures from the `pytest_beets_plugin` package so they are
 available to all test modules.
 """
 

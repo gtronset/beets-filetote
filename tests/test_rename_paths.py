@@ -1,4 +1,4 @@
-"""Tests renaming based on paths for the beets-filetote plugin."""
+"""Tests renaming based on paths for the Filetote plugin."""
 
 import pytest
 
@@ -6,8 +6,8 @@ from tests.pytest_beets_plugin import BeetsEnvFactory
 
 
 class TestRenamePaths:
-    """Tests to check that Filetote renames using custom path formats configured
-    either in the `paths` section of the overall config or in Filetote's.
+    """Tests to check that Filetote renames using custom path formats configured either
+    in the `paths` section of the overall config or in Filetote's.
     """
 
     @pytest.fixture(autouse=True)

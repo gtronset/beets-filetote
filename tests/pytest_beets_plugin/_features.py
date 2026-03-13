@@ -1,8 +1,8 @@
 """OS feature probes for beets plugin tests.
 
-Detects availability of symlinks, hardlinks, and reflinks on the current
-platform. Results are cached and exposed as module-level constants for use
-with ``pytest.mark.skipif``.
+Detects availability of symlinks, hardlinks, and reflinks on the current platform.
+Results are cached and exposed as module-level constants for use with
+`pytest.mark.skipif`.
 """
 
 import functools
@@ -22,7 +22,7 @@ PLATFORM = sys.platform
 
 @functools.lru_cache(maxsize=1)
 def check_symlink() -> bool:
-    """Test if symlinks are usable using ``beets.util.link``."""
+    """Test if symlinks are usable using `beets.util.link`."""
     with tempfile.TemporaryDirectory() as tmpdir_str:
         tmpdir = Path(tmpdir_str)
         src = tmpdir / "symlink_src"
@@ -38,7 +38,7 @@ def check_symlink() -> bool:
 
 @functools.lru_cache(maxsize=1)
 def check_hardlink() -> bool:
-    """Test if hardlinks are usable using ``beets.util.hardlink``."""
+    """Test if hardlinks are usable using `beets.util.hardlink`."""
     with tempfile.TemporaryDirectory() as tmpdir_str:
         tmpdir = Path(tmpdir_str)
         src = tmpdir / "hardlink_src"
@@ -55,7 +55,7 @@ def check_hardlink() -> bool:
 
 @functools.lru_cache(maxsize=1)
 def check_reflink() -> bool:
-    """Test if reflinks are usable using ``beets.util.reflink``."""
+    """Test if reflinks are usable using `beets.util.reflink`."""
     with tempfile.TemporaryDirectory() as tmpdir_str:
         tmpdir = Path(tmpdir_str)
         src = tmpdir / "reflink_src"

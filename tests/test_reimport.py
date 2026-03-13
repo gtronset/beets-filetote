@@ -1,4 +1,4 @@
-"""Tests reimporting for the beets-filetote plugin."""
+"""Tests reimporting for the Filetote plugin."""
 
 import pytest
 
@@ -10,10 +10,9 @@ class TestReimport:
 
     @pytest.fixture(autouse=True)
     def _setup(self, beets_flat_env: BeetsEnvFactory) -> None:
-        """Perform an initial import so each test starts with artifacts in the
-        library.
+        """Perform an initial import so each test starts with artifacts in the library.
 
-        Library structure after setup::
+        Library structure after setup:
 
             testlib_dir/
                 Tag Artist/
@@ -36,8 +35,8 @@ class TestReimport:
 
     def test_reimport_artifacts_with_copy(self) -> None:
         """Tests that when reimporting, copying actually results in a move. The
-        operation gets changed to `move` when the media file is already in the
-        library (hence, reimport).
+        operation gets changed to `move` when the media file is already in the library
+        (hence, reimport).
         """
         env = self.env
 
@@ -70,8 +69,8 @@ class TestReimport:
         env.assert_in_lib_dir("1Tag Artist/Tag Album/artifact.file")
 
     def test_do_nothing_when_paths_do_not_change_with_copy_import(self) -> None:
-        """Tests that when paths are the same (before/after), no action is
-        taken for default `copy` action.
+        """Tests that when paths are the same (before/after), no action is taken for
+        default `copy` action.
         """
         env = self.env
 
@@ -85,8 +84,8 @@ class TestReimport:
         env.assert_in_lib_dir("Tag Artist/Tag Album/artifact2.file")
 
     def test_do_nothing_when_paths_do_not_change_with_move_import(self) -> None:
-        """Tests that when paths are the same (before/after), no action is
-        taken for default `move` action.
+        """Tests that when paths are the same (before/after), no action is taken for
+        default `move` action.
         """
         env = self.env
 
@@ -99,9 +98,9 @@ class TestReimport:
         env.assert_in_lib_dir("Tag Artist/Tag Album/artifact2.file")
 
     def test_do_nothing_when_paths_are_identical_with_move_import(self) -> None:
-        """Tests that when source and destination paths are identical, Filetote
-        should skip processing entirely to avoid unnecessary "artifact already
-        exists" warnings.
+        """Tests that when source and destination paths are identical, Filetote should
+        skip processing entirely to avoid unnecessary "artifact already exists"
+        warnings.
         """
         env = self.env
 
@@ -162,8 +161,8 @@ class TestReimport:
         env.assert_in_lib_dir("Tag Artist/Tag Album/Tag Album.file")
 
     def test_multiple_reimport_artifacts_with_move(self) -> None:
-        """Tests that multiple reimports work the same as the initial action or
-        a single reimport.
+        """Tests that multiple reimports work the same as the initial action or a single
+        reimport.
         """
         env = self.env
 

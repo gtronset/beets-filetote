@@ -1,4 +1,4 @@
-"""Tests to ensure the `exclude` settings properly excludes files in the beets-filetote
+"""Tests to ensure the `exclude` settings properly excludes files in the Filetote
 plugin.
 """
 
@@ -7,16 +7,15 @@ import pytest
 from tests.pytest_beets_plugin import BeetsEnvFactory
 
 _EXCLUDE_DEPRECATION_MSG = (
-    "filetote: Deprecation warning: The `exclude` setting should now use"
-    " the explicit settings of `filenames`, `extensions`, and/or"
-    " `patterns`. See the `exclude` documentation for more details:"
-    " https://github.com/gtronset/beets-filetote#excluding-files"
+    "filetote: Deprecation warning: The `exclude` setting should now use the explicit"
+    " settings of `filenames`, `extensions`, and/or `patterns`. See the `exclude`"
+    " documentation for more details: https://github.com/gtronset/beets-filetote#excluding-files"
 )
 
 
 class TestExclude:
-    """Tests to ensure the `exclude` settings properly excludes files in the
-    beets-filetote plugin.
+    """Tests to ensure the `exclude` settings properly excludes files in the Filetote
+    plugin.
     """
 
     @pytest.fixture(autouse=True)
@@ -25,8 +24,8 @@ class TestExclude:
         self.env = beets_flat_env(move=True)
 
     def test_exclude_rule_overrides_inclusion_rules(self) -> None:
-        """Tests to ensure the `exclude` config properly excludes files even when
-        they would otherwise be included. (Exclude takes precedence over include).
+        """Tests to ensure the `exclude` config properly excludes files even when they
+        would otherwise be included. (Exclude takes precedence over include).
         """
         env = self.env
 
@@ -45,7 +44,7 @@ class TestExclude:
         env.assert_not_in_lib_dir("Tag Artist/Tag Album/not_to_be_moved.lrc")
 
     def test_exclude_strseq_of_filenames_by_string(self) -> None:
-        """Tests to ensure the `exclude` config registers as a strseq (string
+        """Tests to ensure the `exclude` config registers as a `strseq` (string
         sequence) of filenames.
         """
         env = self.env
@@ -71,7 +70,7 @@ class TestExclude:
         assert logs == [_EXCLUDE_DEPRECATION_MSG]
 
     def test_exclude_strseq_of_filenames_by_list(self) -> None:
-        """Tests to ensure the `exclude` config registers as a strseq (string
+        """Tests to ensure the `exclude` config registers as a `strseq` (string
         sequence) of filenames.
         """
         env = self.env

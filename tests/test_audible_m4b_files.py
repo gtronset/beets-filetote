@@ -1,5 +1,5 @@
-"""Tests that m4b music/audiobook files are ignored for the beets-filetote
-plugin, when the beets-audible plugin is loaded.
+"""Tests that m4b music/audiobook files are ignored for the Filetote plugin, when the
+beets-audible plugin is loaded.
 """
 
 from tests.pytest_beets_plugin import BeetsEnvFactory, MediaSetup
@@ -37,17 +37,17 @@ class TestM4BFilesIgnored:
     """Tests to check that Filetote does not copy music/audiobook files when the
     beets-audible plugin is present.
 
-    Without the audible plugin, ``m4b`` is not in ``mediafile.TYPES``, so
-    Filetote treats it as an artifact and copies it using its source filename.
-    When audible is loaded, Filetote adds ``m4b`` to its internal file type
-    list and skips it, letting beets handle the import normally.
+    Without the audible plugin, `m4b` is not in `mediafile.TYPES`, so Filetote treats it
+    as an artifact and copies it using its source filename. When audible is loaded,
+    Filetote adds `m4b` to its internal file type list and skips it, letting beets
+    handle the import normally.
     """
 
     def test_m4b_not_copied_as_artifact_with_audible(
         self, beets_flat_env: BeetsEnvFactory
     ) -> None:
-        """With audible loaded, Filetote recognizes ``.m4b`` as a music file
-        type and does NOT copy it as an artifact.
+        """With audible loaded, Filetote recognizes `.m4b` as a music file type and does
+        NOT copy it as an artifact.
         """
         env = beets_flat_env(
             media_files=[
@@ -72,13 +72,11 @@ class TestM4BFilesIgnored:
     def test_m4b_copied_as_artifact_without_audible(
         self, beets_flat_env: BeetsEnvFactory
     ) -> None:
-        """Without audible, ``m4b`` is NOT in Filetote's file type list, so
-        Filetote treats it as an artifact and copies it with its source
-        filename.
+        """Without audible, `m4b` is NOT in Filetote's file type list, so Filetote
+        treats it as an artifact and copies it with its source filename.
 
-        Note: beets also imports it as media (MediaFile can read m4b via
-        Mutagen's MP4 handler), so both the artifact copy AND the media
-        import exist in the library.
+        Note: beets also imports it as media (MediaFile can read `m4b` via Mutagen's MP4
+        handler), so both the artifact copy AND the media import exist in the library.
         """
         env = beets_flat_env(
             media_files=[
