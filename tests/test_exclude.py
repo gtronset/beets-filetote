@@ -4,7 +4,7 @@ plugin.
 
 import pytest
 
-from tests.pytest_beets_plugin.fixtures import BeetsEnvFactory
+from tests.pytest_beets_plugin import BeetsEnvFactory
 
 _EXCLUDE_DEPRECATION_MSG = (
     "filetote: Deprecation warning: The `exclude` setting should now use"

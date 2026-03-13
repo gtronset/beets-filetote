@@ -4,7 +4,7 @@ from typing import TYPE_CHECKING
 
 import pytest
 
-from tests.pytest_beets_plugin.fixtures import BeetsEnvFactory
+from tests.pytest_beets_plugin import BeetsEnvFactory
 
 if TYPE_CHECKING:
     from pathlib import Path

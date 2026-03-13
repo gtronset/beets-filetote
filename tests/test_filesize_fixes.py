@@ -2,25 +2,18 @@
 plugin.
 """
 
-import pytest
-
-from tests.pytest_beets_plugin.fixtures import BeetsEnvFactory
+from tests.pytest_beets_plugin import BeetsEnvFactory
 
 
 class TestNoFilesizeError:
     """Tests to ensure no "could not get filesize" error occurs."""
 
-    @pytest.fixture(autouse=True)
-    def _setup(self, beets_flat_env: BeetsEnvFactory) -> None:
-        """Provides shared setup for tests."""
-        self.env = beets_flat_env()
-
-    def test_no_filesize_error(self) -> None:
+    def test_no_filesize_error(self, beets_flat_env: BeetsEnvFactory) -> None:
         """Tests to ensure no "could not get filesize" error occurs by confirming no
         warning log is emitted and ensuring the hidden filesize metadata value is
         not `0`.
         """
-        env = self.env
+        env = beets_flat_env()
 
         env.config["filetote"]["extensions"] = ".file .lrc"
         env.config["paths"]["ext:file"] = "$albumpath/filesize - ${filesize}b"

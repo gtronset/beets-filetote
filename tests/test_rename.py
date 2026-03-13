@@ -4,7 +4,7 @@
 
 import pytest
 
-from tests.pytest_beets_plugin.fixtures import BeetsEnvFactory
+from tests.pytest_beets_plugin import BeetsEnvFactory
 
 _WILDCARD_EXT_ERROR = (
     "Error: path query `ext:.*` is not valid. If you are"

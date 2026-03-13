@@ -2,7 +2,7 @@
 `inline` plugin is loaded.
 """
 
-from tests.pytest_beets_plugin.fixtures import BeetsEnvFactory
+from tests.pytest_beets_plugin import BeetsEnvFactory
 
 
 class TestInlinePluginRename:
