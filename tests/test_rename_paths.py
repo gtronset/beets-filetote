@@ -1,75 +1,73 @@
-"""Tests renaming based on paths for the beets-filetote plugin."""
+"""Tests renaming based on paths for the Filetote plugin."""
 
-import logging
+import pytest
 
-from beets import config
-
-from tests.helper import FiletoteTestCase
-
-log = logging.getLogger("beets")
+from tests.pytest_beets_plugin import BeetsEnvFactory
 
 
-class FiletoteRenamePathsTest(FiletoteTestCase):
-    """Tests to check that Filetote renames using custom path formats configured
-    either in the `paths` section of the overall config or in Filetote's.
+class TestRenamePaths:
+    """Tests to check that Filetote renames using custom path formats configured either
+    in the `paths` section of the overall config or in Filetote's.
     """
 
-    def setUp(self, _other_plugins: list[str] | None = None) -> None:
+    @pytest.fixture(autouse=True)
+    def _setup(self, beets_flat_env: BeetsEnvFactory) -> None:
         """Provides shared setup for tests."""
-        super().setUp()
-
-        self._create_flat_import_dir()
-        self._setup_import_session(autotag=False)
+        self.env = beets_flat_env()
 
     def test_rename_using_filetote_path_when_copying(self) -> None:
         """Tests that renaming works using setting from Filetote's paths."""
-        config["filetote"]["extensions"] = ".file .nfo"
-        config["filetote"]["paths"] = {
+        env = self.env
+
+        env.config["filetote"]["extensions"] = ".file .nfo"
+        env.config["filetote"]["paths"] = {
             "ext:file": "$albumpath/$artist - $album",
             "ext:nfo": "$albumpath/$artist - $album",
         }
 
-        self._run_cli_command("import")
+        env.run_cli_command("import")
 
-        self.assert_in_lib_dir("Tag Artist/Tag Album/Tag Artist - Tag Album.file")
-        self.assert_in_lib_dir("Tag Artist/Tag Album/Tag Artist - Tag Album.nfo")
+        env.assert_in_lib_dir("Tag Artist/Tag Album/Tag Artist - Tag Album.file")
+        env.assert_in_lib_dir("Tag Artist/Tag Album/Tag Artist - Tag Album.nfo")
 
     def test_rename_using_filetote_path_pattern_optional(self) -> None:
         """Tests that renaming patterns works using setting from Filetote's paths
         doesn't require `pattern:` prefix.
         """
-        config["filetote"]["patterns"] = {
+        env = self.env
+
+        env.config["filetote"]["patterns"] = {
             "file-pattern": ["[Aa]rtifact.file"],
             "nfo-pattern": ["*.nfo"],
         }
-        config["filetote"]["paths"] = {
+        env.config["filetote"]["paths"] = {
             "pattern:file-pattern": "$albumpath/file-pattern $old_filename",
             "nfo-pattern": "$albumpath/nfo-pattern $old_filename",
         }
 
-        self._run_cli_command("import")
+        env.run_cli_command("import")
 
-        self.assert_in_lib_dir("Tag Artist/Tag Album/file-pattern artifact.file")
-        self.assert_in_lib_dir("Tag Artist/Tag Album/nfo-pattern artifact.nfo")
+        env.assert_in_lib_dir("Tag Artist/Tag Album/file-pattern artifact.file")
+        env.assert_in_lib_dir("Tag Artist/Tag Album/nfo-pattern artifact.nfo")
 
     def test_rename_prioritizes_filetote_path(self) -> None:
-        """Tests that renaming patterns works using setting from Filetote's paths
-        doesn't require `pattern:` prefix.
-        """
-        config["filetote"]["patterns"] = {
+        """Tests that Filetote's paths take precedence over beets' global paths."""
+        env = self.env
+
+        env.config["filetote"]["patterns"] = {
             "file-pattern": ["[Aa]rtifact.file"],
             "nfo-pattern": ["*.nfo"],
         }
-        config["paths"] = {
+        env.config["paths"] = {
             "pattern:file-pattern": "$albumpath/beets_path $old_filename",
             "nfo-pattern": "$albumpath/beets_path $old_filename",
         }
-        config["filetote"]["paths"] = {
+        env.config["filetote"]["paths"] = {
             "pattern:file-pattern": "$albumpath/filetote_path $old_filename",
             "nfo-pattern": "$albumpath/filetote_path $old_filename",
         }
 
-        self._run_cli_command("import")
+        env.run_cli_command("import")
 
-        self.assert_in_lib_dir("Tag Artist/Tag Album/filetote_path artifact.file")
-        self.assert_in_lib_dir("Tag Artist/Tag Album/filetote_path artifact.nfo")
+        env.assert_in_lib_dir("Tag Artist/Tag Album/filetote_path artifact.file")
+        env.assert_in_lib_dir("Tag Artist/Tag Album/filetote_path artifact.nfo")

@@ -49,14 +49,10 @@ build-backend = "poetry.core.masonry.api"
 
 [tool.mypy]
 mypy_path = ["./typehints"]
-modules = ["beetsplug", "tests.helper", "tests._common"]
+modules = ["beetsplug", "tests.pytest_beets_plugin"]
 explicit_package_bases = true
 strict = true
 pretty = true
-
-[[tool.mypy.overrides]]
-module = "beets.test._common"
-follow_imports = "skip"
 
 [tool.pre-commit-update]
 dry_run = false
@@ -75,6 +71,9 @@ offset = 4
 [tool.pytest.ini_options]
 testpaths = ["./tests"]
 filterwarnings = ["ignore::DeprecationWarning:.*confuse"]
+log_level = "DEBUG"
+log_cli = false
+log_format = "%(name)s %(levelname)s %(message)s"
 
 [tool.ruff]
 line-length = 88
@@ -115,7 +114,7 @@ dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
 [tool.ruff.lint.flake8-pytest-style]
 fixture-parentheses = false
 mark-parentheses = false
-parametrize-names-type = "csv"
+parametrize-names-type = "tuple"
 
 [tool.ruff.lint.flake8-unused-arguments]
 ignore-variadic-names = true

@@ -1,90 +1,75 @@
-"""Tests file-naming for the beets-filetote plugin."""
+"""Tests file-naming for the Filetote plugin."""
 
 import re
 
-from typing import TYPE_CHECKING
-
 import pytest
 
-from beets import config
-
-from ._item_model import MediaMeta
-from tests import _common
-from tests.helper import FiletoteTestCase
-
-if TYPE_CHECKING:
-    from pathlib import Path
+from tests.pytest_beets_plugin import BeetsEnvFactory
 
 
-class FiletoteFilename(FiletoteTestCase):
+class TestFilename:
     """Tests to check handling of artifacts with filenames containing unicode
     characters.
     """
 
-    def setUp(self, _other_plugins: list[str] | None = None) -> None:
+    @pytest.fixture(autouse=True)
+    def _setup(self, beets_flat_env: BeetsEnvFactory) -> None:
         """Provides shared setup for tests."""
-        super().setUp()
+        self.env = beets_flat_env(move=True)
 
-        self._set_import_dir()
-        self.album_path: Path = self.import_dir / "the_album"
-        self.album_path.mkdir(parents=True, exist_ok=True)
-
-        self._setup_import_session(autotag=False)
-
-        config["filetote"]["extensions"] = ".file"
+        self.env.config["filetote"]["extensions"] = ".file"
 
     def test_import_dir_with_unicode_character_in_artifact_name_copy(self) -> None:
         """Tests that unicode characters copy as expected."""
-        self.create_file(self.album_path / "\xe4rtifact.file")
+        env = self.env
 
-        medium = self.create_medium(self.album_path / "track_1.mp3")
-        self.import_media = [medium]
+        env.config["import"]["move"] = False
+        env.config["import"]["copy"] = True
 
-        self._run_cli_command("import")
+        env.create_simple_import_dir(artifacts=["\xe4rtifact.file"])
 
-        self.assert_in_lib_dir("Tag Artist/Tag Album/\xe4rtifact.file")
+        env.run_cli_command("import")
+
+        env.assert_in_lib_dir("Tag Artist/Tag Album/\xe4rtifact.file")
 
     def test_import_dir_with_unicode_character_in_artifact_name_move(self) -> None:
         """Tests that unicode characters move as expected."""
-        config["import"]["move"] = True
+        env = self.env
 
-        self.create_file(self.album_path / "\xe4rtifact.file")
+        env.create_simple_import_dir(artifacts=["\xe4rtifact.file"])
 
-        medium = self.create_medium(self.album_path / "track_1.mp3")
-        self.import_media = [medium]
+        env.run_cli_command("import")
 
-        self._run_cli_command("import")
+        env.assert_in_lib_dir("Tag Artist/Tag Album/\xe4rtifact.file")
 
-        self.assert_in_lib_dir("Tag Artist/Tag Album/\xe4rtifact.file")
-
-    @pytest.mark.skipif(_common.PLATFORM == "win32", reason="win32")
+    @pytest.mark.skip_win32
     def test_import_with_illegal_character_in_artifact_name_obeys_beets(
         self,
     ) -> None:
         """Tests that illegal characters in file name are replaced following beets
-        conventions. This is skipped in Windows as the characters used here are
-        not allowed.
+        conventions. This is skipped in Windows as the characters used here are not
+        allowed.
         """
-        config["import"]["move"] = True
-        config["filetote"]["extensions"] = ".log"
-        config["paths"]["ext:.log"] = "$albumpath/$album - $old_filename"
+        env = self.env
 
-        self.lib.path_formats[0] = (
+        env.config["filetote"]["extensions"] = ".log"
+        env.config["paths"]["ext:.log"] = "$albumpath/$album - $old_filename"
+
+        env.lib.path_formats[0] = (
             "default",
-            self.fmt_path("$artist", "$album", "$album - $title"),
+            env.fmt_path("$artist", "$album", "$album - $title"),
         )
 
-        self.create_file(self.album_path / "CoolName: Album&Tag.log")
+        env.create_simple_import_dir(artifacts=["CoolName: Album&Tag.log"])
 
-        medium = self.create_medium(
-            self.album_path / "track_1.mp3",
-            MediaMeta(album="Album: Subtitle"),
+        env.update_medium(
+            env.import_dir / "the_album" / "track_1.mp3",
+            {"album": "Album: Subtitle"},
         )
-        self.import_media = [medium]
 
-        self._run_cli_command("import")
+        env.run_cli_command("import")
 
-        self.assert_in_lib_dir(
+        env.assert_in_lib_dir(
             "Tag Artist/Album_ Subtitle/Album_ Subtitle - CoolName_ Album&Tag.log"
         )
 
@@ -92,39 +77,39 @@ class FiletoteFilename(FiletoteTestCase):
         """Tests that illegal characters in album name are replaced following beets
         conventions.
         """
-        config["paths"]["ext:file"] = "$albumpath/$artist - $album"
+        env = self.env
 
-        # Create import directory, illegal filename character used in the album name
-        self.create_file(self.album_path / "artifact.file")
+        env.config["paths"]["ext:file"] = "$albumpath/$artist - $album"
 
-        medium = self.create_medium(
-            self.album_path / "track_1.mp3",
-            MediaMeta(album="Tag Album?"),
+        env.create_simple_import_dir(artifacts=["artifact.file"])
+
+        env.update_medium(
+            env.import_dir / "the_album" / "track_1.mp3",
+            {"album": "Tag Album?"},
         )
-        self.import_media = [medium]
 
-        self._run_cli_command("import")
+        env.run_cli_command("import")
 
-        self.assert_in_lib_dir("Tag Artist/Tag Album_/Tag Artist - Tag Album_.file")
+        env.assert_in_lib_dir("Tag Artist/Tag Album_/Tag Artist - Tag Album_.file")
 
     def test_rename_works_with_custom_replace(self) -> None:
         """Tests that custom "replace" settings work as expected."""
-        config["paths"]["ext:file"] = "$albumpath/$title"
-        config["replace"][r"\?"] = "\uff1f"
+        env = self.env
+        env.config["paths"]["ext:file"] = "$albumpath/$title"
+        env.config["replace"][r"\?"] = "\uff1f"
 
-        self.lib.replacements = [
+        env.lib.replacements = [
             (re.compile(r"\:"), "_"),
             (re.compile(r"\?"), "\uff1f"),
         ]
 
-        self.create_file(self.album_path / "artifact.file")
+        env.create_simple_import_dir(artifacts=["artifact.file"])
 
-        medium = self.create_medium(
-            self.album_path / "track_1.mp3",
-            MediaMeta(title="Tag: Title?"),
+        env.update_medium(
+            env.import_dir / "the_album" / "track_1.mp3",
+            {"title": "Tag: Title?"},
         )
-        self.import_media = [medium]
 
-        self._run_cli_command("import")
+        env.run_cli_command("import")
 
-        self.assert_in_lib_dir("Tag Artist/Tag Album/Tag_ Title\uff1f.file")
+        env.assert_in_lib_dir("Tag Artist/Tag Album/Tag_ Title\uff1f.file")

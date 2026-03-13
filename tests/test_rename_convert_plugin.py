@@ -1,49 +1,31 @@
-"""Tests that renaming using `item_fields` work as expected, when the
-`inline` plugin is loaded.
-"""
+"""Tests that renaming works as expected when the `convert` plugin is loaded."""
 
-import logging
-
-from typing import TYPE_CHECKING
-
-from beets import config
-
-from tests.helper import FiletoteTestCase, MediaSetup
-
-if TYPE_CHECKING:
-    from pathlib import Path
-
-log = logging.getLogger("beets")
+from tests.pytest_beets_plugin import BeetsEnvFactory, MediaSetup
 
 
-class FiletoteConvertRenameTest(FiletoteTestCase):
-    """Tests that renaming using `item_fields` work as expected, when the
-    `convert` plugin is loaded.
+class TestConvertPluginRename:
+    """Tests that renaming using `item_fields` work as expected when the `convert`
+    plugin is loaded.
     """
 
-    def setUp(self, _other_plugins: list[str] | None = None) -> None:
-        """Provides shared setup for tests."""
-        super().setUp(other_plugins=["convert"])
-
-    def test_rename_works_with_inline_plugin(self) -> None:
-        """Ensure that Filetote can find artifacts as expected with the `convert`
+    def test_rename_works_with_convert_plugin(
+        self, beets_flat_env: BeetsEnvFactory
+    ) -> None:
+        """Ensure that Filetote can find artifacts as expected when the `convert`
         plugin is enabled.
         """
-        media_file_list = [
-            MediaSetup(file_type="wav", count=1),
-        ]
+        env = beets_flat_env(media_files=[MediaSetup(file_type="wav", count=1)])
 
-        self._create_flat_import_dir(media_files=media_file_list)
-        self._setup_import_session(autotag=False)
+        env.plugins = ["convert"]
 
-        config["filetote"]["extensions"] = ".*"
+        env.config["filetote"]["extensions"] = ".*"
 
-        temp_convert_dir: Path = self.temp_dir / "temp_convert_dir"
+        temp_convert_dir = env.temp_dir / "temp_convert_dir"
         temp_convert_dir.mkdir(parents=True, exist_ok=True)
 
-        config["convert"] = {
+        env.config["convert"] = {
             "auto": True,
-            "dest": str(self.lib_dir / "Tag Artist" / "Tag Album"),
+            "dest": str(env.lib_dir / "Tag Artist" / "Tag Album"),
             "copy_album_art": True,
             "delete_originals": False,
             "format": "flac",
@@ -52,7 +34,7 @@ class FiletoteConvertRenameTest(FiletoteTestCase):
             "quiet": False,
         }
 
-        self._run_cli_command("import")
+        env.run_cli_command("import")
 
-        self.assert_in_lib_dir("Tag Artist/Tag Album/artifact.file")
-        self.assert_in_lib_dir("Tag Artist/Tag Album/Tag Title 1.flac")
+        env.assert_in_lib_dir("Tag Artist/Tag Album/artifact.file")
+        env.assert_in_lib_dir("Tag Artist/Tag Album/Tag Title 1.flac")

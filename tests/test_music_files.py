@@ -1,66 +1,49 @@
-"""Tests that music files are ignored for the beets-filetote plugin."""
+"""Tests that music files are ignored for the Filetote plugin."""
 
-import logging
-
-from beets import config
 from mediafile import TYPES as BEETS_TYPES
 
-from tests.helper import FiletoteTestCase, MediaSetup
-
-log = logging.getLogger("beets")
+from tests.pytest_beets_plugin import BeetsEnvFactory, MediaSetup
 
 
-class FiletoteMusicFilesIgnoredTest(FiletoteTestCase):
-    """Tests to check that Filetote only copies or moves artifact files and not
-    music files as defined by MediaFile's TYPES and expanded list.
+class TestMusicFilesIgnored:
+    """Tests to check that Filetote only copies or moves artifact files and not music
+    files as defined by MediaFile's `TYPES` (and Filetote's expanded list).
     """
 
-    def test_default_music_file_types_are_ignored(self) -> None:
+    def test_default_music_file_types_are_ignored(
+        self, beets_flat_env: BeetsEnvFactory
+    ) -> None:
         """Ensure that mediafile types are ignored by Filetote."""
-        media_file_list = [
-            MediaSetup(file_type=beet_type, count=1) for beet_type in BEETS_TYPES
-        ]
+        env = beets_flat_env(
+            media_files=[
+                MediaSetup(file_type=beet_type, count=1) for beet_type in BEETS_TYPES
+            ]
+        )
 
-        self._create_flat_import_dir(media_files=media_file_list)
-        self._setup_import_session(autotag=False)
+        env.config["filetote"]["extensions"] = ".*"
 
-        config["filetote"]["extensions"] = ".*"
+        env.run_cli_command("import")
 
-        self._run_cli_command("import")
+        for beet_type in BEETS_TYPES:
+            env.assert_not_in_lib_dir(f"Tag Artist/Tag Album/track_1.{beet_type}")
 
-        self.assert_not_in_lib_dir("Tag Artist/Tag Album/track_1.aac")
-        self.assert_not_in_lib_dir("Tag Artist/Tag Album/track_1.aiff")
-        self.assert_not_in_lib_dir("Tag Artist/Tag Album/track_1.alac")
-        self.assert_not_in_lib_dir("Tag Artist/Tag Album/track_1.ape")
-        self.assert_not_in_lib_dir("Tag Artist/Tag Album/track_1.asf")
-        self.assert_not_in_lib_dir("Tag Artist/Tag Album/track_1.dsf")
-        self.assert_not_in_lib_dir("Tag Artist/Tag Album/track_1.flac")
-        self.assert_not_in_lib_dir("Tag Artist/Tag Album/track_1.mp3")
-        self.assert_not_in_lib_dir("Tag Artist/Tag Album/track_1.mpc")
-        self.assert_not_in_lib_dir("Tag Artist/Tag Album/track_1.ogg")
-        self.assert_not_in_lib_dir("Tag Artist/Tag Album/track_1.opus")
-        self.assert_not_in_lib_dir("Tag Artist/Tag Album/track_1.wav")
-        self.assert_not_in_lib_dir("Tag Artist/Tag Album/track_1.wv")
-
-    def test_expanded_music_file_types_are_ignored(self) -> None:
-        """Ensure that `.m4a`, `.alac.m4a`, `.wma`, and `.wave` file types are
-        ignored by Filetote.
+    def test_expanded_music_file_types_are_ignored(
+        self, beets_flat_env: BeetsEnvFactory
+    ) -> None:
+        """Ensure that `.m4a`, `.alac.m4a`, `.wma`, and `.wave` file types are ignored
+        by Filetote.
         """
-        media_file_list = [
-            MediaSetup(file_type="m4a", count=1),
-            MediaSetup(file_type="alac.m4a", count=1),
-            MediaSetup(file_type="wma", count=1),
-            MediaSetup(file_type="wave", count=1),
-        ]
+        expanded_types = ["m4a", "alac.m4a", "wma", "wave"]
 
-        self._create_flat_import_dir(media_files=media_file_list)
-        self._setup_import_session(autotag=False)
+        env = beets_flat_env(
+            media_files=[
+                MediaSetup(file_type=file_type, count=1) for file_type in expanded_types
+            ]
+        )
 
-        config["filetote"]["extensions"] = ".*"
+        env.config["filetote"]["extensions"] = ".*"
 
-        self._run_cli_command("import")
+        env.run_cli_command("import")
 
-        self.assert_not_in_lib_dir("Tag Artist/Tag Album/track_1.m4a")
-        self.assert_not_in_lib_dir("Tag Artist/Tag Album/track_1.alac.m4a")
-        self.assert_not_in_lib_dir("Tag Artist/Tag Album/track_1.wma")
-        self.assert_not_in_lib_dir("Tag Artist/Tag Album/track_1.wave")
+        for file_type in expanded_types:
+            env.assert_not_in_lib_dir(f"Tag Artist/Tag Album/track_1.{file_type}")

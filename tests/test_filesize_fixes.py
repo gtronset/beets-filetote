@@ -1,37 +1,28 @@
-"""Tests to ensure no "could not get filesize" error occurs in the beets-filetote
-plugin.
-"""
+"""Tests to ensure no "could not get filesize" error occurs in the Filetote plugin."""
 
-from beets import config
-
-from tests.helper import FiletoteTestCase, capture_log_with_traceback
+from tests.pytest_beets_plugin import BeetsEnvFactory
 
 
-class FiletoteNoFilesizeErrorTest(FiletoteTestCase):
+class TestNoFilesizeError:
     """Tests to ensure no "could not get filesize" error occurs."""
 
-    def setUp(self, _other_plugins: list[str] | None = None) -> None:
-        """Provides shared setup for tests."""
-        super().setUp()
-
-        self._create_flat_import_dir()
-        self._setup_import_session(autotag=False)
-
-    def test_no_filesize_error(self) -> None:
+    def test_no_filesize_error(self, beets_flat_env: BeetsEnvFactory) -> None:
         """Tests to ensure no "could not get filesize" error occurs by confirming no
-        warning log is emitted and ensuring the hidden filesize metadata value is
-        not `0`.
+        warning log is emitted and ensuring the hidden filesize metadata value is not
+        `0`.
         """
-        config["filetote"]["extensions"] = ".file .lrc"
-        config["paths"]["ext:file"] = "$albumpath/filesize - ${filesize}b"
+        env = beets_flat_env()
 
-        with capture_log_with_traceback("beets.filetote") as logs:
-            self._run_cli_command("import", operation_option="move")
+        env.config["filetote"]["extensions"] = ".file .lrc"
+        env.config["paths"]["ext:file"] = "$albumpath/filesize - ${filesize}b"
 
-        self.assert_not_in_lib_dir("Tag Artist/Tag Album/artifact.nfo")
+        with env.capture_log("beets.filetote") as logs:
+            env.run_cli_command("import", operation_option="move")
+
+        env.assert_not_in_lib_dir("Tag Artist/Tag Album/artifact.nfo")
 
         # check output log
         matching_logs = [line for line in logs if "could not get filesize:" in line]
         assert not matching_logs
 
-        self.assert_in_lib_dir("Tag Artist/Tag Album/filesize - 12820b.file")
+        env.assert_in_lib_dir("Tag Artist/Tag Album/filesize - 12820b.file")
