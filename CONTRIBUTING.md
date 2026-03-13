@@ -151,12 +151,12 @@ provides tiered fixtures:
 Example test:
 
 ```python
-from tests.pytest_beets_plugin import BeetsPluginFixture
+from tests.pytest_beets_plugin import BeetsEnvFactory
 
 
 class TestExample:
-    def test_extension_copied(self, beets_flat_env: BeetsPluginFixture) -> None:
-        env = beets_flat_env
+    def test_extension_copied(self, beets_flat_env: BeetsEnvFactory) -> None:
+        env = beets_flat_env()
 
         env.config["filetote"]["extensions"] = ".file"
 
