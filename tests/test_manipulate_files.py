@@ -4,7 +4,7 @@ from typing import TYPE_CHECKING
 
 import pytest
 
-from tests.pytest_beets_plugin import BeetsPluginFixture
+from tests.pytest_beets_plugin.fixtures import BeetsEnvFactory
 
 if TYPE_CHECKING:
     from pathlib import Path
@@ -14,12 +14,9 @@ class TestManipulateFiles:
     """Tests to check that Filetote manipulates files using the correct operation."""
 
     @pytest.fixture(autouse=True)
-    def _setup(self, beets_plugin_env: BeetsPluginFixture) -> None:
+    def _setup(self, beets_flat_env: BeetsEnvFactory) -> None:
         """Provides shared setup for tests."""
-        self.env = beets_plugin_env
-
-        self.env.create_flat_import_dir()
-        self.env.setup_import_session(autotag=False, copy=False)
+        self.env = beets_flat_env(copy=False)
 
     def test_copy_artifacts(self) -> None:
         """Test that copy actually copies (and not just moves)."""

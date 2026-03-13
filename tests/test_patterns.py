@@ -2,20 +2,16 @@
 
 import pytest
 
-from tests.pytest_beets_plugin import BeetsPluginFixture
+from tests.pytest_beets_plugin.fixtures import BeetsEnvFactory
 
 
 class TestPatterns:
     """Tests to check that Filetote grabs artifacts by user-defined patterns."""
 
     @pytest.fixture(autouse=True)
-    def _setup(self, beets_plugin_env: BeetsPluginFixture) -> None:
+    def _setup(self, beets_flat_env: BeetsEnvFactory) -> None:
         """Provides shared setup for tests."""
-        self.env = beets_plugin_env
-
-        env = self.env
-        env.create_flat_import_dir()
-        env.setup_import_session(autotag=False)
+        self.env = beets_flat_env()
 
     def test_patterns_match_all_glob(self) -> None:
         """Tests that the `*.*` pattern matches all artifacts."""

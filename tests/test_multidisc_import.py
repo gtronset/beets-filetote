@@ -4,7 +4,7 @@ plugin.
 
 import pytest
 
-from tests.pytest_beets_plugin import BeetsPluginFixture
+from tests.pytest_beets_plugin.fixtures import BeetsEnvFactory
 
 
 class TestMultiDiscImport:
@@ -14,13 +14,9 @@ class TestMultiDiscImport:
     """
 
     @pytest.fixture(autouse=True)
-    def _setup(self, beets_plugin_env: BeetsPluginFixture) -> None:
+    def _setup(self, beets_nested_env: BeetsEnvFactory) -> None:
         """Provides shared setup for tests."""
-        self.env = beets_plugin_env
-
-        env = self.env
-        env.create_nested_import_dir()
-        env.setup_import_session(autotag=False)
+        self.env = beets_nested_env()
 
     def test_copies_file_from_nested_to_library(self) -> None:
         """Ensures that nested directories are handled by beets and the files

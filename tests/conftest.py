@@ -9,6 +9,8 @@ from .pytest_beets_plugin.conftest import (  # noqa: F401
     _beets_io,
     _beets_lib,
     _beets_plugin_lifecycle,
+    beets_flat_env,
+    beets_nested_env,
     beets_plugin_env,
     pytest_collection_modifyitems,
     pytest_configure,

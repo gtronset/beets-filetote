@@ -2,7 +2,7 @@
 
 import pytest
 
-from tests.pytest_beets_plugin import BeetsPluginFixture
+from tests.pytest_beets_plugin.fixtures import BeetsEnvFactory
 
 
 class TestRenameFiletoteFields:
@@ -11,13 +11,9 @@ class TestRenameFiletoteFields:
     """
 
     @pytest.fixture(autouse=True)
-    def _setup(self, beets_plugin_env: BeetsPluginFixture) -> None:
+    def _setup(self, beets_flat_env: BeetsEnvFactory) -> None:
         """Provides shared setup for tests."""
-        self.env = beets_plugin_env
-
-        env = self.env
-        env.create_flat_import_dir(pair_subfolders=True)
-        env.setup_import_session(autotag=False, move=True)
+        self.env = beets_flat_env(pair_subfolders=True, move=True)
 
     def test_rename_field_albumpath(self) -> None:
         """Tests that the value of `albumpath` populates in renaming."""

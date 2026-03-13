@@ -255,6 +255,7 @@ class BeetsPluginFixture(BeetsAssertions, MediaCreator):
         self,
         disc1_media_files: list[MediaSetup] | None = None,
         disc2_media_files: list[MediaSetup] | None = None,
+        parent_artifacts: list[str] | None = None,
     ) -> Path:
         """Create a nested (multi-disc) import directory structure."""
         if disc1_media_files is None:
@@ -271,6 +272,11 @@ class BeetsPluginFixture(BeetsAssertions, MediaCreator):
 
         disc1_path.mkdir(parents=True)
         disc2_path.mkdir(parents=True)
+
+        for artifact in parent_artifacts or []:
+            artifact_path = album_path / artifact
+            artifact_path.parent.mkdir(parents=True, exist_ok=True)
+            self.create_file(artifact_path)
 
         disc1_artifacts = [
             "artifact.file",

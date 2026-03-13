@@ -1,10 +1,10 @@
-"""Tests pruning for the beets-filetote plugin."""
+"""Tests pruning of single-disc imports for the beets-filetote plugin."""
 
 from typing import TYPE_CHECKING
 
 import pytest
 
-from tests.pytest_beets_plugin import BeetsPluginFixture
+from tests.pytest_beets_plugin.fixtures import BeetsEnvFactory
 
 if TYPE_CHECKING:
     from pathlib import Path
@@ -16,13 +16,9 @@ class TestPruning:
     """
 
     @pytest.fixture(autouse=True)
-    def _setup(self, beets_plugin_env: BeetsPluginFixture) -> None:
+    def _setup(self, beets_flat_env: BeetsEnvFactory) -> None:
         """Provides shared setup for tests."""
-        self.env = beets_plugin_env
-
-        env = self.env
-        env.create_flat_import_dir()
-        env.setup_import_session(autotag=False, move=True)
+        self.env = beets_flat_env(move=True)
 
     def test_prune_import_directory_when_emptied(self) -> None:
         """Check that plugin does not interfere with normal
@@ -69,7 +65,6 @@ class TestPruning:
         env.config["filetote"]["paths"] = {
             "pattern:artwork": env.fmt_path("$albumpath", "art", "$old_filename")
         }
-        env.config["import"]["move"] = True
 
         env.run_cli_command("import")
 
@@ -217,18 +212,3 @@ class TestPruning:
         env.assert_not_in_lib_dir("Tag Artist/Tag Album")
         env.assert_not_in_lib_dir("Tag Artist")
         env.assert_in_lib_dir("New Tag Artist/Tag Album/artifact.file")
-
-    def test_prunes_multidisc_nested(self) -> None:
-        """Ensures that multidisc nested directories are pruned correctly on move."""
-        env = self.env
-
-        env.create_nested_import_dir()
-        env.setup_import_session(autotag=False, move=True)
-
-        env.config["filetote"]["extensions"] = ".*"
-
-        env.run_cli_command("import")
-
-        env.assert_not_in_import_dir("the_album/disc1")
-        env.assert_not_in_import_dir("the_album/disc2")
-        env.assert_not_in_import_dir("the_album")

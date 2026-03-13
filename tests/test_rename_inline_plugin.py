@@ -2,9 +2,7 @@
 `inline` plugin is loaded.
 """
 
-import pytest
-
-from tests.pytest_beets_plugin import BeetsPluginFixture
+from tests.pytest_beets_plugin.fixtures import BeetsEnvFactory
 
 
 class TestInlinePluginRename:
@@ -12,20 +10,15 @@ class TestInlinePluginRename:
     `inline` plugin is loaded.
     """
 
-    @pytest.fixture(autouse=True)
-    def _setup(self, beets_plugin_env: BeetsPluginFixture) -> None:
-        """All tests in this class load the inline plugin."""
-        self.env = beets_plugin_env
-        self.env.plugins = ["inline"]
-
-    def test_rename_works_with_inline_plugin(self) -> None:
+    def test_rename_works_with_inline_plugin(
+        self, beets_flat_env: BeetsEnvFactory
+    ) -> None:
         """Ensure that Filetote can rename fields as expected when the `inline`
         plugin is enabled.
         """
-        env = self.env
+        env = beets_flat_env()
 
-        env.create_flat_import_dir()
-        env.setup_import_session(autotag=False)
+        env.plugins = ["inline"]
 
         env.config["filetote"]["extensions"] = ".*"
         env.config["filetote"]["patterns"] = {
