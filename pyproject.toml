@@ -177,6 +177,7 @@ commands = [
 
 [tool.tox.env.beets-2.4]
 description = "Test with beets~=2.4.0"
+base_python = ["3"]
 commands_pre = [
     [
         "poetry",
@@ -206,6 +207,7 @@ commands = [
 
 [tool.tox.env.beets-2.5]
 description = "Test with beets~=2.5.0"
+base_python = ["3"]
 commands_pre = [
     [
         "poetry",
@@ -235,6 +237,7 @@ commands = [
 
 [tool.tox.env.beets-2.6]
 description = "Test with beets~=2.6.0"
+base_python = ["3"]
 commands_pre = [
     [
         "poetry",
@@ -264,6 +267,7 @@ commands = [
 
 [tool.tox.env.beets-2.7]
 description = "Test with beets~=2.7.0"
+base_python = ["3"]
 commands_pre = [
     [
         "poetry",
@@ -293,6 +297,7 @@ commands = [
 
 [tool.tox.env.beets-2.8]
 description = "Test with beets~=2.8.0"
+base_python = ["3"]
 commands_pre = [
     [
         "poetry",
@@ -322,6 +327,7 @@ commands = [
 
 [tool.tox.env.beets-2.9]
 description = "Test with beets~=2.9.0"
+base_python = ["3"]
 commands_pre = [
     [
         "poetry",
@@ -351,6 +357,7 @@ commands = [
 
 [tool.tox.env.beets-master]
 description = "Test with beets from master branch"
+base_python = ["3"]
 commands_pre = [
     [
         "poetry",
