@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.3.4] - 2026-04-17
+
 - Remove upper version bound and support Beets 2.8 & 2.9 <https://github.com/gtronset/beets-filetote/pull/284>
 
 ## [1.3.3] - 2026-03-11
@@ -309,7 +311,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 <!-- Release Links -->
 
-[unreleased]: https://github.com/gtronset/beets-filetote/compare/v1.3.3...HEAD
+[unreleased]: https://github.com/gtronset/beets-filetote/compare/v1.3.4...HEAD
+[1.3.4]: https://github.com/gtronset/beets-filetote/releases/tag/v1.3.4
 [1.3.3]: https://github.com/gtronset/beets-filetote/releases/tag/v1.3.3
 [1.3.2]: https://github.com/gtronset/beets-filetote/releases/tag/v1.3.2
 [1.3.1]: https://github.com/gtronset/beets-filetote/releases/tag/v1.3.1
