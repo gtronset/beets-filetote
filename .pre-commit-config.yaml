@@ -8,12 +8,12 @@ repos:
           - id: check-toml
           - id: end-of-file-fixer
           - id: trailing-whitespace
-            args: [--markdown-linebreak-ext=md]
+            args: [ --markdown-linebreak-ext=md ]
           - id: mixed-line-ending
-            args: ["--fix=lf"]
+            args: [ "--fix=lf" ]
           - id: no-commit-to-branch
           - id: check-added-large-files
-            args: ["--maxkb=500"]
+            args: [ "--maxkb=500" ]
 
     - repo: https://github.com/astral-sh/ruff-pre-commit
       rev: v0.15.5
@@ -24,8 +24,8 @@ repos:
           - id: ruff
             name: lint-fix
             alias: lint-fix
-            args: [--fix]
-            stages: [manual]
+            args: [ --fix ]
+            stages: [ manual ]
           - id: ruff-format
             name: format
             alias: format
@@ -37,8 +37,8 @@ repos:
           - id: markdownlint
             name: markdownlint-fix
             alias: markdownlint-fix
-            args: ["--fix"]
-            stages: [manual]
+            args: [ "--fix" ]
+            stages: [ manual ]
 
     - repo: https://github.com/pre-commit/pre-commit
       rev: v4.5.1
@@ -49,24 +49,24 @@ repos:
       rev: v1.19.1
       hooks:
           - id: mypy
-            additional_dependencies: [pytest]
+            additional_dependencies: [ pytest ]
 
     - repo: https://gitlab.com/vojko.pribudic.foss/pre-commit-update
       rev: v0.9.0
       hooks:
           - id: pre-commit-update
-            stages: [manual]
+            stages: [ manual ]
 
     - repo: https://github.com/python-poetry/poetry
       rev: 1.8.5
       hooks:
           - id: poetry-check
-            stages: [pre-push]
+            stages: [ pre-push ]
           - id: poetry-lock
-            stages: [pre-push]
+            stages: [ pre-push ]
           - id: poetry-export
             name: poetry-export
-            stages: [manual]
+            stages: [ manual ]
             files: (pyproject\.toml|poetry\.lock)
             args:
                 - "--without-hashes"
@@ -77,7 +77,7 @@ repos:
           - id: poetry-export
             name: poetry-export-dev
             alias: poetry-export-dev
-            stages: [manual]
+            stages: [ manual ]
             files: (pyproject\.toml|poetry\.lock)
             args:
                 - "--with"
@@ -98,11 +98,11 @@ repos:
                 - --keep-mock
                 - --keep-runtime-typing
                 - --exit-zero-even-if-changed
-            stages: [manual]
+            stages: [ manual ]
 
     - repo: https://github.com/adhtruong/mirrors-typos
       # https://github.com/crate-ci/typos/issues/390
-      rev: v1.44.0
+      rev: v1.45.0
       hooks:
           - id: typos
             exclude: "(_typos.toml|.gitignore)"
