@@ -24,7 +24,7 @@ classifiers = [
 
 [tool.poetry.dependencies]
 python = "^3.10"
-beets = ">=2.4.0,<2.8.0"
+beets = ">=2.4.0"
 mediafile = ">=0.12.0"
 
 [tool.poetry.group.llvmlite.dependencies]
@@ -149,10 +149,12 @@ env_list = [
     "3.11",
     "3.12",
     "3.13",
-    "beets-2.4",
-    "beets-2.5",
-    "beets-2.6",
-    "beets-2.7",
+    "beets-2_4",
+    "beets-2_5",
+    "beets-2_6",
+    "beets-2_7",
+    "beets-2_8",
+    "beets-2_9",
     "beets-master",
 ]
 
@@ -173,7 +175,7 @@ commands = [
     ],
 ]
 
-[tool.tox.env.beets-2.4]
+[tool.tox.env.beets-2_4]
 description = "Test with beets~=2.4.0"
 commands_pre = [
     [
@@ -202,7 +204,7 @@ commands = [
     ],
 ]
 
-[tool.tox.env.beets-2.5]
+[tool.tox.env.beets-2_5]
 description = "Test with beets~=2.5.0"
 commands_pre = [
     [
@@ -231,7 +233,7 @@ commands = [
     ],
 ]
 
-[tool.tox.env.beets-2.6]
+[tool.tox.env.beets-2_6]
 description = "Test with beets~=2.6.0"
 commands_pre = [
     [
@@ -260,7 +262,7 @@ commands = [
     ],
 ]
 
-[tool.tox.env.beets-2.7]
+[tool.tox.env.beets-2_7]
 description = "Test with beets~=2.7.0"
 commands_pre = [
     [
@@ -289,8 +291,67 @@ commands = [
     ],
 ]
 
+[tool.tox.env.beets-2_8]
+description = "Test with beets~=2.8.0"
+commands_pre = [
+    [
+        "poetry",
+        "install",
+        "--no-root",
+        "--sync",
+    ],
+    [
+        "poetry",
+        "run",
+        "pip",
+        "install",
+        "beets~=2.8.0",
+    ],
+]
+commands = [
+    [
+        "poetry",
+        "run",
+        "pytest",
+        "-n",
+        "auto",
+        "tests",
+        "--typeguard-packages=beetsplug",
+    ],
+]
+
+[tool.tox.env.beets-2_9]
+description = "Test with beets~=2.9.0"
+commands_pre = [
+    [
+        "poetry",
+        "install",
+        "--no-root",
+        "--sync",
+    ],
+    [
+        "poetry",
+        "run",
+        "pip",
+        "install",
+        "beets~=2.9.0",
+    ],
+]
+commands = [
+    [
+        "poetry",
+        "run",
+        "pytest",
+        "-n",
+        "auto",
+        "tests",
+        "--typeguard-packages=beetsplug",
+    ],
+]
+
 [tool.tox.env.beets-master]
 description = "Test with beets from master branch"
+base_python = ["3"]
 commands_pre = [
     [
         "poetry",
