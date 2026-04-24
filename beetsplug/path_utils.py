@@ -5,13 +5,38 @@ from __future__ import annotations
 import filecmp
 import fnmatch
 import os
-import re
 
 from pathlib import Path
 from typing import TYPE_CHECKING
 
 from beets import util
-from beets.importer.tasks import MULTIDISC_MARKERS, MULTIDISC_PAT_FMT
+
+try:
+    from beets.importer.tasks import MULTIDISC_PATTERNS
+
+    def is_multidisc(path_name: Path) -> bool:
+        """Checks if a directory name matches the multi-disc pattern by replicating the
+        beets importer's pattern matching for disc folders.
+        """
+        path_name_bytes = util.bytestring_path(path_name.name)
+        return any(pat.match(path_name_bytes) for pat in MULTIDISC_PATTERNS)
+
+except ImportError:
+    import re
+    from beets.importer.tasks import MULTIDISC_MARKERS, MULTIDISC_PAT_FMT
+
+    def is_multidisc(path_name: Path) -> bool:
+        """Checks if a directory name matches the multi-disc pattern by replicating the
+        beets importer's pattern matching for disc folders.
+        """
+        path_name_bytes = util.bytestring_path(path_name.name)
+        for marker in MULTIDISC_MARKERS:
+            p = MULTIDISC_PAT_FMT.replace(b"%s", marker)
+            pat = re.compile(p, re.IGNORECASE)
+            if pat.match(path_name_bytes):
+                return True
+        return False
+
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
@@ -135,21 +160,6 @@ def get_artifact_subpath(
 def is_path_within_ancestry(child_path: Path | None, parent_path: Path) -> bool:
     """Checks if a path is a subdirectory of another by checking its ancestry."""
     return child_path is not None and str(parent_path) in util.ancestry(str(child_path))
-
-
-def is_multidisc(path_name: Path) -> bool:
-    """Checks if a directory name matches the multi-disc pattern by replicating the
-    beets importer's pattern matching for disc folders.
-    """
-    path_name_bytes = util.bytestring_path(path_name.name)
-
-    for marker in MULTIDISC_MARKERS:
-        p = MULTIDISC_PAT_FMT.replace(b"%s", marker)
-        pat = re.compile(p, re.IGNORECASE)
-        if pat.match(path_name_bytes):
-            return True
-
-    return False
 
 
 def get_multidisc_ignore_paths(parent_path: Path) -> list[str]:
