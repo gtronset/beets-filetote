@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+- Update to support beets after 2.10.0 with pay_utils imports
+
 ## [1.3.4] - 2026-04-17
 
 - Remove upper version bound and support Beets 2.8 & 2.9 <https://github.com/gtronset/beets-filetote/pull/284>
