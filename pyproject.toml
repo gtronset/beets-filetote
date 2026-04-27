@@ -28,7 +28,7 @@ beets = ">=2.4.0"
 mediafile = ">=0.12.0"
 
 [tool.poetry.group.llvmlite.dependencies]
-llvmlite = "^0.45.0"
+llvmlite = ">=0.45,<0.48"
 
 [tool.poetry.group.dev.dependencies]
 toml = ">=0.10.2"
