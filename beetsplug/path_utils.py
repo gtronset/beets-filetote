@@ -11,7 +11,16 @@ from pathlib import Path
 from typing import TYPE_CHECKING
 
 from beets import util
-from beets.importer.tasks import MULTIDISC_MARKERS, MULTIDISC_PAT_FMT
+
+try:
+    from beets.importer.tasks import MULTIDISC_PATTERNS
+except ImportError:
+    from beets.importer.tasks import MULTIDISC_MARKERS, MULTIDISC_PAT_FMT
+
+    MULTIDISC_PATTERNS = [
+        re.compile(MULTIDISC_PAT_FMT.replace(b"%s", marker), re.IGNORECASE)
+        for marker in MULTIDISC_MARKERS
+    ]
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
@@ -143,13 +152,7 @@ def is_multidisc(path_name: Path) -> bool:
     """
     path_name_bytes = util.bytestring_path(path_name.name)
 
-    for marker in MULTIDISC_MARKERS:
-        p = MULTIDISC_PAT_FMT.replace(b"%s", marker)
-        pat = re.compile(p, re.IGNORECASE)
-        if pat.match(path_name_bytes):
-            return True
-
-    return False
+    return any(pat.match(path_name_bytes) for pat in MULTIDISC_PATTERNS)
 
 
 def get_multidisc_ignore_paths(parent_path: Path) -> list[str]:

@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Support Beets 2.11 multidisc importer pattern constants
 - Import `get_path_formats` from its new location in `beets.util.pathformats`
 
 ## [1.3.4] - 2026-04-17
