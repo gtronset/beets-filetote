@@ -155,6 +155,8 @@ env_list = [
     "beets-2_7",
     "beets-2_8",
     "beets-2_9",
+    "beets-2_10",
+    "beets-2_11",
     "beets-master",
 ]
 
@@ -335,6 +337,64 @@ commands_pre = [
         "pip",
         "install",
         "beets~=2.9.0",
+    ],
+]
+commands = [
+    [
+        "poetry",
+        "run",
+        "pytest",
+        "-n",
+        "auto",
+        "tests",
+        "--typeguard-packages=beetsplug",
+    ],
+]
+
+[tool.tox.env.beets-2_10]
+description = "Test with beets~=2.10.0"
+commands_pre = [
+    [
+        "poetry",
+        "install",
+        "--no-root",
+        "--sync",
+    ],
+    [
+        "poetry",
+        "run",
+        "pip",
+        "install",
+        "beets~=2.10.0",
+    ],
+]
+commands = [
+    [
+        "poetry",
+        "run",
+        "pytest",
+        "-n",
+        "auto",
+        "tests",
+        "--typeguard-packages=beetsplug",
+    ],
+]
+
+[tool.tox.env.beets-2_11]
+description = "Test with beets~=2.11.0"
+commands_pre = [
+    [
+        "poetry",
+        "install",
+        "--no-root",
+        "--sync",
+    ],
+    [
+        "poetry",
+        "run",
+        "pip",
+        "install",
+        "beets~=2.11.0",
     ],
 ]
 commands = [
