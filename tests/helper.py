@@ -360,12 +360,7 @@ class FiletoteTestCase(_common.TestCase, Assertions, HelperUtils):
 
         for obj_path, attr in attrs_to_clear:
             try:
-                if "." in obj_path:
-                    module_path, class_name = obj_path.rsplit(".", 1)
-                    module = sys.modules[module_path]
-                    obj = getattr(module, class_name)
-                else:
-                    obj = sys.modules[obj_path]
+                obj = self._resolve_obj_path(obj_path)
             except (KeyError, AttributeError):
                 # If the module or attribute doesn't exist, skip it.
                 log.warning(f"Could not resolve path `{obj_path}` for teardown.")
@@ -378,6 +373,15 @@ class FiletoteTestCase(_common.TestCase, Assertions, HelperUtils):
 
         self.lib._close()
         super().tearDown()
+
+    @staticmethod
+    def _resolve_obj_path(obj_path: str) -> Any:
+        """Resolve a dotted path to a module or class attribute."""
+        if "." in obj_path:
+            module_path, class_name = obj_path.rsplit(".", 1)
+            module = sys.modules[module_path]
+            return getattr(module, class_name)
+        return sys.modules[obj_path]
 
     def load_plugins(self, other_plugins: list[str]) -> None:
         """Loads and sets up the plugin(s) for the test module."""

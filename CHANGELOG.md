@@ -9,10 +9,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- Bump crate-ci/typos from 1.45.1 to 1.47.2 <https://github.com/gtronset/beets-filetote/pull/304>
+- Bump ruff from 0.15.11 to 0.15.16 <https://github.com/gtronset/beets-filetote/pull/305>
+
 ### Fixed
 
-- Support Beets 2.11 multidisc importer pattern constants
-- Import `get_path_formats` from its new location in `beets.util.pathformats`
+- Support Beets 2.11 multidisc importer pattern constants <https://github.com/gtronset/beets-filetote/pull/303>
+- Import `get_path_formats` from its new location in `beets.util.pathformats` <https://github.com/gtronset/beets-filetote/pull/302>
 
 ## [1.3.4] - 2026-04-17
 
