@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Bump crate-ci/typos from 1.45.1 to 1.47.2 <https://github.com/gtronset/beets-filetote/pull/304>
 - Bump ruff from 0.15.11 to 0.15.16 <https://github.com/gtronset/beets-filetote/pull/305>
+- Bump llvmlite from 0.45.1 to 0.47.0 <https://github.com/gtronset/beets-filetote/pull/288>
 
 ### Fixed
 
