@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Add `pipx` installation instructions <https://github.com/gtronset/beets-filetote/pull/307>
+
 ### Changed
 
 - Bump crate-ci/typos from 1.45.1 to 1.47.2 <https://github.com/gtronset/beets-filetote/pull/304>
