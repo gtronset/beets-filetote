@@ -16,7 +16,7 @@ repos:
             args: ["--maxkb=500"]
 
     - repo: https://github.com/astral-sh/ruff-pre-commit
-      rev: v0.15.5
+      rev: v0.15.16
       hooks:
           - id: ruff
             name: lint
@@ -41,7 +41,7 @@ repos:
             stages: [manual]
 
     - repo: https://github.com/pre-commit/pre-commit
-      rev: v4.5.1
+      rev: v4.6.0
       hooks:
           - id: validate_manifest
 
@@ -102,7 +102,7 @@ repos:
 
     - repo: https://github.com/adhtruong/mirrors-typos
       # https://github.com/crate-ci/typos/issues/390
-      rev: v1.45.1
+      rev: v1.47.2
       hooks:
           - id: typos
             exclude: "(_typos.toml|.gitignore)"
