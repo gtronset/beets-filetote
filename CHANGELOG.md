@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- Import `get_path_formats` from its new location in `beets.util.pathformats`
+
 ## [1.3.4] - 2026-04-17
 
 - Remove upper version bound and support Beets 2.8 & 2.9 <https://github.com/gtronset/beets-filetote/pull/284>

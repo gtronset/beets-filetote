@@ -13,7 +13,13 @@ from typing import (
 from beets import config, util
 from beets.library.models import DefaultTemplateFunctions
 from beets.plugins import BeetsPlugin, find_plugins
-from beets.ui import get_path_formats
+
+try:
+    from beets.util.pathformats import get_path_formats as _get_path_formats
+except ModuleNotFoundError as exc:
+    if exc.name != "beets.util.pathformats":
+        raise
+    from beets.ui import get_path_formats as _get_path_formats
 from beets.util import MoveOperation
 from beets.util.functemplate import Template
 from mediafile import TYPES as BEETS_FILE_TYPES
@@ -253,7 +259,7 @@ class FiletotePlugin(BeetsPlugin):
         beets_path_query: str
         beets_path_format: Template
 
-        for beets_path_query, beets_path_format in get_path_formats():
+        for beets_path_query, beets_path_format in _get_path_formats(config["paths"]):
             for filetote_query in queries:
                 if (
                     beets_path_query.startswith(filetote_query)
