@@ -69,7 +69,7 @@ mapping = 2
 sequence = 6
 offset = 4
 
-[tool.pytest.ini_options]
+[tool.pytest]
 testpaths = ["./tests"]
 filterwarnings = ["ignore::DeprecationWarning:.*confuse"]
 
