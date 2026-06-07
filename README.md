@@ -26,6 +26,14 @@ The stable version of the plugin is available from PyPI and can be installed usi
 pip3 install beets-filetote
 ```
 
+Or if you have installed beets via `pipx`:
+
+```sh
+pipx inject beets beets-filetote
+```
+
+This ensures the plugin is installed into the same virtual environment as beets.
+
 ## Configuration
 
 You will need to enable the plugin in beets' `config.yaml`:
