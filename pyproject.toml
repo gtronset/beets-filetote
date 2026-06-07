@@ -35,7 +35,7 @@ toml = ">=0.10.2"
 reflink = ">=0.2.1"
 
 [tool.poetry.group.lint.dependencies]
-mypy = "^1.19.0"
+mypy = ">=1.19,<3.0"
 ruff = "^0.15.0"
 
 [tool.poetry.group.test.dependencies]
