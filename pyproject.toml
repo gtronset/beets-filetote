@@ -55,20 +55,6 @@ pretty = true
 module = "beets.test._common"
 follow_imports = "skip"
 
-[tool.pre-commit-update]
-dry_run = false
-all_versions = false
-verbose = true
-warnings = true
-preview = false
-jobs = 10
-keep = ["poetry"]
-
-[tool.pre-commit-update.yaml]
-mapping = 2
-sequence = 6
-offset = 4
-
 [tool.pytest]
 testpaths = ["./tests"]
 filterwarnings = ["ignore::DeprecationWarning:.*confuse"]

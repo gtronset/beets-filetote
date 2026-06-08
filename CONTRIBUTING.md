@@ -9,7 +9,7 @@ Testing and linting is performed with [Tox] (`v4.12`+).
 [Poetry]: https://python-poetry.org/
 [Tox]: https://tox.wiki/
 
-[Installing `pre-commit`] is also highly recommended, which will help automatically
+[Installing `prek`] is also highly recommended, which will help automatically
 lint before committing.
 
 Filetote currently supports Python `3.10`+, which aligns with the target base version of
@@ -18,7 +18,7 @@ beets (`v2.6`).
 For general information of working with beets plugins, see the beets' documentation
 [For Developers]
 
-[Installing `pre-commit`]: https://pre-commit.com/#install
+[Installing `prek`]: https://prek.j178.dev/installation/
 [For Developers]: https://beets.readthedocs.io/en/stable/dev/
 
 ## Installation

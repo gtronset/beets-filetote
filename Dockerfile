@@ -18,5 +18,5 @@ COPY . /src
 COPY example.config.yaml /root/.config/beets/config.yaml
 
 RUN pip install --upgrade pip \
-    && pip install beets poetry pre-commit tox \
+    && pip install beets poetry prek tox \
     && poetry install

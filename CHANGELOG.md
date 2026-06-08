@@ -21,6 +21,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Remove explicit `llvmlite` dependency group <https://github.com/gtronset/beets-filetote/pull/306>
 - Update `mypy`, `pytest`, and `precommit` <https://github.com/gtronset/beets-filetote/pull/308>
 - Support Python 3.14 & run CI tests for Beets 2.10 & 2.11 <https://github.com/gtronset/beets-filetote/pull/310>
+- Recommend/use `prek` over `pre-commit` <https://github.com/gtronset/beets-filetote/pull/311>
 
 ### Fixed
 
