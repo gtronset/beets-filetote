@@ -139,12 +139,7 @@ def _clear_plugin_state() -> None:
 
     for obj_path, attr in attrs_to_clear:
         try:
-            if "." in obj_path:
-                module_path, class_name = obj_path.rsplit(".", 1)
-                module = sys.modules[module_path]
-                obj = getattr(module, class_name)
-            else:
-                obj = sys.modules[obj_path]
+            obj = _resolve_obj_path(obj_path)
         except (KeyError, AttributeError):
             # If the module or attribute doesn't exist, skip it.
             log.warning("Could not resolve path `%s` for teardown.", obj_path)
@@ -154,3 +149,12 @@ def _clear_plugin_state() -> None:
             val = getattr(obj, attr)
             if val is not None and hasattr(val, "clear"):
                 val.clear()
+
+
+def _resolve_obj_path(obj_path: str) -> Any:
+    """Resolve a dotted path to a module or class attribute."""
+    if "." in obj_path:
+        module_path, class_name = obj_path.rsplit(".", 1)
+        module = sys.modules[module_path]
+        return getattr(module, class_name)
+    return sys.modules[obj_path]
