@@ -1,6 +1,6 @@
 # yaml-language-server: $schema=https://json.schemastore.org/github-workflow.json
 
-name: Pre-commit Updater
+name: Prek (Pre-commit) Updater
 
 permissions:
     contents: write
@@ -15,7 +15,7 @@ env:
     PYTHON_VERSION: 3.14
 
 jobs:
-    autoupdate-precommit:
+    autoupdate-prek-hooks:
         runs-on: ubuntu-24.04
         steps:
             - uses: actions/checkout@v6
@@ -26,20 +26,19 @@ jobs:
                   python-version: ${{ env.PYTHON_VERSION }}
                   cache: pip
 
-            - name: Install pre-commit
-              run: pip install pre-commit-update
+            - name: Install `prek`
+              run: pip install prek
 
-            - name: Run pre-commit autoupdate
-              run: pre-commit-update
+            - name: Run `prek auto-update`
+              run: prek auto-update
 
             - name: Create Pull Request
               uses: peter-evans/create-pull-request@v8
               with:
                   token: ${{ secrets.GITHUB_TOKEN }}
-                  branch: update/pre-commit-autoupdate
-                  title: Auto-update pre-commit hooks
-                  commit-message: Auto-update pre-commit hooks
+                  branch: update/prek-autoupdate
+                  title: Auto-update `prek` hooks
+                  commit-message: Auto-update `prek` hooks
                   body: |
-                      Update versions of tools in pre-commit
-                      configs to latest version
+                      Update versions of tools in `prek` configs to latest version(s).
                   labels: dependencies
