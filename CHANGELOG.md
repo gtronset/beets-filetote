@@ -20,6 +20,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Bump llvmlite from 0.45.1 to 0.47.0 <https://github.com/gtronset/beets-filetote/pull/288>
 - Remove explicit `llvmlite` dependency group <https://github.com/gtronset/beets-filetote/pull/306>
 - Update `mypy`, `pytest`, and `precommit` <https://github.com/gtronset/beets-filetote/pull/308>
+- Support Python 3.14 & run CI tests for Beets 2.10 & 2.11 <https://github.com/gtronset/beets-filetote/pull/310>
 
 ### Fixed
 
