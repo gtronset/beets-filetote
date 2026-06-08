@@ -51,8 +51,6 @@ repos:
       hooks:
           - id: poetry-check
             stages: [pre-push]
-          - id: poetry-lock
-            stages: [pre-push]
           - id: poetry-export
             name: poetry-export
             stages: [manual]
