@@ -109,7 +109,7 @@ Test against a specific beets version:
 poetry run tox -e beets-2.6
 ```
 
-Test against the beets development branch:
+Test against the beets' development branch:
 
 ```sh
 poetry run tox -e beets-master
@@ -123,17 +123,15 @@ poetry run tox -p
 
 Available Tox environments:
 
-| Environment      | Description                               |
-|------------------|-------------------------------------------|
-| `3.10` – `3.13`  | Test against a specific Python version    |
-| `beets-2.4`      | Test with beets `~=2.4.0`                 |
-| `beets-2.5`      | Test with beets `~=2.5.0`                 |
-| `beets-2.6`      | Test with beets `~=2.6.0`                 |
-| `beets-master`   | Test with beets from `master` branch      |
-| `lint`           | Lint source code (`ruff check`)           |
-| `lint-fix`       | Auto-fix lint issues (`ruff check --fix`) |
-| `format`         | Format source code (`ruff format`)        |
-| `mypy`           | Type-check source code                    |
+| Environment                | Description                                                |
+|----------------------------|------------------------------------------------------------|
+| `3.10` – `3.14`            | Test against a specific Python version                     |
+| `beets-2_4` – `beets-2_10` | Test with beets `~=2.4.0` through `~=2.10.0`, respectively |
+| `beets-master`             | Test with beets from `master` branch                       |
+| `lint`                     | Lint source code (`ruff check`)                            |
+| `lint-fix`                 | Auto-fix lint issues (`ruff check --fix`)                  |
+| `format`                   | Format source code (`ruff format`)                         |
+| `mypy`                     | Type-check source code                                     |
 
 ### Test Structure
 

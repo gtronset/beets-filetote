@@ -4,7 +4,6 @@ beets-audible plugin is loaded.
 
 from tests.pytest_beets_plugin import BeetsEnvFactory, MediaSetup
 
-
 # TODO(gtronset): mediafile.TYPES only contains a subset of formats that MediaFile/
 # Mutagen can actually read. These additional types are known to be importable by
 # beets (via Mutagen's MP4, ASF, and WAV handlers) but are absent from
@@ -32,6 +31,8 @@ from tests.pytest_beets_plugin import BeetsEnvFactory, MediaSetup
 #     **_ADDITIONAL_MEDIA_TYPES,
 # }
 # https://github.com/gtronset/beets-filetote/pull/275
+
+
 class TestM4BFilesIgnored:
     """Tests to check that Filetote does not copy music/audiobook files when the
     beets-audible plugin is present.
