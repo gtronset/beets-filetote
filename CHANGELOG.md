@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.3.5] - 2026-06-08
+
 ### Added
 
 - Add `pipx` installation instructions <https://github.com/gtronset/beets-filetote/pull/307>
@@ -330,7 +332,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 <!-- Release Links -->
 
-[unreleased]: https://github.com/gtronset/beets-filetote/compare/v1.3.4...HEAD
+[unreleased]: https://github.com/gtronset/beets-filetote/compare/v1.3.5...HEAD
+[1.3.5]: https://github.com/gtronset/beets-filetote/releases/tag/v1.3.5
 [1.3.4]: https://github.com/gtronset/beets-filetote/releases/tag/v1.3.4
 [1.3.3]: https://github.com/gtronset/beets-filetote/releases/tag/v1.3.3
 [1.3.2]: https://github.com/gtronset/beets-filetote/releases/tag/v1.3.2
