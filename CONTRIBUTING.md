@@ -55,7 +55,7 @@ poetry run beet
 Testing can be run with Tox, ex.:
 
 ```sh
-poetry run tox -e 3.13
+poetry run tox -e 3.14
 ```
 
 For other linting environments, see `pyproject.toml`. Ex: `lint` (courtesy of `ruff`):

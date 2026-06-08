@@ -25,7 +25,7 @@ jobs:
             TOXENV: beets-master
             FFMPEG_VERSION: 7.1
             POETRY_VERSION: 1.8.5
-            PYTHON_VERSION: 3.13
+            PYTHON_VERSION: 3.14
 
         steps:
             - uses: actions/checkout@v6
