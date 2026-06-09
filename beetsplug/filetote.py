@@ -1067,7 +1067,7 @@ class FiletotePlugin(BeetsPlugin):
                 " reimport."
             )
 
-        # Logging related logic
+        # Logging-related logic
         op_label = (
             "Moving"
             if (operation == MoveOperation.MOVE or is_reimport)

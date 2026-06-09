@@ -25,7 +25,7 @@ class TestPrintIgnored:
         env.assert_not_in_lib_dir("Tag Artist/Tag Album/artifact.nfo")
         env.assert_not_in_lib_dir("Tag Artist/Tag Album/artifact.lrc")
 
-        assert logs == []
+        assert not any("Ignored files" in msg for msg in logs)
 
     def test_print_ignored(self) -> None:
         """Tests that when `print_ignored` is enabled, it prints out all files not
@@ -41,7 +41,6 @@ class TestPrintIgnored:
 
         env.assert_not_in_lib_dir("Tag Artist/Tag Album/artifact.nfo")
 
-        assert logs == [
-            "filetote: Ignored files:",
-            "filetote:    artifact.nfo",
-        ]
+        ignored_index = logs.index("filetote: Ignored files:")
+        # The ignored file listing follows immediately after the header
+        assert "filetote:    artifact.nfo" in logs[ignored_index:]

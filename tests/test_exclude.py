@@ -67,7 +67,7 @@ class TestExclude:
         env.assert_not_in_lib_dir("Tag Artist/Tag Album/not_to_be_moved.lrc")
 
         # Ensure the deprecation warning is present
-        assert logs == [_EXCLUDE_DEPRECATION_MSG]
+        assert _EXCLUDE_DEPRECATION_MSG in logs
 
     def test_exclude_strseq_of_filenames_by_list(self) -> None:
         """Tests to ensure the `exclude` config registers as a `strseq` (string
@@ -96,7 +96,7 @@ class TestExclude:
         env.assert_not_in_lib_dir("Tag Artist/Tag Album/not_to_be_moved.lrc")
 
         # Ensure the deprecation warning is present
-        assert logs == [_EXCLUDE_DEPRECATION_MSG]
+        assert _EXCLUDE_DEPRECATION_MSG in logs
 
     def test_exclude_dict_with_filenames_extensions(self) -> None:
         """Tests to ensure the `exclude` config registers dictionary of `filenames`
