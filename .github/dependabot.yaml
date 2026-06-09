@@ -6,6 +6,8 @@ updates:
       directory: "/"
       schedule:
           interval: weekly
+      labels:
+          - "dependencies"
       cooldown:
           default-days: 7
 
@@ -15,8 +17,23 @@ updates:
       schedule:
           interval: weekly
           time: "04:00"
+      labels:
+          - "dependencies"
       cooldown:
           default-days: 7
+
+    - package-ecosystem: pre-commit
+      open-pull-requests-limit: 10
+      directory: "/"
+      schedule:
+          interval: weekly
+          time: "04:00"
+      labels:
+          - "dependencies"
+      cooldown:
+          default-days: 7
+          semver-major-days: 14
+          semver-patch-days: 3
 
     - package-ecosystem: pip
       open-pull-requests-limit: 10
@@ -24,6 +41,8 @@ updates:
       schedule:
           interval: weekly
           time: "04:00"
+      labels:
+          - "dependencies"
       cooldown:
           default-days: 7
           semver-major-days: 14
