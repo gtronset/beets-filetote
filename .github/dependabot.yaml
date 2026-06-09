@@ -5,16 +5,26 @@ updates:
     - package-ecosystem: "docker"
       directory: "/"
       schedule:
-          interval: "daily"
+          interval: weekly
+      cooldown:
+          default-days: 7
+
     - package-ecosystem: github-actions
       open-pull-requests-limit: 10
       directory: "/"
       schedule:
           interval: weekly
           time: "04:00"
+      cooldown:
+          default-days: 7
+
     - package-ecosystem: pip
       open-pull-requests-limit: 10
       directory: "/"
       schedule:
           interval: weekly
           time: "04:00"
+      cooldown:
+          default-days: 7
+          semver-major-days: 14
+          semver-patch-days: 3
