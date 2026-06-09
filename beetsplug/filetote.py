@@ -147,7 +147,14 @@ class FiletotePlugin(BeetsPlugin):
                 " https://github.com/gtronset/beets-filetote#excluding-files"
             )
         else:
-            filetote.adjust("exclude", exclusion_config.get(dict))
+            filetote.adjust(
+                "exclude",
+                {
+                    "filenames": exclusion_config["filenames"].as_str_seq(),
+                    "extensions": exclusion_config["extensions"].as_str_seq(),
+                    "patterns": exclusion_config["patterns"].get(dict),
+                },
+            )
 
         # Read the 'pairing' configuration.
         filetote.adjust(
