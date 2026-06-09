@@ -1140,13 +1140,14 @@ class FiletotePlugin(BeetsPlugin):
                 " reimport."
             )
 
-        op_label = self._operation_label(operation, is_reimport)
-        self._log.info(
-            "{}: {} -> {}",
-            op_label,
-            util.displayable_path(artifact_source),
-            util.displayable_path(artifact_dest),
-        )
+        if self._log.isEnabledFor(logging.INFO):
+            op_label = self._operation_label(operation, is_reimport)
+            self._log.info(
+                "{}: {} -> {}",
+                op_label,
+                util.displayable_path(artifact_source),
+                util.displayable_path(artifact_dest),
+            )
 
         self._apply_artifact_operation(
             operation,
