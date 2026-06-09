@@ -2,7 +2,7 @@
 
 repos:
     - repo: https://github.com/pre-commit/pre-commit-hooks
-      rev: v6.0.0
+      rev: 3e8a8703264a2f4a69428a0aa4dcb512790b2c8c # v6.0.0
       hooks:
           - id: check-yaml
           - id: check-toml
@@ -16,7 +16,7 @@ repos:
             args: ["--maxkb=500"]
 
     - repo: https://github.com/astral-sh/ruff-pre-commit
-      rev: v0.15.16
+      rev: 22f0422809455ec89ffdcf5a00170ba816e42ddb # v0.15.16
       hooks:
           - id: ruff
             name: lint
@@ -31,7 +31,7 @@ repos:
             alias: format
 
     - repo: https://github.com/igorshubovych/markdownlint-cli
-      rev: v0.48.0
+      rev: e72a3ca1632f0b11a07d171449fe447a7ff6795e # v0.48.0
       hooks:
           - id: markdownlint
           - id: markdownlint
@@ -41,13 +41,13 @@ repos:
             stages: [manual]
 
     - repo: https://github.com/pre-commit/mirrors-mypy
-      rev: v2.1.0
+      rev: d2823d321df3af8f878f7ee3414dc94d037145b9 # v2.1.0
       hooks:
           - id: mypy
             additional_dependencies: [pytest]
 
     - repo: https://github.com/python-poetry/poetry
-      rev: 1.8.5
+      rev: 19a2f7bddb9bdf931a229ea0913a84021f3f9b93 # 1.8.5
       hooks:
           - id: poetry-check
             stages: [pre-push]
@@ -76,7 +76,7 @@ repos:
                 - "dev-requirements.txt"
 
     - repo: https://github.com/asottile/pyupgrade
-      rev: v3.21.2
+      rev: 75992aaa40730136014f34227e0135f63fc951b4 # v3.21.2
       hooks:
           - id: pyupgrade
             args:
@@ -89,13 +89,13 @@ repos:
 
     - repo: https://github.com/adhtruong/mirrors-typos
       # https://github.com/crate-ci/typos/issues/390
-      rev: v1.47.2
+      rev: fc278e51f1abd13f03ccb2c18fdf75923329819c # v1.47.2
       hooks:
           - id: typos
             exclude: "(_typos.toml|.gitignore)"
 
     - repo: https://github.com/abravalheri/validate-pyproject
-      rev: v0.25
+      rev: 4b2e70d08cb2ccd26d1fba73588de41c7a5d50b7 # v0.25
       hooks:
           - id: validate-pyproject
             additional_dependencies:
