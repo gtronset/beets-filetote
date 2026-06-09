@@ -123,6 +123,43 @@ class TestExclude:
         env.assert_in_import_dir("the_album/not_to_be_moved.lrc")
         env.assert_not_in_lib_dir("Tag Artist/Tag Album/not_to_be_moved.lrc")
 
+    def test_exclude_dict_with_filenames_extensions_strseq(self) -> None:
+        """Tests to ensure the `exclude` config registers dictionary of `filenames`
+        and/or `extensions` using `strseq`.
+        """
+        env = self.env
+        env.config["filetote"]["extensions"] = ".*"
+
+        env.config["filetote"]["exclude"] = {
+            "filenames": "not_to_be_moved.file not_to_be_moved.file2",
+            "extensions": ".lrc .nfo",
+        }
+
+        album_path = env.import_dir / "the_album"
+
+        env.create_file(album_path / "not_to_be_moved.file")
+        env.create_file(album_path / "not_to_be_moved.file2")
+        env.create_file(album_path / "not_to_be_moved.lrc")
+        env.create_file(album_path / "not_to_be_moved.nfo")
+        env.create_file(album_path / "should_be_moved.jpg")
+
+        env.run_cli_command("import")
+
+        env.assert_in_import_dir("the_album/not_to_be_moved.file")
+        env.assert_not_in_lib_dir("Tag Artist/Tag Album/not_to_be_moved.file")
+
+        env.assert_in_import_dir("the_album/not_to_be_moved.file2")
+        env.assert_not_in_lib_dir("Tag Artist/Tag Album/not_to_be_moved.file2")
+
+        env.assert_in_import_dir("the_album/not_to_be_moved.lrc")
+        env.assert_not_in_lib_dir("Tag Artist/Tag Album/not_to_be_moved.lrc")
+
+        env.assert_in_import_dir("the_album/not_to_be_moved.nfo")
+        env.assert_not_in_lib_dir("Tag Artist/Tag Album/not_to_be_moved.nfo")
+
+        env.assert_not_in_import_dir("the_album/should_be_moved.jpg")
+        env.assert_in_lib_dir("Tag Artist/Tag Album/should_be_moved.jpg")
+
     def test_exclude_dict_with_patterns(self) -> None:
         """Tests to ensure the `exclude` config and works with and patterns."""
         env = self.env
