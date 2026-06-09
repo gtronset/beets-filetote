@@ -1,6 +1,15 @@
 # yaml-language-server: $schema=https://json.schemastore.org/dependabot-2.0.json
 
 version: 2
+
+multi-ecosystem-groups:
+    dev-tooling:
+        schedule:
+            interval: weekly
+            time: "04:00"
+        labels:
+            - "dependencies"
+
 updates:
     - package-ecosystem: "docker"
       directory: "/"
@@ -21,6 +30,8 @@ updates:
           - "dependencies"
       cooldown:
           default-days: 7
+      patterns: ["*markdownlint*", "*typos*"]
+      multi-ecosystem-group: "dev-tooling"
 
     - package-ecosystem: pre-commit
       open-pull-requests-limit: 10
@@ -32,8 +43,8 @@ updates:
           - "dependencies"
       cooldown:
           default-days: 7
-          semver-major-days: 14
-          semver-patch-days: 3
+      patterns: ["*ruff*", "*mypy*", "*markdownlint*", "*typos*"]
+      multi-ecosystem-group: "dev-tooling"
 
     - package-ecosystem: pip
       open-pull-requests-limit: 10
@@ -47,3 +58,5 @@ updates:
           default-days: 7
           semver-major-days: 14
           semver-patch-days: 3
+      patterns: ["ruff", "mypy"]
+      multi-ecosystem-group: "dev-tooling"
