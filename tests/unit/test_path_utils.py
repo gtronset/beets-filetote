@@ -1,48 +1,58 @@
 """Tests for the filesystem utility functions in `path_utils`."""
 
-from __future__ import annotations
-
 import os
-import unittest
 
+from collections.abc import Iterator
 from pathlib import Path
-from unittest.mock import MagicMock, patch
+from types import SimpleNamespace
 
-from tests.helper import import_plugin_module_statically
+import pytest
 
-path_utils = import_plugin_module_statically("path_utils")
+from tests.pytest_beets_plugin import load_plugin_source
+
+path_utils = load_plugin_source("path_utils")
 
 
-class TestPathUtils(unittest.TestCase):
+class TestPathUtils:
     """Test suite for path_utils module."""
 
-    def test_to_path(self) -> None:
-        """Test conversion of bytes and strings to Path. Ensures a noop for Path when
-        given.
-        """
-        assert path_utils.to_path(b"foo/bar") == Path("foo/bar")
-        assert path_utils.to_path("foo/bar") == Path("foo/bar")
-        assert path_utils.to_path(Path("foo/bar")) == Path("foo/bar")
+    @pytest.mark.parametrize(
+        "input_val",
+        [b"foo/bar", "foo/bar", Path("foo/bar")],
+        ids=["bytes", "str", "Path"],
+    )
+    def test_to_path(self, input_val: bytes | str | Path) -> None:
+        """Test conversion of bytes and strings to Path. Ensures a noop for Path."""
+        assert path_utils.to_path(input_val) == Path("foo/bar")
 
-    def test_is_beets_file_type(self) -> None:
-        """Test beets file type detection. `beets_file_types` is an evolving dict, but
-        basic logic can be tested.
-        """
+    @pytest.mark.parametrize(
+        ("extension", "expected"),
+        [
+            (".mp3", True),
+            (".flac", True),
+            (".jpg", False),
+            ("mp3", False),  # preceding dot is required
+        ],
+    )
+    def test_is_beets_file_type(self, extension: str, expected: bool) -> None:
+        """Test beets file type detection."""
         types = {"mp3": "MPEG", "flac": "FLAC"}
+        assert path_utils.is_beets_file_type(extension, types) is expected
 
-        assert path_utils.is_beets_file_type(".mp3", types)
-        assert path_utils.is_beets_file_type(".flac", types)
-
-        assert not path_utils.is_beets_file_type(".jpg", types)
-        # Ensure a preceding dot (`.`) is required
-        assert not path_utils.is_beets_file_type("mp3", types)
-
-    @patch("beetsplug.path_utils.util.sorted_walk")
-    def test_discover_artifacts(self, mock_walk: MagicMock) -> None:
+    def test_discover_artifacts(self, monkeypatch: pytest.MonkeyPatch) -> None:
         """Test artifact discovery and ignoring of beets-handled files. Mock
         `sorted_walk` to control the filesystem structure.
         """
-        mock_walk.return_value = [(b"/music/album", [], [b"cover.jpg", b"song.mp3"])]
+        walk_result: list[tuple[bytes, list[bytes], list[bytes]]] = [
+            (b"/music/album", [], [b"cover.jpg", b"song.mp3"])
+        ]
+
+        def mock_sorted_walk(
+            *_args: object, **_kwargs: object
+        ) -> Iterator[tuple[bytes, list[bytes], list[bytes]]]:
+            yield from walk_result
+
+        monkeypatch.setattr(path_utils.util, "sorted_walk", mock_sorted_walk)
 
         beets_types = {"mp3": "Audio"}
         ignore_list = ["*.nfo"]  # Not actually used due to the mocked file list
@@ -63,13 +73,13 @@ class TestPathUtils(unittest.TestCase):
         is_match, match_category = path_utils.is_pattern_match(
             Path("cover.jpg"), patterns
         )
-        assert is_match
+        assert is_match is True
         assert match_category == "images"
 
         is_not_match, no_match_category = path_utils.is_pattern_match(
             Path("cover.png"), patterns
         )
-        assert not is_not_match
+        assert is_not_match is False
         assert no_match_category is None
 
     def test_is_pattern_match_directory_normalization(self) -> None:
@@ -127,17 +137,22 @@ class TestPathUtils(unittest.TestCase):
         )
         assert not subpath_empty2
 
-    def test_is_allowed_extension(self) -> None:
+    @pytest.mark.parametrize(
+        ("extension", "allowed", "expected"),
+        [
+            (".jpg", [".*"], True),
+            (".nfo", [".*"], True),
+            (".log", [".log"], True),
+            (".txt", [".log"], False),
+        ],
+    )
+    def test_is_allowed_extension(
+        self, extension: str, allowed: list[str], expected: bool
+    ) -> None:
         """Test extension whitelist logic. The underlying configuration defaults and
         passes through the wildcard `.*` to allow all extensions, so we test that, too.
         """
-        allowed = [".*"]
-        assert path_utils.is_allowed_extension(".jpg", allowed)
-        assert path_utils.is_allowed_extension(".nfo", allowed)
-
-        allowed_strict = [".log"]
-        assert path_utils.is_allowed_extension(".log", allowed_strict)
-        assert not path_utils.is_allowed_extension(".txt", allowed_strict)
+        assert path_utils.is_allowed_extension(extension, allowed) is expected
 
     def test_get_prune_root_path(self) -> None:
         """Test logic for deciding where to prune empty dirs."""
@@ -164,68 +179,57 @@ class TestPathUtils(unittest.TestCase):
             == import_path
         )
 
-    def test_is_multidisc(self) -> None:
+    @pytest.mark.parametrize(
+        ("path", "expected"),
+        [
+            # Basic cases
+            ("CD1", True),
+            ("CD 01", True),
+            ("Disc 1", True),
+            ("Disc01", True),
+            ("disk 1", True),
+            # Case insensitivity
+            ("cd 1", True),
+            ("DISC 2", True),
+            # Separator variations ([\W_]*)
+            ("CD-1", True),
+            ("CD_1", True),
+            ("CD.1", True),
+            ("CD - 01", True),
+            # Complex prefixes (regex allows ".*" before marker)
+            ("Album Name CD1", True),
+            ("Album Name - Disc 2", True),
+            # Nested subdirectories
+            ("music/Album/CD1", True),
+            # No digit at end
+            ("CD", False),
+            ("Disc", False),
+            ("CD Extras", False),
+            ("Disc Art", False),
+            # Non-Disk/CD text
+            ("Bonus", False),
+            ("Artwork", False),
+            # Word characters after disk/CD but before digits
+            ("Disk No. 1", False),
+            ("CD Volume 1", False),
+        ],
+    )
+    def test_is_multidisc(self, path: str, expected: bool) -> None:
         """Test multi-disc directory regex."""
-        # Basic cases
-        assert path_utils.is_multidisc(Path("CD1"))
-        assert path_utils.is_multidisc(Path("CD 01"))
-        assert path_utils.is_multidisc(Path("Disc 1"))
-        assert path_utils.is_multidisc(Path("Disc01"))
-        assert path_utils.is_multidisc(Path("disk 1"))
+        assert path_utils.is_multidisc(Path(path)) is expected
 
-        # Case insensitivity
-        assert path_utils.is_multidisc(Path("cd 1"))
-        assert path_utils.is_multidisc(Path("DISC 2"))
-
-        # Separator variations ([\W_]*)
-        assert path_utils.is_multidisc(Path("CD-1"))
-        assert path_utils.is_multidisc(Path("CD_1"))
-        assert path_utils.is_multidisc(Path("CD.1"))
-        assert path_utils.is_multidisc(Path("CD - 01"))
-
-        # Complex prefixes (regex allows ".*" before marker)
-        assert path_utils.is_multidisc(Path("Album Name CD1"))
-        assert path_utils.is_multidisc(Path("Album Name - Disc 2"))
-
-        # Test nested subdirectories
-        assert path_utils.is_multidisc(Path("music/Album/CD1"))
-
-        # No digit at end
-        assert not path_utils.is_multidisc(Path("CD"))
-        assert not path_utils.is_multidisc(Path("Disc"))
-        assert not path_utils.is_multidisc(Path("CD Extras"))
-        assert not path_utils.is_multidisc(Path("Disc Art"))
-
-        # Non-Disk/CD text
-        assert not path_utils.is_multidisc(Path("Bonus"))
-        assert not path_utils.is_multidisc(Path("Artwork"))
-
-        # Word characters after disk/CD but before digits
-        assert not path_utils.is_multidisc(Path("Disk No. 1"))
-        assert not path_utils.is_multidisc(Path("CD Volume 1"))
-
-    @patch("pathlib.Path.iterdir")
-    def test_get_multidisc_ignore_paths(self, mock_iterdir: MagicMock) -> None:
+    def test_get_multidisc_ignore_paths(self, monkeypatch: pytest.MonkeyPatch) -> None:
         """Test that multi-disc directories are correctly identified for ignoring."""
         multidisc_parent_path = Path("/music/album")
 
-        cd1 = MagicMock(spec=Path)
-        cd1.name = "CD1"
-        cd1.is_dir.return_value = True
+        dir_entries = [
+            SimpleNamespace(name="CD1", is_dir=lambda: True),
+            SimpleNamespace(name="CD2", is_dir=lambda: True),
+            SimpleNamespace(name="Bonus", is_dir=lambda: True),
+            SimpleNamespace(name="CD3.txt", is_dir=lambda: False),
+        ]
 
-        cd2 = MagicMock(spec=Path)
-        cd2.name = "CD2"
-        cd2.is_dir.return_value = True
-
-        bonus = MagicMock(spec=Path)
-        bonus.name = "Bonus"
-        bonus.is_dir.return_value = True
-
-        file_item = MagicMock(spec=Path)
-        file_item.name = "CD3.txt"
-        file_item.is_dir.return_value = False
-
-        mock_iterdir.return_value = [cd1, cd2, bonus, file_item]
+        monkeypatch.setattr(Path, "iterdir", lambda _self: dir_entries)
 
         ignore_paths = path_utils.get_multidisc_ignore_paths(multidisc_parent_path)
 

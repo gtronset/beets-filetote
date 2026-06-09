@@ -1,242 +1,230 @@
-"""Tests pairing the beets-filetote plugin."""
+"""Tests pairing for the Filetote plugin."""
 
-import logging
-
-from beets import config
-
-from tests.helper import FiletoteTestCase, MediaSetup
-
-log = logging.getLogger("beets")
+from tests.pytest_beets_plugin import BeetsEnvFactory, MediaSetup
 
 
-class FiletotePairingTest(FiletoteTestCase):
+class TestPairing:
     """Tests to check that Filetote handles "pairs" of files."""
 
-    def test_pairing_default_is_disabled(self) -> None:
+    def test_pairing_default_is_disabled(self, beets_flat_env: BeetsEnvFactory) -> None:
         """Ensure that, by default, pairing is disabled."""
-        self._create_flat_import_dir(media_files=[MediaSetup(count=1)])
-        self._setup_import_session(autotag=False)
+        env = beets_flat_env(media_files=[MediaSetup(count=1)])
 
-        config["filetote"]["extensions"] = ".lrc"
+        env.config["filetote"]["extensions"] = ".lrc"
 
-        self._run_cli_command("import")
+        env.run_cli_command("import")
 
-        self.assert_in_lib_dir("Tag Artist/Tag Album/track_1.lrc")
-        self.assert_in_lib_dir("Tag Artist/Tag Album/artifact.lrc")
+        env.assert_in_lib_dir("Tag Artist/Tag Album/track_1.lrc")
+        env.assert_in_lib_dir("Tag Artist/Tag Album/artifact.lrc")
 
-    def test_pairingonly_requires_pairing_enabled(self) -> None:
+    def test_pairingonly_requires_pairing_enabled(
+        self, beets_flat_env: BeetsEnvFactory
+    ) -> None:
         """Test that without `enabled`, `pairing_only` does nothing."""
-        self._create_flat_import_dir()
-        self._setup_import_session(autotag=False)
+        env = beets_flat_env()
 
-        config["filetote"]["extensions"] = ".lrc"
-        config["filetote"]["pairing"] = {
+        env.config["filetote"]["extensions"] = ".lrc"
+        env.config["filetote"]["pairing"] = {
             "enabled": False,
             "pairing_only": True,
         }
 
-        self._run_cli_command("import")
+        env.run_cli_command("import")
 
-        self.assert_in_lib_dir("Tag Artist/Tag Album/track_1.lrc")
-        self.assert_in_lib_dir("Tag Artist/Tag Album/artifact.lrc")
+        env.assert_in_lib_dir("Tag Artist/Tag Album/track_1.lrc")
+        env.assert_in_lib_dir("Tag Artist/Tag Album/artifact.lrc")
 
-    def test_pairing_disabled_copies_all_matches(self) -> None:
+    def test_pairing_disabled_copies_all_matches(
+        self, beets_flat_env: BeetsEnvFactory
+    ) -> None:
         """Ensure that when pairing is disabled it does not do anything with pairs."""
-        self._create_flat_import_dir(media_files=[MediaSetup(count=1)])
-        self._setup_import_session(autotag=False)
+        env = beets_flat_env(media_files=[MediaSetup(count=1)])
 
-        config["filetote"]["extensions"] = ".lrc"
-        config["filetote"]["pairing"]["enabled"] = False
+        env.config["filetote"]["extensions"] = ".lrc"
+        env.config["filetote"]["pairing"]["enabled"] = False
 
-        self._run_cli_command("import")
+        env.run_cli_command("import")
 
-        self.assert_in_lib_dir("Tag Artist/Tag Album/track_1.lrc")
-        self.assert_in_lib_dir("Tag Artist/Tag Album/artifact.lrc")
+        env.assert_in_lib_dir("Tag Artist/Tag Album/track_1.lrc")
+        env.assert_in_lib_dir("Tag Artist/Tag Album/artifact.lrc")
 
-    def test_pairing_enabled_copies_all_matches(self) -> None:
+    def test_pairing_enabled_copies_all_matches(
+        self, beets_flat_env: BeetsEnvFactory
+    ) -> None:
         """Ensure that all pairs are copied."""
-        self._create_flat_import_dir(media_files=[MediaSetup(count=2)])
-        self._setup_import_session(autotag=False)
+        env = beets_flat_env(media_files=[MediaSetup(count=2)])
 
-        config["filetote"]["extensions"] = ".lrc"
-        config["filetote"]["pairing"]["enabled"] = True
+        env.config["filetote"]["extensions"] = ".lrc"
+        env.config["filetote"]["pairing"]["enabled"] = True
 
-        self._run_cli_command("import")
+        env.run_cli_command("import")
 
-        self.assert_in_lib_dir("Tag Artist/Tag Album/Tag Title 1.lrc")
-        self.assert_in_lib_dir("Tag Artist/Tag Album/Tag Title 2.lrc")
-        self.assert_in_lib_dir("Tag Artist/Tag Album/artifact.lrc")
+        env.assert_in_lib_dir("Tag Artist/Tag Album/Tag Title 1.lrc")
+        env.assert_in_lib_dir("Tag Artist/Tag Album/Tag Title 2.lrc")
+        env.assert_in_lib_dir("Tag Artist/Tag Album/artifact.lrc")
 
-    def test_paired_file_for_second_item_is_handled_once(self) -> None:
+    def test_paired_file_for_second_item_is_handled_once(
+        self, beets_flat_env: BeetsEnvFactory
+    ) -> None:
         """Tests that a paired file for a later item in an album is claimed
         correctly from the shared pool and not processed twice.
         """
-        self._create_flat_import_dir(media_files=[MediaSetup(count=2)])
-        self._setup_import_session(autotag=False)
+        env = beets_flat_env(media_files=[MediaSetup(count=2)])
 
-        config["filetote"]["pairing"]["enabled"] = True
-        config["filetote"]["extensions"] = ".lrc"
-        config["filetote"]["exclude"] = ["artifact.lrc"]
-        config["filetote"]["paths"] = {
+        env.config["filetote"]["pairing"]["enabled"] = True
+        env.config["filetote"]["extensions"] = ".lrc"
+        env.config["filetote"]["exclude"] = ["artifact.lrc"]
+        env.config["filetote"]["paths"] = {
             "paired_ext:lrc": "$albumpath/${medianame_new}-paired",
             "ext:lrc": "$albumpath/${medianame_new}-generic",
         }
 
-        self._run_cli_command("import")
+        env.run_cli_command("import")
 
-        self.assert_in_lib_dir("Tag Artist/Tag Album/Tag Title 2-paired.lrc")
-        self.assert_not_in_lib_dir("Tag Artist/Tag Album/Tag Title 1-generic.lrc")
-        self.assert_not_in_lib_dir("the_album/track_2.lrc")
+        env.assert_in_lib_dir("Tag Artist/Tag Album/Tag Title 2-paired.lrc")
+        env.assert_not_in_lib_dir("Tag Artist/Tag Album/Tag Title 1-generic.lrc")
 
-    def test_pairing_enabled_works_without_pairs(self) -> None:
+    def test_pairing_enabled_works_without_pairs(
+        self, beets_flat_env: BeetsEnvFactory
+    ) -> None:
         """Ensure that even when there's not a pair, other files can be handled."""
-        self._create_flat_import_dir(
-            media_files=[MediaSetup(count=1, generate_pair=False)]
-        )
-        self._setup_import_session(autotag=False)
+        env = beets_flat_env(media_files=[MediaSetup(count=1, generate_pair=False)])
 
-        config["filetote"]["extensions"] = ".lrc"
-        config["filetote"]["pairing"]["enabled"] = True
+        env.config["filetote"]["extensions"] = ".lrc"
+        env.config["filetote"]["pairing"]["enabled"] = True
 
-        self._run_cli_command("import")
+        env.run_cli_command("import")
 
-        self.assert_in_lib_dir("Tag Artist/Tag Album/artifact.lrc")
+        env.assert_in_lib_dir("Tag Artist/Tag Album/artifact.lrc")
 
-    def test_pairing_does_not_require_pairs_for_all_media(self) -> None:
+    def test_pairing_does_not_require_pairs_for_all_media(
+        self, beets_flat_env: BeetsEnvFactory
+    ) -> None:
         """Ensure that when there's not a pair, other paired files still copy."""
-        self._create_flat_import_dir(
-            media_files=[MediaSetup(count=2, generate_pair=False)]
-        )
-        self._setup_import_session(autotag=False)
+        env = beets_flat_env(media_files=[MediaSetup(count=2, generate_pair=False)])
 
-        config["filetote"]["extensions"] = ".lrc"
-        config["filetote"]["pairing"]["enabled"] = True
+        env.config["filetote"]["extensions"] = ".lrc"
+        env.config["filetote"]["pairing"]["enabled"] = True
 
-        self.create_file(self.import_dir / "the_album" / "track_1.lrc")
+        env.create_file(env.import_dir / "the_album" / "track_1.lrc")
 
-        self._run_cli_command("import")
+        env.run_cli_command("import")
 
-        self.assert_in_lib_dir("Tag Artist/Tag Album/Tag Title 1.lrc")
-        self.assert_in_lib_dir("Tag Artist/Tag Album/artifact.lrc")
+        env.assert_in_lib_dir("Tag Artist/Tag Album/Tag Title 1.lrc")
+        env.assert_in_lib_dir("Tag Artist/Tag Album/artifact.lrc")
 
-    def test_pairingonly_disabled_copies_all_matches(self) -> None:
+    def test_pairingonly_disabled_copies_all_matches(
+        self, beets_flat_env: BeetsEnvFactory
+    ) -> None:
         """Ensure that `pairing_only` disabled allows other matches to an
         extension to be handled.
         """
-        self._create_flat_import_dir(media_files=[MediaSetup(count=2)])
-        self._setup_import_session(autotag=False)
+        env = beets_flat_env(media_files=[MediaSetup(count=2)])
 
-        config["filetote"]["extensions"] = ".lrc"
-        config["filetote"]["pairing"] = {
+        env.config["filetote"]["extensions"] = ".lrc"
+        env.config["filetote"]["pairing"] = {
             "enabled": True,
             "pairing_only": False,
         }
 
-        self._run_cli_command("import")
+        env.run_cli_command("import")
 
-        self.assert_in_lib_dir("Tag Artist/Tag Album/Tag Title 1.lrc")
-        self.assert_in_lib_dir("Tag Artist/Tag Album/Tag Title 2.lrc")
-        self.assert_in_lib_dir("Tag Artist/Tag Album/artifact.lrc")
+        env.assert_in_lib_dir("Tag Artist/Tag Album/Tag Title 1.lrc")
+        env.assert_in_lib_dir("Tag Artist/Tag Album/Tag Title 2.lrc")
+        env.assert_in_lib_dir("Tag Artist/Tag Album/artifact.lrc")
 
-    def test_pairingonly_processes_just_pairs(self) -> None:
+    def test_pairingonly_processes_just_pairs(
+        self, beets_flat_env: BeetsEnvFactory
+    ) -> None:
         """Test that `pairing_only` means that only pairs meeting a certain
         extension are handled.
         """
-        self._create_flat_import_dir(media_files=[MediaSetup(count=2)])
-        self._setup_import_session(autotag=False)
+        env = beets_flat_env(media_files=[MediaSetup(count=2)])
 
-        config["filetote"]["extensions"] = ".lrc"
-        config["filetote"]["pairing"] = {
+        env.config["filetote"]["extensions"] = ".lrc"
+        env.config["filetote"]["pairing"] = {
             "enabled": True,
             "pairing_only": True,
         }
 
-        self._run_cli_command("import")
+        env.run_cli_command("import")
 
-        self.assert_in_lib_dir("Tag Artist/Tag Album/Tag Title 1.lrc")
-        self.assert_in_lib_dir("Tag Artist/Tag Album/Tag Title 2.lrc")
-        self.assert_not_in_lib_dir("Tag Artist/Tag Album/artifact.lrc")
+        env.assert_in_lib_dir("Tag Artist/Tag Album/Tag Title 1.lrc")
+        env.assert_in_lib_dir("Tag Artist/Tag Album/Tag Title 2.lrc")
+        env.assert_not_in_lib_dir("Tag Artist/Tag Album/artifact.lrc")
 
-    def test_pairingonly_does_not_require_pairs_for_all_media(self) -> None:
-        """Ensure that `pairing_only` does not require  all media files for pairs to
+    def test_pairingonly_does_not_require_pairs_for_all_media(
+        self, beets_flat_env: BeetsEnvFactory
+    ) -> None:
+        """Ensure that `pairing_only` does not require all media files for pairs to
         move/copy.
         """
-        self._create_flat_import_dir(
-            media_files=[MediaSetup(count=2, generate_pair=False)]
-        )
-        self._setup_import_session(autotag=False)
+        env = beets_flat_env(media_files=[MediaSetup(count=2, generate_pair=False)])
 
-        config["filetote"]["extensions"] = ".lrc"
-        config["filetote"]["pairing"] = {
+        env.config["filetote"]["extensions"] = ".lrc"
+        env.config["filetote"]["pairing"] = {
             "enabled": True,
             "pairing_only": True,
         }
 
-        self.create_file(self.import_dir / "the_album" / "track_1.lrc")
+        env.create_file(env.import_dir / "the_album" / "track_1.lrc")
 
-        self._run_cli_command("import")
+        env.run_cli_command("import")
 
-        self.assert_in_import_dir("the_album/track_1.lrc")
-        self.assert_in_import_dir("the_album/artifact.lrc")
+        env.assert_in_import_dir("the_album/track_1.lrc")
+        env.assert_in_import_dir("the_album/artifact.lrc")
 
-        self.assert_in_lib_dir("Tag Artist/Tag Album/Tag Title 1.lrc")
-        self.assert_not_in_lib_dir("Tag Artist/Tag Album/artifact.lrc")
+        env.assert_in_lib_dir("Tag Artist/Tag Album/Tag Title 1.lrc")
+        env.assert_not_in_lib_dir("Tag Artist/Tag Album/artifact.lrc")
 
-    def test_pairing_extensions(self) -> None:
+    def test_pairing_extensions(self, beets_flat_env: BeetsEnvFactory) -> None:
         """Ensure that paired extensions are seen and manipulated."""
-        self._create_flat_import_dir(
-            media_files=[MediaSetup(count=2, generate_pair=False)]
-        )
-        self._setup_import_session(autotag=False)
+        env = beets_flat_env(media_files=[MediaSetup(count=2, generate_pair=False)])
 
-        config["filetote"]["pairing"] = {
+        env.config["filetote"]["pairing"] = {
             "enabled": True,
             "pairing_only": True,
             "extensions": ".lrc .kar",
         }
 
-        new_files = ["track_1.kar", "track_1.lrc", "track_1.jpg"]
+        album_path = env.import_dir / "the_album"
+        for filename in ["track_1.kar", "track_1.lrc", "track_1.jpg"]:
+            env.create_file(album_path / filename)
 
-        for filename in new_files:
-            self.create_file(self.import_dir / "the_album" / filename)
+        env.run_cli_command("import")
 
-        self._run_cli_command("import")
+        env.assert_in_import_dir("the_album/track_1.lrc")
+        env.assert_in_import_dir("the_album/artifact.lrc")
 
-        self.assert_in_import_dir("the_album/track_1.lrc")
-        self.assert_in_import_dir("the_album/artifact.lrc")
+        env.assert_in_lib_dir("Tag Artist/Tag Album/Tag Title 1.lrc")
+        env.assert_in_lib_dir("Tag Artist/Tag Album/Tag Title 1.kar")
+        env.assert_not_in_lib_dir("Tag Artist/Tag Album/track_1.jpg")
+        env.assert_not_in_lib_dir("Tag Artist/Tag Album/artifact.lrc")
 
-        self.assert_in_lib_dir("Tag Artist/Tag Album/Tag Title 1.lrc")
-        self.assert_in_lib_dir("Tag Artist/Tag Album/Tag Title 1.kar")
-        self.assert_not_in_lib_dir("Tag Artist/Tag Album/track_1.jpg")
-        self.assert_not_in_lib_dir("Tag Artist/Tag Album/artifact.lrc")
-
-    def test_pairing_extensions_are_addative_to_toplevel_extensions(self) -> None:
+    def test_pairing_extensions_are_additive_to_toplevel_extensions(
+        self, beets_flat_env: BeetsEnvFactory
+    ) -> None:
         """Ensure that those extensions defined in pairing extend any extensions
         defined in the `extensions` config.
         """
-        self._create_flat_import_dir(
-            media_files=[MediaSetup(count=2, generate_pair=False)]
-        )
-        self._setup_import_session(autotag=False)
+        env = beets_flat_env(media_files=[MediaSetup(count=2, generate_pair=False)])
 
-        config["filetote"]["extensions"] = ".jpg"
-
-        config["filetote"]["pairing"] = {
+        env.config["filetote"]["extensions"] = ".jpg"
+        env.config["filetote"]["pairing"] = {
             "enabled": True,
             "extensions": ".lrc",
         }
 
-        new_files = ["track_1.kar", "track_1.lrc", "track_1.jpg"]
+        album_path = env.import_dir / "the_album"
+        for filename in ["track_1.kar", "track_1.lrc", "track_1.jpg"]:
+            env.create_file(album_path / filename)
 
-        for filename in new_files:
-            self.create_file(self.import_dir / "the_album" / filename)
+        env.run_cli_command("import")
 
-        self._run_cli_command("import")
+        env.assert_in_import_dir("the_album/track_1.lrc")
+        env.assert_in_import_dir("the_album/artifact.lrc")
 
-        self.assert_in_import_dir("the_album/track_1.lrc")
-        self.assert_in_import_dir("the_album/artifact.lrc")
-
-        self.assert_in_lib_dir("Tag Artist/Tag Album/Tag Title 1.lrc")
-        self.assert_in_lib_dir("Tag Artist/Tag Album/track_1.jpg")
-        self.assert_not_in_lib_dir("Tag Artist/Tag Album/track_1.kar")
-        self.assert_not_in_lib_dir("Tag Artist/Tag Album/artifact.lrc")
+        env.assert_in_lib_dir("Tag Artist/Tag Album/Tag Title 1.lrc")
+        env.assert_in_lib_dir("Tag Artist/Tag Album/track_1.jpg")
+        env.assert_not_in_lib_dir("Tag Artist/Tag Album/track_1.kar")
+        env.assert_not_in_lib_dir("Tag Artist/Tag Album/artifact.lrc")
