@@ -876,6 +876,23 @@ filetote:
 
 Both remain optional and both default to `false`.
 
+## Troubleshooting
+
+Filetote provides detailed logging at different verbosity levels to help diagnose issues:
+
+- `-v` (info): Shows each file operation (move/copy/link) with source and destination paths.
+- `-vv` (debug): Shows event handling, artifact discovery counts, exclusion decisions,
+  and queue processing details.
+
+For example:
+
+```sh
+beet -v import /path/to/music
+```
+
+This is especially helpful if files aren't being picked up as expected. The debug output
+will show what Filetote discovered, what is excluded, and what is processed.
+
 ## Development & Contributing
 
 Thank you for considering contributing to Filetote! Information on how you can
