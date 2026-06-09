@@ -327,6 +327,12 @@ class FiletotePlugin(BeetsPlugin):
 
         self.filetote_config.session.import_path = import_path
 
+        self._log.debug(
+            "Import session started: operation={}, import_path={}",
+            self.filetote_config.session.operation,
+            import_path,
+        )
+
     def _import_operation_type(self) -> MoveOperation | None:
         """Returns the file manipulations type. This prioritizes `move` over copy if
         present.
@@ -379,6 +385,12 @@ class FiletotePlugin(BeetsPlugin):
 
         source_path: Path = path_utils.to_path(source)
         destination_path: Path = path_utils.to_path(destination)
+
+        self._log.debug(
+            "Received `{}` event for item: {}",
+            event,
+            source_path,
+        )
 
         # Needed to in cases where another plugin has overridden the Item.filepath
         # (ex: `convert`), otherwise, the path is a temp directory.
@@ -674,8 +686,13 @@ class FiletotePlugin(BeetsPlugin):
 
         local_artifacts: list[Path] = []
 
-        # Check if this path has not already been processed
+        # Check if this path has already been processed
         if source_path in self._run_state.dirs_seen:
+            self._log.debug(
+                "Directory already seen, checking paired artifacts only: {}",
+                source_path,
+            )
+
             self._collect_paired_artifacts(
                 beets_item, item_source_path, item_destination_path
             )
@@ -689,6 +706,12 @@ class FiletotePlugin(BeetsPlugin):
             source_path=source_path,
             ignore=config["ignore"].as_str_seq(),
             beets_file_types=self._beets_file_types,
+        )
+
+        self._log.debug(
+            "Discovered {} artifact(s) in: {}",
+            len(local_artifacts),
+            source_path,
         )
 
         self._queue_artifacts(
@@ -782,6 +805,22 @@ class FiletotePlugin(BeetsPlugin):
             "_library_path", path_utils.to_path(lib.directory)
         )
 
+        # Logging-related logic
+        total_queued = sum(len(c.artifacts) for c in self._run_state.process_queue)
+        total_shared = sum(
+            len(s.artifacts) for s in self._run_state.shared_artifacts.values()
+        )
+        self._log.debug(
+            "Processing artifacts: {} queued, {} shared across {} directories",
+            total_queued,
+            total_shared,
+            len(self._run_state.shared_artifacts),
+        )
+
+        if not total_queued and not total_shared:
+            self._log.info("No artifacts to process.")
+            return
+
         # Process paired artifacts if they exist
         for artifact_collection in self._run_state.process_queue:
             if artifact_collection.artifacts:
@@ -852,6 +891,10 @@ class FiletotePlugin(BeetsPlugin):
             or artifact_filename in self.filetote_config.exclude.filenames
             or is_exclude_pattern_match
         ):
+            self._log.debug(
+                "Excluding artifact `{}`: matched exclusion rule",
+                artifact_filename,
+            )
             return False
 
         # "Opt-in" and process if any inclusion rule matches.
@@ -1023,6 +1066,19 @@ class FiletotePlugin(BeetsPlugin):
                 f"Filetote Operation changed to MOVE from {operation} since this is a"
                 " reimport."
             )
+
+        # Logging related logic
+        op_label = (
+            "Moving"
+            if (operation == MoveOperation.MOVE or is_reimport)
+            else (operation.name.capitalize() + "ing" if operation else "Processing")
+        )
+        self._log.info(
+            "{}: {} -> {}",
+            op_label,
+            util.displayable_path(artifact_source),
+            util.displayable_path(artifact_dest),
+        )
 
         if operation == MoveOperation.MOVE or is_reimport:
             util.move(artifact_source, artifact_dest, replace=replace)
