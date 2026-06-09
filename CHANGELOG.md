@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - Migrate test suite from `unittest` to `pytest`-native fixtures <https://github.com/gtronset/beets-filetote/pull/275>
+- Remove legacy package files: drop beetsplug `__init__.py` and `setup.py` <https://github.com/gtronset/beets-filetote/pull/315>
 
 ## [1.3.5] - 2026-06-08
 
