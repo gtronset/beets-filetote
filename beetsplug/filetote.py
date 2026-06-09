@@ -10,7 +10,7 @@ from typing import (
     TypeAlias,
 )
 
-from beets import config, util
+from beets import config, logging, util
 from beets.library.models import DefaultTemplateFunctions
 from beets.plugins import BeetsPlugin, find_plugins
 
@@ -807,19 +807,29 @@ class FiletotePlugin(BeetsPlugin):
             "_library_path", path_utils.to_path(lib.directory)
         )
 
-        # Logging-related logic
-        total_queued = sum(len(c.artifacts) for c in self._run_state.process_queue)
-        total_shared = sum(
-            len(s.artifacts) for s in self._run_state.shared_artifacts.values()
-        )
-        self._log.debug(
-            "Processing artifacts: {} queued, {} shared across {} directories",
-            total_queued,
-            total_shared,
-            len(self._run_state.shared_artifacts),
-        )
+        # Logging-related logic, reduce redundant calculations when not in debug mode
+        is_debug = self._log.isEnabledFor(logging.DEBUG)
 
-        if not total_queued and not total_shared:
+        if is_debug:
+            total_queued = sum(len(c.artifacts) for c in self._run_state.process_queue)
+            total_shared = sum(
+                len(s.artifacts) for s in self._run_state.shared_artifacts.values()
+            )
+            self._log.debug(
+                "Processing artifacts: {} queued, {} shared across {} directories",
+                total_queued,
+                total_shared,
+                len(self._run_state.shared_artifacts),
+            )
+            has_queued = total_queued > 0
+            has_shared = total_shared > 0
+        else:
+            has_queued = any(c.artifacts for c in self._run_state.process_queue)
+            has_shared = any(
+                s.artifacts for s in self._run_state.shared_artifacts.values()
+            )
+
+        if not has_queued and not has_shared:
             self._log.info("No artifacts to process.")
             return
 
@@ -1048,6 +1058,67 @@ class FiletotePlugin(BeetsPlugin):
             for artifact in ignored_artifacts:
                 self._log.warning(f"   {artifact.name}")
 
+    def _operation_label(
+        self, operation: MoveOperation | None, is_reimport: bool
+    ) -> str:
+        """Determines the appropriate label for logging based on the operation type and
+        whether it's a reimport. In reimport scenarios, the operation is effectively a
+        move for in-library files.
+
+        NOTE: `operation` should be an instance of `MoveOperation`.
+        """
+        if is_reimport:
+            return "Moving"
+
+        operation_label = "Processing"
+
+        match operation:
+            case MoveOperation.MOVE:
+                operation_label = "Moving"
+            case MoveOperation.COPY:
+                operation_label = "Copying"
+            case MoveOperation.LINK:
+                operation_label = "Linking"
+            case MoveOperation.HARDLINK:
+                operation_label = "Hardlinking"
+            case MoveOperation.REFLINK:
+                operation_label = "Reflinking"
+            case MoveOperation.REFLINK_AUTO:
+                operation_label = "Reflinking (auto)"
+
+        return operation_label
+
+    def _apply_artifact_operation(
+        self,
+        operation: MoveOperation | None,
+        artifact_source: PathBytes,
+        artifact_dest: PathBytes,
+        is_reimport: bool,
+        replace: bool,
+    ) -> None:
+        """Apply the specified artifact operation (move, copy, link, etc.) to the given
+        source and destination paths. If `is_reimport` is True, the operation is treated
+        as a move for in-library files.
+
+        NOTE: `operation` should be an instance of `MoveOperation`.
+        """
+        if operation == MoveOperation.MOVE or is_reimport:
+            util.move(artifact_source, artifact_dest, replace=replace)
+        elif operation == MoveOperation.COPY:
+            util.copy(artifact_source, artifact_dest, replace=replace)
+        elif operation == MoveOperation.LINK:
+            util.link(artifact_source, artifact_dest, replace=replace)
+        elif operation == MoveOperation.HARDLINK:
+            util.hardlink(artifact_source, artifact_dest, replace=replace)
+        elif operation == MoveOperation.REFLINK:
+            util.reflink(
+                artifact_source, artifact_dest, replace=replace, fallback=False
+            )
+        elif operation == MoveOperation.REFLINK_AUTO:
+            util.reflink(artifact_source, artifact_dest, replace=replace, fallback=True)
+        else:
+            raise AssertionError(f"Unknown `MoveOperation`: {operation}")
+
     def manipulate_artifact(
         self,
         operation: MoveOperation | None,
@@ -1069,19 +1140,7 @@ class FiletotePlugin(BeetsPlugin):
                 " reimport."
             )
 
-        # Logging-related logic
-        op_label_map: dict[MoveOperation | None, str] = {
-            MoveOperation.MOVE: "Moving",
-            MoveOperation.COPY: "Copying",
-            MoveOperation.LINK: "Linking",
-            MoveOperation.HARDLINK: "Hardlinking",
-            MoveOperation.REFLINK: "Reflinking",
-            MoveOperation.REFLINK_AUTO: "Reflinking (auto)",
-            None: "Processing",
-        }
-        op_label = (
-            "Moving" if is_reimport else op_label_map.get(operation, "Processing")
-        )
+        op_label = self._operation_label(operation, is_reimport)
         self._log.info(
             "{}: {} -> {}",
             op_label,
@@ -1089,19 +1148,10 @@ class FiletotePlugin(BeetsPlugin):
             util.displayable_path(artifact_dest),
         )
 
-        if operation == MoveOperation.MOVE or is_reimport:
-            util.move(artifact_source, artifact_dest, replace=replace)
-        elif operation == MoveOperation.COPY:
-            util.copy(artifact_source, artifact_dest, replace=replace)
-        elif operation == MoveOperation.LINK:
-            util.link(artifact_source, artifact_dest, replace=replace)
-        elif operation == MoveOperation.HARDLINK:
-            util.hardlink(artifact_source, artifact_dest, replace=replace)
-        elif operation == MoveOperation.REFLINK:
-            util.reflink(
-                artifact_source, artifact_dest, replace=replace, fallback=False
-            )
-        elif operation == MoveOperation.REFLINK_AUTO:
-            util.reflink(artifact_source, artifact_dest, replace=replace, fallback=True)
-        else:
-            raise AssertionError(f"Unknown `MoveOperation`: {operation}")
+        self._apply_artifact_operation(
+            operation,
+            artifact_source,
+            artifact_dest,
+            is_reimport,
+            replace,
+        )
