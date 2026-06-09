@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- Fix `exclude` config loading to correctly load and validate <https://github.com/gtronset/beets-filetote/pull/316>
+
 ### Changed
 
 - Migrate test suite from `unittest` to `pytest`-native fixtures <https://github.com/gtronset/beets-filetote/pull/275>
