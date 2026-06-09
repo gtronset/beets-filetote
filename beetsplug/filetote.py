@@ -387,9 +387,11 @@ class FiletotePlugin(BeetsPlugin):
         destination_path: Path = path_utils.to_path(destination)
 
         self._log.debug(
-            "Received `{}` event for item: {}",
+            "Received `{}` event for item {}: {} -> {}",
             event,
+            item.id,
             source_path,
+            destination_path,
         )
 
         # Needed to in cases where another plugin has overridden the Item.filepath
@@ -1068,10 +1070,17 @@ class FiletotePlugin(BeetsPlugin):
             )
 
         # Logging-related logic
+        op_label_map: dict[MoveOperation | None, str] = {
+            MoveOperation.MOVE: "Moving",
+            MoveOperation.COPY: "Copying",
+            MoveOperation.LINK: "Linking",
+            MoveOperation.HARDLINK: "Hardlinking",
+            MoveOperation.REFLINK: "Reflinking",
+            MoveOperation.REFLINK_AUTO: "Reflinking (auto)",
+            None: "Processing",
+        }
         op_label = (
-            "Moving"
-            if (operation == MoveOperation.MOVE or is_reimport)
-            else (operation.name.capitalize() + "ing" if operation else "Processing")
+            "Moving" if is_reimport else op_label_map.get(operation, "Processing")
         )
         self._log.info(
             "{}: {} -> {}",
