@@ -28,7 +28,7 @@ jobs:
             PYTHON_VERSION: 3.14
 
         steps:
-            - uses: actions/checkout@v6
+            - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
 
             - name: Setup FFmpeg Environment Variables
               id: ffmpeg-env-setup
@@ -42,7 +42,7 @@ jobs:
                   echo "$ffmpeg_dir" >> $GITHUB_PATH
 
             - name: Cache FFmpeg
-              uses: actions/cache@v5
+              uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
               with:
                   path: ${{ steps.ffmpeg-env-setup.outputs.ffmpeg-cache-path }}
                   key: ${{ runner.os }}-ffmpeg-${{ env.FFMPEG_VERSION }}
@@ -91,7 +91,7 @@ jobs:
 
             - name: Cache Pipx
               id: cache-pipx
-              uses: actions/cache@v5
+              uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
               with:
                   path: ${{ steps.pipx-env-setup.outputs.pipx-cache-path }}
                   key: ${{ runner.os }}-python_${{ env.PYTHON_VERSION }}-pipx_${{ steps.pipx-env-setup.outputs.pipx-version }}-poetry_${{ env.POETRY_VERSION }}-tox
@@ -103,13 +103,13 @@ jobs:
                   pipx install tox
 
             - name: Setup Python ${{ env.PYTHON_VERSION }}
-              uses: actions/setup-python@v6
+              uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6.2.0
               with:
                   python-version: ${{ env.PYTHON_VERSION }}
 
             - name: Cache tox environments
               id: cache-tox
-              uses: actions/cache@v5
+              uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
               with:
                   path: .tox
                   key: tox-${{ runner.os }}-py-${{ env.PYTHON_VERSION }}-${{ env.TOXENV }}-${{ hashFiles('**/pyproject.toml', '**/poetry.lock') }}
