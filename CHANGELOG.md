@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Increase `info` and `debug` logging for user troubleshooting <https://github.com/gtronset/beets-filetote/pull/320>
+
 ### Fixed
 
 - Fix `exclude` config loading to correctly load and validate <https://github.com/gtronset/beets-filetote/pull/316>
