@@ -10,10 +10,6 @@ on:
     pull_request:
         types: [opened, reopened]
 
-env:
-    POETRY_VERSION: 1.8.5
-    PYTHON_VERSION: 3.14
-
 defaults:
     run:
         shell: bash
@@ -68,108 +64,60 @@ jobs:
         steps:
             - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
 
-            - name: Setup Pipx Environment Variables
-              id: pipx-env-setup
-              run: |
-                  PATH_SEP="${{ !startsWith(runner.os, 'windows') && '/' || '\\' }}"
-                  echo "PATH_SEP=${PATH_SEP}" >> $GITHUB_ENV
-
-                  PIPX_CACHE="${{ github.workspace }}${PATH_SEP}pipx_cache"
-                  echo "pipx-cache-path=${PIPX_CACHE}" >> $GITHUB_OUTPUT
-                  echo "pipx-version=$(pipx --version)" >> $GITHUB_OUTPUT
-                  echo "PIPX_HOME=${PIPX_CACHE}${PATH_SEP}home" >> $GITHUB_ENV
-                  echo "PIPX_BIN_DIR=${PIPX_CACHE}${PATH_SEP}bin" >> $GITHUB_ENV
-                  echo "PIPX_MAN_DIR=${PIPX_CACHE}${PATH_SEP}man" >> $GITHUB_ENV
-                  echo "${PIPX_CACHE}${PATH_SEP}bin" >> $GITHUB_PATH
-
-            - name: Cache Pipx
-              id: cache-pipx
-              uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
-              with:
-                  path: ${{ steps.pipx-env-setup.outputs.pipx-cache-path }}
-                  key:
-                      ${{ runner.os }}-python_${{ matrix.python-version }}-pipx_${{
-                      steps.pipx-env-setup.outputs.pipx-version }}-poetry_${{
-                      env.POETRY_VERSION }}-tox
-
-            - name: Install Poetry & Tox
-              if: steps.cache-pipx.outputs.cache-hit != 'true'
-              run: |
-                  pipx install poetry==${{ env.POETRY_VERSION }}
-                  pipx install tox
-
             - name: Setup Python ${{ matrix.python-version }}
               uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6.2.0
               with:
                   python-version: ${{ matrix.python-version }}
+
+            - name: Setup uv
+              uses: astral-sh/setup-uv@v6
+              with:
+                  enable-cache: true
+                  cache-dependency-glob: |
+                      uv.lock
+                      pyproject.toml
 
             - name: Cache tox environments
               id: cache-tox
               uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
               with:
                   path: .tox
-                  key:
-                      tox-${{ runner.os }}-py-${{ matrix.python-version }}-${{ env.TOXENV }}-${{
-                      hashFiles('**/pyproject.toml', '**/poetry.lock') }}
+                  key: tox-${{ runner.os }}-py-${{ matrix.python-version }}-${{ env.TOXENV }}-${{ hashFiles('**/pyproject.toml', '**/uv.lock') }}
                   restore-keys: |
                       tox-${{ runner.os }}-py-${{ matrix.python-version }}-${{ env.TOXENV }}-
 
             - name: Run Tests
-              run: tox -e $TOXENV
+              run: uvx tox -e "$TOXENV"
 
     lint:
         runs-on: ubuntu-24.04
         steps:
             - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
 
-            - name: Setup Pipx Environment Variables
-              id: pipx-env-setup
-              run: |
-                  PATH_SEP="${{ !startsWith(runner.os, 'windows') && '/' || '\\' }}"
-
-                  PIPX_CACHE="${{ github.workspace }}${PATH_SEP}pipx_cache"
-                  echo "pipx-cache-path=${PIPX_CACHE}" >> $GITHUB_OUTPUT
-                  echo "pipx-version=$(pipx --version)" >> $GITHUB_OUTPUT
-                  echo "PIPX_HOME=${PIPX_CACHE}${PATH_SEP}home" >> $GITHUB_ENV
-                  echo "PIPX_BIN_DIR=${PIPX_CACHE}${PATH_SEP}bin" >> $GITHUB_ENV
-                  echo "PIPX_MAN_DIR=${PIPX_CACHE}${PATH_SEP}man" >> $GITHUB_ENV
-                  echo "${PIPX_CACHE}${PATH_SEP}bin" >> $GITHUB_PATH
-
-            - name: Cache Pipx
-              id: cache-pipx
-              uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
-              with:
-                  path: ${{ steps.pipx-env-setup.outputs.pipx-cache-path }}
-                  key:
-                      ${{ runner.os }}-python_${{ env.PYTHON_VERSION }}-pipx_${{
-                      steps.pipx-env-setup.outputs.pipx-version }}-poetry_${{
-                      env.POETRY_VERSION }}
-
-            - name: Install Poetry & Tox
-              if: steps.cache-pipx.outputs.cache-hit != 'true'
-              run: |
-                  pipx install poetry==${{ env.POETRY_VERSION }}
-
-            - name: Setup Python ${{ env.PYTHON_VERSION }}
+            - name: Setup Python
               uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6.2.0
               with:
-                  python-version: ${{ env.PYTHON_VERSION }}
-                  cache: poetry
+                  python-version-file: .tool-versions
 
-            - name: Install poetry Dependencies
-              run: poetry install
+            - name: Setup uv
+              uses: astral-sh/setup-uv@v6
+              with:
+                  enable-cache: true
+                  cache-dependency-glob: |
+                      uv.lock
+                      pyproject.toml
+
+            - name: Install lint dependencies
+              run: uv sync --frozen --group lint
 
             - name: Check mypy
               if: always()
-              run: |
-                  poetry run mypy
+              run: uv run mypy
 
             - name: Check Ruff (Lint)
               if: always()
-              run: |
-                  poetry run ruff check
+              run: uv run ruff check
 
             - name: Check Ruff (Format)
               if: always()
-              run: |
-                  poetry run ruff format
+              run: uv run ruff format --check
