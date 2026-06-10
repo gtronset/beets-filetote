@@ -16,6 +16,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - Fix `exclude` config loading to correctly load and validate <https://github.com/gtronset/beets-filetote/pull/316>
+- Remove vestigial CI/Dev-related FFmpeg installs <https://github.com/gtronset/beets-filetote/pull/321>
 
 ### Changed
 
