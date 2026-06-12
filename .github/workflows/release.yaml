@@ -8,86 +8,72 @@ permissions:
 on:
     workflow_dispatch:
 
-env:
-    POETRY_VERSION: 1.8.5
-    PYTHON_VERSION: 3.14
-
 jobs:
     release:
         name: Release
 
         runs-on: ubuntu-24.04
 
+        env:
+            UV_PUBLISH_TOKEN: ${{ secrets.PYPI_TOKEN }}
+            UV_PUBLISH_URL: ${{ github.event.act && 'https://test.pypi.org/legacy/' || 'https://upload.pypi.org/legacy/' }}
+            UV_PUBLISH_CHECK_URL: ${{ github.event.act && 'https://test.pypi.org/simple' || 'https://pypi.org/simple' }}
+
         steps:
             - name: Checkout code
               uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
 
-            - name: Setup pipx environment Variables
-              id: pipx-env-setup
-              run: |
-                  PATH_SEP="${{ !startsWith(runner.os, 'windows') && '/' || '\\' }}"
-                  echo "PATH_SEP=${PATH_SEP}" >> $GITHUB_ENV
-
-                  PIPX_CACHE="${{ github.workspace }}${PATH_SEP}pipx_cache"
-                  echo "pipx-cache-path=${PIPX_CACHE}" >> $GITHUB_OUTPUT
-                  echo "pipx-version=$(pipx --version)" >> $GITHUB_OUTPUT
-                  echo "PIPX_HOME=${PIPX_CACHE}${PATH_SEP}home" >> $GITHUB_ENV
-                  echo "PIPX_BIN_DIR=${PIPX_CACHE}${PATH_SEP}bin" >> $GITHUB_ENV
-                  echo "PIPX_MAN_DIR=${PIPX_CACHE}${PATH_SEP}man" >> $GITHUB_ENV
-                  echo "${PIPX_CACHE}${PATH_SEP}bin" >> $GITHUB_PATH
-
-            - name: Cache Pipx
-              id: cache-pipx
-              uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
-              with:
-                  path: ${{ steps.pipx-env-setup.outputs.pipx-cache-path }}
-                  key: ${{ runner.os }}-python_${{ env.PYTHON_VERSION }}-pipx_${{ steps.pipx-env-setup.outputs.pipx-version }}-poetry_${{ env.POETRY_VERSION }}
-
-            - name: Install Poetry & Tox
-              if: steps.cache-pipx.outputs.cache-hit != 'true'
-              run: |
-                  pipx install poetry==${{ env.POETRY_VERSION }}
-
             - name: Set up Python
               uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6.2.0
               with:
-                  python-version: ${{ env.PYTHON_VERSION }}
-                  cache: poetry
+                  python-version-file: .tool-versions
 
-            - name: Set Poetry to use TestPyPi to allow building against the test env
-              if: ${{ github.event.act }}
-              run: |
-                  poetry config repositories.test-pypi https://test.pypi.org/legacy/
-                  poetry config pypi-token.test-pypi ${{ secrets.PYPI_TOKEN }}
-                  echo "POETRY_REPO=-r test-pypi" >> $GITHUB_ENV
+            - name: Setup uv
+              uses: astral-sh/setup-uv@fac544c07dec837d0ccb6301d7b5580bf5edae39 # v8.2.0
+              with:
+                  enable-cache: true
+                  cache-dependency-glob: |
+                      uv.lock
+                      pyproject.toml
 
             - name: Build project for distribution
-              run: poetry build
+              run: uv build
 
-            - name: Tag Name
-              id: tag-name
-              uses: SebRollen/toml-action@b1b3628f55fc3a28208d4203ada8b737e9687876 # v1.2.0
-              with:
-                  file: "pyproject.toml"
-                  field: "tool.poetry.version"
+            - name: Read version from pyproject
+              id: package-version
+              run: |
+                  python - <<'PY'
+                  import os
+                  import tomllib
+                  from pathlib import Path
+
+                  data = tomllib.loads(Path("pyproject.toml").read_text())
+                  version = data["project"]["version"]
+                  with open(os.environ["GITHUB_OUTPUT"], "a", encoding="utf-8") as fh:
+                      fh.write(f"version={version}\n")
+                  PY
 
             - name: Check Version
               id: check-version
               run: |
-                  [[ "$(poetry version --short)" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]] || echo prerelease=true >> $GITHUB_OUTPUT
+                  [[ "${{ steps.package-version.outputs.version }}" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]] || echo "prerelease=true" >> "$GITHUB_OUTPUT"
 
             - name: Create Release
               if: ${{ !github.event.act }}
               uses: ncipollo/release-action@339a81892b84b4eeb0f6e744e4574d79d0d9b8dd # v1.21.0
               with:
-                  artifacts: "dist/*"
+                  artifacts: dist/*
                   token: ${{ secrets.GITHUB_TOKEN }}
-                  tag: "v${{ steps.tag-name.outputs.value }}"
+                  tag: v${{ steps.package-version.outputs.version }}
                   draft: false
                   generateReleaseNotes: true
-                  prerelease: steps.check-version.outputs.prerelease == 'true'
+                  prerelease: ${{ steps.check-version.outputs.prerelease == 'true' }}
 
-            - name: Publish to PyPI
-              env:
-                  POETRY_PYPI_TOKEN_PYPI: ${{ secrets.PYPI_TOKEN }}
-              run: poetry publish ${{ env.POETRY_REPO }}
+            - name: Publish package
+              run: |
+                  set -euxo pipefail
+                  msg="Publishing version ${{ steps.package-version.outputs.version }} to ${UV_PUBLISH_URL} (check: ${UV_PUBLISH_CHECK_URL})"
+                  echo "::warning::$msg"
+                  echo "$msg" >&2
+                  echo "$msg" >> "$GITHUB_STEP_SUMMARY"
+                  uv publish --dry-run --token "$UV_PUBLISH_TOKEN" --publish-url "$UV_PUBLISH_URL" --check-url "$UV_PUBLISH_CHECK_URL"
