@@ -199,3 +199,14 @@ needed, though should only be done on the boundaries of the plugin. Use the inte
 
 A Docker Compose configuration is available for running the plugin in a controlled
 environment. See the [`compose.yaml`](./compose.yaml) file for details.
+
+## Version Support Policy
+
+Version support follows these guidelines:
+
+- Only non-EOL Python versions are supported.
+- The minimum beets' version is currently `v2.4`.
+- Compatibility with older beets releases may be maintained with small shims when
+  maintenance cost is low. Development and design decisions prioritize newer beets
+  releases; older versions may be dropped when compatibility cost grows or when they no
+  longer align with supported Python versions.
