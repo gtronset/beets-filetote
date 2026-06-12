@@ -14,6 +14,11 @@ jobs:
 
         runs-on: ubuntu-24.04
 
+        env:
+            UV_PUBLISH_TOKEN: ${{ secrets.PYPI_TOKEN }}
+            UV_PUBLISH_URL: ${{ github.event.act && 'https://test.pypi.org/legacy/' || 'https://upload.pypi.org/legacy/' }}
+            UV_PUBLISH_CHECK_URL: ${{ github.event.act && 'https://test.pypi.org/simple' || 'https://pypi.org/simple' }}
+
         steps:
             - name: Checkout code
               uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
@@ -65,8 +70,10 @@ jobs:
                   prerelease: ${{ steps.check-version.outputs.prerelease == 'true' }}
 
             - name: Publish package
-              env:
-                  UV_PUBLISH_TOKEN: ${{ secrets.PYPI_TOKEN }}
-                  UV_PUBLISH_URL: ${{ github.event.act && 'https://test.pypi.org/legacy/' || 'https://upload.pypi.org/legacy/' }}
-                  UV_PUBLISH_CHECK_URL: ${{ github.event.act && 'https://test.pypi.org/simple' || 'https://pypi.org/simple' }}
-              run: uv publish --token "$UV_PUBLISH_TOKEN" --publish-url "$UV_PUBLISH_URL" --check-url "$UV_PUBLISH_CHECK_URL"
+              run: |
+                  set -euxo pipefail
+                  msg="Publishing version ${{ steps.package-version.outputs.version }} to ${UV_PUBLISH_URL} (check: ${UV_PUBLISH_CHECK_URL})"
+                  echo "::warning::$msg"
+                  echo "$msg" >&2
+                  echo "$msg" >> "$GITHUB_STEP_SUMMARY"
+                  uv publish --dry-run --token "$UV_PUBLISH_TOKEN" --publish-url "$UV_PUBLISH_URL" --check-url "$UV_PUBLISH_CHECK_URL"
