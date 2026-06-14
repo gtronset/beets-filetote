@@ -23,6 +23,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Migrate test suite from `unittest` to `pytest`-native fixtures <https://github.com/gtronset/beets-filetote/pull/275>
 - Remove legacy package files: drop beetsplug `__init__.py` and `setup.py` <https://github.com/gtronset/beets-filetote/pull/315>
 - Pin Dev and CI related resources to SHA tags & Improve Dependabot Settings <https://github.com/gtronset/beets-filetote/pull/317>
+- Migrate project tooling from Poetry to `uv` <https://github.com/gtronset/beets-filetote/pull/322>
 
 ## [1.3.5] - 2026-06-08
 
