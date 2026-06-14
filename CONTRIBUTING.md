@@ -25,6 +25,7 @@ For general information of working with beets plugins, see the beets' documentat
 
 ```sh
 pipx install uv tox prek
+uv python install
 ```
 
 **2. Clone the repository and install the plugin:**
