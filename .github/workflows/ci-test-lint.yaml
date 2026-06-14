@@ -86,7 +86,7 @@ jobs:
                   key: tox-${{ runner.os }}-py-${{ steps.setup-python.outputs.python-version }}-${{ env.TOXENV }}-${{ hashFiles('**/pyproject.toml', '**/uv.lock') }}
 
             - name: Run Tests
-              run: uvx tox -e "$TOXENV"
+              run: uvx tox@4.25.0 -e "$TOXENV"
 
     lint:
         runs-on: ubuntu-24.04
