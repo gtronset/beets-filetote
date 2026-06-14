@@ -65,6 +65,7 @@ jobs:
             - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
 
             - name: Setup Python ${{ matrix.python-version }}
+              id: setup-python
               uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6.2.0
               with:
                   python-version: ${{ matrix.python-version }}
@@ -82,9 +83,9 @@ jobs:
               uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
               with:
                   path: .tox
-                  key: tox-${{ runner.os }}-py-${{ matrix.python-version }}-${{ env.TOXENV }}-${{ hashFiles('**/pyproject.toml', '**/uv.lock') }}
+                  key: tox-${{ runner.os }}-py-${{ steps.setup-python.outputs.python-version }}-${{ env.TOXENV }}-${{ hashFiles('**/pyproject.toml', '**/uv.lock') }}
                   restore-keys: |
-                      tox-${{ runner.os }}-py-${{ matrix.python-version }}-${{ env.TOXENV }}-
+                      tox-${{ runner.os }}-py-${{ steps.setup-python.outputs.python-version }}-${{ env.TOXENV }}-
 
             - name: Run Tests
               run: uvx tox -e "$TOXENV"
