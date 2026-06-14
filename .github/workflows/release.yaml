@@ -76,4 +76,4 @@ jobs:
                   echo "::warning::$msg"
                   echo "$msg" >&2
                   echo "$msg" >> "$GITHUB_STEP_SUMMARY"
-                  uv publish --dry-run --token "$UV_PUBLISH_TOKEN" --publish-url "$UV_PUBLISH_URL" --check-url "$UV_PUBLISH_CHECK_URL"
+                  uv publish --token "$UV_PUBLISH_TOKEN" --publish-url "$UV_PUBLISH_URL" --check-url "$UV_PUBLISH_CHECK_URL"
