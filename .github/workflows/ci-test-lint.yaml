@@ -82,10 +82,8 @@ jobs:
               id: cache-tox
               uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
               with:
-                  path: .tox
+                  path: .tox/${{ env.TOXENV }}
                   key: tox-${{ runner.os }}-py-${{ steps.setup-python.outputs.python-version }}-${{ env.TOXENV }}-${{ hashFiles('**/pyproject.toml', '**/uv.lock') }}
-                  restore-keys: |
-                      tox-${{ runner.os }}-py-${{ steps.setup-python.outputs.python-version }}-${{ env.TOXENV }}-
 
             - name: Run Tests
               run: uvx tox -e "$TOXENV"
