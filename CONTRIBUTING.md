@@ -3,7 +3,7 @@
 The development version can be installed with [`uv`], a Python dependency and package manager
 that provides dependency isolation, reproducibility, and streamlined packaging to PyPI.
 
-Testing and linting is performed with [`tox`] (`v4.12`+).
+Testing and linting is performed with [`tox`] (`v4.22`+).
 
 [`uv`]: https://docs.astral.sh/uv/
 [`tox`]: https://tox.wiki/
@@ -33,7 +33,7 @@ uv python install
 ```sh
 git clone https://github.com/gtronset/beets-filetote.git
 cd beets-filetote
-uv sync --active --frozen --group dev --group lint --group test
+uv sync --frozen --group dev --group lint --group test
 ```
 
 **3. Update the config.yaml to utilize the plugin:**
@@ -209,5 +209,5 @@ Version support follows these guidelines:
 - The minimum beets' version is currently `v2.4`.
 - Compatibility with older beets releases may be maintained with small shims when
   maintenance cost is low. Development and design decisions prioritize newer beets
-  releases; older versions may be dropped when compatibility cost grows or when they no
-  longer align with supported Python versions.
+  releases; older versions may be dropped when compatibility cost grows or when they
+  no longer align with supported Python versions.

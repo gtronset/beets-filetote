@@ -450,5 +450,16 @@ commands = [["uv", "run", "--active", "ruff", "format"]]
 description = "Checks types in source code"
 package = "skip"
 allowlist_externals = ["uv"]
-commands_pre = [["uv", "sync", "--active", "--frozen", "--group", "lint"]]
+commands_pre = [
+    [
+        "uv",
+        "sync",
+        "--active",
+        "--frozen",
+        "--group",
+        "lint",
+        "--group",
+        "test",
+    ],
+]
 commands = [["uv", "run", "--active", "mypy"]]

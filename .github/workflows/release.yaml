@@ -71,7 +71,7 @@ jobs:
 
             - name: Publish package
               run: |
-                  set -euxo pipefail
+                  set -euo pipefail
                   msg="Publishing version ${{ steps.package-version.outputs.version }} to ${UV_PUBLISH_URL} (check: ${UV_PUBLISH_CHECK_URL})"
                   echo "::warning::$msg"
                   echo "$msg" >&2

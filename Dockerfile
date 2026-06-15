@@ -17,6 +17,7 @@ COPY . /src
 COPY example.config.yaml /root/.config/beets/config.yaml
 
 RUN python -m venv /opt/venv
+ENV VIRTUAL_ENV="/opt/venv"
 ENV PATH="/opt/venv/bin:${PATH}"
 
 RUN pip install --upgrade pip \

@@ -100,7 +100,7 @@ jobs:
                       pyproject.toml
 
             - name: Install lint dependencies
-              run: uv sync --frozen --group lint
+              run: uv sync --frozen --group lint --group test
 
             - name: Check mypy
               if: always()
