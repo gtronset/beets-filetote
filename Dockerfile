@@ -11,11 +11,15 @@ RUN apk update && apk add python3-dev \
 
 WORKDIR /src
 
-RUN mkdir -p /beets/library && mkdir -p /beets/inbox
+RUN mkdir -p /beets/library /beets/inbox
 
 COPY . /src
 COPY example.config.yaml /root/.config/beets/config.yaml
 
+RUN python -m venv /opt/venv
+ENV VIRTUAL_ENV="/opt/venv"
+ENV PATH="/opt/venv/bin:${PATH}"
+
 RUN pip install --upgrade pip \
-    && pip install beets poetry prek tox \
-    && poetry install
+    && pip install uv prek tox \
+    && uv sync --active --frozen --group dev --group lint --group test

@@ -2,7 +2,7 @@
 
 version: 2
 updates:
-    - package-ecosystem: "docker"
+    - package-ecosystem: docker
       directory: "/"
       schedule:
           interval: weekly
@@ -33,7 +33,7 @@ updates:
       cooldown:
           default-days: 7
 
-    - package-ecosystem: pip
+    - package-ecosystem: uv
       open-pull-requests-limit: 10
       directory: "/"
       schedule:
