@@ -78,13 +78,6 @@ jobs:
                       uv.lock
                       pyproject.toml
 
-            # - name: Cache tox environments
-            #   id: cache-tox
-            #   uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
-            #   with:
-            #       path: .tox/${{ env.TOXENV }}
-            #       key: tox-${{ runner.os }}-py-${{ steps.setup-python.outputs.python-version }}-${{ env.TOXENV }}-${{ hashFiles('**/pyproject.toml', '**/uv.lock') }}
-
             - name: Run Tests
               run: uvx tox -e "$TOXENV"
 
