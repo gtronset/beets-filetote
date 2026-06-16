@@ -31,6 +31,11 @@ jobs:
 
             - name: Setup uv
               uses: astral-sh/setup-uv@fac544c07dec837d0ccb6301d7b5580bf5edae39 # v8.2.0
+              with:
+                  enable-cache: true
+                  cache-dependency-glob: |
+                      uv.lock
+                      pyproject.toml
 
             - name: Build
               run: uv build
@@ -81,7 +86,7 @@ jobs:
     github-release:
         name: GitHub Release
         needs: build
-        if: inputs.target == 'pypi'
+        if: inputs.target == 'pypi' && !github.event.act
         runs-on: ubuntu-24.04
         permissions:
             contents: write
