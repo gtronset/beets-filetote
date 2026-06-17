@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- Modernize `pyproject` license for PEP 639 <https://github.com/gtronset/beets-filetote/pull/327>
+
 ## [1.3.6] - 2026-06-17
 
 ### Added
