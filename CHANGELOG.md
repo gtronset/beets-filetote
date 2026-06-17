@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.3.6] - 2026-06-17
+
 ### Added
 
 - Increase `info` and `debug` logging for user troubleshooting <https://github.com/gtronset/beets-filetote/pull/320>
@@ -350,7 +352,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 <!-- Release Links -->
 
-[unreleased]: https://github.com/gtronset/beets-filetote/compare/v1.3.5...HEAD
+[unreleased]: https://github.com/gtronset/beets-filetote/compare/v1.3.6...HEAD
+[1.3.6]: https://github.com/gtronset/beets-filetote/releases/tag/v1.3.6
 [1.3.5]: https://github.com/gtronset/beets-filetote/releases/tag/v1.3.5
 [1.3.4]: https://github.com/gtronset/beets-filetote/releases/tag/v1.3.4
 [1.3.3]: https://github.com/gtronset/beets-filetote/releases/tag/v1.3.3
