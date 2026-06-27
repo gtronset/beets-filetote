@@ -44,3 +44,19 @@ class TestPrintIgnored:
         ignored_index = logs.index("filetote: Ignored files:")
         # The ignored file listing follows immediately after the header
         assert "filetote:    artifact.nfo" in logs[ignored_index:]
+
+    def test_print_ignored_with_curly_braces_in_filename(self) -> None:
+        """Tests ignored filenames containing curly braces are logged safely."""
+        env = self.env
+
+        env.config["filetote"]["print_ignored"] = True
+        env.config["filetote"]["extensions"] = ".file .lrc"
+
+        brace_filename = "System Of A Down - Hypnotize [2005] {Japan SICP-933}.jpg"
+        env.create_file(env.import_dir / "the_album" / brace_filename)
+
+        with env.capture_log("beets.filetote") as logs:
+            env.run_cli_command("import")
+
+        ignored_index = logs.index("filetote: Ignored files:")
+        assert f"filetote:    {brace_filename}" in logs[ignored_index:]

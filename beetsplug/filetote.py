@@ -656,9 +656,10 @@ class FiletotePlugin(BeetsPlugin):
 
             if multidisc_parent_path not in self._run_state.dirs_seen:
                 self._log.debug(
-                    f"Directory `{source_path}` matches multi-disc pattern; "
-                    f"treating parent `{multidisc_parent_path}` as album-level "
-                    f"directory."
+                    "Directory `{}` matches multi-disc pattern; "
+                    "treating parent `{}` as album-level directory.",
+                    source_path,
+                    multidisc_parent_path,
                 )
 
                 # Add this directory as "seen"
@@ -888,8 +889,9 @@ class FiletotePlugin(BeetsPlugin):
         # "Ignore" if it has already been moved or processed.
         if not Path(artifact_source).exists():
             self._log.warning(
-                f"Artifact `{artifact_filename}` no longer exists;"
-                f" skipping in `_should_process_artifact`."
+                "Artifact `{}` no longer exists; skipping in"
+                " `_should_process_artifact`.",
+                artifact_filename,
             )
             return False
 
@@ -976,8 +978,9 @@ class FiletotePlugin(BeetsPlugin):
 
             if artifact_source == artifact_dest:
                 self._log.debug(
-                    f"Source and destination are the same ({artifact_source}); "
-                    f"skipping artifact processing."
+                    "Source and destination are the same ({}); "
+                    "skipping artifact processing.",
+                    artifact_source,
                 )
                 continue
 
@@ -1002,8 +1005,9 @@ class FiletotePlugin(BeetsPlugin):
                         pass
                     case "skip":
                         self._log.debug(
-                            f"Skipping artifact `{artifact_filename}`"
-                            f" because it already exists in the destination."
+                            "Skipping artifact `{}` because it already exists in"
+                            " the destination.",
+                            artifact_filename,
                         )
                         ignored_artifacts.append(artifact_source)
                         continue
@@ -1056,7 +1060,7 @@ class FiletotePlugin(BeetsPlugin):
         if self.filetote_config.print_ignored and ignored_artifacts:
             self._log.warning("Ignored files:")
             for artifact in ignored_artifacts:
-                self._log.warning(f"   {artifact.name}")
+                self._log.warning("   {}", artifact.name)
 
     def _operation_label(
         self, operation: MoveOperation | None, is_reimport: bool
@@ -1136,8 +1140,8 @@ class FiletotePlugin(BeetsPlugin):
         """
         if operation != MoveOperation.MOVE and is_reimport:
             self._log.warning(
-                f"Filetote Operation changed to MOVE from {operation} since this is a"
-                " reimport."
+                "Filetote Operation changed to MOVE from {} since this is a reimport.",
+                operation,
             )
 
         if self._log.isEnabledFor(logging.INFO):
