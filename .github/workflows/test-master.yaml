@@ -39,14 +39,16 @@ jobs:
                       uv.lock
                       pyproject.toml
 
+            - name: Resolve beets master SHA
+              id: beets-master-sha
+              run: echo "sha=$(git ls-remote https://github.com/beetbox/beets.git refs/heads/master | cut -f1)" >> "$GITHUB_OUTPUT"
+
             - name: Cache tox environments
               id: cache-tox
               uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
               with:
                   path: .tox
-                  key: tox-${{ runner.os }}-py-${{ steps.setup-python.outputs.python-version }}-${{ env.TOXENV }}-${{ hashFiles('**/pyproject.toml', '**/uv.lock') }}
-                  restore-keys: |
-                      tox-${{ runner.os }}-py-${{ steps.setup-python.outputs.python-version }}-${{ env.TOXENV }}-
+                  key: tox-${{ runner.os }}-py-${{ steps.setup-python.outputs.python-version }}-${{ env.TOXENV }}-${{ steps.beets-master-sha.outputs.sha }}-${{ hashFiles('**/pyproject.toml', '**/uv.lock') }}
 
             - name: Run Tests
               # Failures are sometimes expected, so this ensures they don't send failure notifications.
