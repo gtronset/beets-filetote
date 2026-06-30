@@ -14,6 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Modernize `pyproject` license for PEP 639 <https://github.com/gtronset/beets-filetote/pull/327>
 - Bump ruff from 0.15.17 to 0.15.18 <https://github.com/gtronset/beets-filetote/pull/333>
 - Bump pytest from 9.0.3 to 9.1.1 <https://github.com/gtronset/beets-filetote/pull/332>
+- Bump actions/checkout from 6.0.3 to 7.0.0 <https://github.com/gtronset/beets-filetote/pull/329>
 
 ### Fixed
 
