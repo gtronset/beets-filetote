@@ -52,7 +52,7 @@ class TestPrintIgnored:
         env.config["filetote"]["print_ignored"] = True
         env.config["filetote"]["extensions"] = ".file .lrc"
 
-        brace_filename = "System Of A Down - Hypnotize [2005] {Japan SICP-933}.jpg"
+        brace_filename = "Tag Artist - Tag Song [2005] {Japan}.jpg"
         env.create_file(env.import_dir / "the_album" / brace_filename)
 
         with env.capture_log("beets.filetote") as logs:

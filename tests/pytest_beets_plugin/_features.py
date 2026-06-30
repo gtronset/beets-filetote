@@ -32,7 +32,7 @@ def check_symlink() -> bool:
             util.link(util.bytestring_path(src), util.bytestring_path(dst))
             return dst.is_symlink()
         except (FilesystemError, OSError) as e:
-            log.debug(f"Symlink check failed: {e}")
+            log.debug("Symlink check failed: {}", e)
             return False
 
 
@@ -49,7 +49,7 @@ def check_hardlink() -> bool:
             util.hardlink(util.bytestring_path(src), util.bytestring_path(dst))
             return dst.exists() and src.stat().st_ino == dst.stat().st_ino
         except (FilesystemError, OSError) as e:
-            log.debug(f"Hardlink check failed: {e}")
+            log.debug("Hardlink check failed: {}", e)
             return False
 
 
@@ -70,7 +70,7 @@ def check_reflink() -> bool:
             )
             return dst.exists() and src.stat().st_ino != dst.stat().st_ino
         except (FilesystemError, OSError) as e:
-            log.debug(f"Reflink check failed: {e}")
+            log.debug("Reflink check failed: {}", e)
             return False
 
 

@@ -5,7 +5,30 @@ rules:
       languages: [python]
       patterns:
           - pattern-either:
+                - pattern: $X._log.$LEVEL(f"...")
+                - pattern: $X._log.$LEVEL("...".format(...))
+                - pattern: $X._log.$LEVEL($FMT % $ARGS)
+                - pattern: $X._log.$LEVEL($LEFT + $RIGHT)
                 - pattern: $X._log.$LEVEL(f"...", ...)
                 - pattern: $X._log.$LEVEL("...".format(...), ...)
                 - pattern: $X._log.$LEVEL($FMT % $ARGS, ...)
                 - pattern: $X._log.$LEVEL($LEFT + $RIGHT, ...)
+
+    - id: no-preformatted-beets-test-log-message
+      message: In beets test helpers, do not pass preformatted strings to log methods. Use placeholders and args.
+      severity: ERROR
+      languages: [python]
+      paths:
+          include:
+              - tests/**/*.py
+      patterns:
+          - pattern-either:
+                - pattern: log.$LEVEL(f"...")
+                - pattern: log.$LEVEL("...".format(...))
+                - pattern: log.$LEVEL($FMT % $ARGS)
+                - pattern: log.$LEVEL($LEFT + $RIGHT)
+                - patterns:
+                      - pattern: log.$LEVEL($MSG)
+                      - pattern-not: log.$LEVEL("...")
+                      - pattern-not: log.$LEVEL("...", ...)
+                      - pattern-not: log.$LEVEL("{}", ...)

@@ -386,8 +386,7 @@ class BeetsPluginFixture(BeetsAssertions, MediaCreator):
         and tear-down the system under test after setting any config options
         and before assertions are made regarding changes to the filesystem.
         """
-        log_string = f"Running CLI: {command}"
-        log.debug(log_string)
+        log.debug("Running CLI: {}", command)
 
         _activate_plugins(self.plugins)
 
