@@ -7,6 +7,18 @@ import re
 from collections.abc import Generator
 from typing import Any, Literal, TypeAlias
 
+# TODO(gtronset): Remove try-except once beets v2.12 is the oldest version
+# supported:
+# https://github.com/gtronset/beets-filetote/pull/336
+try:
+    from beets.logging import LegacyFormatter
+
+    LOGGING_FORMATTER: logging.Formatter = LegacyFormatter(
+        "%(legacy_prefix)s%(message)s\n%(exc_text)s"
+    )
+except ImportError:
+    LOGGING_FORMATTER = logging.Formatter("%(message)s\n%(exc_text)s")
+
 LogLevels: TypeAlias = Literal[
     10,  # logging.DEBUG
     20,  # logging.INFO
@@ -64,7 +76,12 @@ class ListLogHandler(logging.Handler):
         """Initializes the handler and its message list."""
         super().__init__(*args, **kwargs)
         self.messages: list[str] = []
-        self.setFormatter(logging.Formatter("%(message)s\n%(exc_text)s"))
+        self.setFormatter(self._make_formatter())
+
+    @staticmethod
+    def _make_formatter() -> logging.Formatter:
+        """Use beets' LegacyFormatter if available (2.12+), otherwise fall back."""
+        return LOGGING_FORMATTER
 
     def emit(self, record: logging.LogRecord) -> None:
         """Appends the formatted log record to the message list."""
