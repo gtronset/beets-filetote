@@ -1,0 +1,11 @@
+rules:
+    - id: no-eager-self-log-formatting
+      message: Use logger placeholders and args instead of preformatted self._log messages.
+      severity: ERROR
+      languages: [python]
+      patterns:
+          - pattern-either:
+                - pattern: $X._log.$LEVEL(f"...", ...)
+                - pattern: $X._log.$LEVEL("...".format(...), ...)
+                - pattern: $X._log.$LEVEL($FMT % $ARGS, ...)
+                - pattern: $X._log.$LEVEL($LEFT + $RIGHT, ...)

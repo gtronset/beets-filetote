@@ -113,3 +113,7 @@ jobs:
             - name: Check Ruff (Format)
               if: always()
               run: uv run ruff format --check
+
+            - name: Check Semgrep
+              if: always()
+              run: uv run semgrep --config .semgrep/logging.yml --metrics=off --disable-version-check --error
