@@ -13,6 +13,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Modernize `pyproject` license for PEP 639 <https://github.com/gtronset/beets-filetote/pull/327>
 
+### Fixed
+
+- Bugfix: Use placeholders and args for logging <https://github.com/gtronset/beets-filetote/pull/335>
+
 ## [1.3.6] - 2026-06-17
 
 ### Added
