@@ -50,7 +50,7 @@ class BeetsTestUtils:
         logs.
         """
         if not startpath.exists():
-            log.debug(f"{startpath} does not exist")
+            log.debug("{} does not exist", startpath)
             return
 
         for root, _dirs, files in util.sorted_walk(startpath):
@@ -64,12 +64,12 @@ class BeetsTestUtils:
 
             indent = self._log_indenter(level)
             log_string = f"{indent}{root_path.name}/"
-            log.debug(log_string)
+            log.debug("{}", log_string)
 
             subindent = self._log_indenter(level + 1)
             for filename in files:
                 sub_log_string = f"{subindent}{util.displayable_path(filename)}"
-                log.debug(sub_log_string)
+                log.debug("{}", sub_log_string)
 
     def get_rsrc_from_extension(self, file_ext: str) -> str:
         """Get the resource file matching extension, defaulting to `MP3`."""

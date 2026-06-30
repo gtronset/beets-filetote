@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - Modernize `pyproject` license for PEP 639 <https://github.com/gtronset/beets-filetote/pull/327>
+- Bump ruff from 0.15.17 to 0.15.18 <https://github.com/gtronset/beets-filetote/pull/333>
 
 ### Fixed
 

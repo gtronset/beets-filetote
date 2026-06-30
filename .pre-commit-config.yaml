@@ -72,7 +72,7 @@ repos:
             entry: uv run semgrep --config .semgrep/logging.yml --metrics=off --disable-version-check --error --include="*.py"
             language: system
             pass_filenames: true
-            files: ^beetsplug/
+            files: ^(beetsplug/|tests/)
             types: [python]
 
     - repo: https://github.com/abravalheri/validate-pyproject
