@@ -65,6 +65,16 @@ repos:
           - id: typos
             exclude: "(_typos.toml|.gitignore)"
 
+    - repo: local
+      hooks:
+          - id: semgrep
+            name: semgrep
+            entry: uv run semgrep --config .semgrep/logging.yml --metrics=off --disable-version-check --error --include="*.py"
+            language: system
+            pass_filenames: true
+            files: ^beetsplug/
+            types: [python]
+
     - repo: https://github.com/abravalheri/validate-pyproject
       rev: 4b2e70d08cb2ccd26d1fba73588de41c7a5d50b7 # v0.25
       hooks:
