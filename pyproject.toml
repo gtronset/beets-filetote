@@ -447,6 +447,8 @@ commands_pre = [
         "uv",
         "pip",
         "install",
+        "--reinstall-package",
+        "beets",
         "--python",
         "{envpython}",
         "{env:BEETS_SPEC}",
