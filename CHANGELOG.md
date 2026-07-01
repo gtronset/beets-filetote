@@ -20,7 +20,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - Bugfix: Use placeholders and args for logging <https://github.com/gtronset/beets-filetote/pull/335>
-- Support Beets 2.12 (LegacyFormatter) & fix tests against Beets `master`
+- Support Beets 2.12 (LegacyFormatter) & fix tests against Beets `master` <https://github.com/gtronset/beets-filetote/pull/336>
 
 ## [1.3.6] - 2026-06-17
 
