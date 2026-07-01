@@ -95,7 +95,7 @@ tox -e 3.14
 Test against a specific beets version:
 
 ```sh
-tox -e beets-2_6
+tox -e beets-2_10
 ```
 
 Test against the beets' development branch:
@@ -115,7 +115,7 @@ Available `tox` environments:
 | Environment                | Description                                                |
 |----------------------------|------------------------------------------------------------|
 | `3.10` – `3.14`            | Test against a specific Python version                     |
-| `beets-2_4` – `beets-2_11` | Test with beets `~=2.4.0` through `~=2.11.0`, respectively |
+| `beets-2_4` – `beets-2_12` | Test with beets `~=2.4` through `~=2.12`, respectively     |
 | `beets-master`             | Test with beets from `master` branch                       |
 | `lint`                     | Lint source code (`ruff check`)                            |
 | `lint-fix`                 | Auto-fix lint issues (`ruff check --fix`)                  |

@@ -1,4 +1,6 @@
-from logging import Logger
+from logging import Formatter, Logger
+
+class LegacyFormatter(Formatter): ...
 
 def getLogger(name: str | None = None) -> Logger: ...
 

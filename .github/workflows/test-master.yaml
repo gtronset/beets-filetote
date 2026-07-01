@@ -39,15 +39,6 @@ jobs:
                       uv.lock
                       pyproject.toml
 
-            - name: Cache tox environments
-              id: cache-tox
-              uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
-              with:
-                  path: .tox
-                  key: tox-${{ runner.os }}-py-${{ steps.setup-python.outputs.python-version }}-${{ env.TOXENV }}-${{ hashFiles('**/pyproject.toml', '**/uv.lock') }}
-                  restore-keys: |
-                      tox-${{ runner.os }}-py-${{ steps.setup-python.outputs.python-version }}-${{ env.TOXENV }}-
-
             - name: Run Tests
               # Failures are sometimes expected, so this ensures they don't send failure notifications.
               continue-on-error: true

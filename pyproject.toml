@@ -117,7 +117,7 @@ extend-ignore-names = ["assert*", "getLogger"]
 
 [tool.ruff.lint.per-file-ignores]
 "beetsplug/**" = ["PT"]
-"tests/**" = ["PLR0917", "RUF076", "PLE1205"]
+"tests/**" = ["PLR0917", "PLE1205", "RUF076"]
 
 [tool.ruff.lint.pycodestyle]
 max-line-length = 88
@@ -146,6 +146,7 @@ env_list = [
     "beets-2_9",
     "beets-2_10",
     "beets-2_11",
+    "beets-2_12",
     "beets-master",
 ]
 
@@ -397,6 +398,33 @@ commands_pre = [
     ],
 ]
 
+[tool.tox.env.beets-2_12]
+description = "Test with beets~=2.12.0"
+set_env = { PIP_ONLY_BINARY = "llvmlite,numba", BEETS_SPEC = "beets~=2.12.0" }
+commands_pre = [
+    [
+        "uv",
+        "sync",
+        "--active",
+        "--frozen",
+        "--no-install-project",
+        "--no-install-package",
+        "beets",
+        "--group",
+        "dev",
+        "--group",
+        "test",
+    ],
+    [
+        "uv",
+        "pip",
+        "install",
+        "--python",
+        "{envpython}",
+        "{env:BEETS_SPEC}",
+    ],
+]
+
 [tool.tox.env.beets-master]
 description = "Test with beets from master branch"
 base_python = ["3"]
@@ -419,6 +447,8 @@ commands_pre = [
         "uv",
         "pip",
         "install",
+        "--reinstall-package",
+        "beets",
         "--python",
         "{envpython}",
         "{env:BEETS_SPEC}",
