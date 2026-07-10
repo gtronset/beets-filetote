@@ -60,7 +60,7 @@ repos:
 
     - repo: https://github.com/adhtruong/mirrors-typos
       # https://github.com/crate-ci/typos/issues/390
-      rev: fc278e51f1abd13f03ccb2c18fdf75923329819c # v1.47.2
+      rev: 05930bc4fc01df638388912e6a985a1a4841d1e1 # v1.48.0
       hooks:
           - id: typos
             exclude: "(_typos.toml|.gitignore)"
