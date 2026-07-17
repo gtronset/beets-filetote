@@ -39,6 +39,37 @@ class TestPathUtils:
         types = {"mp3": "MPEG", "flac": "FLAC"}
         assert path_utils.is_beets_file_type(extension, types) is expected
 
+    def test_discover_artifacts_converts_pathlib_source_to_beets_path(
+        self, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        """Test that artifact discovery converts pathlib input before calling
+        beets' walk helper, which expects bytes/str paths.
+        """
+        seen_paths: list[object] = []
+
+        def mock_sorted_walk(
+            path: object,
+            ignore: list[object] | None = None,
+            *_args: object,
+            **_kwargs: object,
+        ) -> Iterator[tuple[bytes, list[bytes], list[bytes]]]:
+            seen_paths.append((path, ignore))
+            assert not isinstance(path, Path)
+            assert ignore is not None
+            assert all(not isinstance(item, Path) for item in ignore)
+            yield (b"/music/album", [], [b"cover.jpg"])
+
+        monkeypatch.setattr(path_utils.util, "sorted_walk", mock_sorted_walk)
+
+        path_utils.discover_artifacts(
+            Path("/music/album"),
+            ignore=[],
+            beets_file_types={},
+        )
+
+        assert seen_paths
+        assert not isinstance(seen_paths[0][0], Path)
+
     def test_discover_artifacts(self, monkeypatch: pytest.MonkeyPatch) -> None:
         """Test artifact discovery and ignoring of beets-handled files. Mock
         `sorted_walk` to control the filesystem structure.

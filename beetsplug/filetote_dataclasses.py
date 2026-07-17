@@ -17,7 +17,7 @@ if TYPE_CHECKING:
     from collections.abc import Callable
     from pathlib import Path
 
-    from beets.library import Library
+    from beets.library import Item, Library
     from beets.util import MoveOperation
 
     from .mapping_model import FiletoteMappingModel
@@ -46,6 +46,7 @@ class FiletoteArtifactCollection:
     mapping: FiletoteMappingModel
     source_path: Path
     item_dest: Path
+    beets_item: Item | None = None
 
 
 @dataclass
