@@ -30,18 +30,18 @@ repos:
             name: format
             alias: format
 
-    - repo: https://github.com/igorshubovych/markdownlint-cli
-      rev: a4d5d37e66ebcd6b3705204a1d6dbb56dea66338 # v0.49.0
+    - repo: https://github.com/DavidAnson/markdownlint-cli2
+      rev: 06f92c99e930c11230426b5edd775021d25e08a8 # v0.23.1
       hooks:
-          - id: markdownlint
-          - id: markdownlint
-            name: markdownlint-fix
-            alias: markdownlint-fix
+          - id: markdownlint-cli2
+          - id: markdownlint-cli2
+            name: markdownlint-cli2-fix
+            alias: markdownlint-cli2-fix
             args: ["--fix"]
             stages: [manual]
 
     - repo: https://github.com/pre-commit/mirrors-mypy
-      rev: d2823d321df3af8f878f7ee3414dc94d037145b9 # v2.1.0
+      rev: 0cbe8f6e54466b1b48f9d41f44abb4d06c061b5e # v2.2.0
       hooks:
           - id: mypy
             additional_dependencies: [pytest]
@@ -60,7 +60,7 @@ repos:
 
     - repo: https://github.com/adhtruong/mirrors-typos
       # https://github.com/crate-ci/typos/issues/390
-      rev: fc278e51f1abd13f03ccb2c18fdf75923329819c # v1.47.2
+      rev: 05930bc4fc01df638388912e6a985a1a4841d1e1 # v1.48.0
       hooks:
           - id: typos
             exclude: "(_typos.toml|.gitignore)"
