@@ -95,6 +95,8 @@ updates:
           - "dependencies"
       cooldown:
           default-days: 7
+      ignore:
+          - dependency-name: "crate-ci/typos"
 
     - package-ecosystem: pre-commit
       open-pull-requests-limit: 10
@@ -106,6 +108,10 @@ updates:
           - "dependencies"
       cooldown:
           default-days: 7
+      ignore:
+          - dependency-name: "adhtruong/mirrors-typos"
+          - dependency-name: "astral-sh/ruff-pre-commit"
+          - dependency-name: "pre-commit/mirrors-mypy"
 
     - package-ecosystem: uv
       open-pull-requests-limit: 10
@@ -119,3 +125,6 @@ updates:
           default-days: 7
           semver-major-days: 14
           semver-patch-days: 3
+      ignore:
+          - dependency-name: "ruff"
+          - dependency-name: "mypy"
