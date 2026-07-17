@@ -19,6 +19,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Bump DavidAnson/markdownlint-cli2-action from 23.2.0 to 24.0.0 and use in precommit <https://github.com/gtronset/beets-filetote/pull/343>
 - Bump mypy from v2.1.0 to 2.2.0 <https://github.com/gtronset/beets-filetote/pull/346>
 - Bump beets from 2.11.0 to 2.12.0 <https://github.com/gtronset/beets-filetote/pull/340>
+- Bump ruff from 0.15.18 to 0.15.21 <https://github.com/gtronset/beets-filetote/pull/348>
 
 ### Fixed
 
