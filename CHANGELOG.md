@@ -18,6 +18,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Bump <https://github.com/igorshubovych/markdownlint-cli> from v0.48.0 to 0.49.0 <https://github.com/gtronset/beets-filetote/pull/330>
 - Bump DavidAnson/markdownlint-cli2-action from 23.2.0 to 24.0.0 and use in precommit <https://github.com/gtronset/beets-filetote/pull/343>
 - Bump mypy from v2.1.0 to 2.2.0 <https://github.com/gtronset/beets-filetote/pull/346>
+- Bump beets from 2.11.0 to 2.12.0 <https://github.com/gtronset/beets-filetote/pull/340>
 
 ### Fixed
 
