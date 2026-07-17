@@ -1,7 +1,81 @@
 # yaml-language-server: $schema=https://json.schemastore.org/dependabot-2.0.json
 
 version: 2
+
+multi-ecosystem-groups:
+    typos:
+        schedule:
+            interval: weekly
+            time: "04:00"
+        labels:
+            - "dependencies"
+    ruff:
+        schedule:
+            interval: weekly
+            time: "04:00"
+        labels:
+            - "dependencies"
+    mypy:
+        schedule:
+            interval: weekly
+            time: "04:00"
+        labels:
+            - "dependencies"
+
 updates:
+    ## multi-ecosystem groupings
+
+    # typos: GH action & pre-commit hook
+    - package-ecosystem: github-actions
+      directory: "/"
+      patterns: ["crate-ci/typos"]
+      multi-ecosystem-group: "typos"
+      cooldown:
+          default-days: 7
+
+    - package-ecosystem: pre-commit
+      directory: "/"
+      patterns: ["adhtruong/mirrors-typos"]
+      multi-ecosystem-group: "typos"
+      cooldown:
+          default-days: 7
+
+    # ruff: uv dep & pre-commit hook
+    - package-ecosystem: uv
+      directory: "/"
+      patterns: ["ruff"]
+      multi-ecosystem-group: "ruff"
+      cooldown:
+          default-days: 7
+          semver-major-days: 14
+          semver-patch-days: 3
+
+    - package-ecosystem: pre-commit
+      directory: "/"
+      patterns: ["astral-sh/ruff-pre-commit"]
+      multi-ecosystem-group: "ruff"
+      cooldown:
+          default-days: 7
+
+    # mypy: uv dep & pre-commit hook
+    - package-ecosystem: uv
+      directory: "/"
+      patterns: ["mypy"]
+      multi-ecosystem-group: "mypy"
+      cooldown:
+          default-days: 7
+          semver-major-days: 14
+          semver-patch-days: 3
+
+    - package-ecosystem: pre-commit
+      directory: "/"
+      patterns: ["pre-commit/mirrors-mypy"]
+      multi-ecosystem-group: "mypy"
+      cooldown:
+          default-days: 7
+
+    ## Remaining non multi-ecosystem groupings & defaults
+
     - package-ecosystem: docker
       directory: "/"
       schedule:
@@ -21,6 +95,8 @@ updates:
           - "dependencies"
       cooldown:
           default-days: 7
+      ignore:
+          - dependency-name: "crate-ci/typos"
 
     - package-ecosystem: pre-commit
       open-pull-requests-limit: 10
@@ -32,6 +108,10 @@ updates:
           - "dependencies"
       cooldown:
           default-days: 7
+      ignore:
+          - dependency-name: "adhtruong/mirrors-typos"
+          - dependency-name: "astral-sh/ruff-pre-commit"
+          - dependency-name: "pre-commit/mirrors-mypy"
 
     - package-ecosystem: uv
       open-pull-requests-limit: 10
@@ -45,3 +125,6 @@ updates:
           default-days: 7
           semver-major-days: 14
           semver-patch-days: 3
+      ignore:
+          - dependency-name: "ruff"
+          - dependency-name: "mypy"
