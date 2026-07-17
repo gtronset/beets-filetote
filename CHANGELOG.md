@@ -16,6 +16,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Bump pytest from 9.0.3 to 9.1.1 <https://github.com/gtronset/beets-filetote/pull/332>
 - Bump actions/checkout from 6.0.3 to 7.0.0 <https://github.com/gtronset/beets-filetote/pull/329>
 - Bump <https://github.com/igorshubovych/markdownlint-cli> from v0.48.0 to 0.49.0 <https://github.com/gtronset/beets-filetote/pull/330>
+- Bump beets from 2.11.0 to 2.12.0 <https://github.com/gtronset/beets-filetote/pull/340>
 
 ### Fixed
 
