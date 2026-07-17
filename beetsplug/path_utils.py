@@ -51,7 +51,12 @@ def discover_artifacts(
     """Walks a directory and returns a list of all non-beets-handled files."""
     artifacts: list[Path] = []
 
-    for root, _dirs, files in util.sorted_walk(source_path, ignore=ignore):
+    source_path_for_walk = util.bytestring_path(source_path)
+    ignore_for_walk = [util.bytestring_path(pattern) for pattern in ignore]
+
+    for root, _dirs, files in util.sorted_walk(
+        source_path_for_walk, ignore=ignore_for_walk
+    ):
         for filename in files:
             full_path_bytes = root + PATH_SEP_BYTES + filename
 
