@@ -6,10 +6,6 @@ permissions:
     contents: read
 
 on:
-    push:
-    pull_request:
-        types: [opened, reopened]
-
     schedule:
         - cron: "0 0 * * 1" # Every Monday at midnight UTC
     workflow_dispatch:
@@ -17,13 +13,7 @@ on:
 jobs:
     test-beets-master:
         name: Test against beets@master
-
-        strategy:
-            fail-fast: false
-            matrix:
-                os: [ubuntu-24.04, windows-2025]
-
-        runs-on: ${{ matrix.os }}
+        runs-on: ubuntu-24.04
 
         env:
             TOXENV: beets-master
@@ -46,4 +36,6 @@ jobs:
                       pyproject.toml
 
             - name: Run Tests
-              run: uvx tox -e "${{ env.TOXENV }}"
+              # Failures are sometimes expected, so this ensures they don't send failure notifications.
+              continue-on-error: true
+              run: uvx tox -e "$TOXENV"
