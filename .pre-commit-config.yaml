@@ -30,13 +30,13 @@ repos:
             name: format
             alias: format
 
-    - repo: https://github.com/igorshubovych/markdownlint-cli
-      rev: a4d5d37e66ebcd6b3705204a1d6dbb56dea66338 # v0.49.0
+    - repo: https://github.com/DavidAnson/markdownlint-cli2
+      rev: 06f92c99e930c11230426b5edd775021d25e08a8 # v0.23.1
       hooks:
-          - id: markdownlint
-          - id: markdownlint
-            name: markdownlint-fix
-            alias: markdownlint-fix
+          - id: markdownlint-cli2
+          - id: markdownlint-cli2
+            name: markdownlint-cli2-fix
+            alias: markdownlint-cli2-fix
             args: ["--fix"]
             stages: [manual]
 
