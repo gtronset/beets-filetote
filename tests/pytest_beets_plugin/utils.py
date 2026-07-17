@@ -53,7 +53,12 @@ class BeetsTestUtils:
             log.debug("{} does not exist", startpath)
             return
 
-        for root, _dirs, files in util.sorted_walk(startpath):
+        source_path_for_walk = util.bytestring_path(startpath)
+        ignore_for_walk = [util.bytestring_path("")]
+
+        for root, _dirs, files in util.sorted_walk(
+            source_path_for_walk, ignore_for_walk
+        ):
             root_path = Path(util.displayable_path(root))
 
             try:

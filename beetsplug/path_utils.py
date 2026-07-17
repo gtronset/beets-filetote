@@ -155,7 +155,7 @@ def is_multidisc(path_name: Path) -> bool:
     """Checks if a directory name matches the multi-disc pattern by replicating the
     beets importer's pattern matching for disc folders.
     """
-    path_name_bytes = util.bytestring_path(path_name.name)
+    path_name_bytes = util.displayable_path(path_name.name)
 
     return any(pat.match(path_name_bytes) for pat in MULTIDISC_PATTERNS)
 

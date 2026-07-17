@@ -10,6 +10,7 @@ from typing import Any, Literal
 
 from beets import config, library, plugins, util
 from beets.importer import ImportSession
+from beets.ui.commands.modify import ModifyOperation
 from mediafile import MediaFile
 
 from ._item_model import MediaMeta
@@ -450,13 +451,26 @@ class BeetsPluginFixture(BeetsAssertions, MediaCreator):
         album: str | None = None,
     ) -> None:
         """Run the `modify` CLI command."""
-        mods = mods or {}
-        dels = dels or {}
+        if mods:
+            wrapped_mods = {
+                field: ModifyOperation(operator=None, value=val)
+                for field, val in mods.items()
+            }
+        else:
+            wrapped_mods = {}
+
+        if dels:
+            wrapped_dels = {
+                field: ModifyOperation(operator=None, value=val)
+                for field, val in dels.items()
+            }
+        else:
+            wrapped_dels = {}
 
         modify_items(
             lib=self.lib,
-            mods=mods,
-            dels=dels,
+            mods=wrapped_mods,
+            dels=wrapped_dels,
             query=query,
             write=write,
             move=move,
