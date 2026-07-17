@@ -22,12 +22,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Bump ruff from 0.15.18 to 0.15.21 <https://github.com/gtronset/beets-filetote/pull/348>
 - Use multi-ecosystem-group with Dependabot <https://github.com/gtronset/beets-filetote/pull/352>
 - Add Windows to beets `master` test & update to `windows-2025` <https://github.com/gtronset/beets-filetote/pull/353>
+- Only run beets `master` tests on schedule and manually <https://github.com/gtronset/beets-filetote/pull/354>
 
 ### Fixed
 
 - Bugfix: Use placeholders and args for logging <https://github.com/gtronset/beets-filetote/pull/335>
 - Support Beets 2.12 (LegacyFormatter) & fix tests against Beets `master` <https://github.com/gtronset/beets-filetote/pull/336>
-- Only run beets `master` tests on schedule and manually <https://github.com/gtronset/beets-filetote/pull/354>
 
 ## [1.3.6] - 2026-06-17
 
