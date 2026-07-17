@@ -21,6 +21,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Bump beets from 2.11.0 to 2.12.0 <https://github.com/gtronset/beets-filetote/pull/340>
 - Bump ruff from 0.15.18 to 0.15.21 <https://github.com/gtronset/beets-filetote/pull/348>
 - Use multi-ecosystem-group with Dependabot <https://github.com/gtronset/beets-filetote/pull/352>
+- Add Windows to beets `master` test & update to `windows-2025` <https://github.com/gtronset/beets-filetote/pull/353>
 
 ### Fixed
 
