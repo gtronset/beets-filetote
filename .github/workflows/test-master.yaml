@@ -46,6 +46,4 @@ jobs:
                       pyproject.toml
 
             - name: Run Tests
-              # Failures are sometimes expected, so this ensures they don't send failure notifications.
-              continue-on-error: true
               run: uvx tox -e "${{ env.TOXENV }}"
