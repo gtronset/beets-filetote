@@ -1,4 +1,4 @@
-from collections.abc import Iterator, Mapping
+from collections.abc import Callable, Iterator, Mapping
 from typing import Any, Literal
 
 ALL_KEYS: Literal["*"] = "*"
@@ -15,6 +15,7 @@ class Model:
     def _setitem(self, key: str, value: str) -> bool: ...
     def __setitem__(self, key: str, value: str) -> None: ...
     def _type(self, key: str) -> str: ...
+    def _template_funcs(self) -> Mapping[str, Callable[[str], str]]: ...
     def formatted(
         self,
         included_keys: Literal["*"] | list[str] = "*",
