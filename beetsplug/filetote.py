@@ -134,7 +134,8 @@ class FiletotePlugin(BeetsPlugin):
             paths=self.config["paths"].get(dict),
             print_ignored=self.config["print_ignored"].get(bool),
             duplicate_action=cast(
-                "DuplicateAction", self.config["duplicate_action"].as_str()
+                DuplicateAction,
+                self.config["duplicate_action"].as_str(),
             ),
         )
 
