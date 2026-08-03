@@ -3,12 +3,7 @@
 from __future__ import annotations
 
 from pathlib import Path
-from typing import (
-    TYPE_CHECKING,
-    Any,
-    Literal,
-    TypeAlias,
-)
+from typing import TYPE_CHECKING, Any, Literal, TypeAlias, cast
 
 from beets import config, logging, util
 from beets.library.models import DefaultTemplateFunctions
@@ -26,6 +21,7 @@ from mediafile import TYPES as BEETS_FILE_TYPES
 
 from . import path_utils
 from .filetote_dataclasses import (
+    DuplicateAction,
     FiletoteArtifact,
     FiletoteArtifactCollection,
     FiletoteConfig,
@@ -128,7 +124,9 @@ class FiletotePlugin(BeetsPlugin):
             patterns=self.config["patterns"].get(dict),
             paths=self.config["paths"].get(dict),
             print_ignored=self.config["print_ignored"].get(bool),
-            duplicate_action=self.config["duplicate_action"].as_str(),
+            duplicate_action=cast(
+                "DuplicateAction", self.config["duplicate_action"].as_str()
+            ),
         )
 
         # Restore the session data to the new config object.
