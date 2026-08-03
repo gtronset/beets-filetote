@@ -44,8 +44,8 @@ jobs:
             - name: Run Tests
               run: uvx tox -e "${{ env.TOXENV }}"
 
-    lint-beets-master:
-        name: Lint against beets@master
+    mypy-beets-master:
+        name: Mypy against beets@master
 
         runs-on: ubuntu-24.04
 
