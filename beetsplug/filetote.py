@@ -566,7 +566,7 @@ class FiletotePlugin(BeetsPlugin):
 
         medianame_new: str = Path(destination).stem
 
-        mapping_meta = {
+        mapping_meta: dict[str, Any] = {
             "albumpath": util.displayable_path(album_path),
             "medianame_old": medianame_old,
             "medianame_new": medianame_new,
