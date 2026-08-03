@@ -46,6 +46,15 @@ FiletotePriorityQueries: TypeAlias = list[
         "pattern:",
     ]
 ]
+FileOperationEvent: TypeAlias = Literal[
+    "before_item_moved",
+    "item_copied",
+    "item_linked",
+    "item_hardlinked",
+    "item_reflinked",
+]
+
+FileOperationEvents: TypeAlias = list[FileOperationEvent]
 
 # All possible Filetote `query` values for path formats
 FiletoteQueries: TypeAlias = list[
@@ -213,7 +222,7 @@ class FiletotePlugin(BeetsPlugin):
         Note: The `file_operation_event_functions` dictionary stores the event name and
         its corresponding generated function.
         """
-        file_operation_events: list[str] = [
+        file_operation_events: FileOperationEvents = [
             "before_item_moved",
             "item_copied",
             "item_linked",
@@ -236,7 +245,9 @@ class FiletotePlugin(BeetsPlugin):
 
         self.register_listener("cli_exit", self.process_events)
 
-    def _build_file_event_function(self, event: str) -> Callable[..., None]:
+    def _build_file_event_function(
+        self, event: FileOperationEvent
+    ) -> Callable[..., None]:
         """Creates a function that acts as a wrapper for specific file operation events
         triggered by beets, forwarding the event name to the corresponding target
         function.
@@ -349,7 +360,7 @@ class FiletotePlugin(BeetsPlugin):
 
         return None
 
-    def _event_operation_type(self, event: str) -> MoveOperation | None:
+    def _event_operation_type(self, event: FileOperationEvent) -> MoveOperation | None:
         """Returns the file manipulations type. Requires a beets event to be provided
         and the operation type is inferred based on the event name/type.
         """
@@ -364,7 +375,11 @@ class FiletotePlugin(BeetsPlugin):
         return mapping.get(event)
 
     def file_operation_event_listener(
-        self, event: str, item: Item, source: PathBytes, destination: PathBytes
+        self,
+        event: FileOperationEvent,
+        item: Item,
+        source: PathBytes,
+        destination: PathBytes,
     ) -> None:
         """Certain CLI operations such as `move` (`mv`) don't utilize the config file's
         `import` settings which `_operation_type()` uses by default to determine how
