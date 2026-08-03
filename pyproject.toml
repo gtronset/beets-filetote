@@ -493,3 +493,57 @@ commands_pre = [
     ],
 ]
 commands = [["uv", "run", "--active", "mypy"]]
+
+[tool.tox.env.mypy-beets-master]
+description = "Type-check against beets master's actual types"
+package = "skip"
+allowlist_externals = ["uv"]
+set_env = { PIP_ONLY_BINARY = "llvmlite,numba", BEETS_SPEC = "beets@git+https://github.com/beetbox/beets.git@master" }
+commands_pre = [
+    [
+        "uv",
+        "sync",
+        "--active",
+        "--frozen",
+        "--no-install-project",
+        "--no-install-package",
+        "beets",
+        "--group",
+        "lint",
+        "--group",
+        "test",
+    ],
+    [
+        "uv",
+        "pip",
+        "install",
+        "--reinstall-package",
+        "beets",
+        "--python",
+        "{envpython}",
+        "{env:BEETS_SPEC}",
+    ],
+]
+commands = [
+    [
+        "uv",
+        "run",
+        "--active",
+        "mypy",
+        "--config-file",
+        "/dev/null",
+        "--strict",
+        "--pretty",
+        "--explicit-package-bases",
+        "--disable-error-code",
+        "no-untyped-call",
+        "--disable-error-code",
+        "import-untyped",
+        "--disable-error-code",
+        "attr-defined",
+        "--disable-error-code",
+        "no-redef",
+        "-p",
+        "beetsplug",
+    ],
+]
