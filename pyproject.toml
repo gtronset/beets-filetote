@@ -72,7 +72,11 @@ src = ["beetsplug", "tests", "typehints"]
 target-version = "py310"
 
 [tool.ruff.lint]
-ignore = ["missing-blank-line-after-summary", "no-self-use"]
+ignore = [
+    "missing-blank-line-after-summary",
+    "no-self-use",
+    "runtime-cast-value",
+]
 extend-select = [
     "A",    # flake8-builtins
     "ARG",  # flake8-unused-arguments
