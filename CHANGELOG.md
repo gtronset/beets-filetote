@@ -29,6 +29,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Bump the "mypy" group with 1 update across multiple ecosystems <https://github.com/gtronset/beets-filetote/pull/360>
 - Fix `sorted_walk` and `DefaultTemplateFunctions` compatibility with beets `master` by
   @arogl <https://github.com/gtronset/beets-filetote/pull/351>
+- Polish fixes for beets v2.13 and allow `%aunique{}` <https://github.com/gtronset/beets-filetote/pull/370>
 
 ### Fixed
 
