@@ -29,6 +29,8 @@ PatternsDict: TypeAlias = dict[str, list[str]]
 DEFAULT_ALL_GLOB: Literal[".*"] = ".*"
 DEFAULT_EMPTY: Literal[""] = ""
 
+DuplicateAction: TypeAlias = Literal["merge", "skip", "keep", "remove"]
+
 
 @dataclass
 class FiletoteArtifact:
@@ -203,7 +205,7 @@ class FiletoteConfig:
     pairing: FiletotePairingData = field(default_factory=FiletotePairingData)
     paths: dict[str, str] = field(default_factory=dict)
     print_ignored: bool = False
-    duplicate_action: Literal["merge", "skip", "keep", "remove"] = "merge"
+    duplicate_action: DuplicateAction = "merge"
 
     def __post_init__(self) -> None:
         """Validates types upon initialization."""
