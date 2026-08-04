@@ -44,7 +44,7 @@ class TestPathUtils:
         """Test that artifact discovery converts pathlib input before calling
         beets' walk helper, which expects bytes/str paths.
         """
-        seen_paths: list[object] = []
+        seen_paths: list[tuple[object, list[object] | None]] = []
 
         def mock_sorted_walk(
             path: object,
