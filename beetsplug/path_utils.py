@@ -12,12 +12,24 @@ from typing import TYPE_CHECKING
 from beets import util
 
 try:
-    from beets.importer.tasks import MULTIDISC_PATTERNS
+    from beets.importer.tasks import MULTIDISC_PATTERNS as _MULTIDISC_RAW
+
+    # TODO(gtronset): Remove this once beets 2.12 and below are no longer supported.
+    # https://github.com/gtronset/beets-filetote/pull/370
+    MULTIDISC_PATTERNS: list[re.Pattern[str]] = [
+        re.compile(p.pattern.decode(), p.flags) if isinstance(p.pattern, bytes) else p
+        for p in _MULTIDISC_RAW
+    ]
 except ImportError:
+    # TODO(gtronset): Remove this once beets 2.10 and below are no longer supported.
+    # https://github.com/gtronset/beets-filetote/pull/303
     from beets.importer.tasks import MULTIDISC_MARKERS, MULTIDISC_PAT_FMT
 
     MULTIDISC_PATTERNS = [
-        re.compile(MULTIDISC_PAT_FMT.replace(b"%s", marker), re.IGNORECASE)
+        re.compile(
+            MULTIDISC_PAT_FMT.decode().replace("%s", marker.decode()),
+            re.IGNORECASE,
+        )
         for marker in MULTIDISC_MARKERS
     ]
 
@@ -154,9 +166,7 @@ def is_multidisc(path_name: Path) -> bool:
     """Checks if a directory name matches the multi-disc pattern by replicating the
     beets importer's pattern matching for disc folders.
     """
-    path_name_bytes = util.bytestring_path(path_name.name)
-
-    return any(pat.match(path_name_bytes) for pat in MULTIDISC_PATTERNS)
+    return any(pat.match(path_name.name) for pat in MULTIDISC_PATTERNS)
 
 
 def get_multidisc_ignore_paths(parent_path: Path) -> list[str]:

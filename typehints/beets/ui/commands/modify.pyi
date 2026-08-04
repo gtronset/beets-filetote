@@ -1,9 +1,16 @@
+from dataclasses import dataclass
+
 from beets.library import Library
+
+@dataclass
+class ModifyOperation:
+    operator: str | None
+    value: str
 
 def modify_items(
     lib: Library,
-    mods: dict[str, str],
-    dels: dict[str, str],
+    mods: dict[str, ModifyOperation],
+    dels: dict[str, ModifyOperation],
     query: str,
     write: bool = True,
     move: bool = True,

@@ -9,7 +9,6 @@ from typing import Any, Literal
 
 from beets import config, library, plugins, util
 from beets.importer import ImportSession
-from beets.ui.commands.modify import ModifyOperation
 from mediafile import MediaFile
 
 from ._item_model import MediaMeta
@@ -17,6 +16,13 @@ from .assertions import BeetsAssertions
 from .logging import LogLevels, capture_beets_log
 from .media import MediaCreator, MediaSetup
 from .plugin_lifecycle import _activate_plugins, _deactivate_plugins
+
+# TODO(gtronset): Remove this once beets 2.12 and below are no longer supported.
+# https://github.com/gtronset/beets-filetote/pull/370
+try:
+    from beets.ui.commands.modify import ModifyOperation
+except ImportError:
+    ModifyOperation = None  # type: ignore[assignment,misc]
 
 # TODO(gtronset): Remove this once beets 2.4 and 2.5 are no longer supported.
 # https://github.com/gtronset/beets-filetote/pull/253
