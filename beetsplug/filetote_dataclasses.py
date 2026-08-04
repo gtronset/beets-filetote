@@ -48,7 +48,7 @@ class FiletoteArtifactCollection:
     mapping: FiletoteMappingModel
     source_path: Path
     item_dest: Path
-    beets_item: Item | None = None
+    beets_item: Item
 
 
 @dataclass

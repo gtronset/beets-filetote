@@ -428,6 +428,33 @@ commands_pre = [
     ],
 ]
 
+[tool.tox.env.beets-2_13]
+description = "Test with beets~=2.13.0"
+set_env = { PIP_ONLY_BINARY = "llvmlite,numba", BEETS_SPEC = "beets~=2.13.0" }
+commands_pre = [
+    [
+        "uv",
+        "sync",
+        "--active",
+        "--frozen",
+        "--no-install-project",
+        "--no-install-package",
+        "beets",
+        "--group",
+        "dev",
+        "--group",
+        "test",
+    ],
+    [
+        "uv",
+        "pip",
+        "install",
+        "--python",
+        "{envpython}",
+        "{env:BEETS_SPEC}",
+    ],
+]
+
 [tool.tox.env.beets-master]
 description = "Test with beets from master branch"
 base_python = ["3"]

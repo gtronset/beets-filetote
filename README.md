@@ -10,7 +10,7 @@ A plugin that moves non-music extra files, attachments, and artifacts during imp
 CLI file manipulation actions (`move`, `modify`, reimport, etc.) for [beets], a music
 library manager (and much more!).
 
-This plugin runs on Python 3.10+ in beets `v2.4+` (tested through `v2.12`). Older
+This plugin runs on Python 3.10+ in beets `v2.4+` (tested through `v2.13`). Older
 versions of the plugin have additional compatibility back to `v1.6`.
 
 [beets]: https://beets.io/
@@ -208,8 +208,7 @@ The fields available include [the standard metadata values] of the imported item
 > That said, `inline` and other plugins should work without issue [unless otherwise
 > specified here].
 
-The full set of [built-in functions] are also supported, except for `%aunique`, which
-will return an empty string.
+The full set of [built-in functions] are also supported, including `%aunique` and `%sunique`.
 
 > [!IMPORTANT]
 > By default, if there are rename rules set that result with multiple files having the

@@ -59,6 +59,10 @@ jobs:
                       os: ubuntu-24.04
                       beets-version: "2.12"
                       toxenv: "beets-2_12"
+                    - python-version: "3.14"
+                      os: ubuntu-24.04
+                      beets-version: "2.13"
+                      toxenv: "beets-2_13"
 
         env:
             TOXENV: ${{ matrix.toxenv || matrix.python-version }}

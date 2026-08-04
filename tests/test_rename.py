@@ -502,3 +502,38 @@ class TestRename:
         env.assert_in_lib_dir("Tag Artist/Tag Album/scans/scan-1.jpg")
         env.assert_in_lib_dir("Tag Artist/Tag Album/Tag Album - sub - cue.cue")
         env.assert_in_lib_dir("Tag Artist/Tag Album/Tag Album - cover - cover.jpg")
+
+    def test_rename_with_aunique_template_function(self) -> None:
+        """Tests that the %aunique{} template function resolves correctly in
+        Filetote path templates when album disambiguation is needed.
+
+        A first import seeds the library with an album (year=2023). A second
+        import with the same albumartist/album but a different year (2024)
+        triggers %aunique{} disambiguation on the second album.
+        """
+        env = self.env
+
+        env.lib.path_formats = [
+            ("default", env.fmt_path("$artist", "$album%aunique{}", "$title")),
+            ("singleton:true", env.fmt_path("singletons", "$title")),
+            ("comp:true", env.fmt_path("compilations", "$album%aunique{}", "$title")),
+        ]
+
+        # Import the first album (year=2023) to seed the library.
+        env.run_cli_command("import")
+
+        # Create a second album with the same artist/album but a different year.
+        env.create_simple_import_dir(artifacts=["artifact.file"], media_count=1)
+        env.update_medium(
+            env.import_dir / "the_album" / "track_1.mp3",
+            {"year": "2024", "mb_albumid": "aunique-test-id"},
+        )
+
+        env.config["filetote"]["extensions"] = ".file"
+        env.config["paths"]["ext:file"] = "$albumpath/$old_filename"
+        env.config["import"]["duplicate_action"] = "keep"
+
+        env.setup_import_session(autotag=False)
+        env.run_cli_command("import")
+
+        env.assert_in_lib_dir("Tag Artist/Tag Album [2024]/artifact.file")

@@ -11,7 +11,7 @@ Testing and linting is performed with [`tox`] (`v4.22`+).
 [Installing `prek`] is also highly recommended, which will help automatically
 lint before committing.
 
-Filetote currently supports Python `3.10`+ and beets `v2.4`+.
+Filetote currently supports Python `3.10`+ and beets `v2.4`+ (tested through `v2.13`).
 
 For general information of working with beets plugins, see the beets' documentation
 [For Developers].
@@ -115,7 +115,7 @@ Available `tox` environments:
 | Environment                | Description                                                |
 |----------------------------|------------------------------------------------------------|
 | `3.10` – `3.14`            | Test against a specific Python version                     |
-| `beets-2_4` – `beets-2_12` | Test with beets `~=2.4` through `~=2.12`, respectively     |
+| `beets-2_4` – `beets-2_13` | Test with beets `~=2.4` through `~=2.13`, respectively     |
 | `beets-master`             | Test with beets from `master` branch                       |
 | `lint`                     | Lint source code (`ruff check`)                            |
 | `lint-fix`                 | Auto-fix lint issues (`ruff check --fix`)                  |
