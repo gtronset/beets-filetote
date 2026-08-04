@@ -201,12 +201,18 @@ class TestCLIOperation:
         ]
 
         env.run_cli_command(
-            "modify", query="artist:'Tag Artist'", mods={"artist": "Tag Artist New"}
+            "modify",
+            query="artist:'Tag Artist'",
+            mods={"artist": "Tag Artist New"},
+            dels=["comments"],
         )
 
         env.assert_not_in_lib_dir("Old Lib Artist/Tag Album/artifact.file")
 
         env.assert_in_lib_dir("Tag Artist New/Tag Album/artifact.file")
+        assert all(
+            not item["comments"] for item in env.lib.items("artist:'Tag Artist New'")
+        )
 
     def test_move_on_update_move_command(self) -> None:
         """Check that plugin detects the correct operation for the `update` command,

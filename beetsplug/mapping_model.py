@@ -27,7 +27,9 @@ class FiletoteMappingModel(db.Model):
         super().__setitem__(key, value)
 
     @classmethod
-    def _getters(cls) -> dict[None, None]:
+    def _getters(
+        cls,
+    ) -> dict[str, Callable[[FiletoteMappingModel], object]]:
         """Return "blank" for getter functions."""
         return {}
 
