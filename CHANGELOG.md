@@ -24,6 +24,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Add Windows to beets `master` test & update to `windows-2025` <https://github.com/gtronset/beets-filetote/pull/353>
 - Only run beets `master` tests on schedule and manually <https://github.com/gtronset/beets-filetote/pull/354>
 - Add beets `master`-specific mypy check <https://github.com/gtronset/beets-filetote/pull/369>
+- Bump ruff group from v0.15.21 to 0.16.1 & change import styling to be more ruff
+  idiomatic (from isort) <https://github.com/gtronset/beets-filetote/pull/367>
 
 ### Fixed
 
