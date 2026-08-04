@@ -456,33 +456,39 @@ class BeetsPluginFixture(BeetsAssertions, MediaCreator):
         album: str | None = None,
     ) -> None:
         """Run the `modify` CLI command."""
-        if mods:
-            wrapped_mods = {
-                field: ModifyOperation(operator=None, value=val)
-                for field, val in mods.items()
-            }
+        if ModifyOperation is not None:
+            modify_items(
+                lib=self.lib,
+                mods={
+                    field: ModifyOperation(operator=None, value=val)
+                    for field, val in (mods or {}).items()
+                },
+                dels={
+                    field: ModifyOperation(operator=None, value=val)
+                    for field, val in (dels or {}).items()
+                },
+                query=query,
+                write=write,
+                move=move,
+                album=album,
+                confirm=False,
+                inherit=True,
+            )
         else:
-            wrapped_mods = {}
-
-        if dels:
-            wrapped_dels = {
-                field: ModifyOperation(operator=None, value=val)
-                for field, val in dels.items()
-            }
-        else:
-            wrapped_dels = {}
-
-        modify_items(
-            lib=self.lib,
-            mods=wrapped_mods,
-            dels=wrapped_dels,
-            query=query,
-            write=write,
-            move=move,
-            album=album,
-            confirm=False,
-            inherit=True,
-        )
+            # TODO(gtronset): Remove this once beets 2.12 and below are no longer
+            # supported.
+            # https://github.com/gtronset/beets-filetote/pull/370
+            modify_items(
+                lib=self.lib,
+                mods=mods or {},
+                dels=dels or {},
+                query=query,
+                write=write,
+                move=move,
+                album=album,
+                confirm=False,
+                inherit=True,
+            )
 
     def _run_cli_update(
         self,

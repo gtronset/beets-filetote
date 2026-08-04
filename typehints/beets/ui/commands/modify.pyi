@@ -9,8 +9,8 @@ class ModifyOperation:
 
 def modify_items(
     lib: Library,
-    mods: dict[str, ModifyOperation],
-    dels: dict[str, ModifyOperation],
+    mods: dict[str, str] | dict[str, ModifyOperation],
+    dels: dict[str, str] | dict[str, ModifyOperation],
     query: str,
     write: bool = True,
     move: bool = True,
