@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.3.7] - 2026-08-04
+
 ### Changed
 
 - Modernize `pyproject` license for PEP 639 <https://github.com/gtronset/beets-filetote/pull/327>
@@ -379,7 +381,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 <!-- Release Links -->
 
-[unreleased]: https://github.com/gtronset/beets-filetote/compare/v1.3.6...HEAD
+[unreleased]: https://github.com/gtronset/beets-filetote/compare/v1.3.7...HEAD
+[1.3.7]: https://github.com/gtronset/beets-filetote/releases/tag/v1.3.7
 [1.3.6]: https://github.com/gtronset/beets-filetote/releases/tag/v1.3.6
 [1.3.5]: https://github.com/gtronset/beets-filetote/releases/tag/v1.3.5
 [1.3.4]: https://github.com/gtronset/beets-filetote/releases/tag/v1.3.4
