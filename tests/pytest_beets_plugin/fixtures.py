@@ -1,9 +1,8 @@
 """Pytest fixtures for beets plugin tests."""
 
-# ruff: noqa: SLF001
+# ruff: file-ignore[private-member-access]
 
 import logging
-
 from collections.abc import Callable, Generator
 from pathlib import Path
 from typing import Any

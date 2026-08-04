@@ -1,5 +1,5 @@
 """Test for functions in `filetote_dataclasses`, esp. TypeError validations."""
-# ruff: noqa: SLF001
+# ruff: file-ignore[private-member-access]
 
 from __future__ import annotations
 

@@ -1,7 +1,6 @@
 """Vendored DummyIO for mocking stdin/stdout in beets plugin tests."""
 
 import sys
-
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:

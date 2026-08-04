@@ -1,7 +1,6 @@
 """General utility methods for beets plugin tests."""
 
 import logging
-
 from pathlib import Path
 
 from beets import util

@@ -9,7 +9,6 @@ import functools
 import logging
 import sys
 import tempfile
-
 from pathlib import Path
 
 from beets import util

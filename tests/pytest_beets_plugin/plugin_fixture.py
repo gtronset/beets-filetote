@@ -3,7 +3,6 @@
 import contextlib
 import logging
 import shutil
-
 from collections.abc import Generator
 from pathlib import Path
 from typing import Any, Literal
@@ -125,7 +124,7 @@ class BeetsPluginFixture(BeetsAssertions, MediaCreator):
         if self.import_dir.is_dir():
             shutil.rmtree(self.import_dir)
 
-    def _generate_paired_media_list(  # noqa: PLR0913
+    def _generate_paired_media_list(  # ruff: ignore[too-many-arguments]
         self,
         album_path: Path,
         count: int = 3,
@@ -338,7 +337,7 @@ class BeetsPluginFixture(BeetsAssertions, MediaCreator):
 
         return album_path
 
-    def setup_import_session(  # noqa: PLR0913
+    def setup_import_session(  # ruff: ignore[too-many-arguments]
         self,
         import_dir: Path | None = None,
         delete: bool = False,
@@ -419,7 +418,7 @@ class BeetsPluginFixture(BeetsAssertions, MediaCreator):
 
         self.importer.run()
 
-    def _run_cli_move(  # noqa: PLR0913
+    def _run_cli_move(  # ruff: ignore[too-many-arguments]
         self,
         query: str,
         dest_dir: bytes | None = None,
@@ -440,7 +439,7 @@ class BeetsPluginFixture(BeetsAssertions, MediaCreator):
             export=export,
         )
 
-    def _run_cli_modify(  # noqa: PLR0913
+    def _run_cli_modify(  # ruff: ignore[too-many-arguments]
         self,
         query: str,
         mods: dict[str, str] | None = None,

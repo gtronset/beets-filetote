@@ -2,7 +2,6 @@
 
 import logging
 import shutil
-
 from dataclasses import asdict, dataclass
 from pathlib import Path
 
@@ -54,7 +53,7 @@ class MediaCreator(BeetsTestUtils):
             setattr(medium, item, value)
         medium.save()
 
-    def generate_paired_media_list(  # noqa: PLR0913
+    def generate_paired_media_list(  # ruff: ignore[too-many-arguments]
         self,
         album_path: Path,
         count: int = 3,

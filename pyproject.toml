@@ -72,7 +72,11 @@ src = ["beetsplug", "tests", "typehints"]
 target-version = "py310"
 
 [tool.ruff.lint]
-ignore = ["D205", "PLR6301", "TC006"]
+ignore = [
+    "missing-blank-line-after-summary",
+    "no-self-use",
+    "runtime-cast-value",
+]
 extend-select = [
     "A",    # flake8-builtins
     "ARG",  # flake8-unused-arguments
@@ -109,7 +113,6 @@ parametrize-names-type = "tuple"
 ignore-variadic-names = true
 
 [tool.ruff.lint.isort]
-lines-between-types = 1
 known-local-folder = ["tests"]
 
 [tool.ruff.lint.pep8-naming]
@@ -117,7 +120,7 @@ extend-ignore-names = ["assert*", "getLogger"]
 
 [tool.ruff.lint.per-file-ignores]
 "beetsplug/**" = ["PT"]
-"tests/**" = ["PLR0917", "PLE1205", "RUF076"]
+"tests/**" = ["too-many-positional-arguments", "logging-too-many-args"]
 
 [tool.ruff.lint.pycodestyle]
 max-line-length = 88

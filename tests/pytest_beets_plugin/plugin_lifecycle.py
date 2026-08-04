@@ -1,11 +1,10 @@
 """Plugin loading, unloading, and module import utilities for beets plugin tests."""
 
-# ruff: noqa: SLF001
+# ruff: file-ignore[private-member-access]
 
 import importlib.util
 import logging
 import sys
-
 from pathlib import Path
 from types import ModuleType
 from typing import Any, cast
@@ -53,7 +52,7 @@ def _load_plugin_class(
     module_name: str,
 ) -> type[BeetsPlugin]:
     """Dynamically import a plugin class from a local file."""
-    import beetsplug  # Lazy import to avoid loading before typeguard # noqa: PLC0415
+    import beetsplug  # Lazy import to avoid loading before typeguard # ruff: ignore[import-outside-top-level]
 
     if str(PROJECT_ROOT) not in sys.path:
         sys.path.insert(0, str(PROJECT_ROOT))
