@@ -150,6 +150,7 @@ env_list = [
     "beets-2_10",
     "beets-2_11",
     "beets-2_12",
+    "beets-2_13",
     "beets-master",
 ]
 
