@@ -32,6 +32,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fix `sorted_walk` and `DefaultTemplateFunctions` compatibility with beets `master` by
   @arogl <https://github.com/gtronset/beets-filetote/pull/351>
 - Polish fixes for beets v2.13 and allow `%aunique{}` <https://github.com/gtronset/beets-filetote/pull/370>
+- Fix tox ENV list to include `beets-2_13` <https://github.com/gtronset/beets-filetote/pull/372>
 
 ### Fixed
 
