@@ -2,10 +2,13 @@
 
 from __future__ import annotations
 
-from typing import ClassVar, Literal
+from typing import TYPE_CHECKING, ClassVar, Literal
 
 from beets.dbcore import db
 from beets.dbcore import types as db_types
+
+if TYPE_CHECKING:
+    from collections.abc import Callable, Mapping
 
 
 class FiletoteMappingModel(db.Model):
@@ -28,7 +31,7 @@ class FiletoteMappingModel(db.Model):
         """Return "blank" for getter functions."""
         return {}
 
-    def _template_funcs(self) -> dict[None, None]:
+    def _template_funcs(self) -> Mapping[str, Callable[[str], str]]:
         """Return "blank" for template functions."""
         return {}
 
@@ -59,7 +62,7 @@ class FiletoteMappingFormatted(db.FormattedMapping):
         separator replaced.
         """
         if key in self.whitelist_replace:
-            value = self.model._type(key).format(self.model.get(key))  # noqa: SLF001
+            value = self.model._type(key).format(self.model.get(key))  # ruff: ignore[private-member-access]
             if isinstance(value, bytes):
                 value = value.decode("utf-8", "ignore")
             return str(value)

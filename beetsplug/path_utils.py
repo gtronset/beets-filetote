@@ -6,7 +6,6 @@ import filecmp
 import fnmatch
 import os
 import re
-
 from pathlib import Path
 from typing import TYPE_CHECKING
 
