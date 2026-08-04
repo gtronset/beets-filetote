@@ -26,6 +26,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Add beets `master`-specific mypy check <https://github.com/gtronset/beets-filetote/pull/369>
 - Bump ruff group from v0.15.21 to 0.16.1 & change import styling to be more ruff
   idiomatic (from isort) <https://github.com/gtronset/beets-filetote/pull/367>
+- Bump the "mypy" group with 1 update across multiple ecosystems <https://github.com/gtronset/beets-filetote/pull/360>
 
 ### Fixed
 
