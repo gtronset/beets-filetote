@@ -1,7 +1,6 @@
 """Tests for the filesystem utility functions in `path_utils`."""
 
 import os
-
 from collections.abc import Iterator
 from pathlib import Path
 from types import SimpleNamespace

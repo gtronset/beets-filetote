@@ -59,7 +59,7 @@ class FiletoteMappingFormatted(db.FormattedMapping):
         separator replaced.
         """
         if key in self.whitelist_replace:
-            value = self.model._type(key).format(self.model.get(key))  # noqa: SLF001
+            value = self.model._type(key).format(self.model.get(key))  # ruff: ignore[private-member-access]
             if isinstance(value, bytes):
                 value = value.decode("utf-8", "ignore")
             return str(value)

@@ -3,7 +3,6 @@
 import contextlib
 import logging
 import re
-
 from collections.abc import Generator
 from typing import Any, Literal, TypeAlias
 
@@ -40,12 +39,12 @@ def install_beets_log_fix() -> None:
     style (`%s`).  This causes `TypeError` when a DEBUG-level handler is attached (e.g.
     by pytest's `log_level = "DEBUG"`).
     """
-    global _beets_log_fix_installed  # noqa: PLW0603
+    global _beets_log_fix_installed  # ruff: ignore[global-statement]
     if _beets_log_fix_installed:
         return
     _beets_log_fix_installed = True
 
-    original_log = logging.Logger._log  # noqa: SLF001
+    original_log = logging.Logger._log  # ruff: ignore[private-member-access]
 
     def _patched_log(
         self: logging.Logger,
@@ -62,7 +61,7 @@ def install_beets_log_fix() -> None:
                 pass
         original_log(self, level, msg, args, **kwargs)  # type: ignore[arg-type]
 
-    logging.Logger._log = _patched_log  # type: ignore[assignment]  # noqa: SLF001
+    logging.Logger._log = _patched_log  # type: ignore[assignment]  # ruff: ignore[private-member-access]
 
 
 # Auto-apply the fix when this module is imported.

@@ -1,6 +1,6 @@
 """Tests renaming for the beets-filetote plugin."""
 
-# ruff: noqa: PLR0904
+# ruff: file-ignore[too-many-public-methods]
 
 import pytest
 
