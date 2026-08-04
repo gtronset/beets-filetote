@@ -499,6 +499,7 @@ class FiletotePlugin(BeetsPlugin):
         mapping: FiletoteMappingModel,
         paired: bool = False,
         pattern_category: str | None = None,
+        beets_item: Item | None = None,
     ) -> Path:
         """Returns a destination path an artifact/file should be moved to. The
         artifact filename is unique to ensure files aren't overwritten. This also
@@ -527,7 +528,14 @@ class FiletotePlugin(BeetsPlugin):
             )
 
         # Get template functions and evaluate against mapping
-        template_functions = DefaultTemplateFunctions().functions()
+        # DefaultTemplateFunctions requires both item and lib
+        if beets_item is None:
+            raise ValueError(
+                "beets_item is required to initialize DefaultTemplateFunctions"
+            )
+        template_functions = DefaultTemplateFunctions(
+            beets_item, self.filetote_config.session.beets_lib
+        ).functions()
         artifact_path = Path(
             selected_path_template.substitute(mapping_formatted, template_functions)
             + artifact_ext
@@ -628,6 +636,7 @@ class FiletotePlugin(BeetsPlugin):
                     mapping=self._generate_mapping(beets_item, item_destination_path),
                     source_path=source_path,
                     item_dest=item_destination_path,
+                    beets_item=beets_item,
                 )
             )
 
@@ -651,6 +660,7 @@ class FiletotePlugin(BeetsPlugin):
                     mapping=self._generate_mapping(beets_item, destination),
                     source_path=artifact_collection.source_path,
                     item_dest=destination,
+                    beets_item=beets_item,
                 )
                 break
 
@@ -808,6 +818,7 @@ class FiletotePlugin(BeetsPlugin):
                 mapping=self._generate_mapping(beets_item, item_destination_path),
                 source_path=source_path,
                 item_dest=item_destination_path,
+                beets_item=beets_item,
             )
         )
 
@@ -855,6 +866,7 @@ class FiletotePlugin(BeetsPlugin):
                     source_path=artifact_collection.source_path,
                     source_artifacts=artifact_collection.artifacts,
                     mapping=artifact_collection.mapping,
+                    beets_item=artifact_collection.beets_item,
                 )
 
         # Handle all shared artifacts for each source directory
@@ -866,10 +878,12 @@ class FiletotePlugin(BeetsPlugin):
                 if not shared_artifacts.artifacts:
                     continue
 
-                # Mapping derives from the first Item that found this source path
-                album_level_mapping = self._run_state.process_queue[
+                # Get mapping and item from the first collection
+                album_level_collection = self._run_state.process_queue[
                     shared_artifacts.mapping_index
-                ].mapping
+                ]
+                album_level_mapping = album_level_collection.mapping
+                album_level_item = album_level_collection.beets_item
 
                 artifacts_to_process = [
                     FiletoteArtifact(path=shared_artifact, paired=False)
@@ -880,6 +894,7 @@ class FiletotePlugin(BeetsPlugin):
                     source_path=source_path,
                     source_artifacts=artifacts_to_process,
                     mapping=album_level_mapping,
+                    beets_item=album_level_item,
                 )
 
     def _should_process_artifact(
@@ -946,6 +961,7 @@ class FiletotePlugin(BeetsPlugin):
         source_path: Path,
         source_artifacts: list[FiletoteArtifact],
         mapping: FiletoteMappingModel,
+        beets_item: Item | None = None,
     ) -> None:
         """Processes and prepares extra files and artifacts for subsequent
         manipulation.
@@ -988,6 +1004,7 @@ class FiletotePlugin(BeetsPlugin):
                 mapping,
                 artifact.paired,
                 pattern_category,
+                beets_item,
             )
 
             if artifact_source == artifact_dest:
