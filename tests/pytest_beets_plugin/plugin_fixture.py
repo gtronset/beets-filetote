@@ -450,12 +450,13 @@ class BeetsPluginFixture(BeetsAssertions, MediaCreator):
         self,
         query: str,
         mods: dict[str, str] | None = None,
-        dels: dict[str, str] | None = None,
+        dels: list[str] | None = None,
         write: bool = True,
         move: bool = True,
-        album: str | None = None,
+        album: bool = False,
     ) -> None:
         """Run the `modify` CLI command."""
+        dels = dels or []
         if ModifyOperation is not None:
             modify_items(
                 lib=self.lib,
@@ -463,10 +464,7 @@ class BeetsPluginFixture(BeetsAssertions, MediaCreator):
                     field: ModifyOperation(operator=None, value=val)
                     for field, val in (mods or {}).items()
                 },
-                dels={
-                    field: ModifyOperation(operator=None, value=val)
-                    for field, val in (dels or {}).items()
-                },
+                dels=dels,
                 query=query,
                 write=write,
                 move=move,
@@ -481,7 +479,7 @@ class BeetsPluginFixture(BeetsAssertions, MediaCreator):
             modify_items(
                 lib=self.lib,
                 mods=mods or {},
-                dels=dels or {},
+                dels=dels,
                 query=query,
                 write=write,
                 move=move,

@@ -1,20 +1,19 @@
-from dataclasses import dataclass
+from typing import NamedTuple
 
 from beets.library import Library
 
-@dataclass
-class ModifyOperation:
+class ModifyOperation(NamedTuple):
     operator: str | None
     value: str
 
 def modify_items(
     lib: Library,
     mods: dict[str, str] | dict[str, ModifyOperation],
-    dels: dict[str, str] | dict[str, ModifyOperation],
+    dels: list[str],
     query: str,
     write: bool = True,
     move: bool = True,
-    album: str | None = None,
+    album: bool = False,
     confirm: bool = False,
     inherit: bool = True,
 ) -> None: ...

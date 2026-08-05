@@ -1,7 +1,7 @@
 """Tests for the filesystem utility functions in `path_utils`."""
 
 import os
-from collections.abc import Iterator
+from collections.abc import Iterator, Sequence
 from pathlib import Path
 from types import SimpleNamespace
 
@@ -38,63 +38,54 @@ class TestPathUtils:
         types = {"mp3": "MPEG", "flac": "FLAC"}
         assert path_utils.is_beets_file_type(extension, types) is expected
 
-    def test_discover_artifacts_converts_pathlib_source_to_beets_path(
-        self, monkeypatch: pytest.MonkeyPatch
-    ) -> None:
-        """Test that artifact discovery converts pathlib input before calling
-        beets' walk helper, which expects bytes/str paths.
-        """
-        seen_paths: list[tuple[object, list[object] | None]] = []
-
-        def mock_sorted_walk(
-            path: object,
-            ignore: list[object] | None = None,
-            *_args: object,
-            **_kwargs: object,
-        ) -> Iterator[tuple[bytes, list[bytes], list[bytes]]]:
-            seen_paths.append((path, ignore))
-            assert not isinstance(path, Path)
-            assert ignore is not None
-            assert all(not isinstance(item, Path) for item in ignore)
-            yield (b"/music/album", [], [b"cover.jpg"])
-
-        monkeypatch.setattr(path_utils.util, "sorted_walk", mock_sorted_walk)
-
-        path_utils.discover_artifacts(
-            Path("/music/album"),
-            ignore=[],
-            beets_file_types={},
-        )
-
-        assert seen_paths
-        assert not isinstance(seen_paths[0][0], Path)
-
     def test_discover_artifacts(self, monkeypatch: pytest.MonkeyPatch) -> None:
         """Test artifact discovery and ignoring of beets-handled files. Mock
         `sorted_walk` to control the filesystem structure.
         """
+        source_path = Path("/music/album")
+        ignore_list = ["*.nfo"]  # Not actually used due to the mocked file list
+        expected_path = path_utils.util.bytestring_path(source_path)
+        expected_ignore = [
+            path_utils.util.bytestring_path(pattern) for pattern in ignore_list
+        ]
         walk_result: list[tuple[bytes, list[bytes], list[bytes]]] = [
-            (b"/music/album", [], [b"cover.jpg", b"song.mp3"])
+            (expected_path, [], [b"cover.jpg", b"song.mp3"])
         ]
 
         def mock_sorted_walk(
-            *_args: object, **_kwargs: object
+            path: bytes,
+            ignore: Sequence[bytes],
         ) -> Iterator[tuple[bytes, list[bytes], list[bytes]]]:
+            assert path == expected_path
+            assert ignore == expected_ignore
             yield from walk_result
 
         monkeypatch.setattr(path_utils.util, "sorted_walk", mock_sorted_walk)
 
         beets_types = {"mp3": "Audio"}
-        ignore_list = ["*.nfo"]  # Not actually used due to the mocked file list
 
         artifacts = path_utils.discover_artifacts(
-            Path("/music/album"), ignore=ignore_list, beets_file_types=beets_types
+            source_path, ignore=ignore_list, beets_file_types=beets_types
         )
 
         filenames = [artifact.name for artifact in artifacts]
 
         assert "cover.jpg" in filenames
         assert "song.mp3" not in filenames
+
+    def test_discover_artifacts_with_sorted_walk(self, tmp_path: Path) -> None:
+        """Exercise Beets' real walker using its required homogeneous path types."""
+        (tmp_path / "cover.jpg").touch()
+        (tmp_path / "notes.nfo").touch()
+        (tmp_path / "song.mp3").touch()
+
+        artifacts = path_utils.discover_artifacts(
+            tmp_path,
+            ignore=["*.nfo"],
+            beets_file_types={"mp3": "Audio"},
+        )
+
+        assert artifacts == [tmp_path / "cover.jpg"]
 
     def test_is_pattern_match_exact(self) -> None:
         """Test exact file pattern matching."""

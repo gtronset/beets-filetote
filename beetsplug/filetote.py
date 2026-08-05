@@ -196,9 +196,11 @@ class FiletotePlugin(BeetsPlugin):
 
         Also runs/initializes any early stages that `convert` provides, if it is loaded.
         """
-        self._run_state.imported_items_paths = {
-            item.id: item.filepath for item in task.imported_items()
-        }
+        imported_items_paths: dict[int, Path] = {}
+        for item in task.imported_items():
+            assert item.id is not None
+            imported_items_paths[item.id] = item.filepath
+        self._run_state.imported_items_paths = imported_items_paths
 
         # If `convert` is not loaded, `self._run_state.convert_early_import_stages` is
         # empty.

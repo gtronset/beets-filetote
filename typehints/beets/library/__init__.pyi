@@ -23,7 +23,7 @@ class LibModel(Model):
     def filepath(self) -> Path: ...
 
 class Item(LibModel):
-    id: int
+    id: int | None
     path: bytes
     disctotal: int
 
