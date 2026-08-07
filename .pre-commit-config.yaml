@@ -31,7 +31,7 @@ repos:
             alias: format
 
     - repo: https://github.com/DavidAnson/markdownlint-cli2
-      rev: 06f92c99e930c11230426b5edd775021d25e08a8 # v0.23.1
+      rev: b82a6c8896e491b9cb377a99ff3412131920681b # v0.23.2
       hooks:
           - id: markdownlint-cli2
           - id: markdownlint-cli2
