@@ -41,7 +41,7 @@ repos:
             stages: [manual]
 
     - repo: https://github.com/pre-commit/mirrors-mypy
-      rev: 41e691678310dfd3833f7ab4e180ddb014310356 # v2.3.0
+      rev: 2834ec6639549dd6796205c8f011dedcd587288b # v2.4.0
       hooks:
           - id: mypy
             additional_dependencies: [pytest]
