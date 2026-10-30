@@ -76,7 +76,7 @@ repos:
             types: [python]
 
     - repo: https://github.com/abravalheri/validate-pyproject
-      rev: 4b2e70d08cb2ccd26d1fba73588de41c7a5d50b7 # v0.25
+      rev: 82d21874c3242e4dc27bb47641c996902ef64eef # v0.27
       hooks:
           - id: validate-pyproject
             additional_dependencies:
